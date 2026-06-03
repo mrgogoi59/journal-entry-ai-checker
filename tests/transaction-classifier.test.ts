@@ -47,8 +47,25 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Bought goods for Rs.5000 cash", "bought_goods_cash", "Purchases", "Cash", 5000],
     ["Purchased goods for cash Rs.5000", "bought_goods_cash", "Purchases", "Cash", 5000],
     ["Goods purchased for cash Rs.5000", "bought_goods_cash", "Purchases", "Cash", 5000],
+    ["Purchase goods from Kuldeep for cash Rs. 500", "bought_goods_cash", "Purchases", "Cash", 500],
+    ["Bought goods from Rahul for cash Rs. 1000", "bought_goods_cash", "Purchases", "Cash", 1000],
+    ["Purchase mangoes from seller for cash Rs. 500", "named_goods_purchase_cash", "Purchases", "Cash", 500],
     ["Bought goods on credit ₹18,000", "bought_goods_credit", "Purchases", "Creditor", 18000],
     ["Purchased goods from supplier Rs. 22,000", "bought_goods_credit", "Purchases", "Creditor", 22000],
+    ["Purchase goods from Kuldeep on credit Rs. 500", "named_goods_purchase_credit", "Purchases", "Creditor", 500],
+    ["Purchase mangoes from seller on credit Rs. 500", "named_goods_purchase_credit", "Purchases", "Creditor", 500],
+    ["Purchase machinery from Kuldeep for cash Rs. 500", "asset_purchase_machinery_cash", "Machinery", "Cash", 500],
+    ["Purchased machinery from Kuldeep for cash Rs. 500", "asset_purchase_machinery_cash", "Machinery", "Cash", 500],
+    ["Bought machinery from Rahul for cash Rs. 1000", "asset_purchase_machinery_cash", "Machinery", "Cash", 1000],
+    ["Purchase furniture from Amit for cash Rs. 2000", "asset_purchase_furniture_cash", "Furniture", "Cash", 2000],
+    ["Bought furniture from seller for cash Rs. 2000", "asset_purchase_furniture_cash", "Furniture", "Cash", 2000],
+    ["Purchase computer from Amit for cash Rs. 2000", "asset_purchase_computer_cash", "Computer", "Cash", 2000],
+    ["Purchase vehicle from Amit for cash Rs. 2000", "asset_purchase_vehicle_cash", "Vehicle", "Cash", 2000],
+    ["Purchase equipment from Amit for cash Rs. 2000", "asset_purchase_equipment_cash", "Equipment", "Cash", 2000],
+    ["Purchase machinery from Kuldeep on credit Rs. 500", "asset_purchase_machinery_credit", "Machinery", "Creditor", 500],
+    ["Purchased machinery from Kuldeep on credit Rs. 500", "asset_purchase_machinery_credit", "Machinery", "Creditor", 500],
+    ["Bought machinery from Rahul on credit Rs. 1000", "asset_purchase_machinery_credit", "Machinery", "Creditor", 1000],
+    ["Purchase furniture from Amit on credit Rs. 2000", "asset_purchase_furniture_credit", "Furniture", "Creditor", 2000],
     ["Sold goods for cash ₹25,000", "sold_goods_cash", "Cash", "Sales", 25000],
     ["Cash sales INR 30,000", "sold_goods_cash", "Cash", "Sales", 30000],
     ["Sold goods worth Rs.8000 for cash", "sold_goods_cash", "Cash", "Sales", 8000],
@@ -65,6 +82,12 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Credit sales Rs.8000", "sold_goods_credit", "Debtor", "Sales", 8000],
     ["Sold goods to debtor Rs.8000", "sold_goods_credit", "Debtor", "Sales", 8000],
     ["Goods sold to debtor on credit Rs.8000", "sold_goods_credit", "Debtor", "Sales", 8000],
+    ["Sold Mango to Bidyut Rs. 500", "named_item_credit_sale", "Debtor", "Sales", 500],
+    ["Sold apples to Rahul Rs. 700", "named_item_credit_sale", "Debtor", "Sales", 700],
+    ["Sold rice to Amit Rs. 1000", "named_item_credit_sale", "Debtor", "Sales", 1000],
+    ["Sold goods to Bidyut Rs. 500", "named_item_credit_sale", "Debtor", "Sales", 500],
+    ["Sold mangoes to customer Rs. 500", "named_item_credit_sale", "Debtor", "Sales", 500],
+    ["Goods sold to Rahul Rs. 700", "named_item_credit_sale", "Debtor", "Sales", 700],
     ["Paid rent ₹5,000 in cash", "paid_rent", "Rent Expense", "Cash", 5000],
     ["Paid rent Rs.5000 in cash", "paid_rent", "Rent Expense", "Cash", 5000],
     ["Rent paid Rs.5000 in cash", "paid_rent", "Rent Expense", "Cash", 5000],
@@ -249,6 +272,7 @@ describe("classifyTransaction supported beginner transactions", () => {
 
   it("does not guess ambiguous sales wording", () => {
     expect(classifyTransaction("Sold goods Rs.8000")).toBeNull();
+    expect(classifyTransaction("Sold mango Rs.500")).toBeNull();
   });
 
   it("does not guess ambiguous rent or salary payment wording", () => {

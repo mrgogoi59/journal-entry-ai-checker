@@ -809,4 +809,95 @@ describe("POST /api/check-entry", () => {
     expect(body.mistake_type).toBe("unsupported_transaction");
     expect(body.score).toBe(0);
   });
+
+  it("returns Correct for named customer credit sale", async () => {
+    const body = await checkEntry(
+      "Sold Mango to Bidyut Rs. 500",
+      "Debtor A/c Dr. Rs.500\nTo Sales A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Debtor", amount: 500 }],
+      credits: [{ account: "Sales", amount: 500 }],
+    });
+  });
+
+  it("does not accept cash sale entry when named customer sale does not mention cash", async () => {
+    const body = await checkEntry(
+      "Sold Mango to Bidyut Rs. 500",
+      "Cash A/c Dr. Rs.500\nTo Sales A/c Rs.500",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("returns Correct for machinery purchased from named vendor for cash", async () => {
+    const body = await checkEntry(
+      "Purchase machinery from Kuldeep for cash Rs. 500",
+      "Machinery A/c Dr. Rs.500\nTo Cash A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Machinery", amount: 500 }],
+      credits: [{ account: "Cash", amount: 500 }],
+    });
+  });
+
+  it("does not credit named vendor when asset purchase says for cash", async () => {
+    const body = await checkEntry(
+      "Purchase machinery from Kuldeep for cash Rs. 500",
+      "Machinery A/c Dr. Rs.500\nTo Kuldeep A/c Rs.500",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("returns Correct for machinery purchased from named vendor on credit", async () => {
+    const body = await checkEntry(
+      "Purchase machinery from Kuldeep on credit Rs. 500",
+      "Machinery A/c Dr. Rs.500\nTo Creditor A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Machinery", amount: 500 }],
+      credits: [{ account: "Creditor", amount: 500 }],
+    });
+  });
+
+  it("returns Correct for named goods item purchased for cash", async () => {
+    const body = await checkEntry(
+      "Purchase mangoes from Kuldeep for cash Rs. 500",
+      "Purchases A/c Dr. Rs.500\nTo Cash A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Purchases", amount: 500 }],
+      credits: [{ account: "Cash", amount: 500 }],
+    });
+  });
+
+  it("returns Unsupported Transaction for ambiguous item sale without cash or customer", async () => {
+    const body = await checkEntry(
+      "Sold mango Rs.500",
+      "Cash A/c Dr. Rs.500\nTo Sales A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+    expect(body.score).toBe(0);
+  });
 });

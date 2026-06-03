@@ -7,6 +7,42 @@ export interface TransactionRule {
   practiceTemplate: (amount: number) => string;
 }
 
+const CASH_PAYMENT_PATTERN = "(?:for cash|in cash|by cash|\\bcash\\b)";
+const CREDIT_PAYMENT_PATTERN = "(?:on credit|credit|on account)";
+const GOODS_ITEM_PATTERN = "(?:goods|mango(?:es)?|apples?|rice|wheat|books?|stationery)";
+const NO_CASH_OR_BANK_PREFIX = "^(?!.*\\b(?:cash|bank|cheque|check)\\b)";
+
+const assetItems = [
+  { term: "machinery", account: "Machinery" },
+  { term: "furniture", account: "Furniture" },
+  { term: "computers?", account: "Computer" },
+  { term: "vehicles?", account: "Vehicle" },
+  { term: "equipment", account: "Equipment" },
+] as const;
+
+const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
+  {
+    transaction_type: `asset_purchase_${account.toLowerCase()}_cash`,
+    patterns: [
+      new RegExp(`(?:purchase|purchased|bought)\\s+${term}\\s+from\\s+\\w+.*${CASH_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: account,
+    creditAccount: "Cash",
+    explanationLogic: `${account} is an asset and it is increasing, so ${account} is debited. Cash decreases because payment is made immediately, so Cash is credited.`,
+    practiceTemplate: (amount) => `Bought ${account.toLowerCase()} from seller for cash ₹${amount}.`,
+  },
+  {
+    transaction_type: `asset_purchase_${account.toLowerCase()}_credit`,
+    patterns: [
+      new RegExp(`(?:purchase|purchased|bought)\\s+${term}\\s+from\\s+\\w+.*${CREDIT_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: account,
+    creditAccount: "Creditor",
+    explanationLogic: `${account} is an asset and it is increasing, so ${account} is debited. The seller is owed money, so Creditor is credited.`,
+    practiceTemplate: (amount) => `Bought ${account.toLowerCase()} from seller on credit ₹${amount}.`,
+  },
+]);
+
 export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "capital_introduced_cash",
@@ -42,6 +78,7 @@ export const transactionRules: TransactionRule[] = [
       "Bank balance is an asset and it is increasing, so Bank is debited. Capital increases because the owner invested money, so Capital is credited.",
     practiceTemplate: (amount) => `Started business with ₹${amount} in bank.`,
   },
+  ...namedAssetPurchaseRules,
   {
     transaction_type: "bought_furniture_cash",
     patterns: [/(bought|purchased).*furniture.*cash/i],
@@ -74,6 +111,17 @@ export const transactionRules: TransactionRule[] = [
     practiceTemplate: (amount) => `Bought goods for cash ₹${amount}.`,
   },
   {
+    transaction_type: "named_goods_purchase_cash",
+    patterns: [
+      new RegExp(`(?:purchase|purchased|bought)\\s+${GOODS_ITEM_PATTERN}\\s+from\\s+\\w+.*${CASH_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Purchases",
+    creditAccount: "Cash",
+    explanationLogic:
+      "Goods bought for resale are recorded as Purchases. Cash decreases because payment is made immediately, so Cash is credited.",
+    practiceTemplate: (amount) => `Bought goods from seller for cash ₹${amount}.`,
+  },
+  {
     transaction_type: "bought_goods_credit",
     patterns: [
       /(bought|purchased).*goods.*(credit|from|on account)/i,
@@ -84,6 +132,17 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "Purchases increase, so Purchases is debited. The amount is owed to the supplier, so Creditor is credited.",
     practiceTemplate: (amount) => `Bought goods on credit ₹${amount}.`,
+  },
+  {
+    transaction_type: "named_goods_purchase_credit",
+    patterns: [
+      new RegExp(`(?:purchase|purchased|bought)\\s+${GOODS_ITEM_PATTERN}\\s+from\\s+\\w+.*${CREDIT_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Purchases",
+    creditAccount: "Creditor",
+    explanationLogic:
+      "Goods bought for resale are recorded as Purchases. The seller is owed money, so Creditor is credited.",
+    practiceTemplate: (amount) => `Bought goods from seller on credit ₹${amount}.`,
   },
   {
     transaction_type: "sold_goods_cash",
@@ -110,6 +169,18 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "The customer owes money, so Debtor is debited. Sales revenue increases, so Sales is credited.",
     practiceTemplate: (amount) => `Sold goods on credit ₹${amount}.`,
+  },
+  {
+    transaction_type: "named_item_credit_sale",
+    patterns: [
+      new RegExp(`${NO_CASH_OR_BANK_PREFIX}.*sold\\s+${GOODS_ITEM_PATTERN}\\s+to\\s+\\w+`, "i"),
+      new RegExp(`${NO_CASH_OR_BANK_PREFIX}.*goods\\s+sold\\s+to\\s+\\w+`, "i"),
+    ],
+    debitAccount: "Debtor",
+    creditAccount: "Sales",
+    explanationLogic:
+      "Goods were sold on credit to a person or customer. Debtor increases, so Debtor is debited. Sales income increases, so Sales is credited.",
+    practiceTemplate: (amount) => `Sold goods to customer ₹${amount}.`,
   },
   {
     transaction_type: "paid_rent_bank",
