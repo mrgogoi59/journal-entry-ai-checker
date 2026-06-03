@@ -1,3 +1,5 @@
+import { extractAmounts } from "./amount-parser";
+
 export interface TransactionRule {
   transaction_type: string;
   patterns: RegExp[];
@@ -5,12 +7,23 @@ export interface TransactionRule {
   creditAccount: string;
   explanationLogic: string;
   practiceTemplate: (amount: number) => string;
+  amountExtractor?: (transactionText: string) => number | null;
 }
 
 const CASH_PAYMENT_PATTERN = "(?:for cash|in cash|by cash|\\bcash\\b)";
 const CREDIT_PAYMENT_PATTERN = "(?:on credit|credit|on account)";
 const GOODS_ITEM_PATTERN = "(?:goods|mango(?:es)?|apples?|rice|wheat|books?|stationery)";
-const NO_CASH_OR_BANK_PREFIX = "^(?!.*\\b(?:cash|bank|cheque|check)\\b)";
+const NO_EXPLICIT_SALE_MODE_PREFIX =
+  "^(?!.*\\b(?:cash|bank|cheque|check|credit|debtor|customer|discount)\\b)(?!.*\\bto\\b)";
+const NO_EXPLICIT_PURCHASE_MODE_PREFIX =
+  "^(?!.*\\b(?:cash|bank|cheque|check|credit|creditor|supplier|discount)\\b)(?!.*\\bfrom\\b)";
+const NO_PAYMENT_MODE_PREFIX = "^(?!.*\\b(?:cash|bank|cheque|check|credit)\\b)";
+const TRADE_DISCOUNT_PATTERN = "after\\s+discount";
+
+function extractTradeDiscountNetAmount(transactionText: string): number | null {
+  const amounts = extractAmounts(transactionText);
+  return amounts.length >= 3 ? amounts[1] : null;
+}
 
 const assetItems = [
   { term: "machinery", account: "Machinery" },
@@ -45,6 +58,114 @@ const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, a
     practiceTemplate: (amount) => `Bought ${account.toLowerCase()} from seller on credit ₹${amount}.`,
   },
 ]);
+
+const tradeDiscountRules: TransactionRule[] = [
+  {
+    transaction_type: "trade_discount_cash_sale",
+    patterns: [
+      new RegExp(`goods\\s+worth\\s+.*sold.*(?:for cash|in cash).*${TRADE_DISCOUNT_PATTERN}`, "i"),
+      new RegExp(`sold\\s+goods\\s+worth\\s+.*for cash.*${TRADE_DISCOUNT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Cash",
+    creditAccount: "Sales",
+    explanationLogic:
+      "This is a trade-discount sale, so only the net sale value is recorded. Cash increases, so Cash is debited. Sales income increases, so Sales is credited.",
+    practiceTemplate: (amount) => `Goods worth ₹${amount + 100} sold for cash ₹${amount} after discount ₹100.`,
+    amountExtractor: extractTradeDiscountNetAmount,
+  },
+  {
+    transaction_type: "trade_discount_credit_sale",
+    patterns: [
+      new RegExp(`goods\\s+worth\\s+.*sold\\s+to\\s+\\w+\\s+for\\s+.*${TRADE_DISCOUNT_PATTERN}`, "i"),
+      new RegExp(`sold\\s+goods\\s+worth\\s+.*to\\s+\\w+\\s+for\\s+.*${TRADE_DISCOUNT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Debtor",
+    creditAccount: "Sales",
+    explanationLogic:
+      "This is a trade-discount credit sale, so only the net sale value is recorded. The customer owes money, so Debtor is debited. Sales income increases, so Sales is credited.",
+    practiceTemplate: (amount) => `Goods worth ₹${amount + 100} sold to customer for ₹${amount} after discount ₹100.`,
+    amountExtractor: extractTradeDiscountNetAmount,
+  },
+  {
+    transaction_type: "trade_discount_cash_purchase",
+    patterns: [
+      new RegExp(`goods\\s+worth\\s+.*(?:purchase|purchased|bought).*${CASH_PAYMENT_PATTERN}.*${TRADE_DISCOUNT_PATTERN}`, "i"),
+      new RegExp(`(?:purchase|purchased|bought)\\s+goods\\s+worth\\s+.*${CASH_PAYMENT_PATTERN}.*${TRADE_DISCOUNT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Purchases",
+    creditAccount: "Cash",
+    explanationLogic:
+      "This is a trade-discount purchase, so only the net purchase value is recorded. Purchases is debited and Cash is credited because payment is made immediately.",
+    practiceTemplate: (amount) => `Goods worth ₹${amount + 100} purchased for cash ₹${amount} after discount ₹100.`,
+    amountExtractor: extractTradeDiscountNetAmount,
+  },
+  {
+    transaction_type: "trade_discount_credit_purchase",
+    patterns: [
+      new RegExp(`goods\\s+worth\\s+.*(?:purchase|purchased|bought)\\s+from\\s+\\w+\\s+for\\s+.*${TRADE_DISCOUNT_PATTERN}`, "i"),
+      new RegExp(`(?:purchase|purchased|bought)\\s+goods\\s+worth\\s+.*from\\s+\\w+\\s+for\\s+.*${TRADE_DISCOUNT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Purchases",
+    creditAccount: "Creditor",
+    explanationLogic:
+      "This is a trade-discount credit purchase, so only the net purchase value is recorded. Purchases is debited and Creditor is credited because the supplier is owed money.",
+    practiceTemplate: (amount) => `Goods worth ₹${amount + 100} purchased from supplier for ₹${amount} after discount ₹100.`,
+    amountExtractor: extractTradeDiscountNetAmount,
+  },
+];
+
+const goodsConventionRules: TransactionRule[] = [
+  {
+    transaction_type: "assumed_cash_goods_sale",
+    patterns: [
+      new RegExp(`${NO_EXPLICIT_SALE_MODE_PREFIX}.*sold\\s+${GOODS_ITEM_PATTERN}(?:\\s+for)?\\s+`, "i"),
+      new RegExp(`${NO_EXPLICIT_SALE_MODE_PREFIX}.*${GOODS_ITEM_PATTERN}\\s+sold\\s+`, "i"),
+      new RegExp(`${NO_EXPLICIT_SALE_MODE_PREFIX}.*sale\\s+of\\s+${GOODS_ITEM_PATTERN}\\s+`, "i"),
+    ],
+    debitAccount: "Cash",
+    creditAccount: "Sales",
+    explanationLogic:
+      "Assumption used: Since no payment mode was mentioned, this was treated as a cash sale based on beginner journal-entry convention. Cash increases, so Cash is debited. Sales income increases, so Sales is credited.",
+    practiceTemplate: (amount) => `Sold goods ₹${amount}.`,
+  },
+  {
+    transaction_type: "assumed_credit_named_goods_sale",
+    patterns: [
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}.*sold\\s+${GOODS_ITEM_PATTERN}\\s+to\\s+\\w+`, "i"),
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}.*${GOODS_ITEM_PATTERN}\\s+sold\\s+to\\s+\\w+`, "i"),
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}.*sale\\s+of\\s+${GOODS_ITEM_PATTERN}\\s+to\\s+\\w+`, "i"),
+    ],
+    debitAccount: "Debtor",
+    creditAccount: "Sales",
+    explanationLogic:
+      "Assumption used: Since a person/customer is mentioned, this was treated as a credit sale. Debtor increases, so Debtor is debited. Sales income increases, so Sales is credited.",
+    practiceTemplate: (amount) => `Sold goods to customer ₹${amount}.`,
+  },
+  {
+    transaction_type: "assumed_cash_goods_purchase",
+    patterns: [
+      new RegExp(`${NO_EXPLICIT_PURCHASE_MODE_PREFIX}.*(?:purchase|purchased|bought)\\s+${GOODS_ITEM_PATTERN}\\s+`, "i"),
+      new RegExp(`${NO_EXPLICIT_PURCHASE_MODE_PREFIX}.*${GOODS_ITEM_PATTERN}\\s+purchased\\s+`, "i"),
+    ],
+    debitAccount: "Purchases",
+    creditAccount: "Cash",
+    explanationLogic:
+      "Assumption used: Since no payment mode was mentioned, this was treated as a cash purchase based on beginner journal-entry convention. Purchases is debited and Cash is credited.",
+    practiceTemplate: (amount) => `Purchased goods ₹${amount}.`,
+  },
+  {
+    transaction_type: "assumed_credit_named_goods_purchase",
+    patterns: [
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}.*(?:purchase|purchased|bought)\\s+${GOODS_ITEM_PATTERN}\\s+from\\s+\\w+`, "i"),
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}.*${GOODS_ITEM_PATTERN}\\s+purchased\\s+from\\s+\\w+`, "i"),
+    ],
+    debitAccount: "Purchases",
+    creditAccount: "Creditor",
+    explanationLogic:
+      "Assumption used: Since a supplier/person is mentioned, this was treated as a credit purchase. Purchases is debited and Creditor is credited because the supplier is owed money.",
+    practiceTemplate: (amount) => `Purchased goods from supplier ₹${amount}.`,
+  },
+];
 
 export const transactionRules: TransactionRule[] = [
   {
@@ -82,6 +203,7 @@ export const transactionRules: TransactionRule[] = [
     practiceTemplate: (amount) => `Started business with ₹${amount} in bank.`,
   },
   ...namedAssetPurchaseRules,
+  ...tradeDiscountRules,
   {
     transaction_type: "bought_furniture_cash",
     patterns: [/(bought|purchased).*furniture.*cash/i],
@@ -113,6 +235,8 @@ export const transactionRules: TransactionRule[] = [
       "Goods bought for resale are recorded as Purchases. Cash decreases because payment is made, so Cash is credited.",
     practiceTemplate: (amount) => `Bought goods for cash ₹${amount}.`,
   },
+  goodsConventionRules[2],
+  goodsConventionRules[3],
   {
     transaction_type: "named_goods_purchase_cash",
     patterns: [
@@ -173,18 +297,8 @@ export const transactionRules: TransactionRule[] = [
       "The customer owes money, so Debtor is debited. Sales revenue increases, so Sales is credited.",
     practiceTemplate: (amount) => `Sold goods on credit ₹${amount}.`,
   },
-  {
-    transaction_type: "named_item_credit_sale",
-    patterns: [
-      new RegExp(`${NO_CASH_OR_BANK_PREFIX}.*sold\\s+${GOODS_ITEM_PATTERN}\\s+to\\s+\\w+`, "i"),
-      new RegExp(`${NO_CASH_OR_BANK_PREFIX}.*goods\\s+sold\\s+to\\s+\\w+`, "i"),
-    ],
-    debitAccount: "Debtor",
-    creditAccount: "Sales",
-    explanationLogic:
-      "Goods were sold on credit to a person or customer. Debtor increases, so Debtor is debited. Sales income increases, so Sales is credited.",
-    practiceTemplate: (amount) => `Sold goods to customer ₹${amount}.`,
-  },
+  goodsConventionRules[1],
+  goodsConventionRules[0],
   {
     transaction_type: "paid_rent_bank",
     patterns: [

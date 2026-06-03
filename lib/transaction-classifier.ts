@@ -6,14 +6,14 @@ const MIN_CONFIDENCE = 0.7;
 const DIRECT_MATCH_CONFIDENCE = 0.95;
 
 export function classifyTransaction(transactionText: string): TransactionClassification | null {
-  const amount = parseAmount(transactionText);
-  if (!amount) return null;
-
   const rule = transactionRules.find((candidate) =>
     candidate.patterns.some((pattern) => pattern.test(transactionText)),
   );
 
   if (!rule) return null;
+
+  const amount = rule.amountExtractor?.(transactionText) ?? parseAmount(transactionText);
+  if (!amount) return null;
 
   const confidence = DIRECT_MATCH_CONFIDENCE;
   if (confidence < MIN_CONFIDENCE) return null;

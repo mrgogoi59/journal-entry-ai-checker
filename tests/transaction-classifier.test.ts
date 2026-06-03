@@ -49,11 +49,65 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Goods purchased for cash Rs.5000", "bought_goods_cash", "Purchases", "Cash", 5000],
     ["Purchase goods from Kuldeep for cash Rs. 500", "bought_goods_cash", "Purchases", "Cash", 500],
     ["Bought goods from Rahul for cash Rs. 1000", "bought_goods_cash", "Purchases", "Cash", 1000],
+    ["Purchased goods Rs.3000", "assumed_cash_goods_purchase", "Purchases", "Cash", 3000],
+    ["Bought goods Rs.3000", "assumed_cash_goods_purchase", "Purchases", "Cash", 3000],
+    ["Purchase goods Rs.3000", "assumed_cash_goods_purchase", "Purchases", "Cash", 3000],
+    ["Goods purchased Rs.3000", "assumed_cash_goods_purchase", "Purchases", "Cash", 3000],
+    ["Bought mangoes Rs.500", "assumed_cash_goods_purchase", "Purchases", "Cash", 500],
+    ["Purchased rice Rs.1000", "assumed_cash_goods_purchase", "Purchases", "Cash", 1000],
+    ["Bought apples Rs.700", "assumed_cash_goods_purchase", "Purchases", "Cash", 700],
     ["Purchase mangoes from seller for cash Rs. 500", "named_goods_purchase_cash", "Purchases", "Cash", 500],
+    [
+      "Goods worth Rs.1000 purchased for cash Rs.900 after discount Rs.100",
+      "trade_discount_cash_purchase",
+      "Purchases",
+      "Cash",
+      900,
+    ],
+    [
+      "Purchased goods worth Rs.1000 for cash Rs.900 after discount Rs.100",
+      "trade_discount_cash_purchase",
+      "Purchases",
+      "Cash",
+      900,
+    ],
+    [
+      "Bought goods worth Rs.1000 for cash Rs.900 after discount Rs.100",
+      "trade_discount_cash_purchase",
+      "Purchases",
+      "Cash",
+      900,
+    ],
     ["Bought goods on credit ₹18,000", "bought_goods_credit", "Purchases", "Creditor", 18000],
-    ["Purchased goods from supplier Rs. 22,000", "bought_goods_credit", "Purchases", "Creditor", 22000],
+    ["Purchased goods from supplier Rs. 22,000", "assumed_credit_named_goods_purchase", "Purchases", "Creditor", 22000],
+    ["Purchased goods from Kuldeep Rs.3000", "assumed_credit_named_goods_purchase", "Purchases", "Creditor", 3000],
+    ["Bought goods from Raju Rs.3000", "assumed_credit_named_goods_purchase", "Purchases", "Creditor", 3000],
+    ["Goods purchased from Amit Rs.3000", "assumed_credit_named_goods_purchase", "Purchases", "Creditor", 3000],
+    ["Bought mangoes from seller Rs.500", "assumed_credit_named_goods_purchase", "Purchases", "Creditor", 500],
+    ["Purchased rice from supplier Rs.1000", "assumed_credit_named_goods_purchase", "Purchases", "Creditor", 1000],
     ["Purchase goods from Kuldeep on credit Rs. 500", "named_goods_purchase_credit", "Purchases", "Creditor", 500],
     ["Purchase mangoes from seller on credit Rs. 500", "named_goods_purchase_credit", "Purchases", "Creditor", 500],
+    [
+      "Goods worth Rs.1000 purchased from Raju for Rs.900 after discount Rs.100",
+      "trade_discount_credit_purchase",
+      "Purchases",
+      "Creditor",
+      900,
+    ],
+    [
+      "Purchased goods worth Rs.1000 from Raju for Rs.900 after discount Rs.100",
+      "trade_discount_credit_purchase",
+      "Purchases",
+      "Creditor",
+      900,
+    ],
+    [
+      "Bought goods worth Rs.1000 from supplier for Rs.900 after discount Rs.100",
+      "trade_discount_credit_purchase",
+      "Purchases",
+      "Creditor",
+      900,
+    ],
     ["Purchase machinery from Kuldeep for cash Rs. 500", "asset_purchase_machinery_cash", "Machinery", "Cash", 500],
     ["Purchased machinery from Kuldeep for cash Rs. 500", "asset_purchase_machinery_cash", "Machinery", "Cash", 500],
     ["Bought machinery from Rahul for cash Rs. 1000", "asset_purchase_machinery_cash", "Machinery", "Cash", 1000],
@@ -89,6 +143,35 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Sold goods by cash Rs.8000", "sold_goods_cash", "Cash", "Sales", 8000],
     ["Cash sales Rs.8000", "sold_goods_cash", "Cash", "Sales", 8000],
     ["Goods sold worth Rs.8000 cash", "sold_goods_cash", "Cash", "Sales", 8000],
+    ["Sold goods Rs.5000", "assumed_cash_goods_sale", "Cash", "Sales", 5000],
+    ["Sold goods for Rs.5000", "assumed_cash_goods_sale", "Cash", "Sales", 5000],
+    ["Goods sold Rs.5000", "assumed_cash_goods_sale", "Cash", "Sales", 5000],
+    ["Sale of goods Rs.5000", "assumed_cash_goods_sale", "Cash", "Sales", 5000],
+    ["Sold mango Rs.500", "assumed_cash_goods_sale", "Cash", "Sales", 500],
+    ["Sold mangoes Rs.500", "assumed_cash_goods_sale", "Cash", "Sales", 500],
+    ["Sold apples Rs.700", "assumed_cash_goods_sale", "Cash", "Sales", 700],
+    ["Sold rice Rs.1000", "assumed_cash_goods_sale", "Cash", "Sales", 1000],
+    [
+      "Goods worth Rs.1000 sold for cash Rs.900 after discount Rs.100",
+      "trade_discount_cash_sale",
+      "Cash",
+      "Sales",
+      900,
+    ],
+    [
+      "Goods worth Rs.1000 sold in cash for Rs.900 after discount Rs.100",
+      "trade_discount_cash_sale",
+      "Cash",
+      "Sales",
+      900,
+    ],
+    [
+      "Sold goods worth Rs.1000 for cash Rs.900 after discount Rs.100",
+      "trade_discount_cash_sale",
+      "Cash",
+      "Sales",
+      900,
+    ],
     ["Sold goods on credit ₹35,000", "sold_goods_credit", "Debtor", "Sales", 35000],
     ["Sold goods to customer Rs. 38,000", "sold_goods_credit", "Debtor", "Sales", 38000],
     ["Sold goods worth Rs.8000 on credit", "sold_goods_credit", "Debtor", "Sales", 8000],
@@ -96,12 +179,36 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Credit sales Rs.8000", "sold_goods_credit", "Debtor", "Sales", 8000],
     ["Sold goods to debtor Rs.8000", "sold_goods_credit", "Debtor", "Sales", 8000],
     ["Goods sold to debtor on credit Rs.8000", "sold_goods_credit", "Debtor", "Sales", 8000],
-    ["Sold Mango to Bidyut Rs. 500", "named_item_credit_sale", "Debtor", "Sales", 500],
-    ["Sold apples to Rahul Rs. 700", "named_item_credit_sale", "Debtor", "Sales", 700],
-    ["Sold rice to Amit Rs. 1000", "named_item_credit_sale", "Debtor", "Sales", 1000],
-    ["Sold goods to Bidyut Rs. 500", "named_item_credit_sale", "Debtor", "Sales", 500],
-    ["Sold mangoes to customer Rs. 500", "named_item_credit_sale", "Debtor", "Sales", 500],
-    ["Goods sold to Rahul Rs. 700", "named_item_credit_sale", "Debtor", "Sales", 700],
+    [
+      "Goods worth Rs.1000 sold to Raju for Rs.900 after discount Rs.100",
+      "trade_discount_credit_sale",
+      "Debtor",
+      "Sales",
+      900,
+    ],
+    [
+      "Sold goods worth Rs.1000 to Raju for Rs.900 after discount Rs.100",
+      "trade_discount_credit_sale",
+      "Debtor",
+      "Sales",
+      900,
+    ],
+    [
+      "Goods worth Rs.1000 sold to customer for Rs.900 after discount Rs.100",
+      "trade_discount_credit_sale",
+      "Debtor",
+      "Sales",
+      900,
+    ],
+    ["Sold Mango to Bidyut Rs. 500", "assumed_credit_named_goods_sale", "Debtor", "Sales", 500],
+    ["Sold apples to Rahul Rs. 700", "assumed_credit_named_goods_sale", "Debtor", "Sales", 700],
+    ["Sold rice to Amit Rs. 1000", "assumed_credit_named_goods_sale", "Debtor", "Sales", 1000],
+    ["Sold goods to Bidyut Rs. 500", "assumed_credit_named_goods_sale", "Debtor", "Sales", 500],
+    ["Sold mangoes to customer Rs. 500", "assumed_credit_named_goods_sale", "Debtor", "Sales", 500],
+    ["Goods sold to Rahul Rs. 700", "assumed_credit_named_goods_sale", "Debtor", "Sales", 700],
+    ["Sold goods to Kuldeep Rs.5000", "assumed_credit_named_goods_sale", "Debtor", "Sales", 5000],
+    ["Goods sold to Kuldeep Rs.5000", "assumed_credit_named_goods_sale", "Debtor", "Sales", 5000],
+    ["Sale of goods to Amit Rs.1000", "assumed_credit_named_goods_sale", "Debtor", "Sales", 1000],
     ["Paid rent ₹5,000 in cash", "paid_rent", "Rent Expense", "Cash", 5000],
     ["Paid rent Rs.5000 in cash", "paid_rent", "Rent Expense", "Cash", 5000],
     ["Rent paid Rs.5000 in cash", "paid_rent", "Rent Expense", "Cash", 5000],
@@ -285,12 +392,17 @@ describe("classifyTransaction supported beginner transactions", () => {
   });
 
   it("does not guess ambiguous sales wording", () => {
-    expect(classifyTransaction("Sold goods Rs.8000")).toBeNull();
-    expect(classifyTransaction("Sold mango Rs.500")).toBeNull();
+    expect(classifyTransaction("Goods worth Rs.1000 sold for Rs.900 after discount Rs.100")).toBeNull();
+    expect(classifyTransaction("Sold goods after discount Rs.100")).toBeNull();
   });
 
   it("does not guess ambiguous furniture item purchase wording", () => {
     expect(classifyTransaction("Bought table Rs.1000")).toBeNull();
+  });
+
+  it("does not guess ambiguous trade-discount purchase wording", () => {
+    expect(classifyTransaction("Goods worth Rs.1000 purchased for Rs.900 after discount Rs.100")).toBeNull();
+    expect(classifyTransaction("Purchased goods after discount Rs.100")).toBeNull();
   });
 
   it("does not guess ambiguous rent or salary payment wording", () => {

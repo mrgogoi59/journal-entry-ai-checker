@@ -936,14 +936,281 @@ describe("POST /api/check-entry", () => {
     expect(body.score).toBe(0);
   });
 
-  it("returns Unsupported Transaction for ambiguous item sale without cash or customer", async () => {
+  it("returns Correct for cash sale after trade discount using net value", async () => {
     const body = await checkEntry(
-      "Sold mango Rs.500",
-      "Cash A/c Dr. Rs.500\nTo Sales A/c Rs.500",
+      "Goods worth Rs.1000 sold for cash Rs.900 after discount Rs.100",
+      "Cash A/c Dr. Rs.900\nTo Sales A/c Rs.900",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Cash", amount: 900 }],
+      credits: [{ account: "Sales", amount: 900 }],
+    });
+  });
+
+  it("returns Correct for credit sale after trade discount using net value", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 sold to Raju for Rs.900 after discount Rs.100",
+      "Debtor A/c Dr. Rs.900\nTo Sales A/c Rs.900",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Debtor", amount: 900 }],
+      credits: [{ account: "Sales", amount: 900 }],
+    });
+  });
+
+  it("returns Correct for cash purchase after trade discount using net value", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 purchased for cash Rs.900 after discount Rs.100",
+      "Purchases A/c Dr. Rs.900\nTo Cash A/c Rs.900",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Purchases", amount: 900 }],
+      credits: [{ account: "Cash", amount: 900 }],
+    });
+  });
+
+  it("returns Correct for credit purchase after trade discount using net value", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 purchased from Raju for Rs.900 after discount Rs.100",
+      "Purchases A/c Dr. Rs.900\nTo Creditor A/c Rs.900",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Purchases", amount: 900 }],
+      credits: [{ account: "Creditor", amount: 900 }],
+    });
+  });
+
+  it("does not accept gross amount for sale after trade discount", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 sold for cash Rs.900 after discount Rs.100",
+      "Cash A/c Dr. Rs.1000\nTo Sales A/c Rs.1000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept gross amount for purchase after trade discount", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 purchased for cash Rs.900 after discount Rs.100",
+      "Purchases A/c Dr. Rs.1000\nTo Cash A/c Rs.1000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not require or accept Discount Allowed as a compound sale entry", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 sold for cash Rs.900 after discount Rs.100",
+      "Cash A/c Dr. Rs.900\nDiscount Allowed A/c Dr. Rs.100\nTo Sales A/c Rs.1000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not require or accept Discount Received as a compound purchase entry", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 purchased for cash Rs.900 after discount Rs.100",
+      "Purchases A/c Dr. Rs.900\nTo Cash A/c Rs.900\nTo Discount Received A/c Rs.100",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("returns Unsupported Transaction for ambiguous sale after trade discount", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 sold for Rs.900 after discount Rs.100",
+      "Cash A/c Dr. Rs.900\nTo Sales A/c Rs.900",
     );
 
     expect(body.result_status).toBe("Unsupported Transaction");
     expect(body.mistake_type).toBe("unsupported_transaction");
     expect(body.score).toBe(0);
+  });
+
+  it("returns Unsupported Transaction for ambiguous purchase after trade discount", async () => {
+    const body = await checkEntry(
+      "Goods worth Rs.1000 purchased for Rs.900 after discount Rs.100",
+      "Purchases A/c Dr. Rs.900\nTo Cash A/c Rs.900",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+    expect(body.score).toBe(0);
+  });
+
+  it("returns Correct for simple goods sale assumed as cash", async () => {
+    const body = await checkEntry(
+      "Sold goods Rs.5000",
+      "Cash A/c Dr. Rs.5000\nTo Sales A/c Rs.5000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.simple_explanation).toContain("Assumption used");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Cash", amount: 5000 }],
+      credits: [{ account: "Sales", amount: 5000 }],
+    });
+  });
+
+  it("returns Correct for named customer goods sale assumed as credit", async () => {
+    const body = await checkEntry(
+      "Sold goods to Kuldeep Rs.5000",
+      "Debtor A/c Dr. Rs.5000\nTo Sales A/c Rs.5000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.simple_explanation).toContain("Assumption used");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Debtor", amount: 5000 }],
+      credits: [{ account: "Sales", amount: 5000 }],
+    });
+  });
+
+  it("returns Correct for simple goods purchase assumed as cash", async () => {
+    const body = await checkEntry(
+      "Purchased goods Rs.3000",
+      "Purchases A/c Dr. Rs.3000\nTo Cash A/c Rs.3000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.simple_explanation).toContain("Assumption used");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Purchases", amount: 3000 }],
+      credits: [{ account: "Cash", amount: 3000 }],
+    });
+  });
+
+  it("returns Correct for named supplier goods purchase assumed as credit", async () => {
+    const body = await checkEntry(
+      "Purchased goods from Kuldeep Rs.3000",
+      "Purchases A/c Dr. Rs.3000\nTo Creditor A/c Rs.3000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.simple_explanation).toContain("Assumption used");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Purchases", amount: 3000 }],
+      credits: [{ account: "Creditor", amount: 3000 }],
+    });
+  });
+
+  it("does not accept credit sale entry for simple goods sale assumed as cash", async () => {
+    const body = await checkEntry(
+      "Sold goods Rs.5000",
+      "Debtor A/c Dr. Rs.5000\nTo Sales A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept cash sale entry for named customer sale assumed as credit", async () => {
+    const body = await checkEntry(
+      "Sold goods to Kuldeep Rs.5000",
+      "Cash A/c Dr. Rs.5000\nTo Sales A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept credit purchase entry for simple goods purchase assumed as cash", async () => {
+    const body = await checkEntry(
+      "Purchased goods Rs.3000",
+      "Purchases A/c Dr. Rs.3000\nTo Creditor A/c Rs.3000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept cash purchase entry for named supplier purchase assumed as credit", async () => {
+    const body = await checkEntry(
+      "Purchased goods from Kuldeep Rs.3000",
+      "Purchases A/c Dr. Rs.3000\nTo Cash A/c Rs.3000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("returns Correct for simple item sale assumed as cash", async () => {
+    const body = await checkEntry(
+      "Sold mango Rs.500",
+      "Cash A/c Dr. Rs.500\nTo Sales A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.simple_explanation).toContain("Assumption used");
+  });
+
+  it("keeps non-goods ambiguous rent unsupported", async () => {
+    const body = await checkEntry(
+      "Paid rent Rs.5000",
+      "Rent A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+  });
+
+  it("keeps non-goods ambiguous loan unsupported", async () => {
+    const body = await checkEntry(
+      "Took loan Rs.50000",
+      "Cash A/c Dr. Rs.50000\nTo Loan A/c Rs.50000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+  });
+
+  it("keeps non-goods ambiguous interest unsupported", async () => {
+    const body = await checkEntry(
+      "Received interest Rs.1500",
+      "Cash A/c Dr. Rs.1500\nTo Interest A/c Rs.1500",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+  });
+
+  it("keeps non-goods ambiguous creditor payment unsupported", async () => {
+    const body = await checkEntry(
+      "Paid creditor Rs.3000",
+      "Creditor A/c Dr. Rs.3000\nTo Cash A/c Rs.3000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
   });
 });
