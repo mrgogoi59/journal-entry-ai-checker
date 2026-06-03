@@ -1,0 +1,509 @@
+"use client";
+
+import { useState } from "react";
+import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion } from "@/lib/types";
+
+const sampleTransaction = "Started business with ₹50,000 cash";
+const sampleEntry = "Cash A/c Dr. ₹50,000\n    To Capital A/c ₹50,000";
+type AppMode = "own" | "practice";
+
+export default function Home() {
+  const [mode, setMode] = useState<AppMode>("own");
+  const [transactionText, setTransactionText] = useState("");
+  const [journalEntry, setJournalEntry] = useState("");
+  const [result, setResult] = useState<CheckEntryResponse | null>(null);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [practiceQuestion, setPracticeQuestion] = useState<PracticeQuestion | null>(null);
+  const [practiceEntry, setPracticeEntry] = useState("");
+  const [practiceResult, setPracticeResult] = useState<CheckEntryResponse | null>(null);
+  const [practiceError, setPracticeError] = useState("");
+  const [isPracticeLoading, setIsPracticeLoading] = useState(false);
+  const [isPracticeChecking, setIsPracticeChecking] = useState(false);
+
+  async function checkEntry() {
+    setError("");
+    setResult(null);
+
+    const missingMessage = getMissingInputMessage(transactionText, journalEntry);
+    if (missingMessage) {
+      setError(missingMessage);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/check-entry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transactionText, journalEntry }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error ?? "Could not check this entry. Please try again.");
+        return;
+      }
+
+      setResult(data);
+    } catch {
+      setError("Could not reach the checker. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function loadPracticeQuestion() {
+    setPracticeError("");
+    setPracticeResult(null);
+    setPracticeEntry("");
+    setIsPracticeLoading(true);
+
+    try {
+      const response = await fetch("/api/generate-practice-question");
+      const data = await response.json();
+
+      if (!response.ok) {
+        setPracticeError("Could not generate a practice question. Try again.");
+        return;
+      }
+
+      setPracticeQuestion(data);
+    } catch {
+      setPracticeError("Could not generate a practice question. Please try again.");
+    } finally {
+      setIsPracticeLoading(false);
+    }
+  }
+
+  async function checkPracticeAnswer() {
+    setPracticeError("");
+    setPracticeResult(null);
+
+    if (!practiceQuestion) {
+      setPracticeError("Click Try Another Question to get a transaction.");
+      return;
+    }
+
+    if (!practiceEntry.trim()) {
+      setPracticeError("Write your journal entry before checking.");
+      return;
+    }
+
+    setIsPracticeChecking(true);
+
+    try {
+      const response = await fetch("/api/check-entry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionText: practiceQuestion.transaction_text,
+          journalEntry: practiceEntry,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setPracticeError("Could not check this answer. Please try again.");
+        return;
+      }
+
+      setPracticeResult(data);
+    } catch {
+      setPracticeError("Could not reach the checker. Please try again.");
+    } finally {
+      setIsPracticeChecking(false);
+    }
+  }
+
+  function retryPracticeQuestion() {
+    setPracticeEntry("");
+    setPracticeError("");
+    setPracticeResult(null);
+  }
+
+  function selectPracticeMode() {
+    setMode("practice");
+    if (!practiceQuestion && !isPracticeLoading) {
+      void loadPracticeQuestion();
+    }
+  }
+
+  return (
+    <main className="min-h-screen px-4 py-5 sm:px-6 sm:py-9">
+      <section className="mx-auto flex w-full max-w-[760px] flex-col gap-4 sm:gap-5">
+        <header className="text-center sm:text-left">
+          <p className="text-sm font-semibold text-accent">Journal Entry Practice</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-normal text-ink sm:text-4xl">
+            Journal Entry AI Checker
+          </h1>
+          <p className="mt-3 text-base leading-7 text-slate-600">
+            Practice one transaction at a time. Write the entry, check it, and learn the reason.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-2">
+          <button onClick={() => setMode("own")} className={modeButtonClass(mode === "own")}>
+            <span>Check My Own Entry</span>
+            <span className="text-xs font-medium opacity-80">Paste any supported transaction</span>
+          </button>
+          <button onClick={selectPracticeMode} className={modeButtonClass(mode === "practice")}>
+            <span>Practice Questions</span>
+            <span className="text-xs font-medium opacity-80">Get one question and solve it</span>
+          </button>
+        </div>
+
+        {mode === "own" ? (
+          <EntryCard
+            transactionText={transactionText}
+            journalEntry={journalEntry}
+            error={error}
+            isLoading={isLoading}
+            buttonText="Check My Entry"
+            loadingText="Checking..."
+            onTransactionChange={setTransactionText}
+            onJournalEntryChange={setJournalEntry}
+            onSubmit={checkEntry}
+          />
+        ) : (
+          <PracticeCard
+            question={practiceQuestion}
+            journalEntry={practiceEntry}
+            error={practiceError}
+            isQuestionLoading={isPracticeLoading}
+            isChecking={isPracticeChecking}
+            onJournalEntryChange={setPracticeEntry}
+            onCheck={checkPracticeAnswer}
+            onNext={() => void loadPracticeQuestion()}
+            onRetry={retryPracticeQuestion}
+          />
+        )}
+
+        {mode === "own" && result ? <ResultCard result={result} /> : null}
+        {mode === "practice" && practiceResult ? <ResultCard result={practiceResult} /> : null}
+      </section>
+    </main>
+  );
+}
+
+function EntryCard({
+  transactionText,
+  journalEntry,
+  error,
+  isLoading,
+  buttonText,
+  loadingText,
+  onTransactionChange,
+  onJournalEntryChange,
+  onSubmit,
+}: {
+  transactionText: string;
+  journalEntry: string;
+  error: string;
+  isLoading: boolean;
+  buttonText: string;
+  loadingText: string;
+  onTransactionChange: (value: string) => void;
+  onJournalEntryChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-4">
+        <label className="flex flex-col gap-2">
+          <span className="text-sm font-semibold text-ink">Transaction</span>
+          <textarea
+            value={transactionText}
+            onChange={(event) => onTransactionChange(event.target.value)}
+            placeholder={sampleTransaction}
+            className="min-h-24 resize-y rounded-lg border border-line bg-white px-4 py-3 text-base leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
+          />
+        </label>
+
+        <JournalEntryInput value={journalEntry} onChange={onJournalEntryChange} />
+
+        {error ? <MessageBox message={error} /> : null}
+
+        <PrimaryButton disabled={isLoading} onClick={onSubmit}>
+          {isLoading ? loadingText : buttonText}
+        </PrimaryButton>
+      </div>
+    </div>
+  );
+}
+
+function PracticeCard({
+  question,
+  journalEntry,
+  error,
+  isQuestionLoading,
+  isChecking,
+  onJournalEntryChange,
+  onCheck,
+  onNext,
+  onRetry,
+}: {
+  question: PracticeQuestion | null;
+  journalEntry: string;
+  error: string;
+  isQuestionLoading: boolean;
+  isChecking: boolean;
+  onJournalEntryChange: (value: string) => void;
+  onCheck: () => void;
+  onNext: () => void;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-4">
+        <div className="rounded-lg border border-line bg-paper p-4">
+          <div className="text-sm font-semibold text-ink">Transaction</div>
+          <p className="mt-2 min-h-7 text-base font-medium leading-7 text-slate-800">
+            {isQuestionLoading ? "Generating a question..." : question?.transaction_text ?? "No question yet."}
+          </p>
+        </div>
+
+        <JournalEntryInput value={journalEntry} onChange={onJournalEntryChange} />
+
+        {error ? <MessageBox message={error} /> : null}
+
+        <div className="grid gap-2 sm:grid-cols-3">
+          <PrimaryButton disabled={isChecking || isQuestionLoading || !question} onClick={onCheck}>
+            {isChecking ? "Checking..." : "Check Answer"}
+          </PrimaryButton>
+          <SecondaryButton disabled={isQuestionLoading || isChecking} onClick={onNext}>
+            {isQuestionLoading ? "Loading..." : "Try Another Question"}
+          </SecondaryButton>
+          <SecondaryButton disabled={!question || isChecking} onClick={onRetry}>
+            Retry Same Question
+          </SecondaryButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JournalEntryInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor="journal-entry-input" className="text-sm font-semibold text-ink">
+        Your Journal Entry
+      </label>
+      <textarea
+        id="journal-entry-input"
+        aria-describedby="journal-entry-helper"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={sampleEntry}
+        className="min-h-36 resize-y rounded-lg border border-line bg-white px-4 py-3 font-mono text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
+      />
+      <p id="journal-entry-helper" className="rounded-md bg-paper px-3 py-2 text-xs leading-5 text-slate-600">
+        Sample format: Cash A/c Dr. ₹50,000, then To Capital A/c ₹50,000 on the next line.
+      </p>
+    </div>
+  );
+}
+
+function ResultCard({ result }: { result: CheckEntryResponse }) {
+  const status = getStatusDisplay(result.result_status);
+
+  return (
+    <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
+      <div className={`rounded-lg border px-4 py-4 ${status.panelClass}`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wide">{status.label}</div>
+            <div className="mt-1 text-sm font-medium">{status.message}</div>
+          </div>
+          <div className="text-3xl font-bold">{result.score}/100</div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <ResultSection title="Your mistake" body={formatMistake(result.mistake_type)} />
+        <ResultSection title="Correct journal entry">
+          <JournalEntryView entry={result.correct_journal_entry} />
+        </ResultSection>
+        <ResultSection title="Why this is correct" body={simplifyExplanation(result.simple_explanation)} />
+        <ResultSection title="Similar practice question" body={result.similar_practice_question} />
+      </div>
+    </section>
+  );
+}
+
+function ResultSection({
+  title,
+  body,
+  children,
+}: {
+  title: string;
+  body?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-line bg-paper p-4">
+      <h2 className="text-sm font-bold text-ink">{title}</h2>
+      {body ? <p className="mt-2 text-sm leading-6 text-slate-700">{body}</p> : null}
+      {children ? <div className="mt-2">{children}</div> : null}
+    </div>
+  );
+}
+
+function JournalEntryView({ entry }: { entry: CorrectJournalEntry }) {
+  const text = formatJournalEntry(entry);
+
+  if (!text) {
+    return <p className="text-sm text-slate-700">No expected entry available.</p>;
+  }
+
+  return (
+    <pre className="select-all overflow-x-auto rounded-md border border-line bg-white p-3 font-mono text-sm leading-7 text-slate-900">
+      {text}
+    </pre>
+  );
+}
+
+function PrimaryButton({
+  children,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="min-h-12 rounded-lg bg-accent px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+    >
+      {children}
+    </button>
+  );
+}
+
+function SecondaryButton({
+  children,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="min-h-12 rounded-lg border border-line bg-white px-4 py-3 text-base font-semibold text-ink transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:text-slate-400"
+    >
+      {children}
+    </button>
+  );
+}
+
+function MessageBox({ message }: { message: string }) {
+  return (
+    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-6 text-red-700">
+      {message}
+    </div>
+  );
+}
+
+function modeButtonClass(isActive: boolean): string {
+  return [
+    "flex min-h-16 flex-col items-center justify-center rounded-md px-3 py-3 text-center text-sm font-semibold transition sm:items-start sm:text-left",
+    isActive ? "bg-accent text-white" : "bg-white text-slate-700 hover:bg-paper",
+  ].join(" ");
+}
+
+function getMissingInputMessage(transaction: string, entry: string): string {
+  if (!transaction.trim() && !entry.trim()) return "Add a transaction and your journal entry first.";
+  if (!transaction.trim()) return "Add the transaction first.";
+  if (!entry.trim()) return "Write your journal entry before checking.";
+  return "";
+}
+
+function getStatusDisplay(status: CheckEntryResponse["result_status"]) {
+  if (status === "Correct") {
+    return {
+      label: "Correct",
+      message: "Great. Your accounts, sides, amount, and balance match.",
+      panelClass: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    };
+  }
+
+  if (status === "Partly Correct") {
+    return {
+      label: "Partly Correct",
+      message: "You are close. Check the mistake below and try again.",
+      panelClass: "border-amber-200 bg-amber-50 text-amber-800",
+    };
+  }
+
+  if (status === "Invalid Format") {
+    return {
+      label: "Invalid Format",
+      message: "Use one debit line and one credit line with amounts.",
+      panelClass: "border-red-200 bg-red-50 text-red-800",
+    };
+  }
+
+  if (status === "Unsupported Transaction") {
+    return {
+      label: "Unsupported",
+      message: "This transaction is not in the beginner practice set yet.",
+      panelClass: "border-red-200 bg-red-50 text-red-800",
+    };
+  }
+
+  return {
+    label: "Incorrect",
+    message: "Review the correct entry below, then try the same idea again.",
+    panelClass: "border-red-200 bg-red-50 text-red-800",
+  };
+}
+
+function formatJournalEntry(entry: CorrectJournalEntry): string {
+  const debitLines = entry.debits.map(
+    (line) => `${line.account} A/c Dr. ₹${line.amount.toLocaleString("en-IN")}`,
+  );
+  const creditLines = entry.credits.map(
+    (line) => `    To ${line.account} A/c ₹${line.amount.toLocaleString("en-IN")}`,
+  );
+
+  return [...debitLines, ...creditLines].join("\n");
+}
+
+function simplifyExplanation(explanation: string): string {
+  return explanation
+    .replaceAll(" is an asset and it is increasing", " increases")
+    .replaceAll("expenses are debited", "expenses go on the debit side")
+    .replaceAll("because it is paid out", "because money is paid")
+    .replaceAll("because money is received", "because money is received");
+}
+
+function formatMistake(mistakeType: string): string {
+  const labels: Record<string, string> = {
+    correct: "No mistake",
+    wrong_account: "Wrong account",
+    reversed_sides: "Debit and credit are reversed",
+    amount_mismatch: "Amount does not match",
+    missing_account: "One account is missing",
+    unbalanced_entry: "Debit and credit totals are not equal",
+    format_error: "Format is not clear",
+    unsupported_transaction: "Unsupported transaction",
+  };
+
+  return labels[mistakeType] ?? mistakeType;
+}
