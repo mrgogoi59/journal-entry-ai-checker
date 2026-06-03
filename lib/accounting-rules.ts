@@ -14,7 +14,10 @@ const NO_CASH_OR_BANK_PREFIX = "^(?!.*\\b(?:cash|bank|cheque|check)\\b)";
 
 const assetItems = [
   { term: "machinery", account: "Machinery" },
-  { term: "furniture", account: "Furniture" },
+  {
+    term: "(?:furniture|tables?|chairs?|desks?|almirah|cupboard|bookshelf|office\\s+tables?|office\\s+chairs?)",
+    account: "Furniture",
+  },
   { term: "computers?", account: "Computer" },
   { term: "vehicles?", account: "Vehicle" },
   { term: "equipment", account: "Equipment" },

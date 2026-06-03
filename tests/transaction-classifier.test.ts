@@ -59,6 +59,16 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Bought machinery from Rahul for cash Rs. 1000", "asset_purchase_machinery_cash", "Machinery", "Cash", 1000],
     ["Purchase furniture from Amit for cash Rs. 2000", "asset_purchase_furniture_cash", "Furniture", "Cash", 2000],
     ["Bought furniture from seller for cash Rs. 2000", "asset_purchase_furniture_cash", "Furniture", "Cash", 2000],
+    ["Bought table from Raju for cash Rs.1000", "asset_purchase_furniture_cash", "Furniture", "Cash", 1000],
+    ["Purchase table from Raju for cash Rs.1000", "asset_purchase_furniture_cash", "Furniture", "Cash", 1000],
+    ["Purchased chair from Amit for cash Rs.2000", "asset_purchase_furniture_cash", "Furniture", "Cash", 2000],
+    ["Bought office table from seller for cash Rs.3000", "asset_purchase_furniture_cash", "Furniture", "Cash", 3000],
+    ["Bought chairs from seller for cash Rs.3000", "asset_purchase_furniture_cash", "Furniture", "Cash", 3000],
+    ["Purchase desk from seller for cash Rs.3000", "asset_purchase_furniture_cash", "Furniture", "Cash", 3000],
+    ["Purchase almirah from seller for cash Rs.3000", "asset_purchase_furniture_cash", "Furniture", "Cash", 3000],
+    ["Purchase cupboard from seller for cash Rs.3000", "asset_purchase_furniture_cash", "Furniture", "Cash", 3000],
+    ["Purchase bookshelf from seller for cash Rs.3000", "asset_purchase_furniture_cash", "Furniture", "Cash", 3000],
+    ["Bought office chair from seller for cash Rs.3000", "asset_purchase_furniture_cash", "Furniture", "Cash", 3000],
     ["Purchase computer from Amit for cash Rs. 2000", "asset_purchase_computer_cash", "Computer", "Cash", 2000],
     ["Purchase vehicle from Amit for cash Rs. 2000", "asset_purchase_vehicle_cash", "Vehicle", "Cash", 2000],
     ["Purchase equipment from Amit for cash Rs. 2000", "asset_purchase_equipment_cash", "Equipment", "Cash", 2000],
@@ -66,6 +76,10 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Purchased machinery from Kuldeep on credit Rs. 500", "asset_purchase_machinery_credit", "Machinery", "Creditor", 500],
     ["Bought machinery from Rahul on credit Rs. 1000", "asset_purchase_machinery_credit", "Machinery", "Creditor", 1000],
     ["Purchase furniture from Amit on credit Rs. 2000", "asset_purchase_furniture_credit", "Furniture", "Creditor", 2000],
+    ["Bought table from Raju on credit Rs.1000", "asset_purchase_furniture_credit", "Furniture", "Creditor", 1000],
+    ["Purchase table from Raju on credit Rs.1000", "asset_purchase_furniture_credit", "Furniture", "Creditor", 1000],
+    ["Purchased chair from Amit on credit Rs.2000", "asset_purchase_furniture_credit", "Furniture", "Creditor", 2000],
+    ["Bought office table from seller on credit Rs.3000", "asset_purchase_furniture_credit", "Furniture", "Creditor", 3000],
     ["Sold goods for cash ₹25,000", "sold_goods_cash", "Cash", "Sales", 25000],
     ["Cash sales INR 30,000", "sold_goods_cash", "Cash", "Sales", 30000],
     ["Sold goods worth Rs.8000 for cash", "sold_goods_cash", "Cash", "Sales", 8000],
@@ -273,6 +287,10 @@ describe("classifyTransaction supported beginner transactions", () => {
   it("does not guess ambiguous sales wording", () => {
     expect(classifyTransaction("Sold goods Rs.8000")).toBeNull();
     expect(classifyTransaction("Sold mango Rs.500")).toBeNull();
+  });
+
+  it("does not guess ambiguous furniture item purchase wording", () => {
+    expect(classifyTransaction("Bought table Rs.1000")).toBeNull();
   });
 
   it("does not guess ambiguous rent or salary payment wording", () => {

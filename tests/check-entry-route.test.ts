@@ -890,6 +890,52 @@ describe("POST /api/check-entry", () => {
     });
   });
 
+  it("returns Correct for table purchased from named vendor on credit", async () => {
+    const body = await checkEntry(
+      "Bought table from Raju on credit Rs. 1000",
+      "Furniture A/c Dr Rs.1000\nTo Creditor A/c Rs.1000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Furniture", amount: 1000 }],
+      credits: [{ account: "Creditor", amount: 1000 }],
+    });
+  });
+
+  it("does not accept Cash credit for table purchased on credit", async () => {
+    const body = await checkEntry(
+      "Bought table from Raju on credit Rs. 1000",
+      "Furniture A/c Dr Rs.1000\nTo Cash A/c Rs.1000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept Creditor credit for table purchased for cash", async () => {
+    const body = await checkEntry(
+      "Bought table from Raju for cash Rs. 1000",
+      "Furniture A/c Dr Rs.1000\nTo Creditor A/c Rs.1000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("returns Unsupported Transaction for ambiguous furniture item purchase", async () => {
+    const body = await checkEntry(
+      "Bought table Rs.1000",
+      "Furniture A/c Dr Rs.1000\nTo Cash A/c Rs.1000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+    expect(body.score).toBe(0);
+  });
+
   it("returns Unsupported Transaction for ambiguous item sale without cash or customer", async () => {
     const body = await checkEntry(
       "Sold mango Rs.500",
