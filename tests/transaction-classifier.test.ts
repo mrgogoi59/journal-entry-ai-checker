@@ -256,6 +256,63 @@ describe("classifyTransaction supported beginner transactions", () => {
       3000,
     ],
     ["Insurance payable Rs.3000", "outstanding_insurance", "Insurance Expense", "Outstanding Insurance", 3000],
+    ["Prepaid rent Rs.5000", "prepaid_rent", "Prepaid Rent", "Rent Expense", 5000],
+    ["Rent prepaid Rs.5000", "prepaid_rent", "Prepaid Rent", "Rent Expense", 5000],
+    ["Rent paid in advance Rs.5000", "prepaid_rent", "Prepaid Rent", "Rent Expense", 5000],
+    ["Rent paid beforehand Rs.5000", "prepaid_rent", "Prepaid Rent", "Rent Expense", 5000],
+    ["Advance rent Rs.5000", "prepaid_rent", "Prepaid Rent", "Rent Expense", 5000],
+    ["Rent expense prepaid Rs.5000", "prepaid_rent", "Prepaid Rent", "Rent Expense", 5000],
+    ["Prepaid insurance Rs.3000", "prepaid_insurance", "Prepaid Insurance", "Insurance Expense", 3000],
+    ["Insurance prepaid Rs.3000", "prepaid_insurance", "Prepaid Insurance", "Insurance Expense", 3000],
+    [
+      "Insurance paid in advance Rs.3000",
+      "prepaid_insurance",
+      "Prepaid Insurance",
+      "Insurance Expense",
+      3000,
+    ],
+    [
+      "Insurance premium prepaid Rs.3000",
+      "prepaid_insurance",
+      "Prepaid Insurance",
+      "Insurance Expense",
+      3000,
+    ],
+    ["Advance insurance Rs.3000", "prepaid_insurance", "Prepaid Insurance", "Insurance Expense", 3000],
+    [
+      "Insurance expense prepaid Rs.3000",
+      "prepaid_insurance",
+      "Prepaid Insurance",
+      "Insurance Expense",
+      3000,
+    ],
+    ["Prepaid salary Rs.6000", "prepaid_salary", "Prepaid Salary", "Salary Expense", 6000],
+    ["Salary prepaid Rs.6000", "prepaid_salary", "Prepaid Salary", "Salary Expense", 6000],
+    ["Salary paid in advance Rs.6000", "prepaid_salary", "Prepaid Salary", "Salary Expense", 6000],
+    ["Advance salary Rs.6000", "prepaid_salary", "Prepaid Salary", "Salary Expense", 6000],
+    ["Salary expense prepaid Rs.6000", "prepaid_salary", "Prepaid Salary", "Salary Expense", 6000],
+    ["Prepaid wages Rs.4000", "prepaid_wages", "Prepaid Wages", "Wages Expense", 4000],
+    ["Wages prepaid Rs.4000", "prepaid_wages", "Prepaid Wages", "Wages Expense", 4000],
+    ["Wages paid in advance Rs.4000", "prepaid_wages", "Prepaid Wages", "Wages Expense", 4000],
+    ["Advance wages Rs.4000", "prepaid_wages", "Prepaid Wages", "Wages Expense", 4000],
+    ["Wages expense prepaid Rs.4000", "prepaid_wages", "Prepaid Wages", "Wages Expense", 4000],
+    ["Prepaid electricity Rs.2000", "prepaid_electricity", "Prepaid Electricity", "Electricity Expense", 2000],
+    ["Electricity prepaid Rs.2000", "prepaid_electricity", "Prepaid Electricity", "Electricity Expense", 2000],
+    [
+      "Electricity bill paid in advance Rs.2000",
+      "prepaid_electricity",
+      "Prepaid Electricity",
+      "Electricity Expense",
+      2000,
+    ],
+    ["Advance electricity Rs.2000", "prepaid_electricity", "Prepaid Electricity", "Electricity Expense", 2000],
+    [
+      "Electricity expense prepaid Rs.2000",
+      "prepaid_electricity",
+      "Prepaid Electricity",
+      "Electricity Expense",
+      2000,
+    ],
     ["Depreciation charged on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation provided on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
@@ -674,8 +731,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Depreciation charged on unknown asset Rs.5000")).toBeNull();
     expect(classifyTransaction("Provision for doubtful debts created Rs.1000")).toBeNull();
     expect(classifyTransaction("Bad debts recovered and transferred to provision for doubtful debts Rs.500")).toBeNull();
-    expect(classifyTransaction("Prepaid insurance Rs.2500")).toBeNull();
     expect(classifyTransaction("Interest accrued Rs.1500")).toBeNull();
+    expect(classifyTransaction("Rent received in advance Rs.4000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

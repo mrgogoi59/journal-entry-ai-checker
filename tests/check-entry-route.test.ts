@@ -305,6 +305,82 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      name: "prepaid rent",
+      transactionText: "Prepaid rent Rs.5000",
+      journalEntry: "Prepaid Rent A/c Dr. Rs.5000\nTo Rent A/c Rs.5000",
+      debits: [{ account: "Prepaid Rent", amount: 5000 }],
+      credits: [{ account: "Rent Expense", amount: 5000 }],
+    },
+    {
+      name: "prepaid rent with expense account",
+      transactionText: "Prepaid rent Rs.5000",
+      journalEntry: "Prepaid Rent A/c Dr. Rs.5000\nTo Rent Expense A/c Rs.5000",
+      debits: [{ account: "Prepaid Rent", amount: 5000 }],
+      credits: [{ account: "Rent Expense", amount: 5000 }],
+    },
+    {
+      name: "prepaid insurance",
+      transactionText: "Prepaid insurance Rs.3000",
+      journalEntry: "Prepaid Insurance A/c Dr. Rs.3000\nTo Insurance A/c Rs.3000",
+      debits: [{ account: "Prepaid Insurance", amount: 3000 }],
+      credits: [{ account: "Insurance Expense", amount: 3000 }],
+    },
+    {
+      name: "prepaid salary",
+      transactionText: "Prepaid salary Rs.6000",
+      journalEntry: "Prepaid Salary A/c Dr. Rs.6000\nTo Salary A/c Rs.6000",
+      debits: [{ account: "Prepaid Salary", amount: 6000 }],
+      credits: [{ account: "Salary Expense", amount: 6000 }],
+    },
+    {
+      name: "prepaid wages",
+      transactionText: "Prepaid wages Rs.4000",
+      journalEntry: "Prepaid Wages A/c Dr. Rs.4000\nTo Wages A/c Rs.4000",
+      debits: [{ account: "Prepaid Wages", amount: 4000 }],
+      credits: [{ account: "Wages Expense", amount: 4000 }],
+    },
+    {
+      name: "prepaid electricity",
+      transactionText: "Prepaid electricity Rs.2000",
+      journalEntry: "Prepaid Electricity A/c Dr. Rs.2000\nTo Electricity A/c Rs.2000",
+      debits: [{ account: "Prepaid Electricity", amount: 2000 }],
+      credits: [{ account: "Electricity Expense", amount: 2000 }],
+    },
+  ])("returns Correct for prepaid expense: $name", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      name: "reversed prepaid rent",
+      journalEntry: "Rent A/c Dr. Rs.5000\nTo Prepaid Rent A/c Rs.5000",
+    },
+    {
+      name: "prepaid rent credited to cash",
+      journalEntry: "Prepaid Rent A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+    {
+      name: "rent debited and cash credited",
+      journalEntry: "Rent A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+    {
+      name: "cash debited against prepaid rent",
+      journalEntry: "Cash A/c Dr. Rs.5000\nTo Prepaid Rent A/c Rs.5000",
+    },
+  ])("does not accept wrong prepaid rent entry: $name", async ({ journalEntry }) => {
+    const body = await checkEntry("Prepaid rent Rs.5000", journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("does not accept a salary entry for rent paid", async () => {
     const body = await checkEntry(
       "Paid rent Rs.5000 in cash",

@@ -287,6 +287,86 @@ const outstandingExpenseRules: TransactionRule[] = [
   },
 ];
 
+const prepaidExpenseRules: TransactionRule[] = [
+  {
+    transaction_type: "prepaid_rent",
+    patterns: [
+      /prepaid\s+rent/i,
+      /rent\s+prepaid/i,
+      /rent\s+paid\s+in\s+advance/i,
+      /rent\s+paid\s+beforehand/i,
+      /advance\s+rent/i,
+      /rent\s+expense\s+prepaid/i,
+    ],
+    debitAccount: "Prepaid Rent",
+    creditAccount: "Rent Expense",
+    explanationLogic:
+      "Rent paid in advance gives future benefit, so Prepaid Rent is debited as an asset. Rent Expense is credited because the current-period expense is reduced.",
+    practiceTemplate: (amount) => `Prepaid rent ₹${amount}.`,
+  },
+  {
+    transaction_type: "prepaid_insurance",
+    patterns: [
+      /prepaid\s+insurance/i,
+      /insurance\s+prepaid/i,
+      /insurance\s+paid\s+in\s+advance/i,
+      /insurance\s+premium\s+prepaid/i,
+      /advance\s+insurance/i,
+      /insurance\s+expense\s+prepaid/i,
+    ],
+    debitAccount: "Prepaid Insurance",
+    creditAccount: "Insurance Expense",
+    explanationLogic:
+      "Insurance paid in advance gives future benefit, so Prepaid Insurance is debited as an asset. Insurance Expense is credited because the current-period expense is reduced.",
+    practiceTemplate: (amount) => `Prepaid insurance ₹${amount}.`,
+  },
+  {
+    transaction_type: "prepaid_salary",
+    patterns: [
+      /prepaid\s+salary/i,
+      /salary\s+prepaid/i,
+      /salary\s+paid\s+in\s+advance/i,
+      /advance\s+salary/i,
+      /salary\s+expense\s+prepaid/i,
+    ],
+    debitAccount: "Prepaid Salary",
+    creditAccount: "Salary Expense",
+    explanationLogic:
+      "Salary paid in advance gives future benefit, so Prepaid Salary is debited as an asset. Salary Expense is credited because the current-period expense is reduced.",
+    practiceTemplate: (amount) => `Prepaid salary ₹${amount}.`,
+  },
+  {
+    transaction_type: "prepaid_wages",
+    patterns: [
+      /prepaid\s+wages?/i,
+      /wages?\s+prepaid/i,
+      /wages?\s+paid\s+in\s+advance/i,
+      /advance\s+wages?/i,
+      /wages?\s+expense\s+prepaid/i,
+    ],
+    debitAccount: "Prepaid Wages",
+    creditAccount: "Wages Expense",
+    explanationLogic:
+      "Wages paid in advance give future benefit, so Prepaid Wages is debited as an asset. Wages Expense is credited because the current-period expense is reduced.",
+    practiceTemplate: (amount) => `Prepaid wages ₹${amount}.`,
+  },
+  {
+    transaction_type: "prepaid_electricity",
+    patterns: [
+      /prepaid\s+electricity/i,
+      /electricity\s+prepaid/i,
+      /electricity\s+bill\s+paid\s+in\s+advance/i,
+      /advance\s+electricity/i,
+      /electricity\s+expense\s+prepaid/i,
+    ],
+    debitAccount: "Prepaid Electricity",
+    creditAccount: "Electricity Expense",
+    explanationLogic:
+      "Electricity paid in advance gives future benefit, so Prepaid Electricity is debited as an asset. Electricity Expense is credited because the current-period expense is reduced.",
+    practiceTemplate: (amount) => `Prepaid electricity ₹${amount}.`,
+  },
+];
+
 const namedPartyPaymentStart = `(?!amount\\b|bank\\b|cash\\b|rs\\.?\\b|inr\\b|creditors?\\b|rent\\b|salary\\b|salaries\\b|interest\\b|electricity\\b|loan\\b|to\\b)${PARTY_PATTERN}`;
 
 const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
@@ -1045,6 +1125,7 @@ export const transactionRules: TransactionRule[] = [
     practiceTemplate: (amount) => `Received interest ₹${amount} in cash.`,
   },
   ...outstandingExpenseRules,
+  ...prepaidExpenseRules,
   {
     transaction_type: "paid_electricity",
     patterns: [/paid .*electricity/i, /electricity bill/i],

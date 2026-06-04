@@ -36,7 +36,9 @@ describe("generatePracticeQuestion", () => {
   it.each(supportedPracticeTransactionTypes.map((transactionType, index) => [transactionType, index] as const))(
     "generates a classifier-supported question for %s",
     (transactionType, index) => {
-      const question = generatePracticeQuestion(sequenceRandom([index / supportedPracticeTransactionTypes.length, 0]));
+      const question = generatePracticeQuestion(
+        sequenceRandom([(index + 0.25) / supportedPracticeTransactionTypes.length, 0]),
+      );
       const classification = classifyTransaction(question.transaction_text);
 
       expect(question.transaction_type).toBe(transactionType);

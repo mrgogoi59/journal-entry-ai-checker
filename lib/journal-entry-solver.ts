@@ -263,6 +263,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  const prepaidExpense = getPrepaidExpenseDetails(classification);
+  if (prepaidExpense) {
+    return [
+      `${prepaidExpense.expenseLabel} has been paid in advance.`,
+      `The advance ${prepaidExpense.futureBenefitLabel} gives future benefit to the business.`,
+      `${displayAccountName(classification.debitAccount)} is debited because it is an asset.`,
+      `${displayAccountName(classification.creditAccount)} is credited because the current period expense is reduced.`,
+    ];
+  }
+
   const outstandingExpense = getOutstandingExpenseDetails(classification);
   if (outstandingExpense) {
     return [
@@ -334,6 +344,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not debit Bad Debts Recovered A/c.",
       "Do not credit Debtor/Raju A/c in this beginner MVP treatment.",
       "Bad Debts Recovered is income/gain, not an expense.",
+    ];
+  }
+
+  if (getPrepaidExpenseDetails(classification)) {
+    return [
+      `Do not debit ${displayAccountName(classification.creditAccount)} for the prepaid portion.`,
+      "Do not credit Cash or Bank in this adjustment entry, because the payment was already recorded earlier.",
+      "Prepaid expense is an asset, not an expense.",
     ];
   }
 
@@ -426,6 +444,16 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  const prepaidExpense = getPrepaidExpenseDetails(classification);
+  if (prepaidExpense) {
+    return {
+      question: `${prepaidExpense.practiceLabel} ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
+        classification.creditAccount,
+      )}`,
+    };
+  }
+
   const outstandingExpense = getOutstandingExpenseDetails(classification);
   if (outstandingExpense) {
     return {
@@ -474,6 +502,11 @@ function buildNarration(classification: TransactionClassification): string {
   if (credit === "Bad Debts Recovered") {
     if (partyName) return `Being bad debts previously written off recovered from ${partyName}.`;
     return `Being bad debts recovered ${debit === "Bank" ? "through bank" : "in cash"}.`;
+  }
+
+  const prepaidExpense = getPrepaidExpenseDetails(classification);
+  if (prepaidExpense) {
+    return `Being ${prepaidExpense.narrationLabel}.`;
   }
 
   const outstandingExpense = getOutstandingExpenseDetails(classification);
@@ -552,6 +585,7 @@ function describeTransactionAction(classification: TransactionClassification): s
   if (debit === "Depreciation") return "Depreciation was recorded on a business asset.";
   if (debit === "Bad Debts") return "An irrecoverable debtor balance was written off.";
   if (credit === "Bad Debts Recovered") return "An amount previously written off as bad debt was recovered.";
+  if (getPrepaidExpenseDetails(classification)) return "An expense paid in advance was adjusted as a prepaid asset.";
   if (getOutstandingExpenseDetails(classification)) return "An expense was incurred but has not yet been paid.";
   if (debit === "Purchases") return "The business bought goods for resale.";
   if (credit === "Sales") return "The business sold goods.";
@@ -593,6 +627,58 @@ function emptyPracticeQuestion(): SolverPracticeQuestion {
     question: "",
     expectedPattern: "",
   };
+}
+
+function getPrepaidExpenseDetails(classification: TransactionClassification):
+  | {
+      expenseLabel: string;
+      futureBenefitLabel: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  | null {
+  const details: Record<
+    string,
+    {
+      expenseLabel: string;
+      futureBenefitLabel: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  > = {
+    "Prepaid Rent": {
+      expenseLabel: "Rent",
+      futureBenefitLabel: "rent",
+      narrationLabel: "rent prepaid",
+      practiceLabel: "Prepaid rent",
+    },
+    "Prepaid Insurance": {
+      expenseLabel: "Insurance",
+      futureBenefitLabel: "insurance premium",
+      narrationLabel: "insurance premium prepaid",
+      practiceLabel: "Prepaid insurance",
+    },
+    "Prepaid Salary": {
+      expenseLabel: "Salary",
+      futureBenefitLabel: "salary",
+      narrationLabel: "salary paid in advance",
+      practiceLabel: "Prepaid salary",
+    },
+    "Prepaid Wages": {
+      expenseLabel: "Wages",
+      futureBenefitLabel: "wages",
+      narrationLabel: "wages paid in advance",
+      practiceLabel: "Prepaid wages",
+    },
+    "Prepaid Electricity": {
+      expenseLabel: "Electricity",
+      futureBenefitLabel: "electricity expense",
+      narrationLabel: "electricity expense prepaid",
+      practiceLabel: "Prepaid electricity",
+    },
+  };
+
+  return details[classification.debitAccount] ?? null;
 }
 
 function getOutstandingExpenseDetails(classification: TransactionClassification):

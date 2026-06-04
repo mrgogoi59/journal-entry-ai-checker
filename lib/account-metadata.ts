@@ -132,6 +132,11 @@ export const accountMetadata: Record<string, AccountMetadata> = {
   "Outstanding Wages": outstandingExpenseMetadata("Outstanding Wages"),
   "Outstanding Electricity": outstandingExpenseMetadata("Outstanding Electricity"),
   "Outstanding Insurance": outstandingExpenseMetadata("Outstanding Insurance"),
+  "Prepaid Rent": prepaidExpenseMetadata("Prepaid Rent"),
+  "Prepaid Insurance": prepaidExpenseMetadata("Prepaid Insurance"),
+  "Prepaid Salary": prepaidExpenseMetadata("Prepaid Salary"),
+  "Prepaid Wages": prepaidExpenseMetadata("Prepaid Wages"),
+  "Prepaid Electricity": prepaidExpenseMetadata("Prepaid Electricity"),
   "Interest Income": incomeMetadata("Interest Income", "Interest income increased", "Interest was earned or received."),
   "Commission Income": incomeMetadata(
     "Commission Income",
@@ -260,6 +265,21 @@ function outstandingExpenseMetadata(account: string): AccountMetadata {
     creditEffect: "Outstanding liability increased",
     debitReason: "The payable amount is being reduced or settled.",
     creditReason: "The expense has become payable but has not yet been paid.",
+  };
+}
+
+function prepaidExpenseMetadata(account: string): AccountMetadata {
+  return {
+    displayName: `${account} A/c`,
+    traditionalType: "Real Account",
+    modernType: "Asset",
+    debitRule: "Debit what comes in / Asset increases are debited",
+    creditRule: "Credit what goes out / Asset decreases are credited",
+    debitEffect: "Prepaid asset increased",
+    creditEffect: "Prepaid asset decreased",
+    debitReason:
+      "The amount paid in advance gives future benefit to the business, so it is treated as an asset.",
+    creditReason: "The future benefit is being reduced or adjusted.",
   };
 }
 

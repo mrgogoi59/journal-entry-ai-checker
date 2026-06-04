@@ -19,6 +19,7 @@ const supportedTransactions = [
   "Bad debts written off",
   "Bad debts recovered in cash, bank, or digital mode",
   "Outstanding expenses for salary, rent, wages, electricity, and insurance",
+  "Prepaid expenses for rent, insurance, salary, wages, and electricity",
 ];
 
 const unsupportedTransactions = [
@@ -28,7 +29,6 @@ const unsupportedTransactions = [
   "Complex recovery with provision adjustment",
   "Ledger treatment after bad debt recovery",
   "Full final accounts treatment",
-  "Prepaid expenses",
   "Accrued income",
   "Income received in advance",
   "Broad final account adjustments",
@@ -57,6 +57,11 @@ const exampleTransactions = [
   "Wages outstanding Rs.4000",
   "Electricity bill outstanding Rs.2000",
   "Insurance outstanding Rs.3000",
+  "Prepaid rent Rs.5000",
+  "Insurance paid in advance Rs.3000",
+  "Salary paid in advance Rs.6000",
+  "Prepaid wages Rs.4000",
+  "Electricity bill paid in advance Rs.2000",
 ];
 
 export default function SupportedTransactionsPage() {

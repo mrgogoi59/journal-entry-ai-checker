@@ -183,6 +183,54 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves prepaid rent", async () => {
+    const body = await solve("Prepaid rent Rs.5000");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Prepaid Rent A/c", debit: 5000, credit: 0 },
+      { account: "Rent Expense A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Prepaid Rent A/c",
+      traditionalType: "Real Account",
+      modernType: "Asset",
+      debitOrCredit: "Debit",
+    });
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Rent Expense A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being rent prepaid.");
+    expect(body.stepByStepExplanation).toEqual([
+      "Rent has been paid in advance.",
+      "The advance rent gives future benefit to the business.",
+      "Prepaid Rent A/c is debited because it is an asset.",
+      "Rent Expense A/c is credited because the current period expense is reduced.",
+    ]);
+    expect(body.commonMistakes).toContain("Prepaid expense is an asset, not an expense.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves prepaid insurance", async () => {
+    const body = await solve("Prepaid insurance Rs.3000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Prepaid Insurance A/c", debit: 3000, credit: 0 },
+      { account: "Insurance Expense A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Prepaid Insurance A/c",
+      modernType: "Asset",
+      debitOrCredit: "Debit",
+    });
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves depreciation charged on machinery", async () => {
     const body = await solve("Depreciation charged on machinery Rs.5000");
 
@@ -369,15 +417,15 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve prepaid expenses yet", async () => {
-    const body = await solve("Prepaid insurance Rs.2500");
+  it("does not solve accrued income yet", async () => {
+    const body = await solve("Interest accrued Rs.1500");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve accrued income yet", async () => {
-    const body = await solve("Interest accrued Rs.1500");
+  it("does not solve income received in advance yet", async () => {
+    const body = await solve("Rent received in advance Rs.4000");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);
