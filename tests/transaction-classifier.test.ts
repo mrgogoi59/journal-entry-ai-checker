@@ -127,6 +127,17 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Purchase computer from Amit for cash Rs. 2000", "asset_purchase_computer_cash", "Computer", "Cash", 2000],
     ["Purchase vehicle from Amit for cash Rs. 2000", "asset_purchase_vehicle_cash", "Vehicle", "Cash", 2000],
     ["Purchase equipment from Amit for cash Rs. 2000", "asset_purchase_equipment_cash", "Equipment", "Cash", 2000],
+    ["Depreciation charged on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
+    ["Depreciation provided on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
+    ["Depreciation on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
+    ["Machinery depreciated by Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
+    ["Depreciation charged on furniture Rs.2000", "depreciation_furniture", "Depreciation", "Furniture", 2000],
+    ["Depreciation provided on furniture Rs.2000", "depreciation_furniture", "Depreciation", "Furniture", 2000],
+    ["Depreciation on furniture Rs.2000", "depreciation_furniture", "Depreciation", "Furniture", 2000],
+    ["Furniture depreciated by Rs.2000", "depreciation_furniture", "Depreciation", "Furniture", 2000],
+    ["Depreciation charged on computer Rs.3000", "depreciation_computer", "Depreciation", "Computer", 3000],
+    ["Depreciation provided on equipment Rs.4000", "depreciation_equipment", "Depreciation", "Equipment", 4000],
+    ["Depreciation charged on vehicle Rs.10000", "depreciation_vehicle", "Depreciation", "Vehicle", 10000],
     ["Purchase machinery from Kuldeep on credit Rs. 500", "asset_purchase_machinery_credit", "Machinery", "Kuldeep", 500],
     ["Purchased machinery from Kuldeep on credit Rs. 500", "asset_purchase_machinery_credit", "Machinery", "Kuldeep", 500],
     ["Bought machinery from Rahul on credit Rs. 1000", "asset_purchase_machinery_credit", "Machinery", "Rahul", 1000],
@@ -530,6 +541,8 @@ describe("classifyTransaction supported beginner transactions", () => {
 
   it("does not classify unsupported transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
+    expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
+    expect(classifyTransaction("Depreciation charged on unknown asset Rs.5000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

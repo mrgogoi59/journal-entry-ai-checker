@@ -135,6 +135,40 @@ describe("POST /api/journal-entry-solver", () => {
     ]);
   });
 
+  it("solves depreciation charged on machinery", async () => {
+    const body = await solve("Depreciation charged on machinery Rs.5000");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Depreciation A/c", debit: 5000, credit: 0 },
+      { account: "Machinery A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Depreciation A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      debitOrCredit: "Debit",
+      ruleApplied: "Debit all expenses and losses",
+    });
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Machinery A/c",
+      traditionalType: "Real Account",
+      modernType: "Asset",
+      debitOrCredit: "Credit",
+      ruleApplied: "Credit what goes out / Asset decreases are credited",
+    });
+    expect(body.narration).toBe("Being depreciation charged on machinery.");
+    expect(body.stepByStepExplanation).toEqual([
+      "Machinery A/c is used in business and loses value over time.",
+      "This loss in value is called depreciation.",
+      "Depreciation is an expense/loss, so Depreciation A/c is debited.",
+      "Machinery A/c value decreases, so Machinery A/c is credited.",
+    ]);
+    expect(body.commonMistakes).toContain("Depreciation is a non-cash expense.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("returns ambiguous for paying a named person without context", async () => {
     const body = await solve("Paid Ram ₹5,000");
 
@@ -155,6 +189,20 @@ describe("POST /api/journal-entry-solver", () => {
     const body = await solve("Goods worth ₹2,000 withdrawn by proprietor for personal use");
 
     expect(body.status).not.toBe("solved");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve depreciation when the asset is missing", async () => {
+    const body = await solve("Depreciation charged Rs.5000");
+
+    expect(["unsupported", "ambiguous"]).toContain(body.status);
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve depreciation on an unknown asset", async () => {
+    const body = await solve("Depreciation charged on unknown asset Rs.5000");
+
+    expect(["unsupported", "ambiguous"]).toContain(body.status);
     expect(body.journalEntry).toEqual([]);
   });
 

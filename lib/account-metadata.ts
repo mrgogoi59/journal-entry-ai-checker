@@ -123,6 +123,11 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "Commission income increased",
     "Commission was earned or received.",
   ),
+  Depreciation: expenseMetadata(
+    "Depreciation",
+    "Depreciation expense increased",
+    "Depreciation is a loss/expense due to reduction in asset value.",
+  ),
   Loan: {
     displayName: "Loan A/c",
     traditionalType: "Personal Account",

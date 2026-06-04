@@ -24,6 +24,11 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   interest_paid_cash: (amount) => `Paid interest ${formatRupees(amount)} in cash`,
   interest_received_cash: (amount) => `Received interest ${formatRupees(amount)} in cash`,
   paid_electricity: (amount) => `Paid electricity bill ${formatRupees(amount)}`,
+  depreciation_machinery: (amount) => `Depreciation charged on machinery ${formatRupees(amount)}`,
+  depreciation_furniture: (amount) => `Depreciation provided on furniture ${formatRupees(amount)}`,
+  depreciation_computer: (amount) => `Depreciation on computer ${formatRupees(amount)}`,
+  depreciation_equipment: (amount) => `Depreciation provided on equipment ${formatRupees(amount)}`,
+  depreciation_vehicle: (amount) => `Depreciation charged on vehicle ${formatRupees(amount)}`,
 };
 
 export const supportedPracticeTransactionTypes = transactionRules

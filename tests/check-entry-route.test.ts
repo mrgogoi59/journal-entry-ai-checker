@@ -1088,6 +1088,85 @@ describe("POST /api/check-entry", () => {
     expect(body.score).toBe(0);
   });
 
+  it("returns Correct for depreciation charged on machinery", async () => {
+    const body = await checkEntry(
+      "Depreciation charged on machinery Rs.5000",
+      "Depreciation A/c Dr. Rs.5000\nTo Machinery A/c Rs.5000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Depreciation", amount: 5000 }],
+      credits: [{ account: "Machinery", amount: 5000 }],
+    });
+  });
+
+  it("returns Correct for depreciation charged on furniture", async () => {
+    const body = await checkEntry(
+      "Depreciation charged on furniture Rs.2000",
+      "Depreciation A/c Dr. Rs.2000\nTo Furniture A/c Rs.2000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Depreciation", amount: 2000 }],
+      credits: [{ account: "Furniture", amount: 2000 }],
+    });
+  });
+
+  it("returns Correct for depreciation provided on computer", async () => {
+    const body = await checkEntry(
+      "Depreciation provided on computer Rs.3000",
+      "Depreciation A/c Dr. Rs.3000\nTo Computer A/c Rs.3000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Depreciation", amount: 3000 }],
+      credits: [{ account: "Computer", amount: 3000 }],
+    });
+  });
+
+  it("does not accept reversed depreciation entry", async () => {
+    const body = await checkEntry(
+      "Depreciation charged on machinery Rs.5000",
+      "Machinery A/c Dr. Rs.5000\nTo Depreciation A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept cash credit for depreciation", async () => {
+    const body = await checkEntry(
+      "Depreciation charged on machinery Rs.5000",
+      "Depreciation A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("keeps depreciation without a supported asset unsupported", async () => {
+    const missingAsset = await checkEntry(
+      "Depreciation charged Rs.5000",
+      "Depreciation A/c Dr. Rs.5000\nTo Machinery A/c Rs.5000",
+    );
+    const unknownAsset = await checkEntry(
+      "Depreciation charged on unknown asset Rs.5000",
+      "Depreciation A/c Dr. Rs.5000\nTo Unknown Asset A/c Rs.5000",
+    );
+
+    expect(missingAsset.result_status).toBe("Unsupported Transaction");
+    expect(unknownAsset.result_status).toBe("Unsupported Transaction");
+  });
+
   it("returns Correct for cash sale after trade discount using net value", async () => {
     const body = await checkEntry(
       "Goods worth Rs.1000 sold for cash Rs.900 after discount Rs.100",

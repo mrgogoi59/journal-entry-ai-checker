@@ -164,6 +164,27 @@ const assetItems = [
   { term: "equipment", account: "Equipment" },
 ] as const;
 
+const depreciationAssetItems = [
+  { term: "machinery", account: "Machinery" },
+  { term: "furniture", account: "Furniture" },
+  { term: "computers?", account: "Computer" },
+  { term: "equipment", account: "Equipment" },
+  { term: "vehicles?", account: "Vehicle" },
+] as const;
+
+const depreciationRules: TransactionRule[] = depreciationAssetItems.map(({ term, account }) => ({
+  transaction_type: `depreciation_${account.toLowerCase()}`,
+  patterns: [
+    new RegExp(`depreciation\\s+(?:charged|provided)\\s+on\\s+${term}\\b`, "i"),
+    new RegExp(`depreciation\\s+on\\s+${term}\\b`, "i"),
+    new RegExp(`${term}\\s+depreciated\\s+by\\b`, "i"),
+  ],
+  debitAccount: "Depreciation",
+  creditAccount: account,
+  explanationLogic: `Depreciation is an expense or loss, so Depreciation is debited. ${account} value decreases, so ${account} is credited.`,
+  practiceTemplate: (amount) => `Depreciation charged on ${account.toLowerCase()} ₹${amount}.`,
+}));
+
 const namedPartyPaymentStart = `(?!amount\\b|bank\\b|cash\\b|rs\\.?\\b|inr\\b|creditors?\\b|rent\\b|salary\\b|salaries\\b|interest\\b|electricity\\b|loan\\b|to\\b)${PARTY_PATTERN}`;
 
 const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
@@ -400,6 +421,7 @@ export const transactionRules: TransactionRule[] = [
       "Bank balance is an asset and it is increasing, so Bank is debited. Capital increases because the owner invested money, so Capital is credited.",
     practiceTemplate: (amount) => `Started business with ₹${amount} in bank.`,
   },
+  ...depreciationRules,
   ...namedAssetPurchaseRules,
   ...tradeDiscountRules,
   {

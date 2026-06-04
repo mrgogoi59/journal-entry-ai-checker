@@ -15,12 +15,12 @@ const supportedTransactions = [
   "Digital payments like UPI, GPay, PhonePe, and NEFT as Bank",
   "Partial goods purchase: part cash or bank, balance credit",
   "Partial goods sale: part cash or bank received, balance credit",
+  "Depreciation on machinery, furniture, computer, equipment, or vehicle",
 ];
 
 const unsupportedTransactions = [
   "GST",
   "Discount allowed or received",
-  "Depreciation",
   "Bad debts",
   "Outstanding, prepaid, or accrued adjustments",
   "Final accounts",
@@ -36,6 +36,8 @@ const exampleTransactions = [
   "Paid rent by UPI Rs.2000",
   "Purchased goods Rs.10000, paid Rs.4000 cash and balance on credit",
   "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
+  "Depreciation charged on machinery Rs.5000",
+  "Depreciation provided on furniture Rs.2000",
 ];
 
 export default function SupportedTransactionsPage() {

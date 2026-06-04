@@ -183,6 +183,9 @@ function buildAffectedAccount(
     buildPartialGoodsSaleAffectedAccount(line, side, classification);
   if (compoundAccount) return compoundAccount;
 
+  const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
+  if (depreciationAccount) return depreciationAccount;
+
   const account = line.account;
   const metadata = getAccountMetadata(account, {
     partyName: classification.partyName,
@@ -225,6 +228,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (classification.debitAccount === "Depreciation") {
+    const asset = classification.creditAccount;
+    return [
+      `${displayAccountName(asset)} is used in business and loses value over time.`,
+      "This loss in value is called depreciation.",
+      "Depreciation is an expense/loss, so Depreciation A/c is debited.",
+      `${displayAccountName(asset)} value decreases, so ${displayAccountName(asset)} is credited.`,
+    ];
+  }
+
   const debitMetadata = getAccountMetadata(classification.debitAccount, {
     partyName: classification.partyName,
     partyRole: classification.debitAccount === classification.partyName ? classification.partyRole : undefined,
@@ -262,6 +275,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
         details.totalAmount,
       )} because only ${formatRupees(details.receivedAmount)} was received immediately.`,
       `Do not ignore the ${formatRupees(details.balanceAmount)} balance receivable on credit.`,
+    ];
+  }
+
+  if (classification.debitAccount === "Depreciation") {
+    return [
+      `Do not debit ${classification.creditAccount} for depreciation.`,
+      "Do not credit Cash or Bank because no cash is paid when depreciation is recorded.",
+      "Depreciation is a non-cash expense.",
     ];
   }
 
@@ -317,6 +338,15 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.debitAccount === "Depreciation") {
+    return {
+      question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
+        classification.amount * 2,
+      )}`,
+      expectedPattern: `Depreciation A/c Dr. To ${displayAccountName(classification.creditAccount)}`,
+    };
+  }
+
   return {
     question: generatePracticeQuestion(classification),
     expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
@@ -342,6 +372,10 @@ function buildNarration(classification: TransactionClassification): string {
     return `Being goods sold, ${formatRupees(details.receivedAmount)} received ${
       details.receiptAccount === "Bank" ? "through bank/digital payment" : "in cash"
     } and balance ${formatRupees(details.balanceAmount)} on credit.`;
+  }
+
+  if (debit === "Depreciation") {
+    return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
 
   if (debit === "Purchases" && credit === "Cash") {
@@ -412,6 +446,7 @@ function describeTransactionAction(classification: TransactionClassification): s
   const debit = classification.debitAccount;
   const credit = classification.creditAccount;
 
+  if (debit === "Depreciation") return "Depreciation was recorded on a business asset.";
   if (debit === "Purchases") return "The business bought goods for resale.";
   if (credit === "Sales") return "The business sold goods.";
   if (credit === "Capital") return "The owner introduced capital into the business.";
@@ -552,6 +587,40 @@ function buildPartialGoodsSaleAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit all incomes and gains",
       reason: `Goods worth ${formatRupees(details.totalAmount)} were sold.`,
+    };
+  }
+
+  return null;
+}
+
+function buildDepreciationAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.debitAccount !== "Depreciation") return null;
+
+  if (line.account === "Depreciation") {
+    return {
+      account: "Depreciation A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      effect: "Depreciation expense increased",
+      debitOrCredit: side,
+      ruleApplied: "Debit all expenses and losses",
+      reason: "Depreciation is a loss/expense due to reduction in asset value.",
+    };
+  }
+
+  if (line.account === classification.creditAccount) {
+    return {
+      account: displayAccountName(line.account),
+      traditionalType: "Real Account",
+      modernType: "Asset",
+      effect: `${displayAccountName(line.account)} value decreased`,
+      debitOrCredit: side,
+      ruleApplied: "Credit what goes out / Asset decreases are credited",
+      reason: "The asset value is reduced due to depreciation.",
     };
   }
 
