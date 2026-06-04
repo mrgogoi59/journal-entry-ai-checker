@@ -810,6 +810,72 @@ describe("POST /api/check-entry", () => {
     expect(body.score).toBe(0);
   });
 
+  it.each([
+    {
+      name: "rent paid by UPI",
+      transactionText: "Paid rent Rs.5000 by UPI",
+      journalEntry: "Rent A/c Dr. Rs.5000\nTo Bank A/c Rs.5000",
+      debits: [{ account: "Rent Expense", amount: 5000 }],
+      credits: [{ account: "Bank", amount: 5000 }],
+    },
+    {
+      name: "salary paid through Google Pay",
+      transactionText: "Paid salary Rs.6000 through Google Pay",
+      journalEntry: "Salary A/c Dr. Rs.6000\nTo Bank A/c Rs.6000",
+      debits: [{ account: "Salary Expense", amount: 6000 }],
+      credits: [{ account: "Bank", amount: 6000 }],
+    },
+    {
+      name: "commission received through GPay",
+      transactionText: "Received commission Rs.3000 through GPay",
+      journalEntry: "Bank A/c Dr. Rs.3000\nTo Commission A/c Rs.3000",
+      debits: [{ account: "Bank", amount: 3000 }],
+      credits: [{ account: "Commission Income", amount: 3000 }],
+    },
+    {
+      name: "interest received by NEFT",
+      transactionText: "Received interest Rs.1500 by NEFT",
+      journalEntry: "Bank A/c Dr. Rs.1500\nTo Interest A/c Rs.1500",
+      debits: [{ account: "Bank", amount: 1500 }],
+      credits: [{ account: "Interest Income", amount: 1500 }],
+    },
+    {
+      name: "creditor paid by PhonePe",
+      transactionText: "Paid creditor Rs.7000 by PhonePe",
+      journalEntry: "Creditor A/c Dr. Rs.7000\nTo Bank A/c Rs.7000",
+      debits: [{ account: "Creditor", amount: 7000 }],
+      credits: [{ account: "Bank", amount: 7000 }],
+    },
+    {
+      name: "debtor receipt by online transfer",
+      transactionText: "Received from debtor by online transfer Rs.10000",
+      journalEntry: "Bank A/c Dr. Rs.10000\nTo Debtor A/c Rs.10000",
+      debits: [{ account: "Bank", amount: 10000 }],
+      credits: [{ account: "Debtor", amount: 10000 }],
+    },
+    {
+      name: "loan repaid by net banking",
+      transactionText: "Repaid loan Rs.10000 by net banking",
+      journalEntry: "Loan A/c Dr. Rs.10000\nTo Bank A/c Rs.10000",
+      debits: [{ account: "Loan", amount: 10000 }],
+      credits: [{ account: "Bank", amount: 10000 }],
+    },
+    {
+      name: "loan taken through bank transfer",
+      transactionText: "Took loan Rs.50000 through bank transfer",
+      journalEntry: "Bank A/c Dr. Rs.50000\nTo Loan A/c Rs.50000",
+      debits: [{ account: "Bank", amount: 50000 }],
+      credits: [{ account: "Loan", amount: 50000 }],
+    },
+  ])("returns Correct for digital bank payment mode: $name", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
   it("returns Correct for named customer credit sale", async () => {
     const body = await checkEntry(
       "Sold Mango to Bidyut Rs. 500",

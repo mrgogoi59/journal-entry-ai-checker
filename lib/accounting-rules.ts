@@ -12,12 +12,14 @@ export interface TransactionRule {
 
 const CASH_PAYMENT_PATTERN = "(?:for cash|in cash|by cash|\\bcash\\b)";
 const CREDIT_PAYMENT_PATTERN = "(?:on credit|credit|on account)";
+const DIGITAL_PAYMENT_PATTERN =
+  "(?:upi|google\\s+pay|gpay|phonepe|paytm|neft|rtgs|imps|online\\s+transfer|bank\\s+transfer|debit\\s+card|card\\s+payment|net\\s+banking)";
+const BANK_PAYMENT_PATTERN = `(?:through bank|in bank|from bank|by cheque|by check|\\bbank\\b|${DIGITAL_PAYMENT_PATTERN})`;
+const PAYMENT_MODE_CLUE_PATTERN = `(?:\\b(?:cash|bank|cheque|check|credit|debtor|customer|creditor|supplier|discount)\\b|${DIGITAL_PAYMENT_PATTERN})`;
 const GOODS_ITEM_PATTERN = "(?:goods|mango(?:es)?|apples?|rice|wheat|books?|stationery)";
-const NO_EXPLICIT_SALE_MODE_PREFIX =
-  "^(?!.*\\b(?:cash|bank|cheque|check|credit|debtor|customer|discount)\\b)(?!.*\\bto\\b)";
-const NO_EXPLICIT_PURCHASE_MODE_PREFIX =
-  "^(?!.*\\b(?:cash|bank|cheque|check|credit|creditor|supplier|discount)\\b)(?!.*\\bfrom\\b)";
-const NO_PAYMENT_MODE_PREFIX = "^(?!.*\\b(?:cash|bank|cheque|check|credit)\\b)";
+const NO_EXPLICIT_SALE_MODE_PREFIX = `^(?!.*${PAYMENT_MODE_CLUE_PATTERN})(?!.*\\bto\\b)`;
+const NO_EXPLICIT_PURCHASE_MODE_PREFIX = `^(?!.*${PAYMENT_MODE_CLUE_PATTERN})(?!.*\\bfrom\\b)`;
+const NO_PAYMENT_MODE_PREFIX = `^(?!.*(?:\\b(?:cash|bank|cheque|check|credit)\\b|${DIGITAL_PAYMENT_PATTERN}))`;
 const TRADE_DISCOUNT_PATTERN = "after\\s+discount";
 
 function extractTradeDiscountNetAmount(transactionText: string): number | null {
@@ -191,10 +193,10 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "started_business_bank",
     patterns: [
-      /started .*business.*(bank|cheque|check)/i,
-      /commenced .*business.*(bank|cheque|check)/i,
-      /(introduced|invested|brought).*capital.*(bank|cheque|check)/i,
-      /(owner|proprietor).*invested.*(bank|cheque|check)/i,
+      new RegExp(`started .*business.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`commenced .*business.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`(introduced|invested|brought).*capital.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`(owner|proprietor).*invested.*${BANK_PAYMENT_PATTERN}`, "i"),
     ],
     debitAccount: "Bank",
     creditAccount: "Capital",
@@ -215,7 +217,7 @@ export const transactionRules: TransactionRule[] = [
   },
   {
     transaction_type: "bought_machinery_cheque",
-    patterns: [/(bought|purchased).*machinery.*(cheque|check|bank)/i],
+    patterns: [new RegExp(`(bought|purchased).*machinery.*${BANK_PAYMENT_PATTERN}`, "i")],
     debitAccount: "Machinery",
     creditAccount: "Bank",
     explanationLogic:
@@ -302,8 +304,8 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "paid_rent_bank",
     patterns: [
-      /paid .*rent.*(through bank|by cheque|by check|\bbank\b)/i,
-      /rent.*paid.*(through bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`paid .*rent.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`rent.*paid.*${BANK_PAYMENT_PATTERN}`, "i"),
     ],
     debitAccount: "Rent Expense",
     creditAccount: "Bank",
@@ -326,9 +328,9 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "paid_salary_bank",
     patterns: [
-      /paid .*(salary|salaries).*(through bank|by cheque|by check|\bbank\b)/i,
-      /(salary|salaries).*paid.*(through bank|by cheque|by check|\bbank\b)/i,
-      /(staff|employee) salary.*paid.*(through bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`paid .*(salary|salaries).*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`(salary|salaries).*paid.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`(staff|employee) salary.*paid.*${BANK_PAYMENT_PATTERN}`, "i"),
     ],
     debitAccount: "Salary Expense",
     creditAccount: "Bank",
@@ -352,10 +354,10 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "commission_received_bank",
     patterns: [
-      /received .*commission.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /commission.*received.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /received .*commission income.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /commission.*earned.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`received .*commission.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`commission.*received.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`received .*commission income.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`commission.*earned.*${BANK_PAYMENT_PATTERN}`, "i"),
       /bank.*received.*commission/i,
     ],
     debitAccount: "Bank",
@@ -399,8 +401,8 @@ export const transactionRules: TransactionRule[] = [
     transaction_type: "owner_drawings_bank",
     patterns: [
       /(owner|proprietor).*withdr(ew|awn|aw).*from bank/i,
-      /(owner|proprietor).*withdr(ew|awn|aw).*by (cheque|check)/i,
-      /drawings?.*(through bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`(owner|proprietor).*withdr(ew|awn|aw).*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`drawings?.*${BANK_PAYMENT_PATTERN}`, "i"),
     ],
     debitAccount: "Drawings",
     creditAccount: "Bank",
@@ -441,9 +443,9 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "paid_creditor_bank",
     patterns: [
-      /paid .*to .*creditors?.*(through bank|by cheque|by check|\bbank\b)/i,
-      /paid .*creditors?.*(through bank|by cheque|by check|\bbank\b)/i,
-      /amount.*paid.*creditors?.*(through bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`paid .*to .*creditors?.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`paid .*creditors?.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`amount.*paid.*creditors?.*${BANK_PAYMENT_PATTERN}`, "i"),
     ],
     debitAccount: "Creditor",
     creditAccount: "Bank",
@@ -470,10 +472,10 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "received_from_debtor_bank",
     patterns: [
-      /received .*from .*debtors?.*(through bank|by cheque|by check|\bbank\b)/i,
-      /received .*debtors?.*(through bank|by cheque|by check|\bbank\b)/i,
-      /debtors?.*paid.*(through bank|by cheque|by check|\bbank\b)/i,
-      /amount.*received.*debtors?.*(through bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`received .*from .*debtors?.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`received .*debtors?.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`debtors?.*paid.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`amount.*received.*debtors?.*${BANK_PAYMENT_PATTERN}`, "i"),
     ],
     debitAccount: "Bank",
     creditAccount: "Debtor",
@@ -518,13 +520,13 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "loan_taken_bank",
     patterns: [
-      /took .*loan.*(through bank|in bank|by cheque|by check|from bank)/i,
-      /loan.*taken.*(through bank|in bank|by cheque|by check)/i,
-      /received .*loan.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`took .*loan.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`loan.*taken.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`received .*loan.*${BANK_PAYMENT_PATTERN}`, "i"),
       /bank loan.*(received|credited)/i,
-      /loan.*amount.*received.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /loan.*received.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /borrowed .*(through bank|in bank|by cheque|by check)/i,
+      new RegExp(`loan.*amount.*received.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`loan.*received.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`borrowed .*${BANK_PAYMENT_PATTERN}`, "i"),
       /loan .*from bank/i,
     ],
     debitAccount: "Bank",
@@ -553,13 +555,13 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "loan_repaid_bank",
     patterns: [
-      /repaid .*loan.*(through bank|by cheque|by check)/i,
-      /loan.*repaid.*(through bank|by cheque|by check)/i,
-      /^(?!.*interest).*paid .*loan.*(through bank|by cheque|by check)/i,
-      /loan.*repayment.*(through bank|by cheque|by check)/i,
-      /paid .*towards loan.*(through bank|by cheque|by check)/i,
+      new RegExp(`repaid .*loan.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`loan.*repaid.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`^(?!.*interest).*paid .*loan.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`loan.*repayment.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`paid .*towards loan.*${BANK_PAYMENT_PATTERN}`, "i"),
       /bank.*paid.*loan.*repayment/i,
-      /loan.*amount.*paid.*(through bank|by cheque|by check)/i,
+      new RegExp(`loan.*amount.*paid.*${BANK_PAYMENT_PATTERN}`, "i"),
     ],
     debitAccount: "Loan",
     creditAccount: "Bank",
@@ -570,10 +572,10 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "interest_paid_bank",
     patterns: [
-      /paid .*interest.*(through bank|by cheque|by check|\bbank\b)/i,
-      /interest.*paid.*(through bank|by cheque|by check|\bbank\b)/i,
-      /paid .*interest expense.*(through bank|by cheque|by check|\bbank\b)/i,
-      /interest on loan.*paid.*(through bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`paid .*interest.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`interest.*paid.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`paid .*interest expense.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`interest on loan.*paid.*${BANK_PAYMENT_PATTERN}`, "i"),
       /bank.*paid.*interest/i,
     ],
     debitAccount: "Interest Expense",
@@ -600,10 +602,10 @@ export const transactionRules: TransactionRule[] = [
   {
     transaction_type: "interest_received_bank",
     patterns: [
-      /received .*interest.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /interest.*received.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /received .*interest income.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
-      /interest.*earned.*(through bank|in bank|by cheque|by check|\bbank\b)/i,
+      new RegExp(`received .*interest.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`interest.*received.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`received .*interest income.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`interest.*earned.*${BANK_PAYMENT_PATTERN}`, "i"),
       /bank.*received.*interest/i,
     ],
     debitAccount: "Bank",
