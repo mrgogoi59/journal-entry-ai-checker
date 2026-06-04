@@ -135,6 +135,54 @@ describe("POST /api/journal-entry-solver", () => {
     ]);
   });
 
+  it("solves salary outstanding", async () => {
+    const body = await solve("Salary outstanding Rs.6000");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Salary Expense A/c", debit: 6000, credit: 0 },
+      { account: "Outstanding Salary A/c", debit: 0, credit: 6000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Salary Expense A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      debitOrCredit: "Debit",
+    });
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Outstanding Salary A/c",
+      traditionalType: "Personal Account / Representative Personal Account",
+      modernType: "Liability",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being salary outstanding.");
+    expect(body.stepByStepExplanation).toEqual([
+      "Salary expense has been incurred.",
+      "The salary has not yet been paid.",
+      "Salary Expense A/c is debited because expenses are debited.",
+      "Outstanding Salary A/c is credited because it is a liability/payable.",
+    ]);
+    expect(body.commonMistakes).toContain("Do not credit Cash or Bank because no payment has been made yet.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves electricity bill outstanding", async () => {
+    const body = await solve("Electricity bill outstanding Rs.2000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Electricity Expense A/c", debit: 2000, credit: 0 },
+      { account: "Outstanding Electricity A/c", debit: 0, credit: 2000 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Outstanding Electricity A/c",
+      modernType: "Liability",
+      debitOrCredit: "Credit",
+    });
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves depreciation charged on machinery", async () => {
     const body = await solve("Depreciation charged on machinery Rs.5000");
 
@@ -316,6 +364,20 @@ describe("POST /api/journal-entry-solver", () => {
 
   it("does not solve bad debts recovery transferred to provision", async () => {
     const body = await solve("Bad debts recovered and transferred to provision for doubtful debts Rs.500");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve prepaid expenses yet", async () => {
+    const body = await solve("Prepaid insurance Rs.2500");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve accrued income yet", async () => {
+    const body = await solve("Interest accrued Rs.1500");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

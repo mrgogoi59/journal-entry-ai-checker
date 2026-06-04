@@ -197,6 +197,65 @@ describe("classifyTransaction supported beginner transactions", () => {
       "Bad Debts Recovered",
       500,
     ],
+    ["Salary outstanding Rs.6000", "outstanding_salary", "Salary Expense", "Outstanding Salary", 6000],
+    ["Outstanding salary Rs.6000", "outstanding_salary", "Salary Expense", "Outstanding Salary", 6000],
+    ["Salary due but not paid Rs.6000", "outstanding_salary", "Salary Expense", "Outstanding Salary", 6000],
+    ["Salary payable Rs.6000", "outstanding_salary", "Salary Expense", "Outstanding Salary", 6000],
+    ["Salary expense outstanding Rs.6000", "outstanding_salary", "Salary Expense", "Outstanding Salary", 6000],
+    ["Rent outstanding Rs.5000", "outstanding_rent", "Rent Expense", "Outstanding Rent", 5000],
+    ["Outstanding rent Rs.5000", "outstanding_rent", "Rent Expense", "Outstanding Rent", 5000],
+    ["Rent due but not paid Rs.5000", "outstanding_rent", "Rent Expense", "Outstanding Rent", 5000],
+    ["Rent payable Rs.5000", "outstanding_rent", "Rent Expense", "Outstanding Rent", 5000],
+    ["Rent expense outstanding Rs.5000", "outstanding_rent", "Rent Expense", "Outstanding Rent", 5000],
+    ["Wages outstanding Rs.4000", "outstanding_wages", "Wages Expense", "Outstanding Wages", 4000],
+    ["Outstanding wages Rs.4000", "outstanding_wages", "Wages Expense", "Outstanding Wages", 4000],
+    ["Wages due but not paid Rs.4000", "outstanding_wages", "Wages Expense", "Outstanding Wages", 4000],
+    ["Wages payable Rs.4000", "outstanding_wages", "Wages Expense", "Outstanding Wages", 4000],
+    [
+      "Electricity bill outstanding Rs.2000",
+      "outstanding_electricity",
+      "Electricity Expense",
+      "Outstanding Electricity",
+      2000,
+    ],
+    [
+      "Electricity outstanding Rs.2000",
+      "outstanding_electricity",
+      "Electricity Expense",
+      "Outstanding Electricity",
+      2000,
+    ],
+    [
+      "Outstanding electricity bill Rs.2000",
+      "outstanding_electricity",
+      "Electricity Expense",
+      "Outstanding Electricity",
+      2000,
+    ],
+    [
+      "Electricity expense outstanding Rs.2000",
+      "outstanding_electricity",
+      "Electricity Expense",
+      "Outstanding Electricity",
+      2000,
+    ],
+    [
+      "Electricity payable Rs.2000",
+      "outstanding_electricity",
+      "Electricity Expense",
+      "Outstanding Electricity",
+      2000,
+    ],
+    ["Insurance outstanding Rs.3000", "outstanding_insurance", "Insurance Expense", "Outstanding Insurance", 3000],
+    ["Outstanding insurance Rs.3000", "outstanding_insurance", "Insurance Expense", "Outstanding Insurance", 3000],
+    [
+      "Insurance premium outstanding Rs.3000",
+      "outstanding_insurance",
+      "Insurance Expense",
+      "Outstanding Insurance",
+      3000,
+    ],
+    ["Insurance payable Rs.3000", "outstanding_insurance", "Insurance Expense", "Outstanding Insurance", 3000],
     ["Depreciation charged on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation provided on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
@@ -615,6 +674,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Depreciation charged on unknown asset Rs.5000")).toBeNull();
     expect(classifyTransaction("Provision for doubtful debts created Rs.1000")).toBeNull();
     expect(classifyTransaction("Bad debts recovered and transferred to provision for doubtful debts Rs.500")).toBeNull();
+    expect(classifyTransaction("Prepaid insurance Rs.2500")).toBeNull();
+    expect(classifyTransaction("Interest accrued Rs.1500")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

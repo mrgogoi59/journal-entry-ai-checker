@@ -263,6 +263,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  const outstandingExpense = getOutstandingExpenseDetails(classification);
+  if (outstandingExpense) {
+    return [
+      `${outstandingExpense.expenseLabel} expense has been incurred.`,
+      `The ${outstandingExpense.expenseLower} has not yet been paid.`,
+      `${displayAccountName(classification.debitAccount)} is debited because expenses are debited.`,
+      `${displayAccountName(classification.creditAccount)} is credited because it is a liability/payable.`,
+    ];
+  }
+
   const debitMetadata = getAccountMetadata(classification.debitAccount, {
     partyName: classification.partyName,
     partyRole: classification.debitAccount === classification.partyName ? classification.partyRole : undefined,
@@ -324,6 +334,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not debit Bad Debts Recovered A/c.",
       "Do not credit Debtor/Raju A/c in this beginner MVP treatment.",
       "Bad Debts Recovered is income/gain, not an expense.",
+    ];
+  }
+
+  if (getOutstandingExpenseDetails(classification)) {
+    return [
+      "Do not credit Cash or Bank because no payment has been made yet.",
+      "Outstanding expense means payable, so a liability is created.",
+      "Do not ignore the expense just because it is unpaid.",
     ];
   }
 
@@ -408,6 +426,16 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  const outstandingExpense = getOutstandingExpenseDetails(classification);
+  if (outstandingExpense) {
+    return {
+      question: `${outstandingExpense.practiceLabel} ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
+        classification.creditAccount,
+      )}`,
+    };
+  }
+
   return {
     question: generatePracticeQuestion(classification),
     expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
@@ -446,6 +474,11 @@ function buildNarration(classification: TransactionClassification): string {
   if (credit === "Bad Debts Recovered") {
     if (partyName) return `Being bad debts previously written off recovered from ${partyName}.`;
     return `Being bad debts recovered ${debit === "Bank" ? "through bank" : "in cash"}.`;
+  }
+
+  const outstandingExpense = getOutstandingExpenseDetails(classification);
+  if (outstandingExpense) {
+    return `Being ${outstandingExpense.narrationLabel} outstanding.`;
   }
 
   if (debit === "Purchases" && credit === "Cash") {
@@ -519,6 +552,7 @@ function describeTransactionAction(classification: TransactionClassification): s
   if (debit === "Depreciation") return "Depreciation was recorded on a business asset.";
   if (debit === "Bad Debts") return "An irrecoverable debtor balance was written off.";
   if (credit === "Bad Debts Recovered") return "An amount previously written off as bad debt was recovered.";
+  if (getOutstandingExpenseDetails(classification)) return "An expense was incurred but has not yet been paid.";
   if (debit === "Purchases") return "The business bought goods for resale.";
   if (credit === "Sales") return "The business sold goods.";
   if (credit === "Capital") return "The owner introduced capital into the business.";
@@ -559,6 +593,58 @@ function emptyPracticeQuestion(): SolverPracticeQuestion {
     question: "",
     expectedPattern: "",
   };
+}
+
+function getOutstandingExpenseDetails(classification: TransactionClassification):
+  | {
+      expenseLabel: string;
+      expenseLower: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  | null {
+  const details: Record<
+    string,
+    {
+      expenseLabel: string;
+      expenseLower: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  > = {
+    "Outstanding Salary": {
+      expenseLabel: "Salary",
+      expenseLower: "salary",
+      narrationLabel: "salary",
+      practiceLabel: "Salary outstanding",
+    },
+    "Outstanding Rent": {
+      expenseLabel: "Rent",
+      expenseLower: "rent",
+      narrationLabel: "rent",
+      practiceLabel: "Rent outstanding",
+    },
+    "Outstanding Wages": {
+      expenseLabel: "Wages",
+      expenseLower: "wages",
+      narrationLabel: "wages",
+      practiceLabel: "Wages outstanding",
+    },
+    "Outstanding Electricity": {
+      expenseLabel: "Electricity",
+      expenseLower: "electricity bill",
+      narrationLabel: "electricity bill",
+      practiceLabel: "Electricity bill outstanding",
+    },
+    "Outstanding Insurance": {
+      expenseLabel: "Insurance",
+      expenseLower: "insurance premium",
+      narrationLabel: "insurance premium",
+      practiceLabel: "Insurance outstanding",
+    },
+  };
+
+  return details[classification.creditAccount] ?? null;
 }
 
 function buildPartialGoodsPurchaseAffectedAccount(

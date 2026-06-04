@@ -211,6 +211,82 @@ const depreciationRules: TransactionRule[] = depreciationAssetItems.map(({ term,
   practiceTemplate: (amount) => `Depreciation charged on ${account.toLowerCase()} ₹${amount}.`,
 }));
 
+const outstandingExpenseRules: TransactionRule[] = [
+  {
+    transaction_type: "outstanding_salary",
+    patterns: [
+      /salary\s+outstanding/i,
+      /outstanding\s+salary/i,
+      /salary\s+due\s+but\s+not\s+paid/i,
+      /salary\s+payable/i,
+      /salary\s+expense\s+outstanding/i,
+    ],
+    debitAccount: "Salary Expense",
+    creditAccount: "Outstanding Salary",
+    explanationLogic:
+      "Salary expense has been incurred, so Salary Expense is debited. Salary is payable but unpaid, so Outstanding Salary is credited as a liability.",
+    practiceTemplate: (amount) => `Salary outstanding ₹${amount}.`,
+  },
+  {
+    transaction_type: "outstanding_rent",
+    patterns: [
+      /rent\s+outstanding/i,
+      /outstanding\s+rent/i,
+      /rent\s+due\s+but\s+not\s+paid/i,
+      /rent\s+payable/i,
+      /rent\s+expense\s+outstanding/i,
+    ],
+    debitAccount: "Rent Expense",
+    creditAccount: "Outstanding Rent",
+    explanationLogic:
+      "Rent expense has been incurred, so Rent Expense is debited. Rent is payable but unpaid, so Outstanding Rent is credited as a liability.",
+    practiceTemplate: (amount) => `Rent outstanding ₹${amount}.`,
+  },
+  {
+    transaction_type: "outstanding_wages",
+    patterns: [
+      /wages?\s+outstanding/i,
+      /outstanding\s+wages?/i,
+      /wages?\s+due\s+but\s+not\s+paid/i,
+      /wages?\s+payable/i,
+    ],
+    debitAccount: "Wages Expense",
+    creditAccount: "Outstanding Wages",
+    explanationLogic:
+      "Wages expense has been incurred, so Wages Expense is debited. Wages are payable but unpaid, so Outstanding Wages is credited as a liability.",
+    practiceTemplate: (amount) => `Wages outstanding ₹${amount}.`,
+  },
+  {
+    transaction_type: "outstanding_electricity",
+    patterns: [
+      /electricity\s+bill\s+outstanding/i,
+      /electricity\s+outstanding/i,
+      /outstanding\s+electricity\s+bill/i,
+      /electricity\s+expense\s+outstanding/i,
+      /electricity\s+payable/i,
+    ],
+    debitAccount: "Electricity Expense",
+    creditAccount: "Outstanding Electricity",
+    explanationLogic:
+      "Electricity expense has been incurred, so Electricity Expense is debited. The electricity bill is payable but unpaid, so Outstanding Electricity is credited as a liability.",
+    practiceTemplate: (amount) => `Electricity bill outstanding ₹${amount}.`,
+  },
+  {
+    transaction_type: "outstanding_insurance",
+    patterns: [
+      /insurance\s+outstanding/i,
+      /outstanding\s+insurance/i,
+      /insurance\s+premium\s+outstanding/i,
+      /insurance\s+payable/i,
+    ],
+    debitAccount: "Insurance Expense",
+    creditAccount: "Outstanding Insurance",
+    explanationLogic:
+      "Insurance expense has been incurred, so Insurance Expense is debited. Insurance is payable but unpaid, so Outstanding Insurance is credited as a liability.",
+    practiceTemplate: (amount) => `Insurance outstanding ₹${amount}.`,
+  },
+];
+
 const namedPartyPaymentStart = `(?!amount\\b|bank\\b|cash\\b|rs\\.?\\b|inr\\b|creditors?\\b|rent\\b|salary\\b|salaries\\b|interest\\b|electricity\\b|loan\\b|to\\b)${PARTY_PATTERN}`;
 
 const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
@@ -968,6 +1044,7 @@ export const transactionRules: TransactionRule[] = [
       "Cash increases because interest is received in cash. Interest received is income, so Interest Income is credited.",
     practiceTemplate: (amount) => `Received interest ₹${amount} in cash.`,
   },
+  ...outstandingExpenseRules,
   {
     transaction_type: "paid_electricity",
     patterns: [/paid .*electricity/i, /electricity bill/i],

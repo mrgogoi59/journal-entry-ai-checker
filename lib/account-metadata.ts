@@ -111,12 +111,27 @@ export const accountMetadata: Record<string, AccountMetadata> = {
   },
   "Rent Expense": expenseMetadata("Rent Expense", "Rent expense increased", "Rent was paid or became due."),
   "Salary Expense": expenseMetadata("Salary Expense", "Salary expense increased", "Salary was paid or became due."),
+  "Wages Expense": expenseMetadata(
+    "Wages Expense",
+    "Wages expense increased",
+    "The expense has been incurred during the accounting period.",
+  ),
   "Interest Expense": expenseMetadata("Interest Expense", "Interest expense increased", "Interest was paid or became due."),
   "Electricity Expense": expenseMetadata(
     "Electricity Expense",
     "Electricity expense increased",
     "Electricity bill was paid or became due.",
   ),
+  "Insurance Expense": expenseMetadata(
+    "Insurance Expense",
+    "Insurance expense increased",
+    "The expense has been incurred during the accounting period.",
+  ),
+  "Outstanding Salary": outstandingExpenseMetadata("Outstanding Salary"),
+  "Outstanding Rent": outstandingExpenseMetadata("Outstanding Rent"),
+  "Outstanding Wages": outstandingExpenseMetadata("Outstanding Wages"),
+  "Outstanding Electricity": outstandingExpenseMetadata("Outstanding Electricity"),
+  "Outstanding Insurance": outstandingExpenseMetadata("Outstanding Insurance"),
   "Interest Income": incomeMetadata("Interest Income", "Interest income increased", "Interest was earned or received."),
   "Commission Income": incomeMetadata(
     "Commission Income",
@@ -231,6 +246,20 @@ function incomeMetadata(
     creditEffect,
     debitReason: "The income is being reduced or adjusted.",
     creditReason,
+  };
+}
+
+function outstandingExpenseMetadata(account: string): AccountMetadata {
+  return {
+    displayName: `${account} A/c`,
+    traditionalType: "Personal Account / Representative Personal Account",
+    modernType: "Liability",
+    debitRule: "Debit the receiver / Liability decreases are debited",
+    creditRule: "Credit the giver / Liability increases are credited",
+    debitEffect: "Outstanding liability decreased",
+    creditEffect: "Outstanding liability increased",
+    debitReason: "The payable amount is being reduced or settled.",
+    creditReason: "The expense has become payable but has not yet been paid.",
   };
 }
 

@@ -229,6 +229,82 @@ describe("POST /api/check-entry", () => {
     });
   });
 
+  it.each([
+    {
+      name: "salary outstanding",
+      transactionText: "Salary outstanding Rs.6000",
+      journalEntry: "Salary A/c Dr. Rs.6000\nTo Outstanding Salary A/c Rs.6000",
+      debits: [{ account: "Salary Expense", amount: 6000 }],
+      credits: [{ account: "Outstanding Salary", amount: 6000 }],
+    },
+    {
+      name: "salary expense outstanding",
+      transactionText: "Salary outstanding Rs.6000",
+      journalEntry: "Salary Expense A/c Dr. Rs.6000\nTo Outstanding Salary A/c Rs.6000",
+      debits: [{ account: "Salary Expense", amount: 6000 }],
+      credits: [{ account: "Outstanding Salary", amount: 6000 }],
+    },
+    {
+      name: "rent outstanding",
+      transactionText: "Rent outstanding Rs.5000",
+      journalEntry: "Rent A/c Dr. Rs.5000\nTo Outstanding Rent A/c Rs.5000",
+      debits: [{ account: "Rent Expense", amount: 5000 }],
+      credits: [{ account: "Outstanding Rent", amount: 5000 }],
+    },
+    {
+      name: "wages outstanding",
+      transactionText: "Wages outstanding Rs.4000",
+      journalEntry: "Wages A/c Dr. Rs.4000\nTo Outstanding Wages A/c Rs.4000",
+      debits: [{ account: "Wages Expense", amount: 4000 }],
+      credits: [{ account: "Outstanding Wages", amount: 4000 }],
+    },
+    {
+      name: "electricity bill outstanding",
+      transactionText: "Electricity bill outstanding Rs.2000",
+      journalEntry: "Electricity A/c Dr. Rs.2000\nTo Outstanding Electricity A/c Rs.2000",
+      debits: [{ account: "Electricity Expense", amount: 2000 }],
+      credits: [{ account: "Outstanding Electricity", amount: 2000 }],
+    },
+    {
+      name: "insurance outstanding",
+      transactionText: "Insurance outstanding Rs.3000",
+      journalEntry: "Insurance A/c Dr. Rs.3000\nTo Outstanding Insurance A/c Rs.3000",
+      debits: [{ account: "Insurance Expense", amount: 3000 }],
+      credits: [{ account: "Outstanding Insurance", amount: 3000 }],
+    },
+  ])("returns Correct for outstanding expense: $name", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      name: "reversed outstanding salary",
+      journalEntry: "Outstanding Salary A/c Dr. Rs.6000\nTo Salary A/c Rs.6000",
+    },
+    {
+      name: "salary credited to cash",
+      journalEntry: "Salary A/c Dr. Rs.6000\nTo Cash A/c Rs.6000",
+    },
+    {
+      name: "salary credited to bank",
+      journalEntry: "Salary A/c Dr. Rs.6000\nTo Bank A/c Rs.6000",
+    },
+    {
+      name: "cash debited against outstanding salary",
+      journalEntry: "Cash A/c Dr. Rs.6000\nTo Outstanding Salary A/c Rs.6000",
+    },
+  ])("does not accept wrong outstanding salary entry: $name", async ({ journalEntry }) => {
+    const body = await checkEntry("Salary outstanding Rs.6000", journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("does not accept a salary entry for rent paid", async () => {
     const body = await checkEntry(
       "Paid rent Rs.5000 in cash",

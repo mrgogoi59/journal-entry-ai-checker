@@ -18,6 +18,7 @@ const supportedTransactions = [
   "Depreciation on machinery, furniture, computer, equipment, or vehicle",
   "Bad debts written off",
   "Bad debts recovered in cash, bank, or digital mode",
+  "Outstanding expenses for salary, rent, wages, electricity, and insurance",
 ];
 
 const unsupportedTransactions = [
@@ -27,7 +28,10 @@ const unsupportedTransactions = [
   "Complex recovery with provision adjustment",
   "Ledger treatment after bad debt recovery",
   "Full final accounts treatment",
-  "Outstanding, prepaid, or accrued adjustments",
+  "Prepaid expenses",
+  "Accrued income",
+  "Income received in advance",
+  "Broad final account adjustments",
   "Final accounts",
   "Ledger posting",
   "Trial balance",
@@ -48,6 +52,11 @@ const exampleTransactions = [
   "Bad debts recovered Rs.500 in cash",
   "Bad debts recovered Rs.500 through bank",
   "Bad debts recovered from Raju Rs.500 in cash",
+  "Salary outstanding Rs.6000",
+  "Rent outstanding Rs.5000",
+  "Wages outstanding Rs.4000",
+  "Electricity bill outstanding Rs.2000",
+  "Insurance outstanding Rs.3000",
 ];
 
 export default function SupportedTransactionsPage() {
