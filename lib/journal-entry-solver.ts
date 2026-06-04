@@ -164,13 +164,20 @@ function buildJournalEntry(entry: CorrectJournalEntry): SolverJournalEntryLine[]
 
 function buildAffectedAccounts(classification: TransactionClassification): SolverAffectedAccount[] {
   return [
-    buildAffectedAccount(classification.debitAccount, "Debit"),
-    buildAffectedAccount(classification.creditAccount, "Credit"),
+    buildAffectedAccount(classification.debitAccount, "Debit", classification),
+    buildAffectedAccount(classification.creditAccount, "Credit", classification),
   ];
 }
 
-function buildAffectedAccount(account: string, side: SolverSide): SolverAffectedAccount {
-  const metadata = getAccountMetadata(account);
+function buildAffectedAccount(
+  account: string,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount {
+  const metadata = getAccountMetadata(account, {
+    partyName: classification.partyName,
+    partyRole: account === classification.partyName ? classification.partyRole : undefined,
+  });
 
   return {
     account: metadata.displayName,
@@ -184,8 +191,14 @@ function buildAffectedAccount(account: string, side: SolverSide): SolverAffected
 }
 
 function buildStepByStepExplanation(classification: TransactionClassification): string[] {
-  const debitMetadata = getAccountMetadata(classification.debitAccount);
-  const creditMetadata = getAccountMetadata(classification.creditAccount);
+  const debitMetadata = getAccountMetadata(classification.debitAccount, {
+    partyName: classification.partyName,
+    partyRole: classification.debitAccount === classification.partyName ? classification.partyRole : undefined,
+  });
+  const creditMetadata = getAccountMetadata(classification.creditAccount, {
+    partyName: classification.partyName,
+    partyRole: classification.creditAccount === classification.partyName ? classification.partyRole : undefined,
+  });
 
   return [
     describeTransactionAction(classification),
@@ -219,7 +232,7 @@ function buildCommonMistakes(classification: TransactionClassification): string[
   }
 
   if (classification.debitAccount === "Debtor" || classification.creditAccount === "Creditor") {
-    mistakes.push("Use generic Debtor/Creditor for now; party names are not preserved in this MVP.");
+    mistakes.push("Use Debtor/Creditor when no clear party name is given. Use the party name when it is clearly given.");
   }
 
   return mistakes.length > 0 ? mistakes : ["Check the account name, side, and amount before writing the final answer."];
@@ -237,10 +250,26 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
 function buildNarration(classification: TransactionClassification): string {
   const debit = classification.debitAccount;
   const credit = classification.creditAccount;
+  const partyName = classification.partyName;
 
-  if (debit === "Purchases" && credit === "Cash") return "Being goods purchased for cash.";
+  if (debit === "Purchases" && credit === "Cash") {
+    return partyName ? `Being goods purchased from ${partyName} for cash.` : "Being goods purchased for cash.";
+  }
+  if (debit === "Purchases" && classification.partyAccountSide === "credit") {
+    return `Being goods purchased from ${credit} on credit.`;
+  }
   if (debit === "Purchases" && credit === "Creditor") return "Being goods purchased on credit.";
-  if (debit === "Cash" && credit === "Sales") return "Being goods sold for cash.";
+  if (debit === "Cash" && credit === "Sales") {
+    return partyName ? `Being goods sold to ${partyName} for cash.` : "Being goods sold for cash.";
+  }
+  if (debit === "Bank" && credit === "Sales") {
+    return partyName
+      ? `Being goods sold to ${partyName} through bank/digital payment.`
+      : "Being goods sold through bank.";
+  }
+  if (classification.partyAccountSide === "debit" && credit === "Sales") {
+    return `Being goods sold to ${debit} on credit.`;
+  }
   if (debit === "Debtor" && credit === "Sales") return "Being goods sold on credit.";
   if (debit === "Cash" && credit === "Capital") return "Being capital introduced in cash.";
   if (debit === "Bank" && credit === "Capital") return "Being capital introduced through bank.";
@@ -250,7 +279,15 @@ function buildNarration(classification: TransactionClassification): string {
   if (credit === "Interest Income") return `Being interest received ${debit === "Bank" ? "through bank" : "in cash"}.`;
   if (credit === "Commission Income") return `Being commission received ${debit === "Bank" ? "through bank" : "in cash"}.`;
   if (debit === "Drawings") return `Being amount withdrawn by owner ${credit === "Bank" ? "through bank" : "in cash"}.`;
+  if (classification.partyAccountSide === "debit" && (credit === "Bank" || credit === "Cash")) {
+    return `Being amount paid to ${debit} ${credit === "Bank" ? "through bank/digital payment" : "in cash"}.`;
+  }
   if (debit === "Creditor") return `Being amount paid to creditor ${credit === "Bank" ? "through bank" : "in cash"}.`;
+  if (classification.partyAccountSide === "credit" && (debit === "Bank" || debit === "Cash")) {
+    return `Being ${debit === "Bank" ? "amount" : "cash"} received from ${credit}${
+      debit === "Bank" ? " through bank/digital payment" : ""
+    }.`;
+  }
   if (credit === "Debtor") return `Being amount received from debtor ${debit === "Bank" ? "through bank" : "in cash"}.`;
   if (debit === "Bank" && credit === "Cash") return "Being cash deposited into bank.";
   if (debit === "Cash" && credit === "Bank") return "Being cash withdrawn from bank.";
@@ -260,8 +297,11 @@ function buildNarration(classification: TransactionClassification): string {
   if (debit === "Loan" && credit === "Cash") return "Being loan repaid in cash.";
   if (["Furniture", "Machinery", "Equipment", "Vehicle", "Computer"].includes(debit)) {
     const asset = debit.toLowerCase();
-    if (credit === "Cash") return `Being ${asset} purchased for cash.`;
+    if (credit === "Cash") {
+      return partyName ? `Being ${asset} purchased from ${partyName} for cash.` : `Being ${asset} purchased for cash.`;
+    }
     if (credit === "Bank") return `Being ${asset} purchased through bank.`;
+    if (classification.partyAccountSide === "credit") return `Being ${asset} purchased from ${credit} on credit.`;
     if (credit === "Creditor") return `Being ${asset} purchased on credit.`;
   }
 

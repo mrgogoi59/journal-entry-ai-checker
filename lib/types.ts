@@ -16,10 +16,13 @@ export type MistakeType =
   | "unsupported_transaction";
 
 export type EntryLineSide = "debit" | "credit";
+export type PartyRole = "debtor" | "creditor" | "customer" | "supplier";
 
 export interface JournalLine {
   account: string;
   amount: number;
+  acceptedAccounts?: string[];
+  partyRole?: PartyRole;
 }
 
 export interface ParsedJournalEntry {
@@ -38,8 +41,13 @@ export interface TransactionClassification {
   creditAccount: string;
   expectedDebitAccount: string;
   expectedCreditAccount: string;
+  genericDebitAccount?: string;
+  genericCreditAccount?: string;
   amount: number;
   explanationLogic: string;
+  partyName?: string;
+  partyRole?: PartyRole;
+  partyAccountSide?: EntryLineSide;
 }
 
 export interface CorrectJournalEntry {

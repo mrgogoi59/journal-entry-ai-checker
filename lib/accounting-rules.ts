@@ -1,4 +1,11 @@
 import { extractAmounts } from "./amount-parser";
+import type { EntryLineSide, PartyRole } from "./types";
+
+export interface PartyDetails {
+  partyName: string;
+  partyRole: PartyRole;
+  partyAccountSide?: EntryLineSide;
+}
 
 export interface TransactionRule {
   transaction_type: string;
@@ -8,6 +15,7 @@ export interface TransactionRule {
   explanationLogic: string;
   practiceTemplate: (amount: number) => string;
   amountExtractor?: (transactionText: string) => number | null;
+  partyExtractor?: (transactionText: string) => PartyDetails | null;
 }
 
 const CASH_PAYMENT_PATTERN = "(?:for cash|in cash|by cash|\\bcash\\b)";
@@ -21,10 +29,128 @@ const NO_EXPLICIT_SALE_MODE_PREFIX = `^(?!.*${PAYMENT_MODE_CLUE_PATTERN})(?!.*\\
 const NO_EXPLICIT_PURCHASE_MODE_PREFIX = `^(?!.*${PAYMENT_MODE_CLUE_PATTERN})(?!.*\\bfrom\\b)`;
 const NO_PAYMENT_MODE_PREFIX = `^(?!.*(?:\\b(?:cash|bank|cheque|check|credit)\\b|${DIGITAL_PAYMENT_PATTERN}))`;
 const TRADE_DISCOUNT_PATTERN = "after\\s+discount";
+const PARTY_PATTERN = "([a-z][a-z.'-]*)";
+const SAFE_PARTY_PATTERN =
+  "(?!(?:amount|bank|capital|cash|commission|creditor|creditors|customer|customers|debtor|debtors|drawings|electricity|goods|inr|interest|loan|purchase|purchases|rent|rs|salary|salaries|sale|sales|seller|supplier|suppliers|to)\\b)([a-z][a-z.'-]*)";
+const RESERVED_PARTY_WORDS = new Set([
+  "account",
+  "bank",
+  "business",
+  "cash",
+  "cheque",
+  "check",
+  "credit",
+  "creditor",
+  "creditors",
+  "customer",
+  "customers",
+  "debtor",
+  "debtors",
+  "employee",
+  "amount",
+  "to",
+  "landlord",
+  "interest",
+  "commission",
+  "electricity",
+  "loan",
+  "owner",
+  "proprietor",
+  "rs",
+  "inr",
+  "seller",
+  "supplier",
+  "suppliers",
+]);
 
 function extractTradeDiscountNetAmount(transactionText: string): number | null {
   const amounts = extractAmounts(transactionText);
   return amounts.length >= 3 ? amounts[1] : null;
+}
+
+function namedSaleParty(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`(?:sold|sale)\\s+${GOODS_ITEM_PATTERN}\\s+to\\s+${PARTY_PATTERN}`, "i"),
+    new RegExp(`${GOODS_ITEM_PATTERN}\\s+sold\\s+to\\s+${PARTY_PATTERN}`, "i"),
+    new RegExp(`sale\\s+of\\s+${GOODS_ITEM_PATTERN}\\s+to\\s+${PARTY_PATTERN}`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "debtor", partyAccountSide: "debit" } : null;
+}
+
+function namedSaleCustomer(transactionText: string): PartyDetails | null {
+  const partyName = namedSaleParty(transactionText)?.partyName;
+  return partyName ? { partyName, partyRole: "customer" } : null;
+}
+
+function namedPurchaseParty(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`(?:purchase|purchased|bought)\\s+${GOODS_ITEM_PATTERN}\\s+from\\s+${PARTY_PATTERN}`, "i"),
+    new RegExp(`${GOODS_ITEM_PATTERN}\\s+purchased\\s+from\\s+${PARTY_PATTERN}`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "creditor", partyAccountSide: "credit" } : null;
+}
+
+function namedPurchaseSupplier(transactionText: string): PartyDetails | null {
+  const partyName = namedPurchaseParty(transactionText)?.partyName;
+  return partyName ? { partyName, partyRole: "supplier" } : null;
+}
+
+function namedAssetSupplier(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`(?:purchase|purchased|bought)\\s+\\w+(?:\\s+\\w+)?\\s+from\\s+${PARTY_PATTERN}`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "supplier" } : null;
+}
+
+function namedAssetCreditor(transactionText: string): PartyDetails | null {
+  const partyName = namedAssetSupplier(transactionText)?.partyName;
+  return partyName ? { partyName, partyRole: "creditor", partyAccountSide: "credit" } : null;
+}
+
+function namedDebtorReceipt(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`received\\s+.*from\\s+${PARTY_PATTERN}`, "i"),
+    new RegExp(`^${PARTY_PATTERN}\\s+paid\\s+`, "i"),
+    new RegExp(`amount\\s+received\\s+from\\s+${PARTY_PATTERN}`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "debtor", partyAccountSide: "credit" } : null;
+}
+
+function namedCreditorPayment(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`paid\\s+.*to\\s+${PARTY_PATTERN}`, "i"),
+    new RegExp(`paid\\s+creditors?\\s+${PARTY_PATTERN}`, "i"),
+    new RegExp(`paid\\s+${PARTY_PATTERN}\\s+`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "creditor", partyAccountSide: "debit" } : null;
+}
+
+function extractPartyName(transactionText: string, patterns: RegExp[]): string | null {
+  for (const pattern of patterns) {
+    const match = pattern.exec(transactionText);
+    const rawName = match?.[1];
+    if (!rawName) continue;
+
+    const partyName = rawName.replace(/[.,]/g, "").trim();
+    if (partyName && !RESERVED_PARTY_WORDS.has(partyName.toLowerCase())) {
+      return titleCase(partyName);
+    }
+  }
+
+  return null;
+}
+
+function titleCase(value: string): string {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }
 
 const assetItems = [
@@ -38,6 +164,8 @@ const assetItems = [
   { term: "equipment", account: "Equipment" },
 ] as const;
 
+const namedPartyPaymentStart = `(?!amount\\b|bank\\b|cash\\b|rs\\.?\\b|inr\\b|creditors?\\b|rent\\b|salary\\b|salaries\\b|interest\\b|electricity\\b|loan\\b|to\\b)${PARTY_PATTERN}`;
+
 const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
   {
     transaction_type: `asset_purchase_${account.toLowerCase()}_cash`,
@@ -48,6 +176,7 @@ const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, a
     creditAccount: "Cash",
     explanationLogic: `${account} is an asset and it is increasing, so ${account} is debited. Cash decreases because payment is made immediately, so Cash is credited.`,
     practiceTemplate: (amount) => `Bought ${account.toLowerCase()} from seller for cash ₹${amount}.`,
+    partyExtractor: namedAssetSupplier,
   },
   {
     transaction_type: `asset_purchase_${account.toLowerCase()}_credit`,
@@ -58,8 +187,73 @@ const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, a
     creditAccount: "Creditor",
     explanationLogic: `${account} is an asset and it is increasing, so ${account} is debited. The seller is owed money, so Creditor is credited.`,
     practiceTemplate: (amount) => `Bought ${account.toLowerCase()} from seller on credit ₹${amount}.`,
+    partyExtractor: namedAssetCreditor,
   },
 ]);
+
+const namedDebtorReceiptRules: TransactionRule[] = [
+  {
+    transaction_type: "received_from_named_debtor_bank",
+    patterns: [
+      new RegExp(`received\\s+.*from\\s+${SAFE_PARTY_PATTERN}.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`^${SAFE_PARTY_PATTERN}\\s+paid\\s+.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`amount\\s+received\\s+from\\s+${SAFE_PARTY_PATTERN}.*${BANK_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Bank",
+    creditAccount: "Debtor",
+    explanationLogic:
+      "Bank increases when money is received through bank or digital payment. The named debtor balance reduces, so the party account is credited.",
+    practiceTemplate: (amount) => `Received from debtor through bank ₹${amount}.`,
+    partyExtractor: namedDebtorReceipt,
+  },
+  {
+    transaction_type: "received_from_named_debtor",
+    patterns: [
+      new RegExp(`received\\s+.*cash.*from\\s+${SAFE_PARTY_PATTERN}`, "i"),
+      new RegExp(`received\\s+.*from\\s+${SAFE_PARTY_PATTERN}.*${CASH_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`^${SAFE_PARTY_PATTERN}\\s+paid\\s+.*${CASH_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`amount\\s+received\\s+from\\s+${SAFE_PARTY_PATTERN}.*${CASH_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Cash",
+    creditAccount: "Debtor",
+    explanationLogic:
+      "Cash increases when money is received. The named debtor balance reduces, so the party account is credited.",
+    practiceTemplate: (amount) => `Received from debtor in cash ₹${amount}.`,
+    partyExtractor: namedDebtorReceipt,
+  },
+];
+
+const namedCreditorPaymentRules: TransactionRule[] = [
+  {
+    transaction_type: "paid_named_creditor_bank",
+    patterns: [
+      new RegExp(`paid\\s+.*to\\s+${SAFE_PARTY_PATTERN}.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`paid\\s+creditors?\\s+${SAFE_PARTY_PATTERN}.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`paid\\s+${namedPartyPaymentStart}.*${BANK_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Creditor",
+    creditAccount: "Bank",
+    explanationLogic:
+      "Paying a named creditor reduces the liability, so the party account is debited. Bank decreases because payment is made through bank or digital payment, so Bank is credited.",
+    practiceTemplate: (amount) => `Paid creditor through bank ₹${amount}.`,
+    partyExtractor: namedCreditorPayment,
+  },
+  {
+    transaction_type: "paid_named_creditor",
+    patterns: [
+      new RegExp(`paid\\s+.*cash.*to\\s+${SAFE_PARTY_PATTERN}`, "i"),
+      new RegExp(`paid\\s+.*to\\s+${SAFE_PARTY_PATTERN}.*${CASH_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`paid\\s+creditors?\\s+${SAFE_PARTY_PATTERN}.*${CASH_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`paid\\s+${namedPartyPaymentStart}.*${CASH_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Creditor",
+    creditAccount: "Cash",
+    explanationLogic:
+      "Paying a named creditor reduces the liability, so the party account is debited. Cash decreases because cash is paid out, so Cash is credited.",
+    practiceTemplate: (amount) => `Paid creditor in cash ₹${amount}.`,
+    partyExtractor: namedCreditorPayment,
+  },
+];
 
 const tradeDiscountRules: TransactionRule[] = [
   {
@@ -142,6 +336,7 @@ const goodsConventionRules: TransactionRule[] = [
     explanationLogic:
       "Assumption used: Since a person/customer is mentioned, this was treated as a credit sale. Debtor increases, so Debtor is debited. Sales income increases, so Sales is credited.",
     practiceTemplate: (amount) => `Sold goods to customer ₹${amount}.`,
+    partyExtractor: namedSaleParty,
   },
   {
     transaction_type: "assumed_cash_goods_purchase",
@@ -166,6 +361,7 @@ const goodsConventionRules: TransactionRule[] = [
     explanationLogic:
       "Assumption used: Since a supplier/person is mentioned, this was treated as a credit purchase. Purchases is debited and Creditor is credited because the supplier is owed money.",
     practiceTemplate: (amount) => `Purchased goods from supplier ₹${amount}.`,
+    partyExtractor: namedPurchaseParty,
   },
 ];
 
@@ -236,6 +432,7 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "Goods bought for resale are recorded as Purchases. Cash decreases because payment is made, so Cash is credited.",
     practiceTemplate: (amount) => `Bought goods for cash ₹${amount}.`,
+    partyExtractor: namedPurchaseSupplier,
   },
   goodsConventionRules[2],
   goodsConventionRules[3],
@@ -249,6 +446,7 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "Goods bought for resale are recorded as Purchases. Cash decreases because payment is made immediately, so Cash is credited.",
     practiceTemplate: (amount) => `Bought goods from seller for cash ₹${amount}.`,
+    partyExtractor: namedPurchaseSupplier,
   },
   {
     transaction_type: "bought_goods_credit",
@@ -261,6 +459,7 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "Purchases increase, so Purchases is debited. The amount is owed to the supplier, so Creditor is credited.",
     practiceTemplate: (amount) => `Bought goods on credit ₹${amount}.`,
+    partyExtractor: namedPurchaseParty,
   },
   {
     transaction_type: "named_goods_purchase_credit",
@@ -272,6 +471,7 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "Goods bought for resale are recorded as Purchases. The seller is owed money, so Creditor is credited.",
     practiceTemplate: (amount) => `Bought goods from seller on credit ₹${amount}.`,
+    partyExtractor: namedPurchaseParty,
   },
   {
     transaction_type: "sold_goods_cash",
@@ -285,6 +485,20 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "Cash increases because money is received, so Cash is debited. Sales revenue increases, so Sales is credited.",
     practiceTemplate: (amount) => `Sold goods for cash ₹${amount}.`,
+    partyExtractor: namedSaleCustomer,
+  },
+  {
+    transaction_type: "sold_goods_bank",
+    patterns: [
+      new RegExp(`sold\\s+${GOODS_ITEM_PATTERN}\\s+to\\s+\\w+.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`${GOODS_ITEM_PATTERN}\\s+sold\\s+to\\s+\\w+.*${BANK_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Bank",
+    creditAccount: "Sales",
+    explanationLogic:
+      "Bank increases because money is received through bank or digital payment. Sales revenue increases, so Sales is credited.",
+    practiceTemplate: (amount) => `Sold goods through bank ₹${amount}.`,
+    partyExtractor: namedSaleCustomer,
   },
   {
     transaction_type: "sold_goods_credit",
@@ -298,6 +512,7 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "The customer owes money, so Debtor is debited. Sales revenue increases, so Sales is credited.",
     practiceTemplate: (amount) => `Sold goods on credit ₹${amount}.`,
+    partyExtractor: namedSaleParty,
   },
   goodsConventionRules[1],
   goodsConventionRules[0],
@@ -440,6 +655,7 @@ export const transactionRules: TransactionRule[] = [
       "Owner withdrawals are Drawings, so Drawings is debited. Cash decreases, so Cash is credited.",
     practiceTemplate: (amount) => `Owner withdrew cash for personal use ₹${amount}.`,
   },
+  ...namedCreditorPaymentRules,
   {
     transaction_type: "paid_creditor_bank",
     patterns: [
@@ -469,6 +685,7 @@ export const transactionRules: TransactionRule[] = [
       "Paying a creditor reduces the liability, so Creditor is debited. Cash decreases, so Cash is credited.",
     practiceTemplate: (amount) => `Paid creditor ₹${amount} in cash.`,
   },
+  ...namedDebtorReceiptRules,
   {
     transaction_type: "received_from_debtor_bank",
     patterns: [

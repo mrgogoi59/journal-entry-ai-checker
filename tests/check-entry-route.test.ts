@@ -812,6 +812,92 @@ describe("POST /api/check-entry", () => {
 
   it.each([
     {
+      name: "named credit sale to Raju",
+      transactionText: "Sold goods to Raju Rs.5000",
+      journalEntry: "Raju A/c Dr. Rs.5000\nTo Sales A/c Rs.5000",
+      debits: [{ account: "Raju", amount: 5000 }],
+      credits: [{ account: "Sales", amount: 5000 }],
+    },
+    {
+      name: "named mango sale to Bidyut",
+      transactionText: "Sold Mango to Bidyut Rs.500",
+      journalEntry: "Bidyut A/c Dr. Rs.500\nTo Sales A/c Rs.500",
+      debits: [{ account: "Bidyut", amount: 500 }],
+      credits: [{ account: "Sales", amount: 500 }],
+    },
+    {
+      name: "named goods purchase from Amit",
+      transactionText: "Purchased goods from Amit Rs.3000",
+      journalEntry: "Purchases A/c Dr. Rs.3000\nTo Amit A/c Rs.3000",
+      debits: [{ account: "Purchases", amount: 3000 }],
+      credits: [{ account: "Amit", amount: 3000 }],
+    },
+    {
+      name: "named machinery purchase from Kuldeep on credit",
+      transactionText: "Bought machinery from Kuldeep on credit Rs.5000",
+      journalEntry: "Machinery A/c Dr. Rs.5000\nTo Kuldeep A/c Rs.5000",
+      debits: [{ account: "Machinery", amount: 5000 }],
+      credits: [{ account: "Kuldeep", amount: 5000 }],
+    },
+    {
+      name: "named machinery purchase from Kuldeep for cash",
+      transactionText: "Purchase machinery from Kuldeep for cash Rs.500",
+      journalEntry: "Machinery A/c Dr. Rs.500\nTo Cash A/c Rs.500",
+      debits: [{ account: "Machinery", amount: 500 }],
+      credits: [{ account: "Cash", amount: 500 }],
+    },
+    {
+      name: "cash sale to Raju",
+      transactionText: "Sold goods to Raju for cash Rs.5000",
+      journalEntry: "Cash A/c Dr. Rs.5000\nTo Sales A/c Rs.5000",
+      debits: [{ account: "Cash", amount: 5000 }],
+      credits: [{ account: "Sales", amount: 5000 }],
+    },
+    {
+      name: "cash received from named debtor",
+      transactionText: "Received cash Rs.10000 from Raju",
+      journalEntry: "Cash A/c Dr. Rs.10000\nTo Raju A/c Rs.10000",
+      debits: [{ account: "Cash", amount: 10000 }],
+      credits: [{ account: "Raju", amount: 10000 }],
+    },
+    {
+      name: "UPI payment to named creditor",
+      transactionText: "Paid Rs.7000 to Amit through UPI",
+      journalEntry: "Amit A/c Dr. Rs.7000\nTo Bank A/c Rs.7000",
+      debits: [{ account: "Amit", amount: 7000 }],
+      credits: [{ account: "Bank", amount: 7000 }],
+    },
+  ])("returns Correct for party-name case: $name", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it("does not credit party name when named machinery purchase says cash", async () => {
+    const body = await checkEntry(
+      "Purchase machinery from Kuldeep for cash Rs.500",
+      "Machinery A/c Dr. Rs.500\nTo Kuldeep A/c Rs.500",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not debit party name when named goods sale says cash", async () => {
+    const body = await checkEntry(
+      "Sold goods to Raju for cash Rs.5000",
+      "Raju A/c Dr. Rs.5000\nTo Sales A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it.each([
+    {
       name: "rent paid by UPI",
       transactionText: "Paid rent Rs.5000 by UPI",
       journalEntry: "Rent A/c Dr. Rs.5000\nTo Bank A/c Rs.5000",
@@ -886,7 +972,7 @@ describe("POST /api/check-entry", () => {
     expect(body.score).toBe(100);
     expect(body.mistake_type).toBe("correct");
     expect(body.correct_journal_entry).toEqual({
-      debits: [{ account: "Debtor", amount: 500 }],
+      debits: [{ account: "Bidyut", amount: 500 }],
       credits: [{ account: "Sales", amount: 500 }],
     });
   });
@@ -937,7 +1023,7 @@ describe("POST /api/check-entry", () => {
     expect(body.mistake_type).toBe("correct");
     expect(body.correct_journal_entry).toEqual({
       debits: [{ account: "Machinery", amount: 500 }],
-      credits: [{ account: "Creditor", amount: 500 }],
+      credits: [{ account: "Kuldeep", amount: 500 }],
     });
   });
 
@@ -967,7 +1053,7 @@ describe("POST /api/check-entry", () => {
     expect(body.mistake_type).toBe("correct");
     expect(body.correct_journal_entry).toEqual({
       debits: [{ account: "Furniture", amount: 1000 }],
-      credits: [{ account: "Creditor", amount: 1000 }],
+      credits: [{ account: "Raju", amount: 1000 }],
     });
   });
 
@@ -1151,7 +1237,7 @@ describe("POST /api/check-entry", () => {
     expect(body.mistake_type).toBe("correct");
     expect(body.simple_explanation).toContain("Assumption used");
     expect(body.correct_journal_entry).toEqual({
-      debits: [{ account: "Debtor", amount: 5000 }],
+      debits: [{ account: "Kuldeep", amount: 5000 }],
       credits: [{ account: "Sales", amount: 5000 }],
     });
   });
@@ -1184,7 +1270,7 @@ describe("POST /api/check-entry", () => {
     expect(body.simple_explanation).toContain("Assumption used");
     expect(body.correct_journal_entry).toEqual({
       debits: [{ account: "Purchases", amount: 3000 }],
-      credits: [{ account: "Creditor", amount: 3000 }],
+      credits: [{ account: "Kuldeep", amount: 3000 }],
     });
   });
 

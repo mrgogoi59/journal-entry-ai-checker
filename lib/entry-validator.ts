@@ -8,13 +8,14 @@ export function validateEntry(parsed: ParsedJournalEntry, expected: CorrectJourn
   const expectedDebit = expected.debits[0];
   const expectedCredit = expected.credits[0];
   const parsedAccounts = allAccounts(parsed);
-  const matchingDebit = parsed.debits.find((line) => line.account === expectedDebit.account);
-  const matchingCredit = parsed.credits.find((line) => line.account === expectedCredit.account);
-  const reversedDebit = parsed.debits.find((line) => line.account === expectedCredit.account);
-  const reversedCredit = parsed.credits.find((line) => line.account === expectedDebit.account);
+  const matchingDebit = parsed.debits.find((line) => accountMatches(line.account, expectedDebit));
+  const matchingCredit = parsed.credits.find((line) => accountMatches(line.account, expectedCredit));
+  const reversedDebit = parsed.debits.find((line) => accountMatches(line.account, expectedCredit));
+  const reversedCredit = parsed.credits.find((line) => accountMatches(line.account, expectedDebit));
 
   const hasBothAccounts =
-    parsedAccounts.includes(expectedDebit.account) && parsedAccounts.includes(expectedCredit.account);
+    parsedAccounts.some((account) => accountMatches(account, expectedDebit)) &&
+    parsedAccounts.some((account) => accountMatches(account, expectedCredit));
   const correctSides = Boolean(matchingDebit && matchingCredit);
   const correctAmount = hasCorrectAmount(parsed, expected, hasBothAccounts);
 
@@ -59,6 +60,10 @@ function allAccounts(parsed: ParsedJournalEntry): string[] {
   return [...parsed.debits, ...parsed.credits].map((line) => line.account);
 }
 
+function accountMatches(account: string, expectedLine: CorrectJournalEntry["debits"][number]): boolean {
+  return [expectedLine.account, ...(expectedLine.acceptedAccounts ?? [])].includes(account);
+}
+
 function hasFormatError(parsed: ParsedJournalEntry): boolean {
   if (parsed.debits.length === 0 && parsed.credits.length === 0) return true;
   return parsed.errors.some((error) => error.startsWith("Could not understand"));
@@ -74,7 +79,7 @@ function hasCorrectAmount(
 
   if (hasBothAccounts) {
     const matchingLines = [...parsed.debits, ...parsed.credits].filter((line) =>
-      [expected.debits[0].account, expected.credits[0].account].includes(line.account),
+      accountMatches(line.account, expected.debits[0]) || accountMatches(line.account, expected.credits[0]),
     );
 
     return matchingLines.length >= 2 && matchingLines.every((line) => line.amount === expectedAmount);

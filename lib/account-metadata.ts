@@ -1,3 +1,5 @@
+import type { PartyRole } from "./types";
+
 export interface AccountMetadata {
   displayName: string;
   traditionalType: string;
@@ -8,6 +10,11 @@ export interface AccountMetadata {
   creditEffect: string;
   debitReason: string;
   creditReason: string;
+}
+
+export interface AccountMetadataContext {
+  partyName?: string;
+  partyRole?: PartyRole;
 }
 
 const assetDebitReason = "The asset is coming into or increasing in the business.";
@@ -134,7 +141,11 @@ export const accountMetadata: Record<string, AccountMetadata> = {
   Computer: assetMetadata("Computer", "Computer increased", "Computer decreased"),
 };
 
-export function getAccountMetadata(account: string): AccountMetadata {
+export function getAccountMetadata(account: string, context?: AccountMetadataContext): AccountMetadata {
+  if (context?.partyName === account && context.partyRole) {
+    return partyAccountMetadata(account, context.partyRole);
+  }
+
   return (
     accountMetadata[account] ?? {
       displayName: `${account} A/c`,
@@ -193,5 +204,47 @@ function incomeMetadata(account: string, creditEffect: string, creditReason: str
     creditEffect,
     debitReason: "The income is being reduced or adjusted.",
     creditReason,
+  };
+}
+
+function partyAccountMetadata(account: string, partyRole: PartyRole): AccountMetadata {
+  if (partyRole === "debtor") {
+    return {
+      displayName: `${account} A/c`,
+      traditionalType: "Personal Account",
+      modernType: "Asset / Debtor",
+      debitRule: "Debit the receiver",
+      creditRule: "Credit the giver",
+      debitEffect: `Amount receivable from ${account} increased`,
+      creditEffect: `Amount receivable from ${account} decreased`,
+      debitReason: `${account} received goods on credit, so ${account} becomes debtor of the business.`,
+      creditReason: `${account} paid the business, so the amount receivable from ${account} reduced.`,
+    };
+  }
+
+  if (partyRole === "creditor") {
+    return {
+      displayName: `${account} A/c`,
+      traditionalType: "Personal Account",
+      modernType: "Liability / Creditor",
+      debitRule: "Debit the receiver",
+      creditRule: "Credit the giver",
+      debitEffect: `Amount payable to ${account} decreased`,
+      creditEffect: `Amount payable to ${account} increased`,
+      debitReason: `${account} received payment, so the amount payable to ${account} reduced.`,
+      creditReason: `${account} supplied goods or assets on credit, so the business owes money to ${account}.`,
+    };
+  }
+
+  return {
+    displayName: `${account} A/c`,
+    traditionalType: "Personal Account",
+    modernType: partyRole === "customer" ? "Customer" : "Supplier",
+    debitRule: "Debit the receiver",
+    creditRule: "Credit the giver",
+    debitEffect: `${account} received benefit`,
+    creditEffect: `${account} gave benefit`,
+    debitReason: `${account} is the named party in the transaction.`,
+    creditReason: `${account} is the named party in the transaction.`,
   };
 }

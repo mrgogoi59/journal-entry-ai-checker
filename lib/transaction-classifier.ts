@@ -18,15 +18,26 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   const confidence = DIRECT_MATCH_CONFIDENCE;
   if (confidence < MIN_CONFIDENCE) return null;
 
+  const partyDetails = rule.partyExtractor?.(transactionText) ?? null;
+  const debitAccount =
+    partyDetails?.partyAccountSide === "debit" ? partyDetails.partyName : rule.debitAccount;
+  const creditAccount =
+    partyDetails?.partyAccountSide === "credit" ? partyDetails.partyName : rule.creditAccount;
+
   return {
     transaction_type: rule.transaction_type,
     confidence,
-    debitAccount: rule.debitAccount,
-    creditAccount: rule.creditAccount,
-    expectedDebitAccount: rule.debitAccount,
-    expectedCreditAccount: rule.creditAccount,
+    debitAccount,
+    creditAccount,
+    expectedDebitAccount: debitAccount,
+    expectedCreditAccount: creditAccount,
+    genericDebitAccount: rule.debitAccount,
+    genericCreditAccount: rule.creditAccount,
     amount,
     explanationLogic: rule.explanationLogic,
+    partyName: partyDetails?.partyName,
+    partyRole: partyDetails?.partyRole,
+    partyAccountSide: partyDetails?.partyAccountSide,
   };
 }
 

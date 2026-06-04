@@ -29,12 +29,12 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
-  it("solves goods sold to a named customer on credit using generic Debtor", async () => {
+  it("solves goods sold to a named customer on credit using the party name", async () => {
     const body = await solve("Sold goods to Mohan on credit ₹12,000");
 
     expect(body.status).toBe("solved");
     expect(body.journalEntry).toEqual([
-      { account: "Debtor A/c", debit: 12000, credit: 0 },
+      { account: "Mohan A/c", debit: 12000, credit: 0 },
       { account: "Sales A/c", debit: 0, credit: 12000 },
     ]);
   });
@@ -80,6 +80,58 @@ describe("POST /api/journal-entry-solver", () => {
 
     expect(body.status).not.toBe("solved");
     expect(body.journalEntry).toEqual([]);
+  });
+
+  it("explains named credit sale as a debtor personal account", async () => {
+    const body = await solve("Sold goods to Raju Rs.5000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Raju A/c", debit: 5000, credit: 0 },
+      { account: "Sales A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Raju A/c",
+      traditionalType: "Personal Account",
+      modernType: "Asset / Debtor",
+      debitOrCredit: "Debit",
+    });
+  });
+
+  it("explains named credit purchase as a creditor personal account", async () => {
+    const body = await solve("Purchased goods from Amit Rs.3000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Purchases A/c", debit: 3000, credit: 0 },
+      { account: "Amit A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Amit A/c",
+      traditionalType: "Personal Account",
+      modernType: "Liability / Creditor",
+      debitOrCredit: "Credit",
+    });
+  });
+
+  it("credits Cash instead of party name when named asset purchase says cash", async () => {
+    const body = await solve("Purchase machinery from Kuldeep for cash Rs.500");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Machinery A/c", debit: 500, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 500 },
+    ]);
+  });
+
+  it("explains UPI payment to a named creditor as Bank payment", async () => {
+    const body = await solve("Paid Rs.7000 to Amit through UPI");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Amit A/c", debit: 7000, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 7000 },
+    ]);
   });
 });
 

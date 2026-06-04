@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       mistake_type: validation.mistake_type,
       confidence: classification.confidence,
       student_entry_parsed: parsed,
-      correct_journal_entry: expected,
+      correct_journal_entry: publicExpectedEntry(expected),
       simple_explanation: generateExplanation(classification, validation.mistake_type),
       similar_practice_question: generatePracticeQuestion(classification),
     });
@@ -52,6 +52,13 @@ export async function POST(request: Request) {
       similar_practice_question: "Started business with ₹80,000 cash.",
     });
   }
+}
+
+function publicExpectedEntry(entry: CheckEntryResponse["correct_journal_entry"]): CheckEntryResponse["correct_journal_entry"] {
+  return {
+    debits: entry.debits.map((line) => ({ account: line.account, amount: line.amount })),
+    credits: entry.credits.map((line) => ({ account: line.account, amount: line.amount })),
+  };
 }
 
 function unsupportedResponse(parsed: ParsedJournalEntry): CheckEntryResponse {
