@@ -127,6 +127,30 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Purchase computer from Amit for cash Rs. 2000", "asset_purchase_computer_cash", "Computer", "Cash", 2000],
     ["Purchase vehicle from Amit for cash Rs. 2000", "asset_purchase_vehicle_cash", "Vehicle", "Cash", 2000],
     ["Purchase equipment from Amit for cash Rs. 2000", "asset_purchase_equipment_cash", "Equipment", "Cash", 2000],
+    ["Bad debts written off Rs.2000", "bad_debts_written_off", "Bad Debts", "Debtor", 2000],
+    ["Bad debts Rs.2000 written off", "bad_debts_written_off", "Bad Debts", "Debtor", 2000],
+    ["Bad debt written off Rs.2000", "bad_debts_written_off", "Bad Debts", "Debtor", 2000],
+    ["Debtor became bad debt Rs.2000", "bad_debts_written_off", "Bad Debts", "Debtor", 2000],
+    ["Amount due from debtor written off Rs.2000", "bad_debts_written_off", "Bad Debts", "Debtor", 2000],
+    ["Raju became insolvent and Rs.1000 became bad debt", "bad_debts_named_written_off", "Bad Debts", "Raju", 1000],
+    [
+      "Raju became insolvent, Rs.1000 written off as bad debt",
+      "bad_debts_named_written_off",
+      "Bad Debts",
+      "Raju",
+      1000,
+    ],
+    ["Bad debt written off from Raju Rs.1000", "bad_debts_named_written_off", "Bad Debts", "Raju", 1000],
+    ["Raju’s debt written off Rs.1000", "bad_debts_named_written_off", "Bad Debts", "Raju", 1000],
+    ["Amount due from Raju written off Rs.1000", "bad_debts_named_written_off", "Bad Debts", "Raju", 1000],
+    [
+      "Raju could not pay Rs.1000, written off as bad debt",
+      "bad_debts_named_written_off",
+      "Bad Debts",
+      "Raju",
+      1000,
+    ],
+    ["Raju declared insolvent, Rs.1000 written off", "bad_debts_named_written_off", "Bad Debts", "Raju", 1000],
     ["Depreciation charged on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation provided on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
@@ -543,6 +567,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
     expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
     expect(classifyTransaction("Depreciation charged on unknown asset Rs.5000")).toBeNull();
+    expect(classifyTransaction("Bad debts recovered Rs.500")).toBeNull();
+    expect(classifyTransaction("Provision for doubtful debts created Rs.1000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

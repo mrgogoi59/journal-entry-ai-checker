@@ -31,10 +31,13 @@ const NO_PAYMENT_MODE_PREFIX = `^(?!.*(?:\\b(?:cash|bank|cheque|check|credit)\\b
 const TRADE_DISCOUNT_PATTERN = "after\\s+discount";
 const PARTY_PATTERN = "([a-z][a-z.'-]*)";
 const SAFE_PARTY_PATTERN =
-  "(?!(?:amount|bank|capital|cash|commission|creditor|creditors|customer|customers|debtor|debtors|drawings|electricity|goods|inr|interest|loan|purchase|purchases|rent|rs|salary|salaries|sale|sales|seller|supplier|suppliers|to)\\b)([a-z][a-z.'-]*)";
+  "(?!(?:amount|bad|bank|capital|cash|commission|creditor|creditors|customer|customers|debt|debts|debtor|debtors|drawings|electricity|goods|inr|interest|loan|purchase|purchases|rent|rs|salary|salaries|sale|sales|seller|supplier|suppliers|to)\\b)([a-z][a-z.'-]*)";
 const RESERVED_PARTY_WORDS = new Set([
   "account",
   "bank",
+  "bad",
+  "debt",
+  "debts",
   "business",
   "cash",
   "cheque",
@@ -128,6 +131,19 @@ function namedCreditorPayment(transactionText: string): PartyDetails | null {
   ]);
 
   return partyName ? { partyName, partyRole: "creditor", partyAccountSide: "debit" } : null;
+}
+
+function namedBadDebtDebtor(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`^${SAFE_PARTY_PATTERN}\\s+became\\s+insolvent`, "i"),
+    new RegExp(`bad\\s+debts?\\s+written\\s+off\\s+from\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`^${SAFE_PARTY_PATTERN}(?:['’]s)?\\s+debt\\s+written\\s+off`, "i"),
+    new RegExp(`amount\\s+due\\s+from\\s+${SAFE_PARTY_PATTERN}\\s+written\\s+off`, "i"),
+    new RegExp(`^${SAFE_PARTY_PATTERN}\\s+could\\s+not\\s+pay`, "i"),
+    new RegExp(`^${SAFE_PARTY_PATTERN}\\s+declared\\s+insolvent`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "debtor", partyAccountSide: "credit" } : null;
 }
 
 function extractPartyName(transactionText: string, patterns: RegExp[]): string | null {
@@ -275,6 +291,45 @@ const namedCreditorPaymentRules: TransactionRule[] = [
     partyExtractor: namedCreditorPayment,
   },
 ];
+
+const badDebtWrittenOffRules: TransactionRule[] = [
+  {
+    transaction_type: "bad_debts_named_written_off",
+    patterns: [
+      new RegExp(`^${SAFE_PARTY_PATTERN}\\s+became\\s+insolvent.*bad\\s+debts?`, "i"),
+      new RegExp(`^${SAFE_PARTY_PATTERN}\\s+became\\s+insolvent.*written\\s+off.*bad\\s+debts?`, "i"),
+      new RegExp(`bad\\s+debts?\\s+written\\s+off\\s+from\\s+${SAFE_PARTY_PATTERN}`, "i"),
+      new RegExp(`^${SAFE_PARTY_PATTERN}(?:['’]s)?\\s+debt\\s+written\\s+off`, "i"),
+      new RegExp(`amount\\s+due\\s+from\\s+${SAFE_PARTY_PATTERN}\\s+written\\s+off`, "i"),
+      new RegExp(`^${SAFE_PARTY_PATTERN}\\s+could\\s+not\\s+pay.*written\\s+off.*bad\\s+debts?`, "i"),
+      new RegExp(`^${SAFE_PARTY_PATTERN}\\s+declared\\s+insolvent.*written\\s+off`, "i"),
+    ],
+    debitAccount: "Bad Debts",
+    creditAccount: "Debtor",
+    explanationLogic:
+      "Bad debt is a loss, so Bad Debts is debited. The named debtor account is credited because the receivable is reduced.",
+    practiceTemplate: (amount) => `Raju became insolvent and ${formatRuleRupees(amount)} became bad debt.`,
+    partyExtractor: namedBadDebtDebtor,
+  },
+  {
+    transaction_type: "bad_debts_written_off",
+    patterns: [
+      /bad debts?\s+written\s+off/i,
+      /bad debts?.*written\s+off/i,
+      /debtors?\s+became\s+bad\s+debts?/i,
+      /amount\s+due\s+from\s+debtors?\s+written\s+off/i,
+    ],
+    debitAccount: "Bad Debts",
+    creditAccount: "Debtor",
+    explanationLogic:
+      "Bad debt is a loss, so Bad Debts is debited. Debtor is credited because the receivable is reduced.",
+    practiceTemplate: (amount) => `Bad debts written off ${formatRuleRupees(amount)}.`,
+  },
+];
+
+function formatRuleRupees(amount: number): string {
+  return `₹${amount.toLocaleString("en-IN")}`;
+}
 
 const tradeDiscountRules: TransactionRule[] = [
   {
@@ -677,6 +732,7 @@ export const transactionRules: TransactionRule[] = [
       "Owner withdrawals are Drawings, so Drawings is debited. Cash decreases, so Cash is credited.",
     practiceTemplate: (amount) => `Owner withdrew cash for personal use ₹${amount}.`,
   },
+  ...badDebtWrittenOffRules,
   ...namedCreditorPaymentRules,
   {
     transaction_type: "paid_creditor_bank",

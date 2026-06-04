@@ -186,6 +186,9 @@ function buildAffectedAccount(
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
   if (depreciationAccount) return depreciationAccount;
 
+  const badDebtAccount = buildBadDebtAffectedAccount(line, side, classification);
+  if (badDebtAccount) return badDebtAccount;
+
   const account = line.account;
   const metadata = getAccountMetadata(account, {
     partyName: classification.partyName,
@@ -238,6 +241,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (classification.debitAccount === "Bad Debts") {
+    const debtor = displayAccountName(classification.creditAccount);
+    return [
+      `The amount due from ${classification.partyName ?? "debtor"} is no longer recoverable.`,
+      "This loss is called bad debt.",
+      "Bad Debts A/c is debited because losses are debited.",
+      `${debtor} is credited because the receivable from ${classification.partyName ?? "debtor"} is reduced.`,
+    ];
+  }
+
   const debitMetadata = getAccountMetadata(classification.debitAccount, {
     partyName: classification.partyName,
     partyRole: classification.debitAccount === classification.partyName ? classification.partyRole : undefined,
@@ -283,6 +296,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       `Do not debit ${classification.creditAccount} for depreciation.`,
       "Do not credit Cash or Bank because no cash is paid when depreciation is recorded.",
       "Depreciation is a non-cash expense.",
+    ];
+  }
+
+  if (classification.debitAccount === "Bad Debts") {
+    return [
+      "Do not debit Debtor A/c when bad debt is written off.",
+      "Do not credit Cash or Bank because no cash is paid.",
+      "Bad debts written off is a non-cash loss.",
     ];
   }
 
@@ -347,6 +368,15 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.debitAccount === "Bad Debts") {
+    return {
+      question: classification.partyName
+        ? `Raju became insolvent and ${formatRupees(classification.amount * 2)} became bad debt`
+        : `Bad debts written off ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: `Bad Debts A/c Dr. To ${displayAccountName(classification.creditAccount)}`,
+    };
+  }
+
   return {
     question: generatePracticeQuestion(classification),
     expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
@@ -376,6 +406,10 @@ function buildNarration(classification: TransactionClassification): string {
 
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
+  }
+
+  if (debit === "Bad Debts") {
+    return partyName ? `Being amount due from ${partyName} written off as bad debt.` : "Being bad debts written off.";
   }
 
   if (debit === "Purchases" && credit === "Cash") {
@@ -447,6 +481,7 @@ function describeTransactionAction(classification: TransactionClassification): s
   const credit = classification.creditAccount;
 
   if (debit === "Depreciation") return "Depreciation was recorded on a business asset.";
+  if (debit === "Bad Debts") return "An irrecoverable debtor balance was written off.";
   if (debit === "Purchases") return "The business bought goods for resale.";
   if (credit === "Sales") return "The business sold goods.";
   if (credit === "Capital") return "The owner introduced capital into the business.";
@@ -621,6 +656,46 @@ function buildDepreciationAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit what goes out / Asset decreases are credited",
       reason: "The asset value is reduced due to depreciation.",
+    };
+  }
+
+  return null;
+}
+
+function buildBadDebtAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.debitAccount !== "Bad Debts") return null;
+
+  if (line.account === "Bad Debts") {
+    return {
+      account: "Bad Debts A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Loss",
+      effect: "Bad debts loss increased",
+      debitOrCredit: side,
+      ruleApplied: "Debit all expenses and losses",
+      reason: "Bad debt is a loss because the business cannot recover the amount from the debtor.",
+    };
+  }
+
+  if (line.account === classification.creditAccount) {
+    const metadata = getAccountMetadata(line.account, {
+      partyName: classification.partyName,
+      partyRole: line.partyRole ?? (line.account === classification.partyName ? "debtor" : undefined),
+    });
+    const debtorName = classification.partyName ?? "debtor";
+
+    return {
+      account: metadata.displayName,
+      traditionalType: "Personal Account",
+      modernType: "Asset / Debtor",
+      effect: `Amount receivable from ${debtorName} decreased`,
+      debitOrCredit: side,
+      ruleApplied: "Credit the giver / Reduce debtor asset",
+      reason: "The amount is no longer recoverable, so the debtor's account is reduced.",
     };
   }
 

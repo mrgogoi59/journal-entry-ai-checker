@@ -24,6 +24,8 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   interest_paid_cash: (amount) => `Paid interest ${formatRupees(amount)} in cash`,
   interest_received_cash: (amount) => `Received interest ${formatRupees(amount)} in cash`,
   paid_electricity: (amount) => `Paid electricity bill ${formatRupees(amount)}`,
+  bad_debts_written_off: (amount) => `Bad debts written off ${formatRupees(amount)}`,
+  bad_debts_named_written_off: (amount) => `Raju became insolvent and ${formatRupees(amount)} became bad debt`,
   depreciation_machinery: (amount) => `Depreciation charged on machinery ${formatRupees(amount)}`,
   depreciation_furniture: (amount) => `Depreciation provided on furniture ${formatRupees(amount)}`,
   depreciation_computer: (amount) => `Depreciation on computer ${formatRupees(amount)}`,

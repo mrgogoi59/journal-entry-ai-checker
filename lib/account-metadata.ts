@@ -123,6 +123,12 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "Commission income increased",
     "Commission was earned or received.",
   ),
+  "Bad Debts": expenseMetadata(
+    "Bad Debts",
+    "Bad debts loss increased",
+    "Bad debt is a loss because the business cannot recover the amount from the debtor.",
+    "Expense / Loss",
+  ),
   Depreciation: expenseMetadata(
     "Depreciation",
     "Depreciation expense increased",
@@ -184,11 +190,16 @@ function assetMetadata(account: string, debitEffect: string, creditEffect: strin
   };
 }
 
-function expenseMetadata(account: string, debitEffect: string, debitReason: string): AccountMetadata {
+function expenseMetadata(
+  account: string,
+  debitEffect: string,
+  debitReason: string,
+  modernType = "Expense",
+): AccountMetadata {
   return {
     displayName: `${account} A/c`,
     traditionalType: "Nominal Account",
-    modernType: "Expense",
+    modernType,
     debitRule: "Debit all expenses and losses",
     creditRule: "Credit all incomes and gains",
     debitEffect,

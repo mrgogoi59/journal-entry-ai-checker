@@ -169,6 +169,57 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves generic bad debts written off", async () => {
+    const body = await solve("Bad debts written off Rs.2000");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Bad Debts A/c", debit: 2000, credit: 0 },
+      { account: "Debtor A/c", debit: 0, credit: 2000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Bad Debts A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Loss",
+      debitOrCredit: "Debit",
+    });
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Debtor A/c",
+      traditionalType: "Personal Account",
+      modernType: "Asset / Debtor",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being bad debts written off.");
+    expect(body.stepByStepExplanation).toEqual([
+      "The amount due from debtor is no longer recoverable.",
+      "This loss is called bad debt.",
+      "Bad Debts A/c is debited because losses are debited.",
+      "Debtor A/c is credited because the receivable from debtor is reduced.",
+    ]);
+    expect(body.commonMistakes).toContain("Bad debts written off is a non-cash loss.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves named debtor bad debt written off", async () => {
+    const body = await solve("Raju became insolvent and Rs.1000 became bad debt");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bad Debts A/c", debit: 1000, credit: 0 },
+      { account: "Raju A/c", debit: 0, credit: 1000 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Raju A/c",
+      traditionalType: "Personal Account",
+      modernType: "Asset / Debtor",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being amount due from Raju written off as bad debt.");
+    expect(body.stepByStepExplanation[0]).toBe("The amount due from Raju is no longer recoverable.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("returns ambiguous for paying a named person without context", async () => {
     const body = await solve("Paid Ram ₹5,000");
 
@@ -203,6 +254,20 @@ describe("POST /api/journal-entry-solver", () => {
     const body = await solve("Depreciation charged on unknown asset Rs.5000");
 
     expect(["unsupported", "ambiguous"]).toContain(body.status);
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve bad debts recovered yet", async () => {
+    const body = await solve("Bad debts recovered Rs.500");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve provision for doubtful debts yet", async () => {
+    const body = await solve("Provision for doubtful debts created Rs.1000");
+
+    expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);
   });
 

@@ -1167,6 +1167,105 @@ describe("POST /api/check-entry", () => {
     expect(unknownAsset.result_status).toBe("Unsupported Transaction");
   });
 
+  it("returns Correct for generic bad debts written off", async () => {
+    const body = await checkEntry(
+      "Bad debts written off Rs.2000",
+      "Bad Debts A/c Dr. Rs.2000\nTo Debtor A/c Rs.2000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Bad Debts", amount: 2000 }],
+      credits: [{ account: "Debtor", amount: 2000 }],
+    });
+  });
+
+  it("returns Correct for named debtor bad debt written off", async () => {
+    const body = await checkEntry(
+      "Raju became insolvent and Rs.1000 became bad debt",
+      "Bad Debts A/c Dr. Rs.1000\nTo Raju A/c Rs.1000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Bad Debts", amount: 1000 }],
+      credits: [{ account: "Raju", amount: 1000 }],
+    });
+  });
+
+  it("accepts generic Debtor credit for named debtor bad debt written off", async () => {
+    const body = await checkEntry(
+      "Raju became insolvent and Rs.1000 became bad debt",
+      "Bad Debts A/c Dr. Rs.1000\nTo Debtor A/c Rs.1000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Bad Debts", amount: 1000 }],
+      credits: [{ account: "Raju", amount: 1000 }],
+    });
+  });
+
+  it("does not accept reversed bad debts written off entry", async () => {
+    const body = await checkEntry(
+      "Bad debts written off Rs.2000",
+      "Debtor A/c Dr. Rs.2000\nTo Bad Debts A/c Rs.2000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept Cash credit for bad debts written off", async () => {
+    const body = await checkEntry(
+      "Bad debts written off Rs.2000",
+      "Bad Debts A/c Dr. Rs.2000\nTo Cash A/c Rs.2000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept Cash debit for bad debts written off", async () => {
+    const body = await checkEntry(
+      "Bad debts written off Rs.2000",
+      "Cash A/c Dr. Rs.2000\nTo Bad Debts A/c Rs.2000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept Sales credit for bad debts written off", async () => {
+    const body = await checkEntry(
+      "Bad debts written off Rs.2000",
+      "Bad Debts A/c Dr. Rs.2000\nTo Sales A/c Rs.2000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("keeps bad debts recovered and doubtful debts provision unsupported", async () => {
+    const recovered = await checkEntry(
+      "Bad debts recovered Rs.500",
+      "Cash A/c Dr. Rs.500\nTo Bad Debts Recovered A/c Rs.500",
+    );
+    const provision = await checkEntry(
+      "Provision for doubtful debts created Rs.1000",
+      "Profit and Loss A/c Dr. Rs.1000\nTo Provision for Doubtful Debts A/c Rs.1000",
+    );
+
+    expect(recovered.result_status).toBe("Unsupported Transaction");
+    expect(provision.result_status).toBe("Unsupported Transaction");
+  });
+
   it("returns Correct for cash sale after trade discount using net value", async () => {
     const body = await checkEntry(
       "Goods worth Rs.1000 sold for cash Rs.900 after discount Rs.100",
