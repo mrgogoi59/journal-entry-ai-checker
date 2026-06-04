@@ -1210,6 +1210,200 @@ describe("POST /api/check-entry", () => {
     expect(body.score).toBe(0);
   });
 
+  it.each([
+    {
+      name: "bought goods with part cash and balance credit",
+      transactionText: "Bought goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+      credits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Creditor", amount: 6000 },
+      ],
+    },
+    {
+      name: "purchased goods with part cash and balance credit",
+      transactionText: "Purchased goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+      credits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Creditor", amount: 6000 },
+      ],
+    },
+    {
+      name: "bought goods worth with part cash and balance credit",
+      transactionText: "Bought goods worth Rs.10000, paid Rs.4000 in cash and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+      credits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Creditor", amount: 6000 },
+      ],
+    },
+    {
+      name: "purchased goods worth with by cash wording",
+      transactionText: "Purchased goods worth Rs.10000, paid Rs.4000 by cash and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+      credits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Creditor", amount: 6000 },
+      ],
+    },
+    {
+      name: "paid cash before amount wording",
+      transactionText: "Bought goods Rs.10000, paid cash Rs.4000 and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+      credits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Creditor", amount: 6000 },
+      ],
+    },
+    {
+      name: "paid through bank and balance credit",
+      transactionText: "Purchased goods Rs.10000, paid Rs.4000 through bank and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Bank A/c Rs.4000\nTo Creditor A/c Rs.6000",
+      credits: [
+        { account: "Bank", amount: 4000 },
+        { account: "Creditor", amount: 6000 },
+      ],
+    },
+    {
+      name: "paid by UPI and balance credit",
+      transactionText: "Bought goods Rs.10000, paid Rs.4000 by UPI and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Bank A/c Rs.4000\nTo Creditor A/c Rs.6000",
+      credits: [
+        { account: "Bank", amount: 4000 },
+        { account: "Creditor", amount: 6000 },
+      ],
+    },
+    {
+      name: "named supplier with preserved credit balance",
+      transactionText: "Purchased goods from Amit Rs.10000, paid Rs.4000 cash and balance on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Amit A/c Rs.6000",
+      credits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Amit", amount: 6000 },
+      ],
+    },
+  ])("returns Correct for partial goods purchase: $name", async ({ transactionText, journalEntry, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Purchases", amount: 10000 }],
+      credits,
+    });
+  });
+
+  it("accepts generic Creditor for a named supplier partial goods purchase", async () => {
+    const body = await checkEntry(
+      "Purchased goods from Amit Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Purchases", amount: 10000 }],
+      credits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Amit", amount: 6000 },
+      ],
+    });
+  });
+
+  it("does not depend on the order of partial goods purchase credit lines", async () => {
+    const body = await checkEntry(
+      "Bought goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Purchases A/c Dr. Rs.10000\nTo Creditor A/c Rs.6000\nTo Cash A/c Rs.4000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+  });
+
+  it("does not accept full cash credit for partial goods purchase", async () => {
+    const body = await checkEntry(
+      "Bought goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.10000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept full creditor credit for partial goods purchase", async () => {
+    const body = await checkEntry(
+      "Bought goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Purchases A/c Dr. Rs.10000\nTo Creditor A/c Rs.10000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept only the paid amount as the purchase debit", async () => {
+    const body = await checkEntry(
+      "Bought goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Purchases A/c Dr. Rs.4000\nTo Cash A/c Rs.4000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept a wrong balance amount for partial goods purchase", async () => {
+    const body = await checkEntry(
+      "Bought goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("keeps partial sale receipt unsupported", async () => {
+    const body = await checkEntry(
+      "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
+      "Cash A/c Dr. Rs.4000\nDebtor A/c Dr. Rs.6000\nTo Sales A/c Rs.10000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+  });
+
+  it("keeps partial machinery purchase unsupported", async () => {
+    const body = await checkEntry(
+      "Bought machinery Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Machinery A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+  });
+
+  it("keeps partial expense payment unsupported", async () => {
+    const body = await checkEntry(
+      "Paid rent Rs.10000, paid Rs.4000 cash and balance on credit",
+      "Rent A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+  });
+
+  it("keeps partial goods purchase without a clear payment mode unsupported", async () => {
+    const body = await checkEntry(
+      "Bought goods Rs.10000, paid Rs.4000 and balance on credit",
+      "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.4000\nTo Creditor A/c Rs.6000",
+    );
+
+    expect(body.result_status).toBe("Unsupported Transaction");
+    expect(body.mistake_type).toBe("unsupported_transaction");
+  });
+
   it("returns Correct for simple goods sale assumed as cash", async () => {
     const body = await checkEntry(
       "Sold goods Rs.5000",

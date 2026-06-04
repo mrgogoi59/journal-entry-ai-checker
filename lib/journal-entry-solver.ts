@@ -12,6 +12,7 @@ import type {
   SolverPracticeQuestion,
   SolverSide,
   TransactionClassification,
+  JournalLine,
 } from "./types";
 
 const unsupportedMessage =
@@ -50,7 +51,7 @@ export function solveJournalEntry(transaction: string, mode: SolverMode = "begin
     possibleInterpretations: [],
     journalEntry,
     narration: buildNarration(classification),
-    affectedAccounts: buildAffectedAccounts(classification),
+    affectedAccounts: buildAffectedAccounts(classification, expectedEntry),
     stepByStepExplanation: safeMode === "exam" ? fullSteps.slice(0, 3) : fullSteps,
     commonMistakes: buildCommonMistakes(classification),
     practiceQuestion: buildPracticeQuestion(classification),
@@ -162,21 +163,28 @@ function buildJournalEntry(entry: CorrectJournalEntry): SolverJournalEntryLine[]
   ];
 }
 
-function buildAffectedAccounts(classification: TransactionClassification): SolverAffectedAccount[] {
+function buildAffectedAccounts(
+  classification: TransactionClassification,
+  expectedEntry: CorrectJournalEntry,
+): SolverAffectedAccount[] {
   return [
-    buildAffectedAccount(classification.debitAccount, "Debit", classification),
-    buildAffectedAccount(classification.creditAccount, "Credit", classification),
+    ...expectedEntry.debits.map((line) => buildAffectedAccount(line, "Debit", classification)),
+    ...expectedEntry.credits.map((line) => buildAffectedAccount(line, "Credit", classification)),
   ];
 }
 
 function buildAffectedAccount(
-  account: string,
+  line: JournalLine,
   side: SolverSide,
   classification: TransactionClassification,
 ): SolverAffectedAccount {
+  const compoundAccount = buildPartialGoodsPurchaseAffectedAccount(line, side, classification);
+  if (compoundAccount) return compoundAccount;
+
+  const account = line.account;
   const metadata = getAccountMetadata(account, {
     partyName: classification.partyName,
-    partyRole: account === classification.partyName ? classification.partyRole : undefined,
+    partyRole: line.partyRole ?? (account === classification.partyName ? classification.partyRole : undefined),
   });
 
   return {
@@ -191,6 +199,18 @@ function buildAffectedAccount(
 }
 
 function buildStepByStepExplanation(classification: TransactionClassification): string[] {
+  if (classification.compoundDetails?.kind === "partial_goods_purchase") {
+    const details = classification.compoundDetails;
+    return [
+      `Goods worth ${formatRupees(details.totalAmount)} were purchased.`,
+      "Purchases A/c is debited for the full purchase value.",
+      `${formatRupees(details.paidAmount)} was paid immediately, so ${details.paymentAccount} A/c is credited.`,
+      `The remaining ${formatRupees(details.balanceAmount)} is payable, so ${displayAccountName(
+        details.creditorAccount,
+      )} is credited.`,
+    ];
+  }
+
   const debitMetadata = getAccountMetadata(classification.debitAccount, {
     partyName: classification.partyName,
     partyRole: classification.debitAccount === classification.partyName ? classification.partyRole : undefined,
@@ -210,6 +230,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 
 function buildCommonMistakes(classification: TransactionClassification): string[] {
   const mistakes: string[] = [];
+
+  if (classification.compoundDetails?.kind === "partial_goods_purchase") {
+    const details = classification.compoundDetails;
+    return [
+      `Do not credit ${details.paymentAccount} for the full ${formatRupees(
+        details.totalAmount,
+      )} because only ${formatRupees(details.paidAmount)} was paid immediately.`,
+      `Do not ignore the ${formatRupees(details.balanceAmount)} balance payable on credit.`,
+    ];
+  }
 
   if (classification.debitAccount === "Purchases") {
     mistakes.push("Do not debit Goods A/c in basic Class 11 entries. Use Purchases A/c for goods bought for resale.");
@@ -239,6 +269,18 @@ function buildCommonMistakes(classification: TransactionClassification): string[
 }
 
 function buildPracticeQuestion(classification: TransactionClassification): SolverPracticeQuestion {
+  if (classification.compoundDetails?.kind === "partial_goods_purchase") {
+    const details = classification.compoundDetails;
+    return {
+      question: `Bought goods ${formatRupees(details.totalAmount * 2)}, paid ${formatRupees(
+        details.paidAmount * 2,
+      )} ${details.paymentAccount === "Bank" ? "through bank" : "cash"} and balance on credit`,
+      expectedPattern: `Purchases A/c Dr. To ${details.paymentAccount} A/c, To ${displayAccountName(
+        details.creditorAccount,
+      )}`,
+    };
+  }
+
   return {
     question: generatePracticeQuestion(classification),
     expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
@@ -251,6 +293,13 @@ function buildNarration(classification: TransactionClassification): string {
   const debit = classification.debitAccount;
   const credit = classification.creditAccount;
   const partyName = classification.partyName;
+
+  if (classification.compoundDetails?.kind === "partial_goods_purchase") {
+    const details = classification.compoundDetails;
+    return `Being goods purchased, ${formatRupees(details.paidAmount)} paid ${
+      details.paymentAccount === "Bank" ? "through bank/digital payment" : "in cash"
+    } and balance ${formatRupees(details.balanceAmount)} on credit.`;
+  }
 
   if (debit === "Purchases" && credit === "Cash") {
     return partyName ? `Being goods purchased from ${partyName} for cash.` : "Being goods purchased for cash.";
@@ -309,6 +358,10 @@ function buildNarration(classification: TransactionClassification): string {
 }
 
 function describeTransactionAction(classification: TransactionClassification): string {
+  if (classification.compoundDetails?.kind === "partial_goods_purchase") {
+    return "The business bought goods, paid part immediately, and kept the balance payable on credit.";
+  }
+
   const debit = classification.debitAccount;
   const credit = classification.creditAccount;
 
@@ -352,4 +405,56 @@ function emptyPracticeQuestion(): SolverPracticeQuestion {
     question: "",
     expectedPattern: "",
   };
+}
+
+function buildPartialGoodsPurchaseAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  const details = classification.compoundDetails;
+  if (details?.kind !== "partial_goods_purchase") return null;
+
+  if (line.account === "Purchases") {
+    return {
+      account: "Purchases A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      effect: `Purchases increased by full value of goods bought (${formatRupees(details.totalAmount)})`,
+      debitOrCredit: side,
+      ruleApplied: "Debit all expenses and losses",
+      reason: `Goods worth ${formatRupees(details.totalAmount)} were purchased for resale.`,
+    };
+  }
+
+  if (line.account === details.paymentAccount) {
+    const metadata = getAccountMetadata(details.paymentAccount);
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType,
+      effect: `${details.paymentAccount} decreased by ${formatRupees(details.paidAmount)}`,
+      debitOrCredit: side,
+      ruleApplied: metadata.creditRule,
+      reason: `${formatRupees(details.paidAmount)} was paid immediately.`,
+    };
+  }
+
+  if (line.account === details.creditorAccount) {
+    const metadata = getAccountMetadata(details.creditorAccount, {
+      partyName: details.partyName,
+      partyRole: line.partyRole ?? "creditor",
+    });
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType === "Account" ? "Liability / Creditor" : metadata.modernType,
+      effect: `Amount payable increased by ${formatRupees(details.balanceAmount)}`,
+      debitOrCredit: side,
+      ruleApplied: "Credit the giver",
+      reason: "Balance amount remains payable on credit.",
+    };
+  }
+
+  return null;
 }

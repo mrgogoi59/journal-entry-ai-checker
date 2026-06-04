@@ -1,9 +1,20 @@
 import type { CorrectJournalEntry, JournalLine, TransactionClassification } from "./types";
 
 export function generateExpectedEntry(classification: TransactionClassification): CorrectJournalEntry {
+  if (classification.expectedEntry) {
+    return cloneEntry(classification.expectedEntry);
+  }
+
   return {
     debits: [buildLine(classification, "debit")],
     credits: [buildLine(classification, "credit")],
+  };
+}
+
+function cloneEntry(entry: CorrectJournalEntry): CorrectJournalEntry {
+  return {
+    debits: entry.debits.map((line) => ({ ...line })),
+    credits: entry.credits.map((line) => ({ ...line })),
   };
 }
 

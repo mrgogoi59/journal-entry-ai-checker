@@ -48,11 +48,23 @@ export interface TransactionClassification {
   partyName?: string;
   partyRole?: PartyRole;
   partyAccountSide?: EntryLineSide;
+  expectedEntry?: CorrectJournalEntry;
+  compoundDetails?: PartialGoodsPurchaseDetails;
 }
 
 export interface CorrectJournalEntry {
   debits: JournalLine[];
   credits: JournalLine[];
+}
+
+export interface PartialGoodsPurchaseDetails {
+  kind: "partial_goods_purchase";
+  totalAmount: number;
+  paidAmount: number;
+  balanceAmount: number;
+  paymentAccount: "Cash" | "Bank";
+  creditorAccount: string;
+  partyName?: string;
 }
 
 export interface ValidationResult {

@@ -29,6 +29,54 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves partial goods purchase with part cash and balance credit", async () => {
+    const body = await solve("Bought goods Rs.10000, paid Rs.4000 cash and balance on credit");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Purchases A/c", debit: 10000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 4000 },
+      { account: "Creditor A/c", debit: 0, credit: 6000 },
+    ]);
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual([
+      "Purchases A/c",
+      "Cash A/c",
+      "Creditor A/c",
+    ]);
+    expect(body.narration).toBe("Being goods purchased, ₹4,000 paid in cash and balance ₹6,000 on credit.");
+    expect(body.stepByStepExplanation).toEqual([
+      "Goods worth ₹10,000 were purchased.",
+      "Purchases A/c is debited for the full purchase value.",
+      "₹4,000 was paid immediately, so Cash A/c is credited.",
+      "The remaining ₹6,000 is payable, so Creditor A/c is credited.",
+    ]);
+    expect(body.commonMistakes).toContain(
+      "Do not credit Cash for the full ₹10,000 because only ₹4,000 was paid immediately.",
+    );
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves partial goods purchase from a named supplier", async () => {
+    const body = await solve("Purchased goods from Amit Rs.10000, paid Rs.4000 cash and balance on credit");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Purchases A/c", debit: 10000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 4000 },
+      { account: "Amit A/c", debit: 0, credit: 6000 },
+    ]);
+    expect(body.affectedAccounts[2]).toMatchObject({
+      account: "Amit A/c",
+      traditionalType: "Personal Account",
+      modernType: "Liability / Creditor",
+      debitOrCredit: "Credit",
+      effect: "Amount payable increased by ₹6,000",
+    });
+    expect(body.practiceQuestion.expectedPattern).toBe("Purchases A/c Dr. To Cash A/c, To Amit A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves goods sold to a named customer on credit using the party name", async () => {
     const body = await solve("Sold goods to Mohan on credit ₹12,000");
 

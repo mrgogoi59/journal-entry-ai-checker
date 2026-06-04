@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { generateExpectedEntry } from "@/lib/expected-entry-generator";
 import { classifyTransaction, extractAmount } from "@/lib/transaction-classifier";
 
 describe("extractAmount", () => {
@@ -394,6 +395,88 @@ describe("classifyTransaction supported beginner transactions", () => {
       expect(classification?.confidence).toBeGreaterThanOrEqual(0.7);
     },
   );
+
+  it.each([
+    [
+      "Bought goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      "partial_goods_purchase_cash_credit",
+      "Cash",
+      "Creditor",
+    ],
+    [
+      "Purchased goods Rs.10000, paid Rs.4000 cash and balance on credit",
+      "partial_goods_purchase_cash_credit",
+      "Cash",
+      "Creditor",
+    ],
+    [
+      "Bought goods worth Rs.10000, paid Rs.4000 in cash and balance on credit",
+      "partial_goods_purchase_cash_credit",
+      "Cash",
+      "Creditor",
+    ],
+    [
+      "Purchased goods worth Rs.10000, paid Rs.4000 by cash and balance on credit",
+      "partial_goods_purchase_cash_credit",
+      "Cash",
+      "Creditor",
+    ],
+    [
+      "Bought goods Rs.10000, paid cash Rs.4000 and balance on credit",
+      "partial_goods_purchase_cash_credit",
+      "Cash",
+      "Creditor",
+    ],
+    [
+      "Purchased goods Rs.10000, paid Rs.4000 through bank and balance on credit",
+      "partial_goods_purchase_bank_credit",
+      "Bank",
+      "Creditor",
+    ],
+    [
+      "Bought goods Rs.10000, paid Rs.4000 by UPI and balance on credit",
+      "partial_goods_purchase_bank_credit",
+      "Bank",
+      "Creditor",
+    ],
+    [
+      "Purchased goods from Amit Rs.10000, paid Rs.4000 cash and balance on credit",
+      "partial_goods_purchase_cash_credit",
+      "Cash",
+      "Amit",
+    ],
+  ])(
+    "classifies partial goods purchase wording: %s",
+    (transaction, transactionType, paymentAccount, creditorAccount) => {
+      const classification = classifyTransaction(transaction);
+
+      expect(classification).toMatchObject({
+        transaction_type: transactionType,
+        debitAccount: "Purchases",
+        creditAccount: paymentAccount,
+        expectedDebitAccount: "Purchases",
+        expectedCreditAccount: paymentAccount,
+        amount: 10000,
+        confidence: 0.95,
+      });
+
+      const expectedEntry = generateExpectedEntry(classification!);
+      expect(expectedEntry.debits).toEqual([{ account: "Purchases", amount: 10000 }]);
+      expect(expectedEntry.credits[0]).toEqual({ account: paymentAccount, amount: 4000 });
+      expect(expectedEntry.credits[1]).toMatchObject({ account: creditorAccount, amount: 6000 });
+
+      if (creditorAccount === "Amit") {
+        expect(expectedEntry.credits[1].acceptedAccounts).toEqual(["Creditor"]);
+      }
+    },
+  );
+
+  it("does not fall back to simple rules for unsupported partial compound wording", () => {
+    expect(classifyTransaction("Sold goods Rs.10000, received Rs.4000 cash and balance on credit")).toBeNull();
+    expect(classifyTransaction("Bought machinery Rs.10000, paid Rs.4000 cash and balance on credit")).toBeNull();
+    expect(classifyTransaction("Paid rent Rs.10000, paid Rs.4000 cash and balance on credit")).toBeNull();
+    expect(classifyTransaction("Bought goods Rs.10000, paid Rs.4000 and balance on credit")).toBeNull();
+  });
 
   it("does not classify unsupported transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
