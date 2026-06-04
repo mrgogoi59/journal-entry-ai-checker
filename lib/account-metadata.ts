@@ -129,6 +129,12 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "Bad debt is a loss because the business cannot recover the amount from the debtor.",
     "Expense / Loss",
   ),
+  "Bad Debts Recovered": incomeMetadata(
+    "Bad Debts Recovered",
+    "Bad debts recovery income increased",
+    "An amount previously written off as bad debt has been recovered, so it is treated as income/gain.",
+    "Income / Gain",
+  ),
   Depreciation: expenseMetadata(
     "Depreciation",
     "Depreciation expense increased",
@@ -209,11 +215,16 @@ function expenseMetadata(
   };
 }
 
-function incomeMetadata(account: string, creditEffect: string, creditReason: string): AccountMetadata {
+function incomeMetadata(
+  account: string,
+  creditEffect: string,
+  creditReason: string,
+  modernType = "Income/Revenue",
+): AccountMetadata {
   return {
     displayName: `${account} A/c`,
     traditionalType: "Nominal Account",
-    modernType: "Income/Revenue",
+    modernType,
     debitRule: "Debit all expenses and losses",
     creditRule: "Credit all incomes and gains",
     debitEffect: `${account} decreased`,

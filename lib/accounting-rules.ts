@@ -146,6 +146,16 @@ function namedBadDebtDebtor(transactionText: string): PartyDetails | null {
   return partyName ? { partyName, partyRole: "debtor", partyAccountSide: "credit" } : null;
 }
 
+function namedBadDebtRecoveryParty(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`bad\\s+debts?\\s+recovered\\s+from\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`previously\\s+written\\s+off\\s+bad\\s+debts?\\s+recovered\\s+from\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`^${SAFE_PARTY_PATTERN}\\s+paid\\s+.*against\\s+bad\\s+debts?\\s+previously\\s+written\\s+off`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "debtor" } : null;
+}
+
 function extractPartyName(transactionText: string, patterns: RegExp[]): string | null {
   for (const pattern of patterns) {
     const match = pattern.exec(transactionText);
@@ -324,6 +334,39 @@ const badDebtWrittenOffRules: TransactionRule[] = [
     explanationLogic:
       "Bad debt is a loss, so Bad Debts is debited. Debtor is credited because the receivable is reduced.",
     practiceTemplate: (amount) => `Bad debts written off ${formatRuleRupees(amount)}.`,
+  },
+];
+
+const badDebtRecoveredRules: TransactionRule[] = [
+  {
+    transaction_type: "bad_debts_recovered_bank",
+    patterns: [
+      new RegExp(`bad\\s+debts?\\s+recovered.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`recovered\\s+bad\\s+debts?.*${BANK_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`previously\\s+written\\s+off\\s+bad\\s+debts?\\s+recovered.*${BANK_PAYMENT_PATTERN}`, "i"),
+    ],
+    debitAccount: "Bank",
+    creditAccount: "Bad Debts Recovered",
+    explanationLogic:
+      "Bank increases because the recovery is received through bank or digital payment. Bad Debts Recovered is an income or gain, so it is credited.",
+    practiceTemplate: (amount) => `Bad debts recovered ${formatRuleRupees(amount)} through bank.`,
+    partyExtractor: namedBadDebtRecoveryParty,
+  },
+  {
+    transaction_type: "bad_debts_recovered_cash",
+    patterns: [
+      new RegExp(`bad\\s+debts?\\s+recovered.*${CASH_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`recovered\\s+bad\\s+debts?.*${CASH_PAYMENT_PATTERN}`, "i"),
+      /cash\s+received\s+for\s+bad\s+debts?\s+recovered/i,
+      new RegExp(`previously\\s+written\\s+off\\s+bad\\s+debts?\\s+recovered.*${CASH_PAYMENT_PATTERN}`, "i"),
+      new RegExp(`^${SAFE_PARTY_PATTERN}\\s+paid\\s+.*against\\s+bad\\s+debts?\\s+previously\\s+written\\s+off`, "i"),
+    ],
+    debitAccount: "Cash",
+    creditAccount: "Bad Debts Recovered",
+    explanationLogic:
+      "Cash increases because cash is received. Bad Debts Recovered is an income or gain, so it is credited.",
+    practiceTemplate: (amount) => `Bad debts recovered ${formatRuleRupees(amount)} in cash.`,
+    partyExtractor: namedBadDebtRecoveryParty,
   },
 ];
 
@@ -732,6 +775,7 @@ export const transactionRules: TransactionRule[] = [
       "Owner withdrawals are Drawings, so Drawings is debited. Cash decreases, so Cash is credited.",
     practiceTemplate: (amount) => `Owner withdrew cash for personal use ₹${amount}.`,
   },
+  ...badDebtRecoveredRules,
   ...badDebtWrittenOffRules,
   ...namedCreditorPaymentRules,
   {

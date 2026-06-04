@@ -17,14 +17,16 @@ const supportedTransactions = [
   "Partial goods sale: part cash or bank received, balance credit",
   "Depreciation on machinery, furniture, computer, equipment, or vehicle",
   "Bad debts written off",
+  "Bad debts recovered in cash, bank, or digital mode",
 ];
 
 const unsupportedTransactions = [
   "GST",
   "Discount allowed or received",
-  "Bad debts recovered",
   "Provision for doubtful debts",
-  "Recovery after previously written off",
+  "Complex recovery with provision adjustment",
+  "Ledger treatment after bad debt recovery",
+  "Full final accounts treatment",
   "Outstanding, prepaid, or accrued adjustments",
   "Final accounts",
   "Ledger posting",
@@ -43,6 +45,9 @@ const exampleTransactions = [
   "Depreciation provided on furniture Rs.2000",
   "Bad debts written off Rs.2000",
   "Raju became insolvent and Rs.1000 became bad debt",
+  "Bad debts recovered Rs.500 in cash",
+  "Bad debts recovered Rs.500 through bank",
+  "Bad debts recovered from Raju Rs.500 in cash",
 ];
 
 export default function SupportedTransactionsPage() {

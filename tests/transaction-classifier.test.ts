@@ -151,6 +151,52 @@ describe("classifyTransaction supported beginner transactions", () => {
       1000,
     ],
     ["Raju declared insolvent, Rs.1000 written off", "bad_debts_named_written_off", "Bad Debts", "Raju", 1000],
+    ["Bad debts recovered Rs.500 in cash", "bad_debts_recovered_cash", "Cash", "Bad Debts Recovered", 500],
+    ["Bad debt recovered Rs.500 in cash", "bad_debts_recovered_cash", "Cash", "Bad Debts Recovered", 500],
+    ["Recovered bad debts Rs.500 in cash", "bad_debts_recovered_cash", "Cash", "Bad Debts Recovered", 500],
+    ["Recovered bad debt Rs.500 in cash", "bad_debts_recovered_cash", "Cash", "Bad Debts Recovered", 500],
+    ["Cash received for bad debts recovered Rs.500", "bad_debts_recovered_cash", "Cash", "Bad Debts Recovered", 500],
+    [
+      "Previously written off bad debt recovered Rs.500 in cash",
+      "bad_debts_recovered_cash",
+      "Cash",
+      "Bad Debts Recovered",
+      500,
+    ],
+    [
+      "Bad debts recovered from Raju Rs.500 in cash",
+      "bad_debts_recovered_cash",
+      "Cash",
+      "Bad Debts Recovered",
+      500,
+    ],
+    [
+      "Raju paid Rs.500 against bad debts previously written off",
+      "bad_debts_recovered_cash",
+      "Cash",
+      "Bad Debts Recovered",
+      500,
+    ],
+    ["Bad debts recovered Rs.500 through bank", "bad_debts_recovered_bank", "Bank", "Bad Debts Recovered", 500],
+    ["Bad debt recovered Rs.500 through bank", "bad_debts_recovered_bank", "Bank", "Bad Debts Recovered", 500],
+    ["Recovered bad debts Rs.500 through bank", "bad_debts_recovered_bank", "Bank", "Bad Debts Recovered", 500],
+    ["Bad debts recovered Rs.500 by UPI", "bad_debts_recovered_bank", "Bank", "Bad Debts Recovered", 500],
+    ["Bad debts recovered Rs.500 through GPay", "bad_debts_recovered_bank", "Bank", "Bad Debts Recovered", 500],
+    ["Bad debts recovered Rs.500 by NEFT", "bad_debts_recovered_bank", "Bank", "Bad Debts Recovered", 500],
+    [
+      "Previously written off bad debt recovered Rs.500 through bank",
+      "bad_debts_recovered_bank",
+      "Bank",
+      "Bad Debts Recovered",
+      500,
+    ],
+    [
+      "Bad debts recovered from Raju Rs.500 through bank",
+      "bad_debts_recovered_bank",
+      "Bank",
+      "Bad Debts Recovered",
+      500,
+    ],
     ["Depreciation charged on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation provided on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
@@ -567,8 +613,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
     expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
     expect(classifyTransaction("Depreciation charged on unknown asset Rs.5000")).toBeNull();
-    expect(classifyTransaction("Bad debts recovered Rs.500")).toBeNull();
     expect(classifyTransaction("Provision for doubtful debts created Rs.1000")).toBeNull();
+    expect(classifyTransaction("Bad debts recovered and transferred to provision for doubtful debts Rs.500")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

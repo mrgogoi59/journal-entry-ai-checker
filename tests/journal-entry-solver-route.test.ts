@@ -257,15 +257,65 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve bad debts recovered yet", async () => {
-    const body = await solve("Bad debts recovered Rs.500");
+  it("solves bad debts recovered in cash", async () => {
+    const body = await solve("Bad debts recovered Rs.500 in cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 500, credit: 0 },
+      { account: "Bad Debts Recovered A/c", debit: 0, credit: 500 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Bad Debts Recovered A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Income / Gain",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being bad debts recovered in cash.");
+    expect(body.stepByStepExplanation).toEqual([
+      "An amount earlier written off as bad debt has now been recovered.",
+      "Cash is received, so Cash A/c is debited.",
+      "Bad Debts Recovered is an income/gain, so it is credited.",
+      "The entry records the recovery of the earlier bad debt.",
+    ]);
+    expect(body.commonMistakes).toContain("Bad Debts Recovered is income/gain, not an expense.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves bad debts recovered through bank", async () => {
+    const body = await solve("Bad debts recovered Rs.500 through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 500, credit: 0 },
+      { account: "Bad Debts Recovered A/c", debit: 0, credit: 500 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves named bad debts recovery without crediting the debtor", async () => {
+    const body = await solve("Bad debts recovered from Raju Rs.500 in cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 500, credit: 0 },
+      { account: "Bad Debts Recovered A/c", debit: 0, credit: 500 },
+    ]);
+    expect(body.journalEntry).not.toContainEqual({ account: "Raju A/c", debit: 0, credit: 500 });
+    expect(body.narration).toBe("Being bad debts previously written off recovered from Raju.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve provision for doubtful debts yet", async () => {
+    const body = await solve("Provision for doubtful debts created Rs.1000");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve provision for doubtful debts yet", async () => {
-    const body = await solve("Provision for doubtful debts created Rs.1000");
+  it("does not solve bad debts recovery transferred to provision", async () => {
+    const body = await solve("Bad debts recovered and transferred to provision for doubtful debts Rs.500");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

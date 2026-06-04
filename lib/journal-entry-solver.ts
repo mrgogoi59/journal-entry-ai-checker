@@ -189,6 +189,9 @@ function buildAffectedAccount(
   const badDebtAccount = buildBadDebtAffectedAccount(line, side, classification);
   if (badDebtAccount) return badDebtAccount;
 
+  const badDebtRecoveryAccount = buildBadDebtRecoveryAffectedAccount(line, side, classification);
+  if (badDebtRecoveryAccount) return badDebtRecoveryAccount;
+
   const account = line.account;
   const metadata = getAccountMetadata(account, {
     partyName: classification.partyName,
@@ -251,6 +254,15 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (classification.creditAccount === "Bad Debts Recovered") {
+    return [
+      "An amount earlier written off as bad debt has now been recovered.",
+      `${classification.debitAccount} is received, so ${displayAccountName(classification.debitAccount)} is debited.`,
+      "Bad Debts Recovered is an income/gain, so it is credited.",
+      "The entry records the recovery of the earlier bad debt.",
+    ];
+  }
+
   const debitMetadata = getAccountMetadata(classification.debitAccount, {
     partyName: classification.partyName,
     partyRole: classification.debitAccount === classification.partyName ? classification.partyRole : undefined,
@@ -304,6 +316,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not debit Debtor A/c when bad debt is written off.",
       "Do not credit Cash or Bank because no cash is paid.",
       "Bad debts written off is a non-cash loss.",
+    ];
+  }
+
+  if (classification.creditAccount === "Bad Debts Recovered") {
+    return [
+      "Do not debit Bad Debts Recovered A/c.",
+      "Do not credit Debtor/Raju A/c in this beginner MVP treatment.",
+      "Bad Debts Recovered is income/gain, not an expense.",
     ];
   }
 
@@ -377,6 +397,17 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.creditAccount === "Bad Debts Recovered") {
+    return {
+      question: classification.partyName
+        ? `Bad debts recovered from Raju ${formatRupees(classification.amount * 2)} in cash`
+        : `Bad debts recovered ${formatRupees(classification.amount * 2)} ${
+            classification.debitAccount === "Bank" ? "through bank" : "in cash"
+          }`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To Bad Debts Recovered A/c`,
+    };
+  }
+
   return {
     question: generatePracticeQuestion(classification),
     expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
@@ -410,6 +441,11 @@ function buildNarration(classification: TransactionClassification): string {
 
   if (debit === "Bad Debts") {
     return partyName ? `Being amount due from ${partyName} written off as bad debt.` : "Being bad debts written off.";
+  }
+
+  if (credit === "Bad Debts Recovered") {
+    if (partyName) return `Being bad debts previously written off recovered from ${partyName}.`;
+    return `Being bad debts recovered ${debit === "Bank" ? "through bank" : "in cash"}.`;
   }
 
   if (debit === "Purchases" && credit === "Cash") {
@@ -482,6 +518,7 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (debit === "Depreciation") return "Depreciation was recorded on a business asset.";
   if (debit === "Bad Debts") return "An irrecoverable debtor balance was written off.";
+  if (credit === "Bad Debts Recovered") return "An amount previously written off as bad debt was recovered.";
   if (debit === "Purchases") return "The business bought goods for resale.";
   if (credit === "Sales") return "The business sold goods.";
   if (credit === "Capital") return "The owner introduced capital into the business.";
@@ -696,6 +733,41 @@ function buildBadDebtAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the giver / Reduce debtor asset",
       reason: "The amount is no longer recoverable, so the debtor's account is reduced.",
+    };
+  }
+
+  return null;
+}
+
+function buildBadDebtRecoveryAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.creditAccount !== "Bad Debts Recovered") return null;
+
+  if (line.account === classification.debitAccount && (line.account === "Cash" || line.account === "Bank")) {
+    const metadata = getAccountMetadata(line.account);
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType,
+      effect: side === "Debit" ? metadata.debitEffect : metadata.creditEffect,
+      debitOrCredit: side,
+      ruleApplied: line.account === "Bank" ? "Debit what comes in / Asset increases are debited" : metadata.debitRule,
+      reason: line.account === "Bank" ? "Amount is received through bank/digital mode." : "Cash is received.",
+    };
+  }
+
+  if (line.account === "Bad Debts Recovered") {
+    return {
+      account: "Bad Debts Recovered A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Income / Gain",
+      effect: "Bad debts recovery income increased",
+      debitOrCredit: side,
+      ruleApplied: "Credit all incomes and gains",
+      reason: "An amount previously written off as bad debt has been recovered, so it is treated as income/gain.",
     };
   }
 

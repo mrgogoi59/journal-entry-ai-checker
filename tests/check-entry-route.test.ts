@@ -1252,18 +1252,103 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
-  it("keeps bad debts recovered and doubtful debts provision unsupported", async () => {
-    const recovered = await checkEntry(
-      "Bad debts recovered Rs.500",
+  it("returns Correct for bad debts recovered in cash", async () => {
+    const body = await checkEntry(
+      "Bad debts recovered Rs.500 in cash",
       "Cash A/c Dr. Rs.500\nTo Bad Debts Recovered A/c Rs.500",
     );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Cash", amount: 500 }],
+      credits: [{ account: "Bad Debts Recovered", amount: 500 }],
+    });
+  });
+
+  it("returns Correct for bad debts recovered through bank", async () => {
+    const body = await checkEntry(
+      "Bad debts recovered Rs.500 through bank",
+      "Bank A/c Dr. Rs.500\nTo Bad Debts Recovered A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Bank", amount: 500 }],
+      credits: [{ account: "Bad Debts Recovered", amount: 500 }],
+    });
+  });
+
+  it("returns Correct for bad debts recovered from a named debtor in cash", async () => {
+    const body = await checkEntry(
+      "Bad debts recovered from Raju Rs.500 in cash",
+      "Cash A/c Dr. Rs.500\nTo Bad Debts Recovered A/c Rs.500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Cash", amount: 500 }],
+      credits: [{ account: "Bad Debts Recovered", amount: 500 }],
+    });
+  });
+
+  it("does not accept reversed bad debts recovered entry", async () => {
+    const body = await checkEntry(
+      "Bad debts recovered Rs.500 in cash",
+      "Bad Debts Recovered A/c Dr. Rs.500\nTo Cash A/c Rs.500",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not credit named debtor for bad debts recovered", async () => {
+    const body = await checkEntry(
+      "Bad debts recovered from Raju Rs.500 in cash",
+      "Cash A/c Dr. Rs.500\nTo Raju A/c Rs.500",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept bad debts written off entry for bad debts recovered", async () => {
+    const body = await checkEntry(
+      "Bad debts recovered Rs.500 in cash",
+      "Bad Debts A/c Dr. Rs.500\nTo Cash A/c Rs.500",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept named debtor debit for bad debts recovered", async () => {
+    const body = await checkEntry(
+      "Bad debts recovered from Raju Rs.500 in cash",
+      "Raju A/c Dr. Rs.500\nTo Bad Debts Recovered A/c Rs.500",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("keeps doubtful debts provision and provision-adjusted recovery unsupported", async () => {
     const provision = await checkEntry(
       "Provision for doubtful debts created Rs.1000",
       "Profit and Loss A/c Dr. Rs.1000\nTo Provision for Doubtful Debts A/c Rs.1000",
     );
+    const provisionRecovery = await checkEntry(
+      "Bad debts recovered and transferred to provision for doubtful debts Rs.500",
+      "Cash A/c Dr. Rs.500\nTo Provision for Doubtful Debts A/c Rs.500",
+    );
 
-    expect(recovered.result_status).toBe("Unsupported Transaction");
     expect(provision.result_status).toBe("Unsupported Transaction");
+    expect(provisionRecovery.result_status).toBe("Unsupported Transaction");
   });
 
   it("returns Correct for cash sale after trade discount using net value", async () => {
