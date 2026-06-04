@@ -49,7 +49,7 @@ export interface TransactionClassification {
   partyRole?: PartyRole;
   partyAccountSide?: EntryLineSide;
   expectedEntry?: CorrectJournalEntry;
-  compoundDetails?: PartialGoodsPurchaseDetails;
+  compoundDetails?: PartialGoodsPurchaseDetails | PartialGoodsSaleDetails;
 }
 
 export interface CorrectJournalEntry {
@@ -64,6 +64,16 @@ export interface PartialGoodsPurchaseDetails {
   balanceAmount: number;
   paymentAccount: "Cash" | "Bank";
   creditorAccount: string;
+  partyName?: string;
+}
+
+export interface PartialGoodsSaleDetails {
+  kind: "partial_goods_sale";
+  totalAmount: number;
+  receivedAmount: number;
+  balanceAmount: number;
+  receiptAccount: "Cash" | "Bank";
+  debtorAccount: string;
   partyName?: string;
 }
 

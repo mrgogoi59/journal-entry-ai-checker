@@ -471,8 +471,58 @@ describe("classifyTransaction supported beginner transactions", () => {
     },
   );
 
+  it.each([
+    [
+      "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
+      "partial_goods_sale_cash_credit",
+      "Cash",
+      "Debtor",
+    ],
+    [
+      "Sold goods Rs.10000, received Rs.4000 through bank and balance on credit",
+      "partial_goods_sale_bank_credit",
+      "Bank",
+      "Debtor",
+    ],
+    [
+      "Sold goods Rs.10000, received Rs.4000 by UPI and balance on credit",
+      "partial_goods_sale_bank_credit",
+      "Bank",
+      "Debtor",
+    ],
+    [
+      "Sold goods to Raju Rs.10000, received Rs.4000 cash and balance on credit",
+      "partial_goods_sale_cash_credit",
+      "Cash",
+      "Raju",
+    ],
+  ])(
+    "classifies partial goods sale wording: %s",
+    (transaction, transactionType, receiptAccount, debtorAccount) => {
+      const classification = classifyTransaction(transaction);
+
+      expect(classification).toMatchObject({
+        transaction_type: transactionType,
+        debitAccount: receiptAccount,
+        creditAccount: "Sales",
+        expectedDebitAccount: receiptAccount,
+        expectedCreditAccount: "Sales",
+        amount: 10000,
+        confidence: 0.95,
+      });
+
+      const expectedEntry = generateExpectedEntry(classification!);
+      expect(expectedEntry.debits[0]).toEqual({ account: receiptAccount, amount: 4000 });
+      expect(expectedEntry.debits[1]).toMatchObject({ account: debtorAccount, amount: 6000 });
+      expect(expectedEntry.credits).toEqual([{ account: "Sales", amount: 10000 }]);
+
+      if (debtorAccount === "Raju") {
+        expect(expectedEntry.debits[1].acceptedAccounts).toEqual(["Debtor"]);
+      }
+    },
+  );
+
   it("does not fall back to simple rules for unsupported partial compound wording", () => {
-    expect(classifyTransaction("Sold goods Rs.10000, received Rs.4000 cash and balance on credit")).toBeNull();
     expect(classifyTransaction("Bought machinery Rs.10000, paid Rs.4000 cash and balance on credit")).toBeNull();
     expect(classifyTransaction("Paid rent Rs.10000, paid Rs.4000 cash and balance on credit")).toBeNull();
     expect(classifyTransaction("Bought goods Rs.10000, paid Rs.4000 and balance on credit")).toBeNull();

@@ -77,6 +77,34 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves partial goods sale with part cash and balance credit", async () => {
+    const body = await solve("Sold goods Rs.10000, received Rs.4000 cash and balance on credit");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 4000, credit: 0 },
+      { account: "Debtor A/c", debit: 6000, credit: 0 },
+      { account: "Sales A/c", debit: 0, credit: 10000 },
+    ]);
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual([
+      "Cash A/c",
+      "Debtor A/c",
+      "Sales A/c",
+    ]);
+    expect(body.narration).toBe("Being goods sold, ₹4,000 received in cash and balance ₹6,000 on credit.");
+    expect(body.stepByStepExplanation).toEqual([
+      "Goods worth ₹10,000 were sold.",
+      "₹4,000 was received immediately, so Cash A/c is debited.",
+      "The remaining ₹6,000 is receivable on credit, so Debtor A/c is debited.",
+      "Sales A/c is credited for the full sale value.",
+    ]);
+    expect(body.commonMistakes).toContain(
+      "Do not debit Cash for the full ₹10,000 because only ₹4,000 was received immediately.",
+    );
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves goods sold to a named customer on credit using the party name", async () => {
     const body = await solve("Sold goods to Mohan on credit ₹12,000");
 

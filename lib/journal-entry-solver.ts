@@ -178,7 +178,9 @@ function buildAffectedAccount(
   side: SolverSide,
   classification: TransactionClassification,
 ): SolverAffectedAccount {
-  const compoundAccount = buildPartialGoodsPurchaseAffectedAccount(line, side, classification);
+  const compoundAccount =
+    buildPartialGoodsPurchaseAffectedAccount(line, side, classification) ??
+    buildPartialGoodsSaleAffectedAccount(line, side, classification);
   if (compoundAccount) return compoundAccount;
 
   const account = line.account;
@@ -211,6 +213,18 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (classification.compoundDetails?.kind === "partial_goods_sale") {
+    const details = classification.compoundDetails;
+    return [
+      `Goods worth ${formatRupees(details.totalAmount)} were sold.`,
+      `${formatRupees(details.receivedAmount)} was received immediately, so ${details.receiptAccount} A/c is debited.`,
+      `The remaining ${formatRupees(details.balanceAmount)} is receivable on credit, so ${displayAccountName(
+        details.debtorAccount,
+      )} is debited.`,
+      "Sales A/c is credited for the full sale value.",
+    ];
+  }
+
   const debitMetadata = getAccountMetadata(classification.debitAccount, {
     partyName: classification.partyName,
     partyRole: classification.debitAccount === classification.partyName ? classification.partyRole : undefined,
@@ -238,6 +252,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
         details.totalAmount,
       )} because only ${formatRupees(details.paidAmount)} was paid immediately.`,
       `Do not ignore the ${formatRupees(details.balanceAmount)} balance payable on credit.`,
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "partial_goods_sale") {
+    const details = classification.compoundDetails;
+    return [
+      `Do not debit ${details.receiptAccount} for the full ${formatRupees(
+        details.totalAmount,
+      )} because only ${formatRupees(details.receivedAmount)} was received immediately.`,
+      `Do not ignore the ${formatRupees(details.balanceAmount)} balance receivable on credit.`,
     ];
   }
 
@@ -281,6 +305,18 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.compoundDetails?.kind === "partial_goods_sale") {
+    const details = classification.compoundDetails;
+    return {
+      question: `Sold goods ${formatRupees(details.totalAmount * 2)}, received ${formatRupees(
+        details.receivedAmount * 2,
+      )} ${details.receiptAccount === "Bank" ? "through bank" : "cash"} and balance on credit`,
+      expectedPattern: `${details.receiptAccount} A/c Dr., ${displayAccountName(
+        details.debtorAccount,
+      )} Dr. To Sales A/c`,
+    };
+  }
+
   return {
     question: generatePracticeQuestion(classification),
     expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
@@ -298,6 +334,13 @@ function buildNarration(classification: TransactionClassification): string {
     const details = classification.compoundDetails;
     return `Being goods purchased, ${formatRupees(details.paidAmount)} paid ${
       details.paymentAccount === "Bank" ? "through bank/digital payment" : "in cash"
+    } and balance ${formatRupees(details.balanceAmount)} on credit.`;
+  }
+
+  if (classification.compoundDetails?.kind === "partial_goods_sale") {
+    const details = classification.compoundDetails;
+    return `Being goods sold, ${formatRupees(details.receivedAmount)} received ${
+      details.receiptAccount === "Bank" ? "through bank/digital payment" : "in cash"
     } and balance ${formatRupees(details.balanceAmount)} on credit.`;
   }
 
@@ -360,6 +403,10 @@ function buildNarration(classification: TransactionClassification): string {
 function describeTransactionAction(classification: TransactionClassification): string {
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     return "The business bought goods, paid part immediately, and kept the balance payable on credit.";
+  }
+
+  if (classification.compoundDetails?.kind === "partial_goods_sale") {
+    return "The business sold goods, received part immediately, and kept the balance receivable on credit.";
   }
 
   const debit = classification.debitAccount;
@@ -453,6 +500,58 @@ function buildPartialGoodsPurchaseAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the giver",
       reason: "Balance amount remains payable on credit.",
+    };
+  }
+
+  return null;
+}
+
+function buildPartialGoodsSaleAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  const details = classification.compoundDetails;
+  if (details?.kind !== "partial_goods_sale") return null;
+
+  if (line.account === details.receiptAccount) {
+    const metadata = getAccountMetadata(details.receiptAccount);
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType,
+      effect: `${details.receiptAccount} increased by ${formatRupees(details.receivedAmount)}`,
+      debitOrCredit: side,
+      ruleApplied: metadata.debitRule,
+      reason: `${formatRupees(details.receivedAmount)} was received immediately.`,
+    };
+  }
+
+  if (line.account === details.debtorAccount) {
+    const metadata = getAccountMetadata(details.debtorAccount, {
+      partyName: details.partyName,
+      partyRole: line.partyRole ?? "debtor",
+    });
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType === "Account" ? "Asset / Debtor" : metadata.modernType,
+      effect: `Amount receivable increased by ${formatRupees(details.balanceAmount)}`,
+      debitOrCredit: side,
+      ruleApplied: "Debit the receiver",
+      reason: "Balance amount remains receivable on credit.",
+    };
+  }
+
+  if (line.account === "Sales") {
+    return {
+      account: "Sales A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Income/Revenue",
+      effect: `Sales revenue increased by full value of goods sold (${formatRupees(details.totalAmount)})`,
+      debitOrCredit: side,
+      ruleApplied: "Credit all incomes and gains",
+      reason: `Goods worth ${formatRupees(details.totalAmount)} were sold.`,
     };
   }
 

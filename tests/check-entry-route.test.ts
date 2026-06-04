@@ -1364,14 +1364,89 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
-  it("keeps partial sale receipt unsupported", async () => {
+  it("returns Correct for partial goods sale with cash received and balance on credit", async () => {
     const body = await checkEntry(
       "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
       "Cash A/c Dr. Rs.4000\nDebtor A/c Dr. Rs.6000\nTo Sales A/c Rs.10000",
     );
 
-    expect(body.result_status).toBe("Unsupported Transaction");
-    expect(body.mistake_type).toBe("unsupported_transaction");
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Debtor", amount: 6000 },
+      ],
+      credits: [{ account: "Sales", amount: 10000 }],
+    });
+  });
+
+  it("returns Correct for partial goods sale when debit lines are reversed", async () => {
+    const body = await checkEntry(
+      "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
+      "Debtor A/c Dr. Rs.6000\nCash A/c Dr. Rs.4000\nTo Sales A/c Rs.10000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+  });
+
+  it("returns Correct for partial goods sale to a named customer", async () => {
+    const body = await checkEntry(
+      "Sold goods to Raju Rs.10000, received Rs.4000 cash and balance on credit",
+      "Cash A/c Dr. Rs.4000\nRaju A/c Dr. Rs.6000\nTo Sales A/c Rs.10000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [
+        { account: "Cash", amount: 4000 },
+        { account: "Raju", amount: 6000 },
+      ],
+      credits: [{ account: "Sales", amount: 10000 }],
+    });
+  });
+
+  it("does not accept full cash debit for partial goods sale", async () => {
+    const body = await checkEntry(
+      "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
+      "Cash A/c Dr. Rs.10000\nTo Sales A/c Rs.10000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept full debtor debit for partial goods sale", async () => {
+    const body = await checkEntry(
+      "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
+      "Debtor A/c Dr. Rs.10000\nTo Sales A/c Rs.10000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("returns Correct for partial goods sale with bank receipt and balance on credit", async () => {
+    const body = await checkEntry(
+      "Sold goods Rs.10000, received Rs.4000 through bank and balance on credit",
+      "Bank A/c Dr. Rs.4000\nDebtor A/c Dr. Rs.6000\nTo Sales A/c Rs.10000",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [
+        { account: "Bank", amount: 4000 },
+        { account: "Debtor", amount: 6000 },
+      ],
+      credits: [{ account: "Sales", amount: 10000 }],
+    });
   });
 
   it("keeps partial machinery purchase unsupported", async () => {
