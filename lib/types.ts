@@ -72,3 +72,50 @@ export interface PracticeQuestion {
   difficulty: "Beginner";
   transaction_type: string;
 }
+
+export type SolverMode = "beginner" | "exam";
+export type SolverStatus = "solved" | "ambiguous" | "unsupported";
+export type SolverConfidence = "high" | "medium" | "low";
+export type SolverSide = "Debit" | "Credit";
+
+export interface SolverJournalEntryLine {
+  account: string;
+  debit: number;
+  credit: number;
+}
+
+export interface SolverAffectedAccount {
+  account: string;
+  traditionalType: string;
+  modernType: string;
+  effect: string;
+  debitOrCredit: SolverSide;
+  ruleApplied: string;
+  reason: string;
+}
+
+export interface SolverPossibleInterpretation {
+  context: string;
+  journalEntry: string[];
+  note: string;
+}
+
+export interface SolverPracticeQuestion {
+  question: string;
+  expectedPattern: string;
+}
+
+export interface JournalEntrySolverResponse {
+  transactionSummary: string;
+  status: SolverStatus;
+  confidence: SolverConfidence;
+  ambiguityQuestions: string[];
+  possibleInterpretations: SolverPossibleInterpretation[];
+  journalEntry: SolverJournalEntryLine[];
+  narration: string;
+  affectedAccounts: SolverAffectedAccount[];
+  stepByStepExplanation: string[];
+  commonMistakes: string[];
+  practiceQuestion: SolverPracticeQuestion;
+  message?: string;
+}

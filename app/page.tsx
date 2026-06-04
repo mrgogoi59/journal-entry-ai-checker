@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion } from "@/lib/types";
 
@@ -145,7 +146,7 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-3">
           <button onClick={() => setMode("own")} className={modeButtonClass(mode === "own")}>
             <span>Check My Own Entry</span>
             <span className="text-xs font-medium opacity-80">Paste any supported transaction</span>
@@ -154,6 +155,10 @@ export default function Home() {
             <span>Practice Questions</span>
             <span className="text-xs font-medium opacity-80">Get one question and solve it</span>
           </button>
+          <Link href="/journal-entry-solver" className={modeButtonClass(false)}>
+            <span>Explain Transaction</span>
+            <span className="text-xs font-medium opacity-80">See debit-credit logic</span>
+          </Link>
         </div>
 
         {mode === "own" ? (
