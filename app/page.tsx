@@ -161,6 +161,13 @@ export default function Home() {
           </Link>
         </div>
 
+        <div className="rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
+          <span>Not sure what works?</span>{" "}
+          <Link href="/supported-transactions" className="font-semibold text-accent hover:text-blue-700">
+            View supported transactions
+          </Link>
+        </div>
+
         {mode === "own" ? (
           <EntryCard
             transactionText={transactionText}
