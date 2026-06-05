@@ -25,6 +25,7 @@ const supportedTransactions = [
   "Discount allowed or received in full-settlement debtor/creditor cases",
   "Goods withdrawn by proprietor or owner for personal use",
   "Goods distributed as free sample for advertisement or promotion",
+  "Goods given as charity or donation",
 ];
 
 const unsupportedTransactions = [
@@ -33,7 +34,6 @@ const unsupportedTransactions = [
   "Provision-related discounts",
   "Broad settlement and ledger treatment beyond the journal entry",
   "Trade discount in invoice unless the wording matches supported trade-discount cases",
-  "Goods given as charity",
   "Goods lost by fire or theft",
   "Sales return",
   "Purchase return",
@@ -88,6 +88,9 @@ const exampleTransactions = [
   "Goods worth Rs.1000 distributed as free sample",
   "Goods used for advertisement Rs.1500",
   "Goods worth Rs.2000 distributed for promotion",
+  "Goods worth Rs.1000 given as charity",
+  "Goods worth Rs.1500 donated to orphanage",
+  "Goods used for charity Rs.2000",
 ];
 
 export default function SupportedTransactionsPage() {

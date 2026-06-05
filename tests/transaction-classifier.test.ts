@@ -980,6 +980,93 @@ describe("classifyTransaction supported beginner transactions", () => {
       "Purchases",
       1000,
     ],
+    [
+      "Goods worth Rs.1000 given as charity",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 given to charity",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods Rs.1000 given as charity",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods Rs.1000 given to charity",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    ["Goods worth Rs.1000 donated", "goods_given_as_charity", "Charity Expense", "Purchases", 1000],
+    ["Goods Rs.1000 donated", "goods_given_as_charity", "Charity Expense", "Purchases", 1000],
+    [
+      "Goods worth Rs.1000 donated to charity",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 given as donation",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods Rs.1000 given as donation",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 donated to poor people",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 given to poor people",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 given to orphanage",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1500 donated to orphanage",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1500,
+    ],
+    [
+      "Goods worth Rs.1000 given for charity purpose",
+      "goods_given_as_charity",
+      "Charity Expense",
+      "Purchases",
+      1000,
+    ],
+    ["Goods used for charity Rs.1000", "goods_given_as_charity", "Charity Expense", "Purchases", 1000],
     ["Paid creditor ₹11,000 in cash", "paid_creditor", "Creditor", "Cash", 11000],
     ["Paid cash Rs.7000 to creditor", "paid_creditor", "Creditor", "Cash", 7000],
     ["Paid Rs.7000 to creditor in cash", "paid_creditor", "Creditor", "Cash", 7000],
@@ -1231,8 +1318,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("GST paid Rs.1000")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 less trade discount 10%")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 plus GST and allowed discount Rs.500")).toBeNull();
-    expect(classifyTransaction("Goods given as charity Rs.1000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000")).toBeNull();
+    expect(classifyTransaction("Goods returned by customer Rs.1000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

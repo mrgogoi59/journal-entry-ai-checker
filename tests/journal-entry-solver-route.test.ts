@@ -709,8 +709,62 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves goods given as charity", async () => {
+    const body = await solve("Goods worth Rs.1000 given as charity");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Charity Expense A/c", debit: 1000, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 1000 },
+    ]);
+    expect(body.affectedAccounts).toEqual([
+      expect.objectContaining({
+        account: "Charity Expense A/c",
+        traditionalType: "Nominal Account",
+        modernType: "Expense",
+        debitOrCredit: "Debit",
+        reason: "Goods given as charity are treated as donation/charity expense.",
+      }),
+      expect.objectContaining({
+        account: "Purchases A/c",
+        modernType: "Expense / Goods purchased for resale",
+        debitOrCredit: "Credit",
+        reason: "Goods originally purchased for resale are taken out of business for charity, so Purchases A/c is credited.",
+      }),
+    ]);
+    expect(body.stepByStepExplanation).toEqual([
+      "Goods were given as charity/donation.",
+      "This is treated as charity/donation expense.",
+      "Charity Expense A/c is debited because expenses are debited.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ]);
+    expect(body.commonMistakes).toContain(
+      "Do not use Advertisement Expense A/c because this is charity, not free sample/promotion.",
+    );
+    expect(body.narration).toEqual(expect.any(String));
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves goods donated to orphanage", async () => {
+    const body = await solve("Goods worth Rs.1500 donated to orphanage");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Charity Expense A/c", debit: 1500, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 1500 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("does not solve goods lost by fire yet", async () => {
     const body = await solve("Goods lost by fire Rs.3000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve goods returned by customer yet", async () => {
+    const body = await solve("Goods returned by customer Rs.1000");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

@@ -462,6 +462,32 @@ const goodsDistributedFreeSampleRule: TransactionRule = {
   practiceTemplate: (amount) => `Goods worth ₹${amount} distributed as free sample.`,
 };
 
+const goodsGivenAsCharityRule: TransactionRule = {
+  transaction_type: "goods_given_as_charity",
+  patterns: [
+    /goods\s+worth\s+.*given\s+as\s+charity/i,
+    /goods\s+worth\s+.*given\s+to\s+charity/i,
+    /goods\s+.*given\s+as\s+charity/i,
+    /goods\s+.*given\s+to\s+charity/i,
+    /goods\s+worth\s+.*donated/i,
+    /goods\s+.*donated/i,
+    /goods\s+worth\s+.*donated\s+to\s+charity/i,
+    /goods\s+worth\s+.*given\s+as\s+donation/i,
+    /goods\s+.*given\s+as\s+donation/i,
+    /goods\s+worth\s+.*donated\s+to\s+poor\s+people/i,
+    /goods\s+worth\s+.*given\s+to\s+poor\s+people/i,
+    /goods\s+worth\s+.*given\s+to\s+orphanage/i,
+    /goods\s+worth\s+.*donated\s+to\s+orphanage/i,
+    /goods\s+worth\s+.*given\s+for\s+charity\s+purpose/i,
+    /goods\s+used\s+for\s+charity/i,
+  ],
+  debitAccount: "Charity Expense",
+  creditAccount: "Purchases",
+  explanationLogic:
+    "Goods were given as charity or donation. Charity Expense is debited because charity is an expense, and Purchases is credited because goods bought for resale are reduced.",
+  practiceTemplate: (amount) => `Goods worth ₹${amount} given as charity.`,
+};
+
 const incomeReceivedInAdvanceRules: TransactionRule[] = [
   {
     transaction_type: "rent_received_in_advance",
@@ -1049,6 +1075,7 @@ export const transactionRules: TransactionRule[] = [
   },
   goodsWithdrawnPersonalUseRule,
   goodsDistributedFreeSampleRule,
+  goodsGivenAsCharityRule,
   {
     transaction_type: "withdrew_cash_bank",
     patterns: [

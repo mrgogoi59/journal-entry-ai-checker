@@ -21,6 +21,7 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   goods_withdrawn_personal_use: (amount) =>
     `Goods worth ${formatRupees(amount)} withdrawn by proprietor for personal use`,
   goods_distributed_free_sample: (amount) => `Goods worth ${formatRupees(amount)} distributed as free sample`,
+  goods_given_as_charity: (amount) => `Goods worth ${formatRupees(amount)} given as charity`,
   paid_creditor: (amount) => `Paid creditor ${formatRupees(amount)} in cash`,
   received_from_debtor: (amount) => `Received from debtor ${formatRupees(amount)} in cash`,
   loan_taken_bank: (amount) => `Took loan ${formatRupees(amount)} through bank`,

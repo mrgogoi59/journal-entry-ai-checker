@@ -190,6 +190,9 @@ function buildAffectedAccount(
   const freeSampleGoodsAccount = buildFreeSampleGoodsAffectedAccount(line, side, classification);
   if (freeSampleGoodsAccount) return freeSampleGoodsAccount;
 
+  const charityGoodsAccount = buildCharityGoodsAffectedAccount(line, side, classification);
+  if (charityGoodsAccount) return charityGoodsAccount;
+
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
   if (depreciationAccount) return depreciationAccount;
 
@@ -279,6 +282,15 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
       "Goods were distributed as free samples to promote the business.",
       "This is treated as advertisement/promotion expense.",
       "Advertisement Expense A/c is debited because expenses are debited.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ];
+  }
+
+  if (classification.transaction_type === "goods_given_as_charity") {
+    return [
+      "Goods were given as charity/donation.",
+      "This is treated as charity/donation expense.",
+      "Charity Expense A/c is debited because expenses are debited.",
       "Purchases A/c is credited because goods purchased for resale are reduced.",
     ];
   }
@@ -432,6 +444,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
     ];
   }
 
+  if (classification.transaction_type === "goods_given_as_charity") {
+    return [
+      "Do not debit Purchases A/c.",
+      "Do not credit Cash or Bank because no cash is paid.",
+      "Do not credit Sales A/c because this is not a sale.",
+      "Do not use Drawings A/c because the goods were not taken by the owner for personal use.",
+      "Do not use Advertisement Expense A/c because this is charity, not free sample/promotion.",
+    ];
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return [
       `Do not debit ${classification.creditAccount} for depreciation.`,
@@ -578,6 +600,13 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.transaction_type === "goods_given_as_charity") {
+    return {
+      question: `Goods used for charity ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: "Charity Expense A/c Dr. To Purchases A/c",
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -703,6 +732,10 @@ function buildNarration(classification: TransactionClassification): string {
     return "Being goods distributed as free sample.";
   }
 
+  if (classification.transaction_type === "goods_given_as_charity") {
+    return "Being goods given as charity.";
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -815,6 +848,10 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.transaction_type === "goods_distributed_free_sample") {
     return "Goods were distributed as free samples to promote the business.";
+  }
+
+  if (classification.transaction_type === "goods_given_as_charity") {
+    return "Goods were given as charity or donation.";
   }
 
   const debit = classification.debitAccount;
@@ -1307,6 +1344,40 @@ function buildFreeSampleGoodsAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
       reason: "Goods purchased for resale are taken out of business stock for free sample distribution.",
+    };
+  }
+
+  return null;
+}
+
+function buildCharityGoodsAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.transaction_type !== "goods_given_as_charity") return null;
+
+  if (line.account === "Charity Expense") {
+    return {
+      account: "Charity Expense A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      effect: "Charity/donation expense increased",
+      debitOrCredit: side,
+      ruleApplied: "Debit all expenses and losses",
+      reason: "Goods given as charity are treated as donation/charity expense.",
+    };
+  }
+
+  if (line.account === "Purchases") {
+    return {
+      account: "Purchases A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Goods purchased for resale",
+      effect: "Purchases/goods available for business decreased",
+      debitOrCredit: side,
+      ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
+      reason: "Goods originally purchased for resale are taken out of business for charity, so Purchases A/c is credited.",
     };
   }
 

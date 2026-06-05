@@ -888,6 +888,62 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Goods worth Rs.1000 given as charity",
+      journalEntry: "Charity Expense A/c Dr. Rs.1000\nTo Purchases A/c Rs.1000",
+      amount: 1000,
+    },
+    {
+      transactionText: "Goods worth Rs.1500 donated to orphanage",
+      journalEntry: "Charity A/c Dr. Rs.1500\nTo Purchases A/c Rs.1500",
+      amount: 1500,
+    },
+    {
+      transactionText: "Goods used for charity Rs.2000",
+      journalEntry: "Donation A/c Dr. Rs.2000\nTo Purchases A/c Rs.2000",
+      amount: 2000,
+    },
+  ])("returns Correct for goods given as charity: $transactionText", async ({ transactionText, journalEntry, amount }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Charity Expense", amount }],
+      credits: [{ account: "Purchases", amount }],
+    });
+  });
+
+  it.each([
+    {
+      name: "reversed charity and purchases",
+      journalEntry: "Purchases A/c Dr. Rs.1000\nTo Charity Expense A/c Rs.1000",
+    },
+    {
+      name: "cash credited",
+      journalEntry: "Charity Expense A/c Dr. Rs.1000\nTo Cash A/c Rs.1000",
+    },
+    {
+      name: "sales credited",
+      journalEntry: "Charity Expense A/c Dr. Rs.1000\nTo Sales A/c Rs.1000",
+    },
+    {
+      name: "drawings debited",
+      journalEntry: "Drawings A/c Dr. Rs.1000\nTo Purchases A/c Rs.1000",
+    },
+    {
+      name: "advertisement debited",
+      journalEntry: "Advertisement Expense A/c Dr. Rs.1000\nTo Purchases A/c Rs.1000",
+    },
+  ])("does not accept wrong charity entry: $name", async ({ journalEntry }) => {
+    const body = await checkEntry("Goods worth Rs.1000 given as charity", journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for debtor cash receipt", async () => {
     const body = await checkEntry(
       "Received cash Rs.10000 from debtor",
