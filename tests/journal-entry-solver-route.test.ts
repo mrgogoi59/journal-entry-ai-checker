@@ -231,6 +231,61 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves accrued interest", async () => {
+    const body = await solve("Interest accrued Rs.1500");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Accrued Interest A/c", debit: 1500, credit: 0 },
+      { account: "Interest Income A/c", debit: 0, credit: 1500 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Accrued Interest A/c",
+      traditionalType: "Personal Account / Representative Personal Account",
+      modernType: "Asset / Receivable",
+      debitOrCredit: "Debit",
+    });
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Interest Income A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Income/Revenue",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being interest accrued.");
+    expect(body.stepByStepExplanation).toEqual([
+      "Interest income has been earned.",
+      "The amount has not yet been received.",
+      "Accrued Interest A/c is debited because it is an asset/receivable.",
+      "Interest Income A/c is credited because income has increased.",
+    ]);
+    expect(body.commonMistakes).toContain("Accrued income is an asset/receivable.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves accrued commission", async () => {
+    const body = await solve("Commission accrued Rs.3000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Accrued Commission A/c", debit: 3000, credit: 0 },
+      { account: "Commission Income A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves accrued rent using Rent Income", async () => {
+    const body = await solve("Rent accrued Rs.4000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Accrued Rent A/c", debit: 4000, credit: 0 },
+      { account: "Rent Income A/c", debit: 0, credit: 4000 },
+    ]);
+    expect(body.journalEntry).not.toContainEqual({ account: "Rent Expense A/c", debit: 0, credit: 4000 });
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves depreciation charged on machinery", async () => {
     const body = await solve("Depreciation charged on machinery Rs.5000");
 
@@ -417,15 +472,15 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve accrued income yet", async () => {
-    const body = await solve("Interest accrued Rs.1500");
+  it("does not solve income received in advance yet", async () => {
+    const body = await solve("Rent received in advance Rs.4000");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve income received in advance yet", async () => {
-    const body = await solve("Rent received in advance Rs.4000");
+  it("does not solve discount allowed yet", async () => {
+    const body = await solve("Discount allowed Rs.500");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

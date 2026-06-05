@@ -313,6 +313,54 @@ describe("classifyTransaction supported beginner transactions", () => {
       "Electricity Expense",
       2000,
     ],
+    ["Interest accrued Rs.1500", "accrued_interest", "Accrued Interest", "Interest Income", 1500],
+    ["Accrued interest Rs.1500", "accrued_interest", "Accrued Interest", "Interest Income", 1500],
+    [
+      "Interest earned but not received Rs.1500",
+      "accrued_interest",
+      "Accrued Interest",
+      "Interest Income",
+      1500,
+    ],
+    ["Interest income accrued Rs.1500", "accrued_interest", "Accrued Interest", "Interest Income", 1500],
+    ["Interest receivable Rs.1500", "accrued_interest", "Accrued Interest", "Interest Income", 1500],
+    [
+      "Interest due but not received Rs.1500",
+      "accrued_interest",
+      "Accrued Interest",
+      "Interest Income",
+      1500,
+    ],
+    ["Commission accrued Rs.3000", "accrued_commission", "Accrued Commission", "Commission Income", 3000],
+    ["Accrued commission Rs.3000", "accrued_commission", "Accrued Commission", "Commission Income", 3000],
+    [
+      "Commission earned but not received Rs.3000",
+      "accrued_commission",
+      "Accrued Commission",
+      "Commission Income",
+      3000,
+    ],
+    [
+      "Commission income accrued Rs.3000",
+      "accrued_commission",
+      "Accrued Commission",
+      "Commission Income",
+      3000,
+    ],
+    ["Commission receivable Rs.3000", "accrued_commission", "Accrued Commission", "Commission Income", 3000],
+    [
+      "Commission due but not received Rs.3000",
+      "accrued_commission",
+      "Accrued Commission",
+      "Commission Income",
+      3000,
+    ],
+    ["Rent accrued Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
+    ["Accrued rent Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
+    ["Rent earned but not received Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
+    ["Rent income accrued Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
+    ["Rent receivable Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
+    ["Rent due but not received Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
     ["Depreciation charged on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation provided on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
@@ -731,8 +779,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Depreciation charged on unknown asset Rs.5000")).toBeNull();
     expect(classifyTransaction("Provision for doubtful debts created Rs.1000")).toBeNull();
     expect(classifyTransaction("Bad debts recovered and transferred to provision for doubtful debts Rs.500")).toBeNull();
-    expect(classifyTransaction("Interest accrued Rs.1500")).toBeNull();
     expect(classifyTransaction("Rent received in advance Rs.4000")).toBeNull();
+    expect(classifyTransaction("Discount allowed Rs.500")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

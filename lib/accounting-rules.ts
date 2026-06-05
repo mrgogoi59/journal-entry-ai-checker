@@ -367,6 +367,57 @@ const prepaidExpenseRules: TransactionRule[] = [
   },
 ];
 
+const accruedIncomeRules: TransactionRule[] = [
+  {
+    transaction_type: "accrued_interest",
+    patterns: [
+      /interest\s+accrued/i,
+      /accrued\s+interest/i,
+      /interest\s+earned\s+but\s+not\s+received/i,
+      /interest\s+income\s+accrued/i,
+      /interest\s+receivable/i,
+      /interest\s+due\s+but\s+not\s+received/i,
+    ],
+    debitAccount: "Accrued Interest",
+    creditAccount: "Interest Income",
+    explanationLogic:
+      "Interest has been earned but not yet received. Accrued Interest is debited as a receivable asset, and Interest Income is credited because income has increased.",
+    practiceTemplate: (amount) => `Interest accrued ₹${amount}.`,
+  },
+  {
+    transaction_type: "accrued_commission",
+    patterns: [
+      /commission\s+accrued/i,
+      /accrued\s+commission/i,
+      /commission\s+earned\s+but\s+not\s+received/i,
+      /commission\s+income\s+accrued/i,
+      /commission\s+receivable/i,
+      /commission\s+due\s+but\s+not\s+received/i,
+    ],
+    debitAccount: "Accrued Commission",
+    creditAccount: "Commission Income",
+    explanationLogic:
+      "Commission has been earned but not yet received. Accrued Commission is debited as a receivable asset, and Commission Income is credited because income has increased.",
+    practiceTemplate: (amount) => `Commission accrued ₹${amount}.`,
+  },
+  {
+    transaction_type: "accrued_rent",
+    patterns: [
+      /rent\s+accrued/i,
+      /accrued\s+rent/i,
+      /rent\s+earned\s+but\s+not\s+received/i,
+      /rent\s+income\s+accrued/i,
+      /rent\s+receivable/i,
+      /rent\s+due\s+but\s+not\s+received/i,
+    ],
+    debitAccount: "Accrued Rent",
+    creditAccount: "Rent Income",
+    explanationLogic:
+      "Rent income has been earned but not yet received. Accrued Rent is debited as a receivable asset, and Rent Income is credited because income has increased.",
+    practiceTemplate: (amount) => `Rent accrued ₹${amount}.`,
+  },
+];
+
 const namedPartyPaymentStart = `(?!amount\\b|bank\\b|cash\\b|rs\\.?\\b|inr\\b|creditors?\\b|rent\\b|salary\\b|salaries\\b|interest\\b|electricity\\b|loan\\b|to\\b)${PARTY_PATTERN}`;
 
 const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
@@ -1126,6 +1177,7 @@ export const transactionRules: TransactionRule[] = [
   },
   ...outstandingExpenseRules,
   ...prepaidExpenseRules,
+  ...accruedIncomeRules,
   {
     transaction_type: "paid_electricity",
     patterns: [/paid .*electricity/i, /electricity bill/i],

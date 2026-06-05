@@ -137,12 +137,16 @@ export const accountMetadata: Record<string, AccountMetadata> = {
   "Prepaid Salary": prepaidExpenseMetadata("Prepaid Salary"),
   "Prepaid Wages": prepaidExpenseMetadata("Prepaid Wages"),
   "Prepaid Electricity": prepaidExpenseMetadata("Prepaid Electricity"),
+  "Accrued Interest": accruedIncomeMetadata("Accrued Interest"),
+  "Accrued Commission": accruedIncomeMetadata("Accrued Commission"),
+  "Accrued Rent": accruedIncomeMetadata("Accrued Rent"),
   "Interest Income": incomeMetadata("Interest Income", "Interest income increased", "Interest was earned or received."),
   "Commission Income": incomeMetadata(
     "Commission Income",
     "Commission income increased",
     "Commission was earned or received.",
   ),
+  "Rent Income": incomeMetadata("Rent Income", "Rent income increased", "Rent income was earned during the period."),
   "Bad Debts": expenseMetadata(
     "Bad Debts",
     "Bad debts loss increased",
@@ -280,6 +284,20 @@ function prepaidExpenseMetadata(account: string): AccountMetadata {
     debitReason:
       "The amount paid in advance gives future benefit to the business, so it is treated as an asset.",
     creditReason: "The future benefit is being reduced or adjusted.",
+  };
+}
+
+function accruedIncomeMetadata(account: string): AccountMetadata {
+  return {
+    displayName: `${account} A/c`,
+    traditionalType: "Personal Account / Representative Personal Account",
+    modernType: "Asset / Receivable",
+    debitRule: "Debit the receiver / Asset increases are debited",
+    creditRule: "Credit the giver / Asset decreases are credited",
+    debitEffect: "Accrued income receivable increased",
+    creditEffect: "Accrued income receivable decreased",
+    debitReason: "The income has been earned but not yet received, so a receivable asset is created.",
+    creditReason: "The accrued receivable is being reduced or adjusted.",
   };
 }
 

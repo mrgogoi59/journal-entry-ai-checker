@@ -381,6 +381,79 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      name: "accrued interest",
+      transactionText: "Interest accrued Rs.1500",
+      journalEntry: "Accrued Interest A/c Dr. Rs.1500\nTo Interest Income A/c Rs.1500",
+      debits: [{ account: "Accrued Interest", amount: 1500 }],
+      credits: [{ account: "Interest Income", amount: 1500 }],
+    },
+    {
+      name: "accrued interest with Interest A/c",
+      transactionText: "Interest accrued Rs.1500",
+      journalEntry: "Accrued Interest A/c Dr. Rs.1500\nTo Interest A/c Rs.1500",
+      debits: [{ account: "Accrued Interest", amount: 1500 }],
+      credits: [{ account: "Interest Income", amount: 1500 }],
+    },
+    {
+      name: "accrued commission",
+      transactionText: "Commission accrued Rs.3000",
+      journalEntry: "Accrued Commission A/c Dr. Rs.3000\nTo Commission Income A/c Rs.3000",
+      debits: [{ account: "Accrued Commission", amount: 3000 }],
+      credits: [{ account: "Commission Income", amount: 3000 }],
+    },
+    {
+      name: "accrued commission with Commission A/c",
+      transactionText: "Commission accrued Rs.3000",
+      journalEntry: "Accrued Commission A/c Dr. Rs.3000\nTo Commission A/c Rs.3000",
+      debits: [{ account: "Accrued Commission", amount: 3000 }],
+      credits: [{ account: "Commission Income", amount: 3000 }],
+    },
+    {
+      name: "accrued rent",
+      transactionText: "Rent accrued Rs.4000",
+      journalEntry: "Accrued Rent A/c Dr. Rs.4000\nTo Rent Income A/c Rs.4000",
+      debits: [{ account: "Accrued Rent", amount: 4000 }],
+      credits: [{ account: "Rent Income", amount: 4000 }],
+    },
+  ])("returns Correct for accrued income: $name", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      name: "reversed accrued interest",
+      transactionText: "Interest accrued Rs.1500",
+      journalEntry: "Interest Income A/c Dr. Rs.1500\nTo Accrued Interest A/c Rs.1500",
+    },
+    {
+      name: "cash received for accrued interest",
+      transactionText: "Interest accrued Rs.1500",
+      journalEntry: "Cash A/c Dr. Rs.1500\nTo Interest Income A/c Rs.1500",
+    },
+    {
+      name: "bank received for accrued commission",
+      transactionText: "Commission accrued Rs.3000",
+      journalEntry: "Bank A/c Dr. Rs.3000\nTo Commission Income A/c Rs.3000",
+    },
+    {
+      name: "rent expense used for accrued rent",
+      transactionText: "Rent accrued Rs.4000",
+      journalEntry: "Rent Expense A/c Dr. Rs.4000\nTo Accrued Rent A/c Rs.4000",
+    },
+  ])("does not accept wrong accrued income entry: $name", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("does not accept a salary entry for rent paid", async () => {
     const body = await checkEntry(
       "Paid rent Rs.5000 in cash",

@@ -263,6 +263,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  const accruedIncome = getAccruedIncomeDetails(classification);
+  if (accruedIncome) {
+    return [
+      `${accruedIncome.incomeLabel} income has been earned.`,
+      "The amount has not yet been received.",
+      `${displayAccountName(classification.debitAccount)} is debited because it is an asset/receivable.`,
+      `${displayAccountName(classification.creditAccount)} is credited because income has increased.`,
+    ];
+  }
+
   const prepaidExpense = getPrepaidExpenseDetails(classification);
   if (prepaidExpense) {
     return [
@@ -344,6 +354,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not debit Bad Debts Recovered A/c.",
       "Do not credit Debtor/Raju A/c in this beginner MVP treatment.",
       "Bad Debts Recovered is income/gain, not an expense.",
+    ];
+  }
+
+  if (getAccruedIncomeDetails(classification)) {
+    return [
+      "Do not debit Cash or Bank because no money has been received yet.",
+      "Do not ignore income just because it has not been received.",
+      "Accrued income is an asset/receivable.",
     ];
   }
 
@@ -444,6 +462,16 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  const accruedIncome = getAccruedIncomeDetails(classification);
+  if (accruedIncome) {
+    return {
+      question: `${accruedIncome.practiceLabel} ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
+        classification.creditAccount,
+      )}`,
+    };
+  }
+
   const prepaidExpense = getPrepaidExpenseDetails(classification);
   if (prepaidExpense) {
     return {
@@ -502,6 +530,11 @@ function buildNarration(classification: TransactionClassification): string {
   if (credit === "Bad Debts Recovered") {
     if (partyName) return `Being bad debts previously written off recovered from ${partyName}.`;
     return `Being bad debts recovered ${debit === "Bank" ? "through bank" : "in cash"}.`;
+  }
+
+  const accruedIncome = getAccruedIncomeDetails(classification);
+  if (accruedIncome) {
+    return `Being ${accruedIncome.narrationLabel} accrued.`;
   }
 
   const prepaidExpense = getPrepaidExpenseDetails(classification);
@@ -585,6 +618,7 @@ function describeTransactionAction(classification: TransactionClassification): s
   if (debit === "Depreciation") return "Depreciation was recorded on a business asset.";
   if (debit === "Bad Debts") return "An irrecoverable debtor balance was written off.";
   if (credit === "Bad Debts Recovered") return "An amount previously written off as bad debt was recovered.";
+  if (getAccruedIncomeDetails(classification)) return "Income was earned but has not yet been received.";
   if (getPrepaidExpenseDetails(classification)) return "An expense paid in advance was adjusted as a prepaid asset.";
   if (getOutstandingExpenseDetails(classification)) return "An expense was incurred but has not yet been paid.";
   if (debit === "Purchases") return "The business bought goods for resale.";
@@ -627,6 +661,41 @@ function emptyPracticeQuestion(): SolverPracticeQuestion {
     question: "",
     expectedPattern: "",
   };
+}
+
+function getAccruedIncomeDetails(classification: TransactionClassification):
+  | {
+      incomeLabel: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  | null {
+  const details: Record<
+    string,
+    {
+      incomeLabel: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  > = {
+    "Accrued Interest": {
+      incomeLabel: "Interest",
+      narrationLabel: "interest",
+      practiceLabel: "Interest accrued",
+    },
+    "Accrued Commission": {
+      incomeLabel: "Commission",
+      narrationLabel: "commission",
+      practiceLabel: "Commission accrued",
+    },
+    "Accrued Rent": {
+      incomeLabel: "Rent",
+      narrationLabel: "rent",
+      practiceLabel: "Rent accrued",
+    },
+  };
+
+  return details[classification.debitAccount] ?? null;
 }
 
 function getPrepaidExpenseDetails(classification: TransactionClassification):
