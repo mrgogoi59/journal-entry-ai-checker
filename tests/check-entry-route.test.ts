@@ -1149,6 +1149,82 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Paid wages Rs.5000 in cash",
+      journalEntry: "Wages A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+      debitAccount: "Wages Expense",
+      creditAccount: "Cash",
+      amount: 5000,
+    },
+    {
+      transactionText: "Paid freight Rs.2000 through bank",
+      journalEntry: "Freight A/c Dr. Rs.2000\nTo Bank A/c Rs.2000",
+      debitAccount: "Freight Expense",
+      creditAccount: "Bank",
+      amount: 2000,
+    },
+    {
+      transactionText: "Paid internet bill Rs.1500 by UPI",
+      journalEntry: "Internet Expense A/c Dr. Rs.1500\nTo Bank A/c Rs.1500",
+      debitAccount: "Internet Expense",
+      creditAccount: "Bank",
+      amount: 1500,
+    },
+    {
+      transactionText: "Paid legal charges Rs.5000 in cash",
+      journalEntry: "Legal Charges A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+      debitAccount: "Legal Charges",
+      creditAccount: "Cash",
+      amount: 5000,
+    },
+    {
+      transactionText: "Paid office expenses Rs.2500 through bank",
+      journalEntry: "Office Expenses A/c Dr. Rs.2500\nTo Bank A/c Rs.2500",
+      debitAccount: "Office Expenses",
+      creditAccount: "Bank",
+      amount: 2500,
+    },
+  ])("returns Correct for common expense payment: $transactionText", async ({ transactionText, journalEntry, debitAccount, creditAccount, amount }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: debitAccount, amount }],
+      credits: [{ account: creditAccount, amount }],
+    });
+  });
+
+  it.each([
+    {
+      transactionText: "Paid wages Rs.5000 in cash",
+      journalEntry: "Cash A/c Dr. Rs.5000\nTo Wages A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid wages Rs.5000 in cash",
+      journalEntry: "Wages A/c Dr. Rs.5000\nTo Bank A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid freight Rs.2000 through bank",
+      journalEntry: "Freight A/c Dr. Rs.2000\nTo Cash A/c Rs.2000",
+    },
+    {
+      transactionText: "Paid wages Rs.5000 in cash",
+      journalEntry: "Sales A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid wages Rs.5000 in cash",
+      journalEntry: "Purchases A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+  ])("does not accept wrong common expense entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for debtor cash receipt", async () => {
     const body = await checkEntry(
       "Received cash Rs.10000 from debtor",

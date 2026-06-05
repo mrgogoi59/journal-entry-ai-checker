@@ -29,6 +29,35 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves wages paid in cash", async () => {
+    const body = await solve("Paid wages Rs.5000 in cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Wages Expense A/c", debit: 5000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Wages Expense A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      debitOrCredit: "Debit",
+    });
+    expect(body.stepByStepExplanation).toContain("Expenses are debited.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves internet bill paid by UPI as bank payment", async () => {
+    const body = await solve("Paid internet bill Rs.1500 by UPI");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Internet Expense A/c", debit: 1500, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 1500 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves partial goods purchase with part cash and balance credit", async () => {
     const body = await solve("Bought goods Rs.10000, paid Rs.4000 cash and balance on credit");
 

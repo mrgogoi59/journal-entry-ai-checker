@@ -574,6 +574,113 @@ const goodsLostGeneralRule: TransactionRule = {
   practiceTemplate: (amount) => `Goods worth ₹${amount} lost.`,
 };
 
+interface ExpensePaymentConfig {
+  transactionType: string;
+  account: string;
+  label: string;
+  terms: string;
+}
+
+const commonExpensePaymentConfigs: ExpensePaymentConfig[] = [
+  { transactionType: "paid_wages", account: "Wages Expense", label: "wages", terms: "wages?|wages\\s+expense" },
+  {
+    transactionType: "paid_carriage",
+    account: "Carriage Expense",
+    label: "carriage",
+    terms: "carriage(?:\\s+expense)?",
+  },
+  {
+    transactionType: "paid_freight",
+    account: "Freight Expense",
+    label: "freight",
+    terms: "freight(?:\\s+expense|\\s+charges)?",
+  },
+  {
+    transactionType: "paid_advertisement",
+    account: "Advertisement Expense",
+    label: "advertisement",
+    terms: "advertis(?:ement|ing)(?:\\s+expense)?",
+  },
+  {
+    transactionType: "paid_repairs",
+    account: "Repairs Expense",
+    label: "repairs",
+    terms: "repairs?|repair\\s+charges|maintenance\\s+expense",
+  },
+  {
+    transactionType: "paid_printing_stationery",
+    account: "Printing and Stationery Expense",
+    label: "printing and stationery",
+    terms: "printing\\s+and\\s+stationery|stationery(?:\\s+expense)?|printing\\s+charges",
+  },
+  {
+    transactionType: "paid_telephone",
+    account: "Telephone Expense",
+    label: "telephone bill",
+    terms: "telephone(?:\\s+bill|\\s+expense)?|phone\\s+bill",
+  },
+  {
+    transactionType: "paid_internet",
+    account: "Internet Expense",
+    label: "internet bill",
+    terms: "internet(?:\\s+bill|\\s+expense)?|broadband\\s+bill",
+  },
+  {
+    transactionType: "paid_travelling",
+    account: "Travelling Expense",
+    label: "travelling expenses",
+    terms: "travelling(?:\\s+expenses?|\\s+expense)?|travel\\s+expense",
+  },
+  {
+    transactionType: "paid_petrol_fuel",
+    account: "Petrol/Fuel Expense",
+    label: "petrol/fuel expense",
+    terms: "petrol(?:\\s+expenses?|\\s+expense)?|fuel\\s+expense",
+  },
+  {
+    transactionType: "paid_legal_charges",
+    account: "Legal Charges",
+    label: "legal charges",
+    terms: "legal\\s+charges|legal\\s+fees|lawyer\\s+fees|legal\\s+expense",
+  },
+  {
+    transactionType: "paid_office_expenses",
+    account: "Office Expenses",
+    label: "office expenses",
+    terms: "(?:general\\s+)?office\\s+expenses?",
+  },
+];
+
+const commonExpensePaymentRules: TransactionRule[] = commonExpensePaymentConfigs.flatMap((config) => [
+  expensePaymentRule(config, "Bank"),
+  expensePaymentRule(config, "Cash"),
+]);
+
+function expensePaymentRule(config: ExpensePaymentConfig, paymentAccount: "Cash" | "Bank"): TransactionRule {
+  const isBank = paymentAccount === "Bank";
+  const paymentPattern = isBank ? BANK_PAYMENT_PATTERN : "(?:in cash|by cash|\\bcash\\b)";
+  const cashPrefixPatterns = isBank
+    ? []
+    : [
+        new RegExp(`cash\\s+paid.*(?:${config.terms})`, "i"),
+        new RegExp(`paid\\s+cash.*(?:${config.terms})`, "i"),
+      ];
+
+  return {
+    transaction_type: `${config.transactionType}_${isBank ? "bank" : "cash"}`,
+    patterns: [
+      new RegExp(`paid\\s+.*(?:${config.terms}).*${paymentPattern}`, "i"),
+      new RegExp(`(?:${config.terms}).*paid.*${paymentPattern}`, "i"),
+      ...cashPrefixPatterns,
+    ],
+    debitAccount: config.account,
+    creditAccount: paymentAccount,
+    explanationLogic: `${config.account} is an expense, so it is debited. ${paymentAccount} decreases because the expense is paid, so ${paymentAccount} is credited.`,
+    practiceTemplate: (amount) =>
+      `Paid ${config.label} ₹${amount} ${isBank ? "through bank" : "in cash"}.`,
+  };
+}
+
 const salesReturnRule: TransactionRule = {
   transaction_type: "sales_return",
   patterns: [
@@ -1100,6 +1207,7 @@ export const transactionRules: TransactionRule[] = [
   },
   goodsConventionRules[1],
   goodsConventionRules[0],
+  ...commonExpensePaymentRules,
   {
     transaction_type: "paid_rent_bank",
     patterns: [

@@ -18,6 +18,21 @@ import type {
 const unsupportedMessage =
   "I cannot safely solve this transaction yet. Please rewrite with amount, payment mode, and account context.";
 
+const commonExpenseAccounts = new Set([
+  "Wages Expense",
+  "Carriage Expense",
+  "Freight Expense",
+  "Advertisement Expense",
+  "Repairs Expense",
+  "Printing and Stationery Expense",
+  "Telephone Expense",
+  "Internet Expense",
+  "Travelling Expense",
+  "Petrol/Fuel Expense",
+  "Legal Charges",
+  "Office Expenses",
+]);
+
 export function solveJournalEntry(transaction: string, mode: SolverMode = "beginner"): JournalEntrySolverResponse {
   const transactionSummary = transaction.trim();
   const safeMode = mode === "exam" ? "exam" : "beginner";
@@ -68,14 +83,32 @@ function isAmbiguousPersonPayment(transaction: string): boolean {
   const accountWords = new Set([
     "cash",
     "bank",
+    "broadband",
+    "carriage",
     "creditor",
+    "fuel",
+    "freight",
     "supplier",
     "rent",
     "salary",
+    "stationery",
+    "telephone",
+    "travel",
+    "travelling",
+    "wage",
+    "wages",
     "interest",
     "commission",
     "electricity",
+    "internet",
+    "legal",
     "loan",
+    "office",
+    "petrol",
+    "phone",
+    "printing",
+    "repair",
+    "repairs",
   ]);
 
   return !accountWords.has(possibleName.toLowerCase());
@@ -353,6 +386,19 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (isCommonExpensePayment(classification)) {
+    const expense = displayAccountName(classification.debitAccount);
+    const payment = displayAccountName(classification.creditAccount);
+    return [
+      `${expense} is an expense of the business.`,
+      "Expenses are debited.",
+      classification.creditAccount === "Bank"
+        ? `Payment was made through bank/digital mode, so ${payment} is credited.`
+        : `Cash was paid, so ${payment} is credited.`,
+      `Therefore, ${expense} is debited and ${payment} is credited.`,
+    ];
+  }
+
   if (classification.debitAccount === "Depreciation") {
     const asset = classification.creditAccount;
     return [
@@ -539,6 +585,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not credit Cash or Bank unless the transaction clearly says cash refund was received.",
       "Do not use Sales Return A/c because goods were returned to supplier, not returned by customer.",
       "Do not use Sales A/c because this is not a sale.",
+    ];
+  }
+
+  if (isCommonExpensePayment(classification)) {
+    return [
+      "Do not credit the expense account.",
+      `Do not debit ${classification.creditAccount} when ${classification.creditAccount.toLowerCase()} is paid.`,
+      "If paid by UPI/bank/cheque, use Bank A/c instead of Cash A/c.",
     ];
   }
 
@@ -730,6 +784,17 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (isCommonExpensePayment(classification)) {
+    return {
+      question: `Paid ${displayAccountName(classification.debitAccount).replace(" A/c", "").toLowerCase()} ${formatRupees(
+        classification.amount * 2,
+      )} ${classification.creditAccount === "Bank" ? "through bank" : "in cash"}`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
+        classification.creditAccount,
+      )}`,
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -881,6 +946,11 @@ function buildNarration(classification: TransactionClassification): string {
     return `Being goods returned to ${supplier}.`;
   }
 
+  if (isCommonExpensePayment(classification)) {
+    const expenseLabel = displayAccountName(classification.debitAccount).replace(" A/c", "").toLowerCase();
+    return `Being ${expenseLabel} paid ${classification.creditAccount === "Bank" ? "through bank/digital mode" : "in cash"}.`;
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -1019,6 +1089,10 @@ function describeTransactionAction(classification: TransactionClassification): s
     return "Goods purchased earlier were returned to the supplier.";
   }
 
+  if (isCommonExpensePayment(classification)) {
+    return `${displayAccountName(classification.debitAccount)} was paid.`;
+  }
+
   const debit = classification.debitAccount;
   const credit = classification.creditAccount;
 
@@ -1062,6 +1136,14 @@ function toSolverConfidence(confidence: number): SolverConfidence {
 
 function formatRupees(amount: number): string {
   return `₹${amount.toLocaleString("en-IN")}`;
+}
+
+function isCommonExpensePayment(classification: TransactionClassification): boolean {
+  return (
+    commonExpenseAccounts.has(classification.debitAccount) &&
+    (classification.creditAccount === "Cash" || classification.creditAccount === "Bank") &&
+    classification.transaction_type.startsWith("paid_")
+  );
 }
 
 function emptyPracticeQuestion(): SolverPracticeQuestion {

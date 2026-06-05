@@ -138,6 +138,16 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "Wages expense increased",
     "The expense has been incurred during the accounting period.",
   ),
+  "Carriage Expense": expenseMetadata(
+    "Carriage Expense",
+    "Carriage expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Freight Expense": expenseMetadata(
+    "Freight Expense",
+    "Freight expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
   "Interest Expense": expenseMetadata("Interest Expense", "Interest expense increased", "Interest was paid or became due."),
   "Electricity Expense": expenseMetadata(
     "Electricity Expense",
@@ -148,6 +158,46 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "Advertisement Expense",
     "Advertisement expense increased",
     "Goods distributed as free samples are treated as advertisement/promotion expense.",
+  ),
+  "Repairs Expense": expenseMetadata(
+    "Repairs Expense",
+    "Repairs expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Printing and Stationery Expense": expenseMetadata(
+    "Printing and Stationery Expense",
+    "Printing and stationery expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Telephone Expense": expenseMetadata(
+    "Telephone Expense",
+    "Telephone expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Internet Expense": expenseMetadata(
+    "Internet Expense",
+    "Internet expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Travelling Expense": expenseMetadata(
+    "Travelling Expense",
+    "Travelling expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Petrol/Fuel Expense": expenseMetadata(
+    "Petrol/Fuel Expense",
+    "Petrol/fuel expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Legal Charges": expenseMetadata(
+    "Legal Charges",
+    "Legal charges expense increased",
+    "The business paid this expense, so the expense increased.",
+  ),
+  "Office Expenses": expenseMetadata(
+    "Office Expenses",
+    "Office expenses increased",
+    "The business paid this expense, so the expense increased.",
   ),
   "Charity Expense": expenseMetadata(
     "Charity Expense",
