@@ -199,6 +199,9 @@ function buildAffectedAccount(
   const salesReturnAccount = buildSalesReturnAffectedAccount(line, side, classification);
   if (salesReturnAccount) return salesReturnAccount;
 
+  const purchaseReturnAccount = buildPurchaseReturnAffectedAccount(line, side, classification);
+  if (purchaseReturnAccount) return purchaseReturnAccount;
+
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
   if (depreciationAccount) return depreciationAccount;
 
@@ -336,6 +339,17 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
       "This reduces the earlier sales, so Sales Return A/c is debited.",
       `${customerAccount} receivable balance decreases, so ${customerAccount} is credited.`,
       "This is also called Return Inward.",
+    ];
+  }
+
+  if (classification.transaction_type === "purchase_return") {
+    const supplier = classification.partyName ?? "supplier";
+    const supplierAccount = displayAccountName(classification.debitAccount);
+    return [
+      `Goods purchased earlier were returned to ${supplier}.`,
+      `The amount payable to ${supplier} decreases, so ${supplierAccount} is debited.`,
+      "Purchase Return A/c is credited because purchase returns reduce purchases.",
+      "This is also called Return Outward.",
     ];
   }
 
@@ -516,6 +530,15 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not credit Cash or Bank unless the transaction clearly says refund was paid.",
       "Do not use Purchase Return A/c because goods were returned by customer, not returned to supplier.",
       "Do not use Purchases A/c because this is related to sales, not purchase.",
+    ];
+  }
+
+  if (classification.transaction_type === "purchase_return") {
+    return [
+      "Do not credit Purchases A/c directly in beginner journal entries; use Purchase Return A/c.",
+      "Do not credit Cash or Bank unless the transaction clearly says cash refund was received.",
+      "Do not use Sales Return A/c because goods were returned to supplier, not returned by customer.",
+      "Do not use Sales A/c because this is not a sale.",
     ];
   }
 
@@ -700,6 +723,13 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.transaction_type === "purchase_return") {
+    return {
+      question: `Purchase return to Rahul ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: "Rahul A/c Dr. To Purchase Return A/c",
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -846,6 +876,11 @@ function buildNarration(classification: TransactionClassification): string {
     return `Being goods returned by ${customer}.`;
   }
 
+  if (classification.transaction_type === "purchase_return") {
+    const supplier = classification.partyName ?? "supplier";
+    return `Being goods returned to ${supplier}.`;
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -978,6 +1013,10 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.transaction_type === "sales_return") {
     return "Goods sold earlier were returned by the customer.";
+  }
+
+  if (classification.transaction_type === "purchase_return") {
+    return "Goods purchased earlier were returned to the supplier.";
   }
 
   const debit = classification.debitAccount;
@@ -1601,6 +1640,43 @@ function buildSalesReturnAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the giver / Reduce debtor asset",
       reason: "The customer returned goods, so the amount receivable from the customer is reduced.",
+    };
+  }
+
+  return null;
+}
+
+function buildPurchaseReturnAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.transaction_type !== "purchase_return") return null;
+
+  const isCreditorAccount = line.account === "Creditor" || line.account === classification.partyName;
+  if (isCreditorAccount) {
+    const accountLabel = displayAccountName(line.account);
+    const supplier = classification.partyName ?? "supplier";
+    return {
+      account: accountLabel,
+      traditionalType: "Personal Account",
+      modernType: line.account === "Creditor" ? "Liability" : "Liability / Creditor",
+      effect: `Amount payable to ${supplier} decreased`,
+      debitOrCredit: side,
+      ruleApplied: "Debit the receiver / Liability decreases are debited",
+      reason: "Goods are returned to supplier, so the amount payable to that supplier is reduced.",
+    };
+  }
+
+  if (line.account === "Purchase Return") {
+    return {
+      account: "Purchase Return A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Contra Expense / Purchase Reduction",
+      effect: "Purchase return increased and purchases reduced",
+      debitOrCredit: side,
+      ruleApplied: "Credit the account that reduces expense / Credit purchase returns",
+      reason: "Goods purchased earlier were returned to supplier, so Purchase Return A/c is credited.",
     };
   }
 

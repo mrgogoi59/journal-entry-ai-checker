@@ -28,6 +28,7 @@ const supportedTransactions = [
   "Goods given as charity or donation",
   "Goods lost by fire, theft, accident, or damage without insurance claim",
   "Sales Return / goods returned by customer",
+  "Purchase Return / goods returned to supplier",
 ];
 
 const unsupportedTransactions = [
@@ -38,7 +39,7 @@ const unsupportedTransactions = [
   "Trade discount in invoice unless the wording matches supported trade-discount cases",
   "Insurance claim on goods lost by fire",
   "Sales return with cash refund, GST, discount, or settlement",
-  "Purchase return",
+  "Purchase return with cash refund, GST, discount, or settlement",
   "Purchase return with GST",
   "Provision for doubtful debts",
   "Complex recovery with provision adjustment",
@@ -100,6 +101,9 @@ const exampleTransactions = [
   "Goods returned by Raju Rs.1000",
   "Goods returned by customer Rs.1000",
   "Sales return from Amit Rs.1500",
+  "Goods returned to Amit Rs.1000",
+  "Goods returned to supplier Rs.1000",
+  "Purchase return to Rahul Rs.1500",
 ];
 
 export default function SupportedTransactionsPage() {

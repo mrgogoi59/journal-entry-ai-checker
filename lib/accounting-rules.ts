@@ -167,6 +167,19 @@ function namedSalesReturnCustomer(transactionText: string): PartyDetails | null 
   return partyName ? { partyName, partyRole: "debtor", partyAccountSide: "credit" } : null;
 }
 
+function namedPurchaseReturnSupplier(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`goods\\s+returned\\s+to\\s+(?:supplier\\s+)?${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`goods\\s+worth\\s+.*returned\\s+to\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`returned\\s+goods(?:\\s+worth\\s+.*)?\\s+to\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`purchase\\s+returns?\\s+to\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`goods\\s+purchased\\s+from\\s+${SAFE_PARTY_PATTERN}\\s+returned`, "i"),
+    new RegExp(`^${SAFE_PARTY_PATTERN}\\s+accepted\\s+goods\\s+return`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "creditor", partyAccountSide: "debit" } : null;
+}
+
 function extractPartyName(transactionText: string, patterns: RegExp[]): string | null {
   for (const pattern of patterns) {
     const match = pattern.exec(transactionText);
@@ -567,7 +580,7 @@ const salesReturnRule: TransactionRule = {
     /goods\s+returned\s+by\s+\w+/i,
     /goods\s+worth\s+.*returned\s+by\s+\w+/i,
     /\w+\s+returned\s+goods/i,
-    /goods\s+returned\s+from\s+\w+/i,
+    /goods\s+returned\s+from\s+(?!purchase\b)\w+/i,
     /goods\s+worth\s+.*returned\s+from\s+\w+/i,
     /sales\s+returns?\s+from\s+\w+/i,
     /sales\s+returns?\s+by\s+\w+/i,
@@ -583,6 +596,30 @@ const salesReturnRule: TransactionRule = {
     "Goods sold earlier were returned by the customer. Sales Return is debited because it reduces sales, and Debtor or the named customer is credited because the receivable is reduced.",
   practiceTemplate: (amount) => `Goods returned by customer ₹${amount}.`,
   partyExtractor: namedSalesReturnCustomer,
+};
+
+const purchaseReturnRule: TransactionRule = {
+  transaction_type: "purchase_return",
+  patterns: [
+    /goods\s+returned\s+to\s+\w+/i,
+    /goods\s+worth\s+.*returned\s+to\s+\w+/i,
+    /returned\s+goods\s+to\s+\w+/i,
+    /returned\s+goods\s+worth\s+.*to\s+\w+/i,
+    /goods\s+returned\s+to\s+supplier\s+\w+/i,
+    /purchase\s+returns?\s+to\s+\w+/i,
+    /goods\s+returned\s+to\s+\w+\s+from\s+earlier\s+purchase/i,
+    /goods\s+purchased\s+from\s+\w+\s+returned/i,
+    /\w+\s+accepted\s+goods\s+return/i,
+    /purchase\s+returns?\s+(?:rs\.?|inr|₹|\d)/i,
+    /goods\s+purchased\s+returned/i,
+    /goods\s+returned\s+from\s+purchase/i,
+  ],
+  debitAccount: "Creditor",
+  creditAccount: "Purchase Return",
+  explanationLogic:
+    "Goods purchased earlier were returned to the supplier. Creditor or the named supplier is debited because the payable is reduced, and Purchase Return is credited because purchase returns reduce purchases.",
+  practiceTemplate: (amount) => `Goods returned to supplier ₹${amount}.`,
+  partyExtractor: namedPurchaseReturnSupplier,
 };
 
 const incomeReceivedInAdvanceRules: TransactionRule[] = [
@@ -948,6 +985,7 @@ export const transactionRules: TransactionRule[] = [
   ...namedAssetPurchaseRules,
   ...tradeDiscountRules,
   salesReturnRule,
+  purchaseReturnRule,
   {
     transaction_type: "bought_furniture_cash",
     patterns: [/(bought|purchased).*furniture.*cash/i],

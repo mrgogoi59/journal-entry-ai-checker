@@ -1113,6 +1113,26 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Sales returns Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
     ["Sales return from customer Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
     ["Sales return from debtor Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Goods returned to Amit Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Goods worth Rs.1000 returned to Amit", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Returned goods to Amit Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Returned goods worth Rs.1000 to Amit", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Goods returned to supplier Amit Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Purchase return to Amit Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Purchase returns to Amit Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Goods returned to Amit from earlier purchase Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Goods purchased from Amit returned Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Amit accepted goods return Rs.1000", "purchase_return", "Amit", "Purchase Return", 1000],
+    ["Goods returned to supplier Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Goods returned to creditor Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Returned goods to supplier Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Returned goods to creditor Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Purchase return Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Purchase returns Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Purchase return to supplier Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Purchase return to creditor Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Goods purchased returned Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
+    ["Goods returned from purchase Rs.1000", "purchase_return", "Creditor", "Purchase Return", 1000],
     ["Paid creditor ₹11,000 in cash", "paid_creditor", "Creditor", "Cash", 11000],
     ["Paid cash Rs.7000 to creditor", "paid_creditor", "Creditor", "Cash", 7000],
     ["Paid Rs.7000 to creditor in cash", "paid_creditor", "Creditor", "Cash", 7000],
@@ -1368,11 +1388,14 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire and insurance claim pending Rs.3000")).toBeNull();
-    expect(classifyTransaction("Returned goods to Amit Rs.1000")).toBeNull();
     expect(classifyTransaction("Goods returned by Raju and cash refunded Rs.1000")).toBeNull();
     expect(classifyTransaction("Goods returned by customer Rs.1000 and cash refunded")).toBeNull();
     expect(classifyTransaction("Sales return with GST Rs.1000")).toBeNull();
     expect(classifyTransaction("Sales return with discount Rs.1000")).toBeNull();
+    expect(classifyTransaction("Goods returned to Amit and cash refund received Rs.1000")).toBeNull();
+    expect(classifyTransaction("Goods returned to supplier Rs.1000 and cash refunded")).toBeNull();
+    expect(classifyTransaction("Purchase return with GST Rs.1000")).toBeNull();
+    expect(classifyTransaction("Purchase return with discount Rs.1000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

@@ -98,6 +98,17 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     debitReason: "Goods sold earlier were returned by the customer, so Sales Return A/c is debited.",
     creditReason: "Sales return is being reduced or adjusted.",
   },
+  "Purchase Return": {
+    displayName: "Purchase Return A/c",
+    traditionalType: "Nominal Account",
+    modernType: "Contra Expense / Purchase Reduction",
+    debitRule: "Debit all expenses and losses",
+    creditRule: "Credit the account that reduces expense / Credit purchase returns",
+    debitEffect: "Purchase return decreased",
+    creditEffect: "Purchase return increased and purchases reduced",
+    debitReason: "Purchase return is being reduced or adjusted.",
+    creditReason: "Goods purchased earlier were returned to supplier, so Purchase Return A/c is credited.",
+  },
   Debtor: {
     displayName: "Debtor A/c",
     traditionalType: "Personal Account",

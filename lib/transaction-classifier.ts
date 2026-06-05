@@ -21,6 +21,7 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (isPartialBalanceCreditCompound(transactionText)) return null;
   if (hasUnsupportedGoodsLossInsuranceContext(transactionText)) return null;
   if (hasUnsupportedSalesReturnContext(transactionText)) return null;
+  if (hasUnsupportedPurchaseReturnContext(transactionText)) return null;
 
   const rule = transactionRules.find((candidate) =>
     candidate.patterns.some((pattern) => pattern.test(transactionText)),
@@ -321,6 +322,22 @@ function hasUnsupportedSalesReturnContext(transactionText: string): boolean {
   return (
     isSalesReturn &&
     /\b(?:cash\s+refunded|refund(?:ed)?|gst|discount|settlement|full\s+settlement|partial\s+settlement)\b/i.test(
+      transactionText,
+    )
+  );
+}
+
+function hasUnsupportedPurchaseReturnContext(transactionText: string): boolean {
+  const isPurchaseReturn =
+    /\bpurchase\s+returns?\b/i.test(transactionText) ||
+    /\bgoods\s+returned\s+to\b/i.test(transactionText) ||
+    /\breturned\s+goods\s+to\b/i.test(transactionText) ||
+    /\bgoods\s+purchased\s+returned\b/i.test(transactionText) ||
+    /\bgoods\s+returned\s+from\s+purchase\b/i.test(transactionText);
+
+  return (
+    isPurchaseReturn &&
+    /\b(?:cash\s+refund(?:ed)?|refund\s+received|cash\s+refunded|gst|discount|settlement|full\s+settlement|partial\s+settlement)\b/i.test(
       transactionText,
     )
   );
