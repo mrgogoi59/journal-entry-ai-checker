@@ -681,6 +681,106 @@ function expensePaymentRule(config: ExpensePaymentConfig, paymentAccount: "Cash"
   };
 }
 
+interface IncomeReceiptConfig {
+  transactionType: string;
+  account: string;
+  label: string;
+  terms: string;
+}
+
+const commonIncomeReceiptConfigs: IncomeReceiptConfig[] = [
+  {
+    transactionType: "rent_received",
+    account: "Rent Income",
+    label: "rent",
+    terms: "rent(?:\\s+income)?",
+  },
+  {
+    transactionType: "service_income_received",
+    account: "Service Income",
+    label: "service income",
+    terms: "service\\s+income|service\\s+fees|service\\s+revenue",
+  },
+  {
+    transactionType: "consultancy_income_received",
+    account: "Consultancy Income",
+    label: "consultancy fees",
+    terms: "consultancy\\s+fees|consultancy\\s+income|consulting\\s+income|consulting\\s+fees",
+  },
+  {
+    transactionType: "tuition_income_received",
+    account: "Tuition Income",
+    label: "tuition fees",
+    terms: "tuition\\s+fees|tuition\\s+income|coaching\\s+fees|class\\s+fees",
+  },
+  {
+    transactionType: "dividend_income_received",
+    account: "Dividend Income",
+    label: "dividend",
+    terms: "dividend(?:\\s+income)?",
+  },
+  {
+    transactionType: "royalty_income_received",
+    account: "Royalty Income",
+    label: "royalty",
+    terms: "royalty(?:\\s+income)?",
+  },
+  {
+    transactionType: "interest_received",
+    account: "Interest Income",
+    label: "interest",
+    terms: "interest(?:\\s+income)?",
+  },
+  {
+    transactionType: "commission_received",
+    account: "Commission Income",
+    label: "commission",
+    terms: "commission(?:\\s+income)?",
+  },
+  {
+    transactionType: "discount_received",
+    account: "Discount Received",
+    label: "discount",
+    terms: "discount(?:\\s+received|\\s+income)?",
+  },
+  {
+    transactionType: "miscellaneous_income_received",
+    account: "Miscellaneous Income",
+    label: "miscellaneous income",
+    terms: "miscellaneous\\s+income|other\\s+income|sundry\\s+income|misc\\s+income",
+  },
+];
+
+const commonIncomeReceiptRules: TransactionRule[] = commonIncomeReceiptConfigs.flatMap((config) => [
+  incomeReceiptRule(config, "Bank"),
+  incomeReceiptRule(config, "Cash"),
+]);
+
+function incomeReceiptRule(config: IncomeReceiptConfig, receiptAccount: "Cash" | "Bank"): TransactionRule {
+  const isBank = receiptAccount === "Bank";
+  const receiptPattern = isBank ? BANK_PAYMENT_PATTERN : "(?:in cash|by cash|\\bcash\\b)";
+  const cashPrefixPatterns = isBank
+    ? []
+    : [
+        new RegExp(`cash\\s+received.*(?:${config.terms})`, "i"),
+        new RegExp(`received\\s+cash.*(?:${config.terms})`, "i"),
+      ];
+
+  return {
+    transaction_type: `${config.transactionType}_${isBank ? "bank" : "cash"}`,
+    patterns: [
+      new RegExp(`received\\s+.*(?:${config.terms}).*${receiptPattern}`, "i"),
+      new RegExp(`(?:${config.terms}).*received.*${receiptPattern}`, "i"),
+      ...cashPrefixPatterns,
+    ],
+    debitAccount: receiptAccount,
+    creditAccount: config.account,
+    explanationLogic: `${receiptAccount} increases because income is received. ${config.account} is credited because income has increased.`,
+    practiceTemplate: (amount) =>
+      `Received ${config.label} ₹${amount} ${isBank ? "through bank" : "in cash"}.`,
+  };
+}
+
 const salesReturnRule: TransactionRule = {
   transaction_type: "sales_return",
   patterns: [
@@ -1258,6 +1358,7 @@ export const transactionRules: TransactionRule[] = [
       "Salary is an expense and expenses are debited. Cash decreases because it is paid out, so Cash is credited.",
     practiceTemplate: (amount) => `Paid salary ₹${amount} in cash.`,
   },
+  ...commonIncomeReceiptRules,
   {
     transaction_type: "commission_received_bank",
     patterns: [

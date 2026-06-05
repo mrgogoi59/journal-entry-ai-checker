@@ -33,6 +33,19 @@ const commonExpenseAccounts = new Set([
   "Office Expenses",
 ]);
 
+const commonIncomeAccounts = new Set([
+  "Rent Income",
+  "Service Income",
+  "Consultancy Income",
+  "Tuition Income",
+  "Dividend Income",
+  "Royalty Income",
+  "Interest Income",
+  "Commission Income",
+  "Discount Received",
+  "Miscellaneous Income",
+]);
+
 export function solveJournalEntry(transaction: string, mode: SolverMode = "beginner"): JournalEntrySolverResponse {
   const transactionSummary = transaction.trim();
   const safeMode = mode === "exam" ? "exam" : "beginner";
@@ -399,6 +412,19 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (isCommonIncomeReceipt(classification)) {
+    const receipt = displayAccountName(classification.debitAccount);
+    const income = displayAccountName(classification.creditAccount);
+    return [
+      `${income} has been received by the business.`,
+      classification.debitAccount === "Bank"
+        ? `Payment was received through bank/digital mode, so ${receipt} is debited.`
+        : `Cash is received, so ${receipt} is debited.`,
+      `${income} is income, so ${income} is credited.`,
+      `Therefore, ${receipt} is debited and ${income} is credited.`,
+    ];
+  }
+
   if (classification.debitAccount === "Depreciation") {
     const asset = classification.creditAccount;
     return [
@@ -593,6 +619,15 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not credit the expense account.",
       `Do not debit ${classification.creditAccount} when ${classification.creditAccount.toLowerCase()} is paid.`,
       "If paid by UPI/bank/cheque, use Bank A/c instead of Cash A/c.",
+    ];
+  }
+
+  if (isCommonIncomeReceipt(classification)) {
+    return [
+      `Do not debit ${displayAccountName(classification.creditAccount)} when income is received.`,
+      `Do not credit ${displayAccountName(classification.debitAccount)} when ${classification.debitAccount.toLowerCase()} is received.`,
+      "If received by UPI/bank/cheque, use Bank A/c instead of Cash A/c.",
+      `Do not confuse ${displayAccountName(classification.creditAccount)} with an expense account.`,
     ];
   }
 
@@ -795,6 +830,19 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (isCommonIncomeReceipt(classification)) {
+    return {
+      question: `Received ${displayAccountName(classification.creditAccount)
+        .replace(" A/c", "")
+        .toLowerCase()} ${formatRupees(classification.amount * 2)} ${
+        classification.debitAccount === "Bank" ? "through bank" : "in cash"
+      }`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
+        classification.creditAccount,
+      )}`,
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -951,6 +999,11 @@ function buildNarration(classification: TransactionClassification): string {
     return `Being ${expenseLabel} paid ${classification.creditAccount === "Bank" ? "through bank/digital mode" : "in cash"}.`;
   }
 
+  if (isCommonIncomeReceipt(classification)) {
+    const incomeLabel = displayAccountName(classification.creditAccount).replace(" A/c", "").toLowerCase();
+    return `Being ${incomeLabel} received ${classification.debitAccount === "Bank" ? "through bank/digital mode" : "in cash"}.`;
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -1093,6 +1146,10 @@ function describeTransactionAction(classification: TransactionClassification): s
     return `${displayAccountName(classification.debitAccount)} was paid.`;
   }
 
+  if (isCommonIncomeReceipt(classification)) {
+    return `${displayAccountName(classification.creditAccount)} was received.`;
+  }
+
   const debit = classification.debitAccount;
   const credit = classification.creditAccount;
 
@@ -1143,6 +1200,14 @@ function isCommonExpensePayment(classification: TransactionClassification): bool
     commonExpenseAccounts.has(classification.debitAccount) &&
     (classification.creditAccount === "Cash" || classification.creditAccount === "Bank") &&
     classification.transaction_type.startsWith("paid_")
+  );
+}
+
+function isCommonIncomeReceipt(classification: TransactionClassification): boolean {
+  return (
+    (classification.debitAccount === "Cash" || classification.debitAccount === "Bank") &&
+    commonIncomeAccounts.has(classification.creditAccount) &&
+    classification.transaction_type.includes("received")
   );
 }
 

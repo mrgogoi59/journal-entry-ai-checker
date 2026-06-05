@@ -244,12 +244,48 @@ export const accountMetadata: Record<string, AccountMetadata> = {
   "Commission Received in Advance": incomeReceivedInAdvanceMetadata("Commission Received in Advance"),
   "Interest Received in Advance": incomeReceivedInAdvanceMetadata("Interest Received in Advance"),
   "Interest Income": incomeMetadata("Interest Income", "Interest income increased", "Interest was earned or received."),
+  "Service Income": incomeMetadata(
+    "Service Income",
+    "Service income increased",
+    "The business received this income, so the income account increased.",
+    "Income / Revenue",
+  ),
+  "Consultancy Income": incomeMetadata(
+    "Consultancy Income",
+    "Consultancy income increased",
+    "The business received this income, so the income account increased.",
+    "Income / Revenue",
+  ),
+  "Tuition Income": incomeMetadata(
+    "Tuition Income",
+    "Tuition income increased",
+    "The business received this income, so the income account increased.",
+    "Income / Revenue",
+  ),
+  "Dividend Income": incomeMetadata(
+    "Dividend Income",
+    "Dividend income increased",
+    "The business received this income, so the income account increased.",
+    "Income / Revenue",
+  ),
+  "Royalty Income": incomeMetadata(
+    "Royalty Income",
+    "Royalty income increased",
+    "The business received this income, so the income account increased.",
+    "Income / Revenue",
+  ),
   "Commission Income": incomeMetadata(
     "Commission Income",
     "Commission income increased",
     "Commission was earned or received.",
   ),
   "Rent Income": incomeMetadata("Rent Income", "Rent income increased", "Rent income was earned during the period."),
+  "Miscellaneous Income": incomeMetadata(
+    "Miscellaneous Income",
+    "Miscellaneous income increased",
+    "The business received this income, so the income account increased.",
+    "Income / Revenue",
+  ),
   "Bad Debts": expenseMetadata(
     "Bad Debts",
     "Bad debts loss increased",

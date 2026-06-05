@@ -58,6 +58,41 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves rent received in cash", async () => {
+    const body = await solve("Received rent Rs.5000 in cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 5000, credit: 0 },
+      { account: "Rent Income A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Rent Income A/c",
+      traditionalType: "Nominal Account",
+      debitOrCredit: "Credit",
+    });
+    expect(body.affectedAccounts[1]?.modernType).toEqual(expect.stringContaining("Income"));
+    expect(body.stepByStepExplanation).toContain("Cash is received, so Cash A/c is debited.");
+    expect(body.narration).toBe("Being rent income received in cash.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves consultancy fees received by UPI as bank receipt", async () => {
+    const body = await solve("Received consultancy fees Rs.10000 by UPI");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 10000, credit: 0 },
+      { account: "Consultancy Income A/c", debit: 0, credit: 10000 },
+    ]);
+    expect(body.stepByStepExplanation).toContain(
+      "Payment was received through bank/digital mode, so Bank A/c is debited.",
+    );
+    expect(body.commonMistakes).toContain("If received by UPI/bank/cheque, use Bank A/c instead of Cash A/c.");
+    expect(body.narration).toBe("Being consultancy income received through bank/digital mode.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves partial goods purchase with part cash and balance credit", async () => {
     const body = await solve("Bought goods Rs.10000, paid Rs.4000 cash and balance on credit");
 

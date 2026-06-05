@@ -1225,6 +1225,89 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Received rent Rs.5000 in cash",
+      journalEntry: "Cash A/c Dr. Rs.5000\nTo Rent Income A/c Rs.5000",
+      debitAccount: "Cash",
+      creditAccount: "Rent Income",
+      amount: 5000,
+    },
+    {
+      transactionText: "Received rent Rs.5000 in cash",
+      journalEntry: "Cash A/c Dr. Rs.5000\nTo Rent Received A/c Rs.5000",
+      debitAccount: "Cash",
+      creditAccount: "Rent Income",
+      amount: 5000,
+    },
+    {
+      transactionText: "Received service income Rs.7000 through bank",
+      journalEntry: "Bank A/c Dr. Rs.7000\nTo Service Income A/c Rs.7000",
+      debitAccount: "Bank",
+      creditAccount: "Service Income",
+      amount: 7000,
+    },
+    {
+      transactionText: "Received consultancy fees Rs.10000 by UPI",
+      journalEntry: "Bank A/c Dr. Rs.10000\nTo Consultancy Income A/c Rs.10000",
+      debitAccount: "Bank",
+      creditAccount: "Consultancy Income",
+      amount: 10000,
+    },
+    {
+      transactionText: "Received tuition fees Rs.3000 in cash",
+      journalEntry: "Cash A/c Dr. Rs.3000\nTo Tuition Fees A/c Rs.3000",
+      debitAccount: "Cash",
+      creditAccount: "Tuition Income",
+      amount: 3000,
+    },
+    {
+      transactionText: "Received royalty Rs.4000 through bank",
+      journalEntry: "Bank A/c Dr. Rs.4000\nTo Royalty Income A/c Rs.4000",
+      debitAccount: "Bank",
+      creditAccount: "Royalty Income",
+      amount: 4000,
+    },
+  ])("returns Correct for common income receipt: $transactionText", async ({ transactionText, journalEntry, debitAccount, creditAccount, amount }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: debitAccount, amount }],
+      credits: [{ account: creditAccount, amount }],
+    });
+  });
+
+  it.each([
+    {
+      transactionText: "Received rent Rs.5000 in cash",
+      journalEntry: "Rent Income A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+    {
+      transactionText: "Received rent Rs.5000 in cash",
+      journalEntry: "Cash A/c Dr. Rs.5000\nTo Rent Expense A/c Rs.5000",
+    },
+    {
+      transactionText: "Received rent Rs.5000 in cash",
+      journalEntry: "Bank A/c Dr. Rs.5000\nTo Rent Income A/c Rs.5000",
+    },
+    {
+      transactionText: "Received consultancy fees Rs.10000 by UPI",
+      journalEntry: "Cash A/c Dr. Rs.10000\nTo Consultancy Income A/c Rs.10000",
+    },
+    {
+      transactionText: "Received rent Rs.5000 in cash",
+      journalEntry: "Sales A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+  ])("does not accept wrong common income entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for debtor cash receipt", async () => {
     const body = await checkEntry(
       "Received cash Rs.10000 from debtor",
