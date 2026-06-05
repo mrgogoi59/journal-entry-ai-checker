@@ -19,6 +19,7 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   const partialGoodsSale = classifyPartialGoodsSale(transactionText);
   if (partialGoodsSale) return partialGoodsSale;
   if (isPartialBalanceCreditCompound(transactionText)) return null;
+  if (hasUnsupportedGoodsLossInsuranceContext(transactionText)) return null;
 
   const rule = transactionRules.find((candidate) =>
     candidate.patterns.some((pattern) => pattern.test(transactionText)),
@@ -303,6 +304,10 @@ function isDiscountReceivedSettlement(transactionText: string): boolean {
 
 function hasUnsupportedDiscountContext(transactionText: string): boolean {
   return /\b(?:gst|goods|trade\s+discount|invoice|provision)\b/i.test(transactionText);
+}
+
+function hasUnsupportedGoodsLossInsuranceContext(transactionText: string): boolean {
+  return /\bgoods\b/i.test(transactionText) && /\b(?:insurance|claim|insurer)\b/i.test(transactionText);
 }
 
 function settlementAmounts(

@@ -193,6 +193,9 @@ function buildAffectedAccount(
   const charityGoodsAccount = buildCharityGoodsAffectedAccount(line, side, classification);
   if (charityGoodsAccount) return charityGoodsAccount;
 
+  const goodsLossAccount = buildGoodsLossAffectedAccount(line, side, classification);
+  if (goodsLossAccount) return goodsLossAccount;
+
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
   if (depreciationAccount) return depreciationAccount;
 
@@ -291,6 +294,33 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
       "Goods were given as charity/donation.",
       "This is treated as charity/donation expense.",
       "Charity Expense A/c is debited because expenses are debited.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ];
+  }
+
+  if (classification.transaction_type === "goods_lost_by_fire") {
+    return [
+      "Goods were lost/destroyed by fire.",
+      "This is treated as a business loss.",
+      "Loss by Fire A/c is debited because losses are debited.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ];
+  }
+
+  if (classification.transaction_type === "goods_lost_by_theft") {
+    return [
+      "Goods were stolen or lost by theft.",
+      "This is treated as a business loss.",
+      "Loss by Theft A/c is debited because losses are debited.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ];
+  }
+
+  if (classification.transaction_type === "goods_lost_general") {
+    return [
+      "Goods were lost or damaged.",
+      "This is treated as a business loss.",
+      "Goods Lost A/c is debited because losses are debited.",
       "Purchases A/c is credited because goods purchased for resale are reduced.",
     ];
   }
@@ -454,6 +484,18 @@ function buildCommonMistakes(classification: TransactionClassification): string[
     ];
   }
 
+  if (
+    ["goods_lost_by_fire", "goods_lost_by_theft", "goods_lost_general"].includes(classification.transaction_type)
+  ) {
+    return [
+      "Do not debit Purchases A/c.",
+      "Do not credit Cash or Bank because no cash is paid.",
+      "Do not credit Sales A/c because this is not a sale.",
+      "Do not use Drawings A/c because the goods were not taken by the owner.",
+      "Do not record insurance claim unless the transaction clearly mentions insurance claim.",
+    ];
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return [
       `Do not debit ${classification.creditAccount} for depreciation.`,
@@ -607,6 +649,27 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.transaction_type === "goods_lost_by_fire") {
+    return {
+      question: `Goods worth ${formatRupees(classification.amount * 2)} lost by fire`,
+      expectedPattern: "Loss by Fire A/c Dr. To Purchases A/c",
+    };
+  }
+
+  if (classification.transaction_type === "goods_lost_by_theft") {
+    return {
+      question: `Goods worth ${formatRupees(classification.amount * 2)} stolen`,
+      expectedPattern: "Loss by Theft A/c Dr. To Purchases A/c",
+    };
+  }
+
+  if (classification.transaction_type === "goods_lost_general") {
+    return {
+      question: `Goods worth ${formatRupees(classification.amount * 2)} lost`,
+      expectedPattern: "Goods Lost A/c Dr. To Purchases A/c",
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -736,6 +799,18 @@ function buildNarration(classification: TransactionClassification): string {
     return "Being goods given as charity.";
   }
 
+  if (classification.transaction_type === "goods_lost_by_fire") {
+    return "Being goods lost by fire.";
+  }
+
+  if (classification.transaction_type === "goods_lost_by_theft") {
+    return "Being goods lost by theft.";
+  }
+
+  if (classification.transaction_type === "goods_lost_general") {
+    return "Being goods lost/damaged.";
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -852,6 +927,18 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.transaction_type === "goods_given_as_charity") {
     return "Goods were given as charity or donation.";
+  }
+
+  if (classification.transaction_type === "goods_lost_by_fire") {
+    return "Goods were lost or destroyed by fire.";
+  }
+
+  if (classification.transaction_type === "goods_lost_by_theft") {
+    return "Goods were stolen or lost by theft.";
+  }
+
+  if (classification.transaction_type === "goods_lost_general") {
+    return "Goods were lost or damaged.";
   }
 
   const debit = classification.debitAccount;
@@ -1378,6 +1465,66 @@ function buildCharityGoodsAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
       reason: "Goods originally purchased for resale are taken out of business for charity, so Purchases A/c is credited.",
+    };
+  }
+
+  return null;
+}
+
+function buildGoodsLossAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  const lossAccounts: Record<
+    string,
+    {
+      account: string;
+      effect: string;
+      reason: string;
+    }
+  > = {
+    goods_lost_by_fire: {
+      account: "Loss by Fire",
+      effect: "Loss by fire increased",
+      reason: "Goods lost by fire are treated as a business loss.",
+    },
+    goods_lost_by_theft: {
+      account: "Loss by Theft",
+      effect: "Loss by theft increased",
+      reason: "Goods stolen/lost by theft are treated as a business loss.",
+    },
+    goods_lost_general: {
+      account: "Goods Lost",
+      effect: "Goods loss increased",
+      reason: "Goods lost or damaged are treated as a business loss.",
+    },
+  };
+
+  const lossAccount = lossAccounts[classification.transaction_type];
+  if (!lossAccount) return null;
+
+  if (line.account === lossAccount.account) {
+    return {
+      account: `${lossAccount.account} A/c`,
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Loss",
+      effect: lossAccount.effect,
+      debitOrCredit: side,
+      ruleApplied: "Debit all expenses and losses",
+      reason: lossAccount.reason,
+    };
+  }
+
+  if (line.account === "Purchases") {
+    return {
+      account: "Purchases A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Goods purchased for resale",
+      effect: "Purchases/goods available for business decreased",
+      debitOrCredit: side,
+      ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
+      reason: "Goods originally purchased for resale are no longer available, so Purchases A/c is credited.",
     };
   }
 

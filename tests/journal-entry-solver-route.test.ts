@@ -756,10 +756,68 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
-  it("does not solve goods lost by fire yet", async () => {
-    const body = await solve("Goods lost by fire Rs.3000");
+  it("solves goods lost by fire", async () => {
+    const body = await solve("Goods worth Rs.3000 lost by fire");
 
-    expect(body.status).toBe("unsupported");
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Loss by Fire A/c", debit: 3000, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(body.affectedAccounts).toEqual([
+      expect.objectContaining({
+        account: "Loss by Fire A/c",
+        traditionalType: "Nominal Account",
+        modernType: "Expense / Loss",
+        debitOrCredit: "Debit",
+        reason: "Goods lost by fire are treated as a business loss.",
+      }),
+      expect.objectContaining({
+        account: "Purchases A/c",
+        modernType: "Expense / Goods purchased for resale",
+        debitOrCredit: "Credit",
+        reason: "Goods originally purchased for resale are no longer available, so Purchases A/c is credited.",
+      }),
+    ]);
+    expect(body.stepByStepExplanation).toEqual([
+      "Goods were lost/destroyed by fire.",
+      "This is treated as a business loss.",
+      "Loss by Fire A/c is debited because losses are debited.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ]);
+    expect(body.commonMistakes).toContain(
+      "Do not record insurance claim unless the transaction clearly mentions insurance claim.",
+    );
+    expect(body.narration).toEqual(expect.any(String));
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves goods lost by theft", async () => {
+    const body = await solve("Goods worth Rs.2000 stolen");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Loss by Theft A/c", debit: 2000, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 2000 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves general goods lost", async () => {
+    const body = await solve("Goods worth Rs.1000 lost");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Goods Lost A/c", debit: 1000, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 1000 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve goods lost by fire with insurance claim yet", async () => {
+    const body = await solve("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000");
+
+    expect(["unsupported", "ambiguous"]).toContain(body.status);
     expect(body.journalEntry).toEqual([]);
   });
 

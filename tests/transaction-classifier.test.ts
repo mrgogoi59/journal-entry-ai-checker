@@ -1067,6 +1067,32 @@ describe("classifyTransaction supported beginner transactions", () => {
       1000,
     ],
     ["Goods used for charity Rs.1000", "goods_given_as_charity", "Charity Expense", "Purchases", 1000],
+    ["Goods worth Rs.3000 lost by fire", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods Rs.3000 lost by fire", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods destroyed by fire Rs.3000", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods worth Rs.3000 destroyed by fire", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods damaged by fire Rs.3000", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods worth Rs.3000 damaged by fire", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods burnt by fire Rs.3000", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods worth Rs.3000 burnt in fire", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Fire destroyed goods worth Rs.3000", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods lost due to fire Rs.3000", "goods_lost_by_fire", "Loss by Fire", "Purchases", 3000],
+    ["Goods worth Rs.2000 lost by theft", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods Rs.2000 lost by theft", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods stolen Rs.2000", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods worth Rs.2000 stolen", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods stolen by thief Rs.2000", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods worth Rs.2000 stolen by thief", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods lost due to theft Rs.2000", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Theft of goods Rs.2000", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods worth Rs.2000 theft", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods Rs.2000 stolen from business", "goods_lost_by_theft", "Loss by Theft", "Purchases", 2000],
+    ["Goods lost Rs.1000", "goods_lost_general", "Goods Lost", "Purchases", 1000],
+    ["Goods worth Rs.1000 lost", "goods_lost_general", "Goods Lost", "Purchases", 1000],
+    ["Goods damaged Rs.1000", "goods_lost_general", "Goods Lost", "Purchases", 1000],
+    ["Goods worth Rs.1000 damaged", "goods_lost_general", "Goods Lost", "Purchases", 1000],
+    ["Goods lost due to accident Rs.1000", "goods_lost_general", "Goods Lost", "Purchases", 1000],
+    ["Goods worth Rs.1000 lost due to accident", "goods_lost_general", "Goods Lost", "Purchases", 1000],
     ["Paid creditor ₹11,000 in cash", "paid_creditor", "Creditor", "Cash", 11000],
     ["Paid cash Rs.7000 to creditor", "paid_creditor", "Creditor", "Cash", 7000],
     ["Paid Rs.7000 to creditor in cash", "paid_creditor", "Creditor", "Cash", 7000],
@@ -1318,7 +1344,10 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("GST paid Rs.1000")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 less trade discount 10%")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 plus GST and allowed discount Rs.500")).toBeNull();
-    expect(classifyTransaction("Goods lost by fire Rs.3000")).toBeNull();
+    expect(classifyTransaction("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000")).toBeNull();
+    expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
+    expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();
+    expect(classifyTransaction("Goods lost by fire and insurance claim pending Rs.3000")).toBeNull();
     expect(classifyTransaction("Goods returned by customer Rs.1000")).toBeNull();
   });
 

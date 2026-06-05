@@ -132,6 +132,24 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "Charity/donation expense increased",
     "Goods given as charity are treated as donation/charity expense.",
   ),
+  "Loss by Fire": expenseMetadata(
+    "Loss by Fire",
+    "Loss by fire increased",
+    "Goods lost by fire are treated as a business loss.",
+    "Expense / Loss",
+  ),
+  "Loss by Theft": expenseMetadata(
+    "Loss by Theft",
+    "Loss by theft increased",
+    "Goods stolen/lost by theft are treated as a business loss.",
+    "Expense / Loss",
+  ),
+  "Goods Lost": expenseMetadata(
+    "Goods Lost",
+    "Goods loss increased",
+    "Goods lost or damaged are treated as a business loss.",
+    "Expense / Loss",
+  ),
   "Insurance Expense": expenseMetadata(
     "Insurance Expense",
     "Insurance expense increased",

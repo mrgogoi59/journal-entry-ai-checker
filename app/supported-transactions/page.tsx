@@ -26,6 +26,7 @@ const supportedTransactions = [
   "Goods withdrawn by proprietor or owner for personal use",
   "Goods distributed as free sample for advertisement or promotion",
   "Goods given as charity or donation",
+  "Goods lost by fire, theft, accident, or damage without insurance claim",
 ];
 
 const unsupportedTransactions = [
@@ -34,7 +35,7 @@ const unsupportedTransactions = [
   "Provision-related discounts",
   "Broad settlement and ledger treatment beyond the journal entry",
   "Trade discount in invoice unless the wording matches supported trade-discount cases",
-  "Goods lost by fire or theft",
+  "Insurance claim on goods lost by fire",
   "Sales return",
   "Purchase return",
   "Provision for doubtful debts",
@@ -91,6 +92,9 @@ const exampleTransactions = [
   "Goods worth Rs.1000 given as charity",
   "Goods worth Rs.1500 donated to orphanage",
   "Goods used for charity Rs.2000",
+  "Goods worth Rs.3000 lost by fire",
+  "Goods worth Rs.2000 stolen",
+  "Goods worth Rs.1000 lost",
 ];
 
 export default function SupportedTransactionsPage() {

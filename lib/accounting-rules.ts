@@ -488,6 +488,68 @@ const goodsGivenAsCharityRule: TransactionRule = {
   practiceTemplate: (amount) => `Goods worth ₹${amount} given as charity.`,
 };
 
+const goodsLostByFireRule: TransactionRule = {
+  transaction_type: "goods_lost_by_fire",
+  patterns: [
+    /goods\s+worth\s+.*lost\s+by\s+fire/i,
+    /goods\s+.*lost\s+by\s+fire/i,
+    /goods\s+destroyed\s+by\s+fire/i,
+    /goods\s+worth\s+.*destroyed\s+by\s+fire/i,
+    /goods\s+damaged\s+by\s+fire/i,
+    /goods\s+worth\s+.*damaged\s+by\s+fire/i,
+    /goods\s+burnt\s+by\s+fire/i,
+    /goods\s+worth\s+.*burnt\s+in\s+fire/i,
+    /goods\s+burned\s+by\s+fire/i,
+    /goods\s+worth\s+.*burned\s+in\s+fire/i,
+    /fire\s+destroyed\s+goods\s+worth/i,
+    /goods\s+lost\s+due\s+to\s+fire/i,
+  ],
+  debitAccount: "Loss by Fire",
+  creditAccount: "Purchases",
+  explanationLogic:
+    "Goods were lost or destroyed by fire. Loss by Fire is debited because losses are debited, and Purchases is credited because goods bought for resale are reduced.",
+  practiceTemplate: (amount) => `Goods worth ₹${amount} lost by fire.`,
+};
+
+const goodsLostByTheftRule: TransactionRule = {
+  transaction_type: "goods_lost_by_theft",
+  patterns: [
+    /goods\s+worth\s+.*lost\s+by\s+theft/i,
+    /goods\s+.*lost\s+by\s+theft/i,
+    /goods\s+stolen/i,
+    /goods\s+.*stolen/i,
+    /goods\s+worth\s+.*stolen/i,
+    /goods\s+stolen\s+by\s+thief/i,
+    /goods\s+worth\s+.*stolen\s+by\s+thief/i,
+    /goods\s+lost\s+due\s+to\s+theft/i,
+    /theft\s+of\s+goods/i,
+    /goods\s+worth\s+.*theft/i,
+    /goods\s+.*stolen\s+from\s+business/i,
+  ],
+  debitAccount: "Loss by Theft",
+  creditAccount: "Purchases",
+  explanationLogic:
+    "Goods were stolen or lost by theft. Loss by Theft is debited because losses are debited, and Purchases is credited because goods bought for resale are reduced.",
+  practiceTemplate: (amount) => `Goods worth ₹${amount} stolen.`,
+};
+
+const goodsLostGeneralRule: TransactionRule = {
+  transaction_type: "goods_lost_general",
+  patterns: [
+    /goods\s+lost\s+(?:rs\.?|inr|₹|\d)/i,
+    /goods\s+worth\s+.*lost$/i,
+    /goods\s+damaged\s+(?:rs\.?|inr|₹|\d)/i,
+    /goods\s+worth\s+.*damaged$/i,
+    /goods\s+lost\s+due\s+to\s+accident/i,
+    /goods\s+worth\s+.*lost\s+due\s+to\s+accident/i,
+  ],
+  debitAccount: "Goods Lost",
+  creditAccount: "Purchases",
+  explanationLogic:
+    "Goods were lost or damaged. Goods Lost is debited because losses are debited, and Purchases is credited because goods bought for resale are reduced.",
+  practiceTemplate: (amount) => `Goods worth ₹${amount} lost.`,
+};
+
 const incomeReceivedInAdvanceRules: TransactionRule[] = [
   {
     transaction_type: "rent_received_in_advance",
@@ -1076,6 +1138,9 @@ export const transactionRules: TransactionRule[] = [
   goodsWithdrawnPersonalUseRule,
   goodsDistributedFreeSampleRule,
   goodsGivenAsCharityRule,
+  goodsLostByFireRule,
+  goodsLostByTheftRule,
+  goodsLostGeneralRule,
   {
     transaction_type: "withdrew_cash_bank",
     patterns: [
