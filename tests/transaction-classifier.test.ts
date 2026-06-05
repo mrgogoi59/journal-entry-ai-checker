@@ -875,6 +875,111 @@ describe("classifyTransaction supported beginner transactions", () => {
       "Purchases",
       2000,
     ],
+    [
+      "Goods worth Rs.1000 distributed as free sample",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 distributed as free samples",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods Rs.1000 distributed as free sample",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods Rs.1000 given as free sample",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 given as free sample",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 given away as free sample",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 distributed for advertisement",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods Rs.1000 distributed for advertisement",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 distributed for promotion",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods worth Rs.1000 given as promotional sample",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Free samples distributed Rs.1000",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Free sample goods distributed Rs.1000",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods used as free sample Rs.1000",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Goods used for advertisement Rs.1500",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1500,
+    ],
+    [
+      "Goods used for promotion Rs.1000",
+      "goods_distributed_free_sample",
+      "Advertisement Expense",
+      "Purchases",
+      1000,
+    ],
     ["Paid creditor ₹11,000 in cash", "paid_creditor", "Creditor", "Cash", 11000],
     ["Paid cash Rs.7000 to creditor", "paid_creditor", "Creditor", "Cash", 7000],
     ["Paid Rs.7000 to creditor in cash", "paid_creditor", "Creditor", "Cash", 7000],
@@ -1126,7 +1231,6 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("GST paid Rs.1000")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 less trade discount 10%")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 plus GST and allowed discount Rs.500")).toBeNull();
-    expect(classifyTransaction("Goods distributed as free sample Rs.1000")).toBeNull();
     expect(classifyTransaction("Goods given as charity Rs.1000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000")).toBeNull();
   });

@@ -660,11 +660,53 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve goods distributed as free sample yet", async () => {
-    const body = await solve("Goods distributed as free sample Rs.1000");
+  it("solves goods distributed as free sample", async () => {
+    const body = await solve("Goods worth Rs.1000 distributed as free sample");
 
-    expect(body.status).toBe("unsupported");
-    expect(body.journalEntry).toEqual([]);
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Advertisement Expense A/c", debit: 1000, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 1000 },
+    ]);
+    expect(body.affectedAccounts).toEqual([
+      expect.objectContaining({
+        account: "Advertisement Expense A/c",
+        traditionalType: "Nominal Account",
+        modernType: "Expense",
+        debitOrCredit: "Debit",
+        reason: "Goods distributed as free samples are treated as advertisement/promotion expense.",
+      }),
+      expect.objectContaining({
+        account: "Purchases A/c",
+        modernType: "Expense / Goods purchased for resale",
+        debitOrCredit: "Credit",
+        reason: "Goods purchased for resale are taken out of business stock for free sample distribution.",
+      }),
+    ]);
+    expect(body.stepByStepExplanation).toEqual([
+      "Goods were distributed as free samples to promote the business.",
+      "This is treated as advertisement/promotion expense.",
+      "Advertisement Expense A/c is debited because expenses are debited.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ]);
+    expect(body.commonMistakes).toContain("Do not credit Sales A/c because this is not a sale.");
+    expect(body.narration).toBe("Being goods distributed as free sample.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves goods used for advertisement", async () => {
+    const body = await solve("Goods used for advertisement Rs.1500");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Advertisement Expense A/c", debit: 1500, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 1500 },
+    ]);
+    expect(body.practiceQuestion).toEqual({
+      question: "Goods used for advertisement ₹3,000",
+      expectedPattern: "Advertisement Expense A/c Dr. To Purchases A/c",
+    });
+    expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
   it("does not solve goods lost by fire yet", async () => {

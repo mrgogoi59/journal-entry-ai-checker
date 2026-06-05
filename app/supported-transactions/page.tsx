@@ -24,6 +24,7 @@ const supportedTransactions = [
   "Income received in advance for rent, commission, and interest",
   "Discount allowed or received in full-settlement debtor/creditor cases",
   "Goods withdrawn by proprietor or owner for personal use",
+  "Goods distributed as free sample for advertisement or promotion",
 ];
 
 const unsupportedTransactions = [
@@ -32,7 +33,6 @@ const unsupportedTransactions = [
   "Provision-related discounts",
   "Broad settlement and ledger treatment beyond the journal entry",
   "Trade discount in invoice unless the wording matches supported trade-discount cases",
-  "Goods distributed as free sample",
   "Goods given as charity",
   "Goods lost by fire or theft",
   "Sales return",
@@ -85,6 +85,9 @@ const exampleTransactions = [
   "Goods worth Rs.2000 withdrawn by proprietor for personal use",
   "Owner took goods Rs.1500 for personal use",
   "Goods withdrawn by owner Rs.1000 for home use",
+  "Goods worth Rs.1000 distributed as free sample",
+  "Goods used for advertisement Rs.1500",
+  "Goods worth Rs.2000 distributed for promotion",
 ];
 
 export default function SupportedTransactionsPage() {

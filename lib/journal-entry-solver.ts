@@ -187,6 +187,9 @@ function buildAffectedAccount(
   const goodsWithdrawalAccount = buildGoodsWithdrawalAffectedAccount(line, side, classification);
   if (goodsWithdrawalAccount) return goodsWithdrawalAccount;
 
+  const freeSampleGoodsAccount = buildFreeSampleGoodsAffectedAccount(line, side, classification);
+  if (freeSampleGoodsAccount) return freeSampleGoodsAccount;
+
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
   if (depreciationAccount) return depreciationAccount;
 
@@ -267,6 +270,15 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
       "The proprietor/owner took business goods for personal use.",
       "This is treated as drawings because the owner withdrew value from the business.",
       "Drawings A/c is debited because drawings increase.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ];
+  }
+
+  if (classification.transaction_type === "goods_distributed_free_sample") {
+    return [
+      "Goods were distributed as free samples to promote the business.",
+      "This is treated as advertisement/promotion expense.",
+      "Advertisement Expense A/c is debited because expenses are debited.",
       "Purchases A/c is credited because goods purchased for resale are reduced.",
     ];
   }
@@ -411,6 +423,15 @@ function buildCommonMistakes(classification: TransactionClassification): string[
     ];
   }
 
+  if (classification.transaction_type === "goods_distributed_free_sample") {
+    return [
+      "Do not debit Purchases A/c.",
+      "Do not credit Cash or Bank because no cash is paid.",
+      "Do not credit Sales A/c because this is not a sale.",
+      "Do not use Drawings A/c because the goods were not taken by the owner for personal use.",
+    ];
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return [
       `Do not debit ${classification.creditAccount} for depreciation.`,
@@ -550,6 +571,13 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.transaction_type === "goods_distributed_free_sample") {
+    return {
+      question: `Goods used for advertisement ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: "Advertisement Expense A/c Dr. To Purchases A/c",
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -671,6 +699,10 @@ function buildNarration(classification: TransactionClassification): string {
     return "Being goods withdrawn by proprietor for personal use.";
   }
 
+  if (classification.transaction_type === "goods_distributed_free_sample") {
+    return "Being goods distributed as free sample.";
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -779,6 +811,10 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.transaction_type === "goods_withdrawn_personal_use") {
     return "The owner withdrew business goods for personal use.";
+  }
+
+  if (classification.transaction_type === "goods_distributed_free_sample") {
+    return "Goods were distributed as free samples to promote the business.";
   }
 
   const debit = classification.debitAccount;
@@ -1237,6 +1273,40 @@ function buildGoodsWithdrawalAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
       reason: "Goods originally purchased for business resale are taken out of the business, so Purchases A/c is credited.",
+    };
+  }
+
+  return null;
+}
+
+function buildFreeSampleGoodsAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.transaction_type !== "goods_distributed_free_sample") return null;
+
+  if (line.account === "Advertisement Expense") {
+    return {
+      account: "Advertisement Expense A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense",
+      effect: "Advertisement expense increased",
+      debitOrCredit: side,
+      ruleApplied: "Debit all expenses and losses",
+      reason: "Goods distributed as free samples are treated as advertisement/promotion expense.",
+    };
+  }
+
+  if (line.account === "Purchases") {
+    return {
+      account: "Purchases A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Goods purchased for resale",
+      effect: "Purchases/goods available for business decreased",
+      debitOrCredit: side,
+      ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
+      reason: "Goods purchased for resale are taken out of business stock for free sample distribution.",
     };
   }
 

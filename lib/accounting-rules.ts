@@ -438,6 +438,30 @@ const goodsWithdrawnPersonalUseRule: TransactionRule = {
   practiceTemplate: (amount) => `Goods worth ₹${amount} withdrawn by proprietor for personal use.`,
 };
 
+const goodsDistributedFreeSampleRule: TransactionRule = {
+  transaction_type: "goods_distributed_free_sample",
+  patterns: [
+    /goods\s+worth\s+.*distributed\s+as\s+free\s+samples?/i,
+    /goods\s+.*distributed\s+as\s+free\s+samples?/i,
+    /goods\s+.*given\s+as\s+free\s+samples?/i,
+    /goods\s+worth\s+.*given\s+away\s+as\s+free\s+samples?/i,
+    /goods\s+worth\s+.*distributed\s+for\s+advertisement/i,
+    /goods\s+.*distributed\s+for\s+advertisement/i,
+    /goods\s+worth\s+.*distributed\s+for\s+promotion/i,
+    /goods\s+.*given\s+as\s+promotional\s+sample/i,
+    /free\s+samples?\s+distributed/i,
+    /free\s+sample\s+goods\s+distributed/i,
+    /goods\s+used\s+as\s+free\s+samples?/i,
+    /goods\s+used\s+for\s+advertisement/i,
+    /goods\s+used\s+for\s+promotion/i,
+  ],
+  debitAccount: "Advertisement Expense",
+  creditAccount: "Purchases",
+  explanationLogic:
+    "Goods were distributed as free samples or used for promotion. Advertisement Expense is debited because promotion is an expense, and Purchases is credited because goods bought for resale are reduced.",
+  practiceTemplate: (amount) => `Goods worth ₹${amount} distributed as free sample.`,
+};
+
 const incomeReceivedInAdvanceRules: TransactionRule[] = [
   {
     transaction_type: "rent_received_in_advance",
@@ -1024,6 +1048,7 @@ export const transactionRules: TransactionRule[] = [
     practiceTemplate: (amount) => `Owner withdrew from bank for personal use ₹${amount}.`,
   },
   goodsWithdrawnPersonalUseRule,
+  goodsDistributedFreeSampleRule,
   {
     transaction_type: "withdrew_cash_bank",
     patterns: [
