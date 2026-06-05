@@ -140,6 +140,9 @@ export const accountMetadata: Record<string, AccountMetadata> = {
   "Accrued Interest": accruedIncomeMetadata("Accrued Interest"),
   "Accrued Commission": accruedIncomeMetadata("Accrued Commission"),
   "Accrued Rent": accruedIncomeMetadata("Accrued Rent"),
+  "Rent Received in Advance": incomeReceivedInAdvanceMetadata("Rent Received in Advance"),
+  "Commission Received in Advance": incomeReceivedInAdvanceMetadata("Commission Received in Advance"),
+  "Interest Received in Advance": incomeReceivedInAdvanceMetadata("Interest Received in Advance"),
   "Interest Income": incomeMetadata("Interest Income", "Interest income increased", "Interest was earned or received."),
   "Commission Income": incomeMetadata(
     "Commission Income",
@@ -298,6 +301,21 @@ function accruedIncomeMetadata(account: string): AccountMetadata {
     creditEffect: "Accrued income receivable decreased",
     debitReason: "The income has been earned but not yet received, so a receivable asset is created.",
     creditReason: "The accrued receivable is being reduced or adjusted.",
+  };
+}
+
+function incomeReceivedInAdvanceMetadata(account: string): AccountMetadata {
+  return {
+    displayName: `${account} A/c`,
+    traditionalType: "Personal Account / Representative Personal Account",
+    modernType: "Liability",
+    debitRule: "Debit the receiver / Liability decreases are debited",
+    creditRule: "Credit the giver / Liability increases are credited",
+    debitEffect: "Unearned income liability decreased",
+    creditEffect: "Unearned income liability increased",
+    debitReason: "The unearned income liability is being reduced or adjusted.",
+    creditReason:
+      "The business has received income before earning it, so it has an obligation to provide service/benefit later.",
   };
 }
 

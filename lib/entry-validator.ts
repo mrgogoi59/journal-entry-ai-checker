@@ -8,7 +8,7 @@ export function validateEntry(parsed: ParsedJournalEntry, expected: CorrectJourn
   const parsedAccounts = allAccounts(parsed);
   const expectedLines = allExpectedLines(expected);
   const hasExpectedAccounts = expectedLines.every((expectedLine) =>
-    parsedAccounts.some((account) => accountMatches(account, expectedLine)),
+    allParsedLines(parsed).some((line) => lineMatches(line, expectedLine)),
   );
   const correctSides =
     expected.debits.every((expectedLine) => hasMatchingAccount(parsed.debits, expectedLine)) &&
@@ -63,12 +63,17 @@ function accountMatches(account: string, expectedLine: JournalLine): boolean {
   return [expectedLine.account, ...(expectedLine.acceptedAccounts ?? [])].includes(account);
 }
 
+function lineMatches(line: JournalLine, expectedLine: JournalLine): boolean {
+  if (accountMatches(line.account, expectedLine)) return true;
+  return Boolean(line.rawAccount && expectedLine.acceptedRawAccounts?.includes(line.rawAccount));
+}
+
 function hasMatchingAccount(lines: JournalLine[], expectedLine: JournalLine): boolean {
-  return lines.some((line) => accountMatches(line.account, expectedLine));
+  return lines.some((line) => lineMatches(line, expectedLine));
 }
 
 function hasMatchingAmount(lines: JournalLine[], expectedLine: JournalLine): boolean {
-  return lines.some((line) => accountMatches(line.account, expectedLine) && line.amount === expectedLine.amount);
+  return lines.some((line) => lineMatches(line, expectedLine) && line.amount === expectedLine.amount);
 }
 
 function hasFormatError(parsed: ParsedJournalEntry): boolean {
@@ -94,4 +99,8 @@ function hasCorrectAmount(
 
 function allExpectedLines(expected: CorrectJournalEntry): JournalLine[] {
   return [...expected.debits, ...expected.credits];
+}
+
+function allParsedLines(parsed: ParsedJournalEntry): JournalLine[] {
+  return [...parsed.debits, ...parsed.credits];
 }

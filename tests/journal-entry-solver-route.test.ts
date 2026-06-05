@@ -286,6 +286,60 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves rent received in advance using Rent Income", async () => {
+    const body = await solve("Rent received in advance Rs.4000");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Rent Income A/c", debit: 4000, credit: 0 },
+      { account: "Rent Received in Advance A/c", debit: 0, credit: 4000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Rent Income A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Income/Revenue",
+      debitOrCredit: "Debit",
+    });
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Rent Received in Advance A/c",
+      traditionalType: "Personal Account / Representative Personal Account",
+      modernType: "Liability",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being rent received in advance adjusted.");
+    expect(body.stepByStepExplanation).toEqual([
+      "Rent has been received before it is earned.",
+      "The unearned portion does not belong to the current period's income.",
+      "Rent Income A/c is debited because income is reduced.",
+      "Rent Received in Advance A/c is credited because it is a liability.",
+    ]);
+    expect(body.commonMistakes).toContain("Income received in advance is a liability, not income of the current period.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves commission received in advance", async () => {
+    const body = await solve("Commission received in advance Rs.3000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Commission Income A/c", debit: 3000, credit: 0 },
+      { account: "Commission Received in Advance A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves interest received in advance", async () => {
+    const body = await solve("Interest received in advance Rs.1500");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Interest Income A/c", debit: 1500, credit: 0 },
+      { account: "Interest Received in Advance A/c", debit: 0, credit: 1500 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves depreciation charged on machinery", async () => {
     const body = await solve("Depreciation charged on machinery Rs.5000");
 
@@ -472,15 +526,15 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve income received in advance yet", async () => {
-    const body = await solve("Rent received in advance Rs.4000");
+  it("does not solve discount allowed yet", async () => {
+    const body = await solve("Discount allowed Rs.500");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve discount allowed yet", async () => {
-    const body = await solve("Discount allowed Rs.500");
+  it("does not solve GST yet", async () => {
+    const body = await solve("GST paid Rs.1000");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

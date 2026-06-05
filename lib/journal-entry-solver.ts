@@ -263,6 +263,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  const incomeReceivedInAdvance = getIncomeReceivedInAdvanceDetails(classification);
+  if (incomeReceivedInAdvance) {
+    return [
+      `${incomeReceivedInAdvance.incomeLabel} has been received before it is earned.`,
+      "The unearned portion does not belong to the current period's income.",
+      `${displayAccountName(classification.debitAccount)} is debited because income is reduced.`,
+      `${displayAccountName(classification.creditAccount)} is credited because it is a liability.`,
+    ];
+  }
+
   const accruedIncome = getAccruedIncomeDetails(classification);
   if (accruedIncome) {
     return [
@@ -354,6 +364,14 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not debit Bad Debts Recovered A/c.",
       "Do not credit Debtor/Raju A/c in this beginner MVP treatment.",
       "Bad Debts Recovered is income/gain, not an expense.",
+    ];
+  }
+
+  if (getIncomeReceivedInAdvanceDetails(classification)) {
+    return [
+      "Do not debit Cash or Bank in this adjustment entry.",
+      "Income received in advance is a liability, not income of the current period.",
+      "Do not treat advance rent received as rent expense.",
     ];
   }
 
@@ -462,6 +480,16 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  const incomeReceivedInAdvance = getIncomeReceivedInAdvanceDetails(classification);
+  if (incomeReceivedInAdvance) {
+    return {
+      question: `${incomeReceivedInAdvance.practiceLabel} ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
+        classification.creditAccount,
+      )}`,
+    };
+  }
+
   const accruedIncome = getAccruedIncomeDetails(classification);
   if (accruedIncome) {
     return {
@@ -530,6 +558,11 @@ function buildNarration(classification: TransactionClassification): string {
   if (credit === "Bad Debts Recovered") {
     if (partyName) return `Being bad debts previously written off recovered from ${partyName}.`;
     return `Being bad debts recovered ${debit === "Bank" ? "through bank" : "in cash"}.`;
+  }
+
+  const incomeReceivedInAdvance = getIncomeReceivedInAdvanceDetails(classification);
+  if (incomeReceivedInAdvance) {
+    return `Being ${incomeReceivedInAdvance.narrationLabel} received in advance adjusted.`;
   }
 
   const accruedIncome = getAccruedIncomeDetails(classification);
@@ -618,6 +651,7 @@ function describeTransactionAction(classification: TransactionClassification): s
   if (debit === "Depreciation") return "Depreciation was recorded on a business asset.";
   if (debit === "Bad Debts") return "An irrecoverable debtor balance was written off.";
   if (credit === "Bad Debts Recovered") return "An amount previously written off as bad debt was recovered.";
+  if (getIncomeReceivedInAdvanceDetails(classification)) return "Income received before it was earned was adjusted.";
   if (getAccruedIncomeDetails(classification)) return "Income was earned but has not yet been received.";
   if (getPrepaidExpenseDetails(classification)) return "An expense paid in advance was adjusted as a prepaid asset.";
   if (getOutstandingExpenseDetails(classification)) return "An expense was incurred but has not yet been paid.";
@@ -661,6 +695,41 @@ function emptyPracticeQuestion(): SolverPracticeQuestion {
     question: "",
     expectedPattern: "",
   };
+}
+
+function getIncomeReceivedInAdvanceDetails(classification: TransactionClassification):
+  | {
+      incomeLabel: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  | null {
+  const details: Record<
+    string,
+    {
+      incomeLabel: string;
+      narrationLabel: string;
+      practiceLabel: string;
+    }
+  > = {
+    "Rent Received in Advance": {
+      incomeLabel: "Rent",
+      narrationLabel: "rent",
+      practiceLabel: "Rent received in advance",
+    },
+    "Commission Received in Advance": {
+      incomeLabel: "Commission",
+      narrationLabel: "commission",
+      practiceLabel: "Commission received in advance",
+    },
+    "Interest Received in Advance": {
+      incomeLabel: "Interest",
+      narrationLabel: "interest",
+      practiceLabel: "Interest received in advance",
+    },
+  };
+
+  return details[classification.creditAccount] ?? null;
 }
 
 function getAccruedIncomeDetails(classification: TransactionClassification):

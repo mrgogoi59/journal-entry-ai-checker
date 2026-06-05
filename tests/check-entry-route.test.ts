@@ -454,6 +454,89 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      name: "rent received in advance",
+      transactionText: "Rent received in advance Rs.4000",
+      journalEntry: "Rent Income A/c Dr. Rs.4000\nTo Rent Received in Advance A/c Rs.4000",
+      debits: [{ account: "Rent Income", amount: 4000 }],
+      credits: [{ account: "Rent Received in Advance", amount: 4000 }],
+    },
+    {
+      name: "rent received in advance with Rent A/c",
+      transactionText: "Rent received in advance Rs.4000",
+      journalEntry: "Rent A/c Dr. Rs.4000\nTo Rent Received in Advance A/c Rs.4000",
+      debits: [{ account: "Rent Income", amount: 4000 }],
+      credits: [{ account: "Rent Received in Advance", amount: 4000 }],
+    },
+    {
+      name: "commission received in advance",
+      transactionText: "Commission received in advance Rs.3000",
+      journalEntry: "Commission Income A/c Dr. Rs.3000\nTo Commission Received in Advance A/c Rs.3000",
+      debits: [{ account: "Commission Income", amount: 3000 }],
+      credits: [{ account: "Commission Received in Advance", amount: 3000 }],
+    },
+    {
+      name: "commission received in advance with Commission A/c",
+      transactionText: "Commission received in advance Rs.3000",
+      journalEntry: "Commission A/c Dr. Rs.3000\nTo Commission Received in Advance A/c Rs.3000",
+      debits: [{ account: "Commission Income", amount: 3000 }],
+      credits: [{ account: "Commission Received in Advance", amount: 3000 }],
+    },
+    {
+      name: "interest received in advance with Interest A/c",
+      transactionText: "Interest received in advance Rs.1500",
+      journalEntry: "Interest A/c Dr. Rs.1500\nTo Interest Received in Advance A/c Rs.1500",
+      debits: [{ account: "Interest Income", amount: 1500 }],
+      credits: [{ account: "Interest Received in Advance", amount: 1500 }],
+    },
+    {
+      name: "interest received in advance",
+      transactionText: "Interest received in advance Rs.1500",
+      journalEntry: "Interest Income A/c Dr. Rs.1500\nTo Interest Received in Advance A/c Rs.1500",
+      debits: [{ account: "Interest Income", amount: 1500 }],
+      credits: [{ account: "Interest Received in Advance", amount: 1500 }],
+    },
+  ])(
+    "returns Correct for income received in advance: $name",
+    async ({ transactionText, journalEntry, debits, credits }) => {
+      const body = await checkEntry(transactionText, journalEntry);
+
+      expect(body.result_status).toBe("Correct");
+      expect(body.score).toBe(100);
+      expect(body.mistake_type).toBe("correct");
+      expect(body.correct_journal_entry).toEqual({ debits, credits });
+    },
+  );
+
+  it.each([
+    {
+      name: "reversed rent received in advance",
+      transactionText: "Rent received in advance Rs.4000",
+      journalEntry: "Rent Received in Advance A/c Dr. Rs.4000\nTo Rent Income A/c Rs.4000",
+    },
+    {
+      name: "cash received for advance rent adjustment",
+      transactionText: "Rent received in advance Rs.4000",
+      journalEntry: "Cash A/c Dr. Rs.4000\nTo Rent Income A/c Rs.4000",
+    },
+    {
+      name: "bank received for advance commission adjustment",
+      transactionText: "Commission received in advance Rs.3000",
+      journalEntry: "Bank A/c Dr. Rs.3000\nTo Commission Income A/c Rs.3000",
+    },
+    {
+      name: "rent expense used for advance rent income",
+      transactionText: "Rent received in advance Rs.4000",
+      journalEntry: "Rent Expense A/c Dr. Rs.4000\nTo Rent Received in Advance A/c Rs.4000",
+    },
+  ])("does not accept wrong income received in advance entry: $name", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("does not accept a salary entry for rent paid", async () => {
     const body = await checkEntry(
       "Paid rent Rs.5000 in cash",

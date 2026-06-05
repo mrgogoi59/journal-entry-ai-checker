@@ -21,6 +21,7 @@ const supportedTransactions = [
   "Outstanding expenses for salary, rent, wages, electricity, and insurance",
   "Prepaid expenses for rent, insurance, salary, wages, and electricity",
   "Accrued income for interest, commission, and rent",
+  "Income received in advance for rent, commission, and interest",
 ];
 
 const unsupportedTransactions = [
@@ -30,7 +31,6 @@ const unsupportedTransactions = [
   "Complex recovery with provision adjustment",
   "Ledger treatment after bad debt recovery",
   "Full final accounts treatment",
-  "Income received in advance",
   "Broad final account adjustments",
   "Final accounts",
   "Ledger posting",
@@ -65,6 +65,9 @@ const exampleTransactions = [
   "Interest accrued Rs.1500",
   "Commission earned but not received Rs.3000",
   "Rent receivable Rs.4000",
+  "Rent received in advance Rs.4000",
+  "Commission received in advance Rs.3000",
+  "Interest received in advance Rs.1500",
 ];
 
 export default function SupportedTransactionsPage() {

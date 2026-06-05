@@ -361,6 +361,108 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Rent income accrued Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
     ["Rent receivable Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
     ["Rent due but not received Rs.4000", "accrued_rent", "Accrued Rent", "Rent Income", 4000],
+    ["Rent received in advance Rs.4000", "rent_received_in_advance", "Rent Income", "Rent Received in Advance", 4000],
+    ["Advance rent received Rs.4000", "rent_received_in_advance", "Rent Income", "Rent Received in Advance", 4000],
+    [
+      "Rent income received in advance Rs.4000",
+      "rent_received_in_advance",
+      "Rent Income",
+      "Rent Received in Advance",
+      4000,
+    ],
+    ["Rent received beforehand Rs.4000", "rent_received_in_advance", "Rent Income", "Rent Received in Advance", 4000],
+    [
+      "Rent received but not earned Rs.4000",
+      "rent_received_in_advance",
+      "Rent Income",
+      "Rent Received in Advance",
+      4000,
+    ],
+    ["Unearned rent Rs.4000", "rent_received_in_advance", "Rent Income", "Rent Received in Advance", 4000],
+    [
+      "Commission received in advance Rs.3000",
+      "commission_received_in_advance",
+      "Commission Income",
+      "Commission Received in Advance",
+      3000,
+    ],
+    [
+      "Advance commission received Rs.3000",
+      "commission_received_in_advance",
+      "Commission Income",
+      "Commission Received in Advance",
+      3000,
+    ],
+    [
+      "Commission income received in advance Rs.3000",
+      "commission_received_in_advance",
+      "Commission Income",
+      "Commission Received in Advance",
+      3000,
+    ],
+    [
+      "Commission received beforehand Rs.3000",
+      "commission_received_in_advance",
+      "Commission Income",
+      "Commission Received in Advance",
+      3000,
+    ],
+    [
+      "Commission received but not earned Rs.3000",
+      "commission_received_in_advance",
+      "Commission Income",
+      "Commission Received in Advance",
+      3000,
+    ],
+    [
+      "Unearned commission Rs.3000",
+      "commission_received_in_advance",
+      "Commission Income",
+      "Commission Received in Advance",
+      3000,
+    ],
+    [
+      "Interest received in advance Rs.1500",
+      "interest_received_in_advance",
+      "Interest Income",
+      "Interest Received in Advance",
+      1500,
+    ],
+    [
+      "Advance interest received Rs.1500",
+      "interest_received_in_advance",
+      "Interest Income",
+      "Interest Received in Advance",
+      1500,
+    ],
+    [
+      "Interest income received in advance Rs.1500",
+      "interest_received_in_advance",
+      "Interest Income",
+      "Interest Received in Advance",
+      1500,
+    ],
+    [
+      "Interest received beforehand Rs.1500",
+      "interest_received_in_advance",
+      "Interest Income",
+      "Interest Received in Advance",
+      1500,
+    ],
+    [
+      "Interest received but not earned Rs.1500",
+      "interest_received_in_advance",
+      "Interest Income",
+      "Interest Received in Advance",
+      1500,
+    ],
+    [
+      "Unearned interest Rs.1500",
+      "interest_received_in_advance",
+      "Interest Income",
+      "Interest Received in Advance",
+      1500,
+    ],
     ["Depreciation charged on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation provided on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
     ["Depreciation on machinery Rs.5000", "depreciation_machinery", "Depreciation", "Machinery", 5000],
@@ -779,8 +881,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Depreciation charged on unknown asset Rs.5000")).toBeNull();
     expect(classifyTransaction("Provision for doubtful debts created Rs.1000")).toBeNull();
     expect(classifyTransaction("Bad debts recovered and transferred to provision for doubtful debts Rs.500")).toBeNull();
-    expect(classifyTransaction("Rent received in advance Rs.4000")).toBeNull();
     expect(classifyTransaction("Discount allowed Rs.500")).toBeNull();
+    expect(classifyTransaction("GST paid Rs.1000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

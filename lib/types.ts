@@ -22,6 +22,8 @@ export interface JournalLine {
   account: string;
   amount: number;
   acceptedAccounts?: string[];
+  acceptedRawAccounts?: string[];
+  rawAccount?: string;
   partyRole?: PartyRole;
 }
 

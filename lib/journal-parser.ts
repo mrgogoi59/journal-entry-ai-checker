@@ -1,4 +1,4 @@
-import { normalizeAccountName } from "./account-synonyms";
+import { cleanAccountName, normalizeAccountName } from "./account-synonyms";
 import { extractAmount, removeFirstAmount } from "./amount-parser";
 import type { EntryLineSide, JournalLine, ParsedJournalEntry } from "./types";
 
@@ -64,13 +64,16 @@ function parseLine(line: string): { side: EntryLineSide; entry: JournalLine } | 
 
   if (!accountText) return null;
 
-  return {
-    side,
-    entry: {
-      account: normalizeAccountName(accountText, side),
-      amount,
-    },
+  const entry: JournalLine = {
+    account: normalizeAccountName(accountText, side),
+    amount,
   };
+  Object.defineProperty(entry, "rawAccount", {
+    value: cleanAccountName(accountText),
+    enumerable: false,
+  });
+
+  return { side, entry };
 }
 
 function detectSide(line: string): EntryLineSide | null {

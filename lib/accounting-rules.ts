@@ -418,6 +418,57 @@ const accruedIncomeRules: TransactionRule[] = [
   },
 ];
 
+const incomeReceivedInAdvanceRules: TransactionRule[] = [
+  {
+    transaction_type: "rent_received_in_advance",
+    patterns: [
+      /rent\s+received\s+in\s+advance/i,
+      /advance\s+rent\s+received/i,
+      /rent\s+income\s+received\s+in\s+advance/i,
+      /rent\s+received\s+beforehand/i,
+      /rent\s+received\s+but\s+not\s+earned/i,
+      /unearned\s+rent/i,
+    ],
+    debitAccount: "Rent Income",
+    creditAccount: "Rent Received in Advance",
+    explanationLogic:
+      "Rent has been received before it is earned. Rent Income is debited to reduce current-period income, and Rent Received in Advance is credited as a liability.",
+    practiceTemplate: (amount) => `Rent received in advance ₹${amount}.`,
+  },
+  {
+    transaction_type: "commission_received_in_advance",
+    patterns: [
+      /commission\s+received\s+in\s+advance/i,
+      /advance\s+commission\s+received/i,
+      /commission\s+income\s+received\s+in\s+advance/i,
+      /commission\s+received\s+beforehand/i,
+      /commission\s+received\s+but\s+not\s+earned/i,
+      /unearned\s+commission/i,
+    ],
+    debitAccount: "Commission Income",
+    creditAccount: "Commission Received in Advance",
+    explanationLogic:
+      "Commission has been received before it is earned. Commission Income is debited to reduce current-period income, and Commission Received in Advance is credited as a liability.",
+    practiceTemplate: (amount) => `Commission received in advance ₹${amount}.`,
+  },
+  {
+    transaction_type: "interest_received_in_advance",
+    patterns: [
+      /interest\s+received\s+in\s+advance/i,
+      /advance\s+interest\s+received/i,
+      /interest\s+income\s+received\s+in\s+advance/i,
+      /interest\s+received\s+beforehand/i,
+      /interest\s+received\s+but\s+not\s+earned/i,
+      /unearned\s+interest/i,
+    ],
+    debitAccount: "Interest Income",
+    creditAccount: "Interest Received in Advance",
+    explanationLogic:
+      "Interest has been received before it is earned. Interest Income is debited to reduce current-period income, and Interest Received in Advance is credited as a liability.",
+    practiceTemplate: (amount) => `Interest received in advance ₹${amount}.`,
+  },
+];
+
 const namedPartyPaymentStart = `(?!amount\\b|bank\\b|cash\\b|rs\\.?\\b|inr\\b|creditors?\\b|rent\\b|salary\\b|salaries\\b|interest\\b|electricity\\b|loan\\b|to\\b)${PARTY_PATTERN}`;
 
 const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
@@ -1176,8 +1227,9 @@ export const transactionRules: TransactionRule[] = [
     practiceTemplate: (amount) => `Received interest ₹${amount} in cash.`,
   },
   ...outstandingExpenseRules,
-  ...prepaidExpenseRules,
   ...accruedIncomeRules,
+  ...incomeReceivedInAdvanceRules,
+  ...prepaidExpenseRules,
   {
     transaction_type: "paid_electricity",
     patterns: [/paid .*electricity/i, /electricity bill/i],
