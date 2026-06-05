@@ -537,6 +537,146 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      name: "named debtor cash settlement",
+      transactionText: "Received Rs.9500 from Mohan in full settlement of Rs.10000",
+      journalEntry: "Cash A/c Dr. Rs.9500\nDiscount Allowed A/c Dr. Rs.500\nTo Mohan A/c Rs.10000",
+      debits: [
+        { account: "Cash", amount: 9500 },
+        { account: "Discount Allowed", amount: 500 },
+      ],
+      credits: [{ account: "Mohan", amount: 10000 }],
+    },
+    {
+      name: "named debtor reversed debit lines",
+      transactionText: "Received Rs.9500 from Mohan in full settlement of Rs.10000",
+      journalEntry: "Discount Allowed A/c Dr. Rs.500\nCash A/c Dr. Rs.9500\nTo Mohan A/c Rs.10000",
+      debits: [
+        { account: "Cash", amount: 9500 },
+        { account: "Discount Allowed", amount: 500 },
+      ],
+      credits: [{ account: "Mohan", amount: 10000 }],
+    },
+    {
+      name: "named debtor bank settlement",
+      transactionText: "Received Rs.9500 from Mohan through bank in full settlement of Rs.10000",
+      journalEntry: "Bank A/c Dr. Rs.9500\nDiscount Allowed A/c Dr. Rs.500\nTo Mohan A/c Rs.10000",
+      debits: [
+        { account: "Bank", amount: 9500 },
+        { account: "Discount Allowed", amount: 500 },
+      ],
+      credits: [{ account: "Mohan", amount: 10000 }],
+    },
+    {
+      name: "generic debtor explicit discount",
+      transactionText: "Received Rs.9500 from debtor and allowed discount Rs.500",
+      journalEntry: "Cash A/c Dr. Rs.9500\nDiscount Allowed A/c Dr. Rs.500\nTo Debtor A/c Rs.10000",
+      debits: [
+        { account: "Cash", amount: 9500 },
+        { account: "Discount Allowed", amount: 500 },
+      ],
+      credits: [{ account: "Debtor", amount: 10000 }],
+    },
+  ])("returns Correct for discount allowed settlement: $name", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      name: "full cash debit",
+      journalEntry: "Cash A/c Dr. Rs.10000\nTo Mohan A/c Rs.10000",
+    },
+    {
+      name: "missing discount",
+      journalEntry: "Cash A/c Dr. Rs.9500\nTo Mohan A/c Rs.9500",
+    },
+    {
+      name: "discount credited",
+      journalEntry: "Cash A/c Dr. Rs.9500\nTo Discount Allowed A/c Rs.500\nTo Mohan A/c Rs.10000",
+    },
+  ])("does not accept wrong discount allowed entry: $name", async ({ journalEntry }) => {
+    const body = await checkEntry("Received Rs.9500 from Mohan in full settlement of Rs.10000", journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it.each([
+    {
+      name: "named creditor cash settlement",
+      transactionText: "Paid Rs.4500 to Ram in full settlement of Rs.5000",
+      journalEntry: "Ram A/c Dr. Rs.5000\nTo Cash A/c Rs.4500\nTo Discount Received A/c Rs.500",
+      debits: [{ account: "Ram", amount: 5000 }],
+      credits: [
+        { account: "Cash", amount: 4500 },
+        { account: "Discount Received", amount: 500 },
+      ],
+    },
+    {
+      name: "named creditor reversed credit lines",
+      transactionText: "Paid Rs.4500 to Ram in full settlement of Rs.5000",
+      journalEntry: "Ram A/c Dr. Rs.5000\nTo Discount Received A/c Rs.500\nTo Cash A/c Rs.4500",
+      debits: [{ account: "Ram", amount: 5000 }],
+      credits: [
+        { account: "Cash", amount: 4500 },
+        { account: "Discount Received", amount: 500 },
+      ],
+    },
+    {
+      name: "named creditor bank settlement",
+      transactionText: "Paid Rs.4500 to Ram through bank in full settlement of Rs.5000",
+      journalEntry: "Ram A/c Dr. Rs.5000\nTo Bank A/c Rs.4500\nTo Discount Received A/c Rs.500",
+      debits: [{ account: "Ram", amount: 5000 }],
+      credits: [
+        { account: "Bank", amount: 4500 },
+        { account: "Discount Received", amount: 500 },
+      ],
+    },
+    {
+      name: "generic creditor explicit discount",
+      transactionText: "Paid Rs.4500 to creditor and received discount Rs.500",
+      journalEntry: "Creditor A/c Dr. Rs.5000\nTo Cash A/c Rs.4500\nTo Discount Received A/c Rs.500",
+      debits: [{ account: "Creditor", amount: 5000 }],
+      credits: [
+        { account: "Cash", amount: 4500 },
+        { account: "Discount Received", amount: 500 },
+      ],
+    },
+  ])("returns Correct for discount received settlement: $name", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      name: "paid amount only",
+      journalEntry: "Ram A/c Dr. Rs.4500\nTo Cash A/c Rs.4500",
+    },
+    {
+      name: "discount wrong direction",
+      journalEntry: "Discount Received A/c Dr. Rs.500\nCash A/c Dr. Rs.4500\nTo Ram A/c Rs.5000",
+    },
+    {
+      name: "cash debited to discount received",
+      journalEntry: "Cash A/c Dr. Rs.500\nTo Discount Received A/c Rs.500",
+    },
+  ])("does not accept wrong discount received entry: $name", async ({ journalEntry }) => {
+    const body = await checkEntry("Paid Rs.4500 to Ram in full settlement of Rs.5000", journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("does not accept a salary entry for rent paid", async () => {
     const body = await checkEntry(
       "Paid rent Rs.5000 in cash",

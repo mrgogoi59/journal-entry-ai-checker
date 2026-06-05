@@ -22,11 +22,15 @@ const supportedTransactions = [
   "Prepaid expenses for rent, insurance, salary, wages, and electricity",
   "Accrued income for interest, commission, and rent",
   "Income received in advance for rent, commission, and interest",
+  "Discount allowed or received in full-settlement debtor/creditor cases",
 ];
 
 const unsupportedTransactions = [
   "GST",
-  "Discount allowed or received",
+  "GST with discount",
+  "Provision-related discounts",
+  "Broad settlement and ledger treatment beyond the journal entry",
+  "Trade discount in invoice unless the wording matches supported trade-discount cases",
   "Provision for doubtful debts",
   "Complex recovery with provision adjustment",
   "Ledger treatment after bad debt recovery",
@@ -68,6 +72,10 @@ const exampleTransactions = [
   "Rent received in advance Rs.4000",
   "Commission received in advance Rs.3000",
   "Interest received in advance Rs.1500",
+  "Received Rs.9500 from Mohan in full settlement of Rs.10000",
+  "Received Rs.9500 from debtor and allowed discount Rs.500",
+  "Paid Rs.4500 to Ram in full settlement of Rs.5000",
+  "Paid Rs.4500 to creditor and received discount Rs.500",
 ];
 
 export default function SupportedTransactionsPage() {

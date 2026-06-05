@@ -44,6 +44,10 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   rent_received_in_advance: (amount) => `Rent received in advance ${formatRupees(amount)}`,
   commission_received_in_advance: (amount) => `Commission received in advance ${formatRupees(amount)}`,
   interest_received_in_advance: (amount) => `Interest received in advance ${formatRupees(amount)}`,
+  discount_allowed_cash_settlement: (amount) =>
+    `Received ${formatRupees(Math.round(amount * 0.95))} from Mohan in full settlement of ${formatRupees(amount)}`,
+  discount_received_cash_settlement: (amount) =>
+    `Paid ${formatRupees(Math.round(amount * 0.9))} to Ram in full settlement of ${formatRupees(amount)}`,
   depreciation_machinery: (amount) => `Depreciation charged on machinery ${formatRupees(amount)}`,
   depreciation_furniture: (amount) => `Depreciation provided on furniture ${formatRupees(amount)}`,
   depreciation_computer: (amount) => `Depreciation on computer ${formatRupees(amount)}`,

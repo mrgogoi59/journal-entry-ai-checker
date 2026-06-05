@@ -180,7 +180,8 @@ function buildAffectedAccount(
 ): SolverAffectedAccount {
   const compoundAccount =
     buildPartialGoodsPurchaseAffectedAccount(line, side, classification) ??
-    buildPartialGoodsSaleAffectedAccount(line, side, classification);
+    buildPartialGoodsSaleAffectedAccount(line, side, classification) ??
+    buildDiscountSettlementAffectedAccount(line, side, classification);
   if (compoundAccount) return compoundAccount;
 
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
@@ -231,6 +232,30 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
         details.debtorAccount,
       )} is debited.`,
       "Sales A/c is credited for the full sale value.",
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "discount_allowed_settlement") {
+    const details = classification.compoundDetails;
+    return [
+      `${displayAccountName(details.debtorAccount)} owed the business ${formatRupees(details.fullAmount)}.`,
+      `The business received only ${formatRupees(details.receivedAmount)}.`,
+      `The difference ${formatRupees(details.discountAmount)} is discount allowed.`,
+      `${displayAccountName(details.receiptAccount)} is debited for the amount received.`,
+      "Discount Allowed A/c is debited as loss.",
+      `${displayAccountName(details.debtorAccount)} is credited to close/reduce the debtor balance.`,
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "discount_received_settlement") {
+    const details = classification.compoundDetails;
+    return [
+      `The business owed ${displayAccountName(details.creditorAccount)} ${formatRupees(details.fullAmount)}.`,
+      `The business paid only ${formatRupees(details.paidAmount)}.`,
+      `The difference ${formatRupees(details.discountAmount)} is discount received.`,
+      `${displayAccountName(details.creditorAccount)} is debited to reduce/close the liability.`,
+      `${displayAccountName(details.paymentAccount)} is credited for the actual payment.`,
+      "Discount Received A/c is credited as income/gain.",
     ];
   }
 
@@ -343,6 +368,28 @@ function buildCommonMistakes(classification: TransactionClassification): string[
     ];
   }
 
+  if (classification.compoundDetails?.kind === "discount_allowed_settlement") {
+    const details = classification.compoundDetails;
+    return [
+      `Do not debit ${details.receiptAccount} for the full ${formatRupees(
+        details.fullAmount,
+      )} because only ${formatRupees(details.receivedAmount)} was received.`,
+      "Do not ignore discount allowed.",
+      "Do not credit Sales; this is settlement of debtor, not a new sale.",
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "discount_received_settlement") {
+    const details = classification.compoundDetails;
+    return [
+      `Do not credit ${details.paymentAccount} for the full ${formatRupees(
+        details.fullAmount,
+      )} because only ${formatRupees(details.paidAmount)} was paid.`,
+      "Do not ignore discount received.",
+      "Do not debit Purchases; this is settlement of creditor, not a new purchase.",
+    ];
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return [
       `Do not debit ${classification.creditAccount} for depreciation.`,
@@ -451,6 +498,30 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.compoundDetails?.kind === "discount_allowed_settlement") {
+    const details = classification.compoundDetails;
+    return {
+      question: `Received ${formatRupees(details.receivedAmount * 2)} from Mohan in full settlement of ${formatRupees(
+        details.fullAmount * 2,
+      )}`,
+      expectedPattern: `${details.receiptAccount} A/c Dr., Discount Allowed A/c Dr. To ${displayAccountName(
+        details.debtorAccount,
+      )}`,
+    };
+  }
+
+  if (classification.compoundDetails?.kind === "discount_received_settlement") {
+    const details = classification.compoundDetails;
+    return {
+      question: `Paid ${formatRupees(details.paidAmount * 2)} to Ram in full settlement of ${formatRupees(
+        details.fullAmount * 2,
+      )}`,
+      expectedPattern: `${displayAccountName(details.creditorAccount)} Dr. To ${
+        details.paymentAccount
+      } A/c, To Discount Received A/c`,
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -545,6 +616,24 @@ function buildNarration(classification: TransactionClassification): string {
     return `Being goods sold, ${formatRupees(details.receivedAmount)} received ${
       details.receiptAccount === "Bank" ? "through bank/digital payment" : "in cash"
     } and balance ${formatRupees(details.balanceAmount)} on credit.`;
+  }
+
+  if (classification.compoundDetails?.kind === "discount_allowed_settlement") {
+    const details = classification.compoundDetails;
+    const debtorLabel = details.partyName ? details.partyName : "debtor";
+    if (details.receiptAccount === "Bank") {
+      return "Being amount received through bank in full settlement and discount allowed.";
+    }
+    return `Being amount received from ${debtorLabel} in full settlement and discount allowed.`;
+  }
+
+  if (classification.compoundDetails?.kind === "discount_received_settlement") {
+    const details = classification.compoundDetails;
+    const creditorLabel = details.partyName ? details.partyName : "creditor";
+    if (details.paymentAccount === "Bank") {
+      return "Being amount paid through bank in full settlement and discount received.";
+    }
+    return `Being amount paid to ${creditorLabel} in full settlement and discount received.`;
   }
 
   if (debit === "Depreciation") {
@@ -643,6 +732,14 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.compoundDetails?.kind === "partial_goods_sale") {
     return "The business sold goods, received part immediately, and kept the balance receivable on credit.";
+  }
+
+  if (classification.compoundDetails?.kind === "discount_allowed_settlement") {
+    return "A debtor settled the account for less than the amount due, so discount was allowed.";
+  }
+
+  if (classification.compoundDetails?.kind === "discount_received_settlement") {
+    return "A creditor accepted less than the amount payable, so discount was received.";
   }
 
   const debit = classification.debitAccount;
@@ -970,6 +1067,104 @@ function buildPartialGoodsSaleAffectedAccount(
       ruleApplied: "Credit all incomes and gains",
       reason: `Goods worth ${formatRupees(details.totalAmount)} were sold.`,
     };
+  }
+
+  return null;
+}
+
+function buildDiscountSettlementAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  const details = classification.compoundDetails;
+
+  if (details?.kind === "discount_allowed_settlement") {
+    if (line.account === details.receiptAccount) {
+      const metadata = getAccountMetadata(details.receiptAccount);
+      return {
+        account: metadata.displayName,
+        traditionalType: metadata.traditionalType,
+        modernType: metadata.modernType,
+        effect: `${details.receiptAccount} increased by ${formatRupees(details.receivedAmount)}`,
+        debitOrCredit: side,
+        ruleApplied: metadata.debitRule,
+        reason: `${formatRupees(details.receivedAmount)} was received in settlement.`,
+      };
+    }
+
+    if (line.account === "Discount Allowed") {
+      return {
+        account: "Discount Allowed A/c",
+        traditionalType: "Nominal Account",
+        modernType: "Expense / Loss",
+        effect: `Discount allowed loss increased by ${formatRupees(details.discountAmount)}`,
+        debitOrCredit: side,
+        ruleApplied: "Debit all expenses and losses",
+        reason: "Discount allowed reduces the amount received from debtor and is treated as a loss/expense.",
+      };
+    }
+
+    if (line.account === details.debtorAccount) {
+      const metadata = getAccountMetadata(details.debtorAccount, {
+        partyName: details.partyName,
+        partyRole: line.partyRole ?? "debtor",
+      });
+      const debtorName = details.partyName ?? "debtor";
+      return {
+        account: metadata.displayName,
+        traditionalType: "Personal Account",
+        modernType: "Asset / Debtor",
+        effect: `Receivable from ${debtorName} reduced by ${formatRupees(details.fullAmount)}`,
+        debitOrCredit: side,
+        ruleApplied: "Credit the giver / Reduce debtor asset",
+        reason: "The debtor account is credited to close or reduce the receivable settled.",
+      };
+    }
+  }
+
+  if (details?.kind === "discount_received_settlement") {
+    if (line.account === details.creditorAccount) {
+      const metadata = getAccountMetadata(details.creditorAccount, {
+        partyName: details.partyName,
+        partyRole: line.partyRole ?? "creditor",
+      });
+      const creditorName = details.partyName ?? "creditor";
+      return {
+        account: metadata.displayName,
+        traditionalType: "Personal Account",
+        modernType: "Liability / Creditor",
+        effect: `Liability to ${creditorName} reduced by ${formatRupees(details.fullAmount)}`,
+        debitOrCredit: side,
+        ruleApplied: "Debit the receiver / Liability decreases are debited",
+        reason: "The creditor account is debited to close or reduce the liability settled.",
+      };
+    }
+
+    if (line.account === details.paymentAccount) {
+      const metadata = getAccountMetadata(details.paymentAccount);
+      return {
+        account: metadata.displayName,
+        traditionalType: metadata.traditionalType,
+        modernType: metadata.modernType,
+        effect: `${details.paymentAccount} decreased by ${formatRupees(details.paidAmount)}`,
+        debitOrCredit: side,
+        ruleApplied: metadata.creditRule,
+        reason: `${formatRupees(details.paidAmount)} was paid in settlement.`,
+      };
+    }
+
+    if (line.account === "Discount Received") {
+      return {
+        account: "Discount Received A/c",
+        traditionalType: "Nominal Account",
+        modernType: "Income / Gain",
+        effect: `Discount received income increased by ${formatRupees(details.discountAmount)}`,
+        debitOrCredit: side,
+        ruleApplied: "Credit all incomes and gains",
+        reason: "Discount received reduces the amount paid to creditor and is treated as income/gain.",
+      };
+    }
   }
 
   return null;

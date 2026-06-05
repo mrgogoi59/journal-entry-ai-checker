@@ -162,6 +162,18 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "An amount previously written off as bad debt has been recovered, so it is treated as income/gain.",
     "Income / Gain",
   ),
+  "Discount Allowed": expenseMetadata(
+    "Discount Allowed",
+    "Discount allowed loss increased",
+    "Discount allowed reduces the amount received from debtor and is treated as a loss/expense.",
+    "Expense / Loss",
+  ),
+  "Discount Received": incomeMetadata(
+    "Discount Received",
+    "Discount received income increased",
+    "Discount received reduces the amount paid to creditor and is treated as income/gain.",
+    "Income / Gain",
+  ),
   Depreciation: expenseMetadata(
     "Depreciation",
     "Depreciation expense increased",

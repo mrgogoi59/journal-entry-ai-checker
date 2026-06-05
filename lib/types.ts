@@ -51,7 +51,11 @@ export interface TransactionClassification {
   partyRole?: PartyRole;
   partyAccountSide?: EntryLineSide;
   expectedEntry?: CorrectJournalEntry;
-  compoundDetails?: PartialGoodsPurchaseDetails | PartialGoodsSaleDetails;
+  compoundDetails?:
+    | PartialGoodsPurchaseDetails
+    | PartialGoodsSaleDetails
+    | DiscountAllowedSettlementDetails
+    | DiscountReceivedSettlementDetails;
 }
 
 export interface CorrectJournalEntry {
@@ -76,6 +80,26 @@ export interface PartialGoodsSaleDetails {
   balanceAmount: number;
   receiptAccount: "Cash" | "Bank";
   debtorAccount: string;
+  partyName?: string;
+}
+
+export interface DiscountAllowedSettlementDetails {
+  kind: "discount_allowed_settlement";
+  fullAmount: number;
+  receivedAmount: number;
+  discountAmount: number;
+  receiptAccount: "Cash" | "Bank";
+  debtorAccount: string;
+  partyName?: string;
+}
+
+export interface DiscountReceivedSettlementDetails {
+  kind: "discount_received_settlement";
+  fullAmount: number;
+  paidAmount: number;
+  discountAmount: number;
+  paymentAccount: "Cash" | "Bank";
+  creditorAccount: string;
   partyName?: string;
 }
 

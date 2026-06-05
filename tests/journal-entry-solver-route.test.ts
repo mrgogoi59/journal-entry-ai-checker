@@ -340,6 +340,73 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves discount allowed full settlement", async () => {
+    const body = await solve("Received Rs.9500 from Mohan in full settlement of Rs.10000");
+
+    expect(body.status).toBe("solved");
+    expect(body.confidence).toBe("high");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 9500, credit: 0 },
+      { account: "Discount Allowed A/c", debit: 500, credit: 0 },
+      { account: "Mohan A/c", debit: 0, credit: 10000 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Discount Allowed A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Loss",
+      debitOrCredit: "Debit",
+    });
+    expect(body.narration).toBe("Being amount received from Mohan in full settlement and discount allowed.");
+    expect(body.stepByStepExplanation).toContain("The difference ₹500 is discount allowed.");
+    expect(body.commonMistakes).toContain("Do not ignore discount allowed.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves discount received full settlement", async () => {
+    const body = await solve("Paid Rs.4500 to Ram in full settlement of Rs.5000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Ram A/c", debit: 5000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 4500 },
+      { account: "Discount Received A/c", debit: 0, credit: 500 },
+    ]);
+    expect(body.affectedAccounts[2]).toMatchObject({
+      account: "Discount Received A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Income / Gain",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being amount paid to Ram in full settlement and discount received.");
+    expect(body.stepByStepExplanation).toContain("The difference ₹500 is discount received.");
+    expect(body.commonMistakes).toContain("Do not ignore discount received.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves generic debtor discount allowed with explicit discount", async () => {
+    const body = await solve("Received Rs.9500 from debtor and allowed discount Rs.500");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 9500, credit: 0 },
+      { account: "Discount Allowed A/c", debit: 500, credit: 0 },
+      { account: "Debtor A/c", debit: 0, credit: 10000 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves generic creditor discount received with explicit discount", async () => {
+    const body = await solve("Paid Rs.4500 to creditor and received discount Rs.500");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Creditor A/c", debit: 5000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 4500 },
+      { account: "Discount Received A/c", debit: 0, credit: 500 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves depreciation charged on machinery", async () => {
     const body = await solve("Depreciation charged on machinery Rs.5000");
 
@@ -434,11 +501,16 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not hallucinate a compound full-settlement discount entry", async () => {
+  it("solves full-settlement discount entry", async () => {
     const body = await solve("Received ₹9,500 from Mohan in full settlement of ₹10,000");
 
-    expect(["unsupported", "ambiguous"]).toContain(body.status);
-    expect(body.journalEntry).toEqual([]);
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 9500, credit: 0 },
+      { account: "Discount Allowed A/c", debit: 500, credit: 0 },
+      { account: "Mohan A/c", debit: 0, credit: 10000 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
   it("does not hallucinate drawings of goods if the rule engine cannot solve it", async () => {
@@ -526,8 +598,22 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve discount allowed yet", async () => {
+  it("does not solve standalone discount allowed", async () => {
     const body = await solve("Discount allowed Rs.500");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve unsupported trade discount wording", async () => {
+    const body = await solve("Sold goods Rs.10000 less trade discount 10%");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve GST with discount", async () => {
+    const body = await solve("Sold goods Rs.10000 plus GST and allowed discount Rs.500");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);
