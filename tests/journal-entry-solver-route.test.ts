@@ -513,11 +513,45 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
-  it("does not hallucinate drawings of goods if the rule engine cannot solve it", async () => {
+  it("solves goods withdrawn by proprietor for personal use", async () => {
     const body = await solve("Goods worth ₹2,000 withdrawn by proprietor for personal use");
 
-    expect(body.status).not.toBe("solved");
-    expect(body.journalEntry).toEqual([]);
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Drawings A/c", debit: 2000, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 2000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Drawings A/c",
+      traditionalType: "Personal Account",
+      modernType: "Capital reduction / Owner's withdrawal",
+      debitOrCredit: "Debit",
+    });
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Purchases A/c",
+      modernType: "Expense / Goods purchased for resale",
+      debitOrCredit: "Credit",
+    });
+    expect(body.stepByStepExplanation).toEqual([
+      "The proprietor/owner took business goods for personal use.",
+      "This is treated as drawings because the owner withdrew value from the business.",
+      "Drawings A/c is debited because drawings increase.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ]);
+    expect(body.commonMistakes).toContain("Do not use Sales A/c because this is not a sale.");
+    expect(body.narration).toBe("Being goods withdrawn by proprietor for personal use.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves owner took goods for personal use", async () => {
+    const body = await solve("Owner took goods Rs.1500 for personal use");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Drawings A/c", debit: 1500, credit: 0 },
+      { account: "Purchases A/c", debit: 0, credit: 1500 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
   it("does not solve depreciation when the asset is missing", async () => {
@@ -621,6 +655,20 @@ describe("POST /api/journal-entry-solver", () => {
 
   it("does not solve GST yet", async () => {
     const body = await solve("GST paid Rs.1000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve goods distributed as free sample yet", async () => {
+    const body = await solve("Goods distributed as free sample Rs.1000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve goods lost by fire yet", async () => {
+    const body = await solve("Goods lost by fire Rs.3000");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

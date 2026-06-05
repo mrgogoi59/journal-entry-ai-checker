@@ -788,6 +788,93 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Proprietor withdrew Rs.5000 from bank", "owner_drawings_bank", "Drawings", "Bank", 5000],
     ["Drawings made through bank Rs.5000", "owner_drawings_bank", "Drawings", "Bank", 5000],
     ["Owner withdrew by cheque Rs.5000 for personal use", "owner_drawings_bank", "Drawings", "Bank", 5000],
+    [
+      "Goods worth Rs.2000 withdrawn by proprietor for personal use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Goods worth Rs.2000 withdrawn by owner for personal use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Proprietor withdrew goods worth Rs.2000 for personal use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Owner withdrew goods worth Rs.2000 for personal use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Goods Rs.2000 taken by proprietor for personal use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Goods Rs.2000 taken by owner for personal use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Proprietor took goods Rs.2000 for personal use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    ["Owner took goods Rs.1500 for personal use", "goods_withdrawn_personal_use", "Drawings", "Purchases", 1500],
+    ["Goods withdrawn for personal use Rs.2000", "goods_withdrawn_personal_use", "Drawings", "Purchases", 2000],
+    ["Goods taken for household use Rs.2000", "goods_withdrawn_personal_use", "Drawings", "Purchases", 2000],
+    [
+      "Goods taken by proprietor for household use Rs.2000",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Goods withdrawn by proprietor Rs.2000 for home use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Goods withdrawn by owner Rs.1000 for home use",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      1000,
+    ],
+    [
+      "Proprietor used business goods for personal use Rs.2000",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
+    [
+      "Owner used business goods for personal use Rs.2000",
+      "goods_withdrawn_personal_use",
+      "Drawings",
+      "Purchases",
+      2000,
+    ],
     ["Paid creditor ₹11,000 in cash", "paid_creditor", "Creditor", "Cash", 11000],
     ["Paid cash Rs.7000 to creditor", "paid_creditor", "Creditor", "Cash", 7000],
     ["Paid Rs.7000 to creditor in cash", "paid_creditor", "Creditor", "Cash", 7000],
@@ -1039,6 +1126,9 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("GST paid Rs.1000")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 less trade discount 10%")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 plus GST and allowed discount Rs.500")).toBeNull();
+    expect(classifyTransaction("Goods distributed as free sample Rs.1000")).toBeNull();
+    expect(classifyTransaction("Goods given as charity Rs.1000")).toBeNull();
+    expect(classifyTransaction("Goods lost by fire Rs.3000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {

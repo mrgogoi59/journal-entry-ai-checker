@@ -18,6 +18,8 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
+  goods_withdrawn_personal_use: (amount) =>
+    `Goods worth ${formatRupees(amount)} withdrawn by proprietor for personal use`,
   paid_creditor: (amount) => `Paid creditor ${formatRupees(amount)} in cash`,
   received_from_debtor: (amount) => `Received from debtor ${formatRupees(amount)} in cash`,
   loan_taken_bank: (amount) => `Took loan ${formatRupees(amount)} through bank`,

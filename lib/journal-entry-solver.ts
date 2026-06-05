@@ -184,6 +184,9 @@ function buildAffectedAccount(
     buildDiscountSettlementAffectedAccount(line, side, classification);
   if (compoundAccount) return compoundAccount;
 
+  const goodsWithdrawalAccount = buildGoodsWithdrawalAffectedAccount(line, side, classification);
+  if (goodsWithdrawalAccount) return goodsWithdrawalAccount;
+
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
   if (depreciationAccount) return depreciationAccount;
 
@@ -256,6 +259,15 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
       `${displayAccountName(details.creditorAccount)} is debited to reduce/close the liability.`,
       `${displayAccountName(details.paymentAccount)} is credited for the actual payment.`,
       "Discount Received A/c is credited as income/gain.",
+    ];
+  }
+
+  if (classification.transaction_type === "goods_withdrawn_personal_use") {
+    return [
+      "The proprietor/owner took business goods for personal use.",
+      "This is treated as drawings because the owner withdrew value from the business.",
+      "Drawings A/c is debited because drawings increase.",
+      "Purchases A/c is credited because goods purchased for resale are reduced.",
     ];
   }
 
@@ -387,6 +399,15 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       )} because only ${formatRupees(details.paidAmount)} was paid.`,
       "Do not ignore discount received.",
       "Do not debit Purchases; this is settlement of creditor, not a new purchase.",
+    ];
+  }
+
+  if (classification.transaction_type === "goods_withdrawn_personal_use") {
+    return [
+      "Do not debit Purchases A/c.",
+      "Do not credit Cash or Bank because no cash is paid.",
+      "Do not use Sales A/c because this is not a sale.",
+      "Do not use Capital A/c directly in beginner journal entries; use Drawings A/c.",
     ];
   }
 
@@ -522,6 +543,13 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.transaction_type === "goods_withdrawn_personal_use") {
+    return {
+      question: `Owner took goods ${formatRupees(classification.amount * 2)} for personal use`,
+      expectedPattern: "Drawings A/c Dr. To Purchases A/c",
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -636,6 +664,13 @@ function buildNarration(classification: TransactionClassification): string {
     return `Being amount paid to ${creditorLabel} in full settlement and discount received.`;
   }
 
+  if (classification.transaction_type === "goods_withdrawn_personal_use") {
+    if (/\bhousehold\s+use\b/i.test(classification.transaction_type)) {
+      return "Being goods withdrawn for household use.";
+    }
+    return "Being goods withdrawn by proprietor for personal use.";
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -740,6 +775,10 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.compoundDetails?.kind === "discount_received_settlement") {
     return "A creditor accepted less than the amount payable, so discount was received.";
+  }
+
+  if (classification.transaction_type === "goods_withdrawn_personal_use") {
+    return "The owner withdrew business goods for personal use.";
   }
 
   const debit = classification.debitAccount;
@@ -1165,6 +1204,40 @@ function buildDiscountSettlementAffectedAccount(
         reason: "Discount received reduces the amount paid to creditor and is treated as income/gain.",
       };
     }
+  }
+
+  return null;
+}
+
+function buildGoodsWithdrawalAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.transaction_type !== "goods_withdrawn_personal_use") return null;
+
+  if (line.account === "Drawings") {
+    return {
+      account: "Drawings A/c",
+      traditionalType: "Personal Account",
+      modernType: "Capital reduction / Owner's withdrawal",
+      effect: "Drawings increased",
+      debitOrCredit: side,
+      ruleApplied: "Debit the receiver / Capital decreases are debited",
+      reason: "The owner has withdrawn goods from the business for personal use.",
+    };
+  }
+
+  if (line.account === "Purchases") {
+    return {
+      account: "Purchases A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Expense / Goods purchased for resale",
+      effect: "Purchases/goods available for business decreased",
+      debitOrCredit: side,
+      ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
+      reason: "Goods originally purchased for business resale are taken out of the business, so Purchases A/c is credited.",
+    };
   }
 
   return null;

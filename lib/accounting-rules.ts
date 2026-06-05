@@ -418,6 +418,26 @@ const accruedIncomeRules: TransactionRule[] = [
   },
 ];
 
+const goodsWithdrawnPersonalUseRule: TransactionRule = {
+  transaction_type: "goods_withdrawn_personal_use",
+  patterns: [
+    /goods\s+worth\s+.*withdrawn\s+by\s+(?:proprietor|owner)\s+for\s+personal\s+use/i,
+    /(?:proprietor|owner)\s+withdrew\s+goods\s+worth\s+.*for\s+personal\s+use/i,
+    /goods\s+.*taken\s+by\s+(?:proprietor|owner)\s+for\s+personal\s+use/i,
+    /(?:proprietor|owner)\s+took\s+goods\s+.*for\s+personal\s+use/i,
+    /goods\s+withdrawn\s+for\s+personal\s+use/i,
+    /goods\s+taken\s+for\s+household\s+use/i,
+    /goods\s+taken\s+by\s+proprietor\s+for\s+household\s+use/i,
+    /goods\s+withdrawn\s+by\s+(?:proprietor|owner).*home\s+use/i,
+    /(?:proprietor|owner)\s+used\s+business\s+goods\s+for\s+personal\s+use/i,
+  ],
+  debitAccount: "Drawings",
+  creditAccount: "Purchases",
+  explanationLogic:
+    "The proprietor or owner took business goods for personal use. Drawings increases, so Drawings is debited. Goods bought for resale are reduced, so Purchases is credited.",
+  practiceTemplate: (amount) => `Goods worth ₹${amount} withdrawn by proprietor for personal use.`,
+};
+
 const incomeReceivedInAdvanceRules: TransactionRule[] = [
   {
     transaction_type: "rent_received_in_advance",
@@ -1003,6 +1023,7 @@ export const transactionRules: TransactionRule[] = [
       "Owner withdrawals are Drawings, so Drawings is debited. Bank decreases because the owner withdrew through bank, so Bank is credited.",
     practiceTemplate: (amount) => `Owner withdrew from bank for personal use ₹${amount}.`,
   },
+  goodsWithdrawnPersonalUseRule,
   {
     transaction_type: "withdrew_cash_bank",
     patterns: [

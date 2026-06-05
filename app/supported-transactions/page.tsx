@@ -23,6 +23,7 @@ const supportedTransactions = [
   "Accrued income for interest, commission, and rent",
   "Income received in advance for rent, commission, and interest",
   "Discount allowed or received in full-settlement debtor/creditor cases",
+  "Goods withdrawn by proprietor or owner for personal use",
 ];
 
 const unsupportedTransactions = [
@@ -31,6 +32,11 @@ const unsupportedTransactions = [
   "Provision-related discounts",
   "Broad settlement and ledger treatment beyond the journal entry",
   "Trade discount in invoice unless the wording matches supported trade-discount cases",
+  "Goods distributed as free sample",
+  "Goods given as charity",
+  "Goods lost by fire or theft",
+  "Sales return",
+  "Purchase return",
   "Provision for doubtful debts",
   "Complex recovery with provision adjustment",
   "Ledger treatment after bad debt recovery",
@@ -76,6 +82,9 @@ const exampleTransactions = [
   "Received Rs.9500 from debtor and allowed discount Rs.500",
   "Paid Rs.4500 to Ram in full settlement of Rs.5000",
   "Paid Rs.4500 to creditor and received discount Rs.500",
+  "Goods worth Rs.2000 withdrawn by proprietor for personal use",
+  "Owner took goods Rs.1500 for personal use",
+  "Goods withdrawn by owner Rs.1000 for home use",
 ];
 
 export default function SupportedTransactionsPage() {

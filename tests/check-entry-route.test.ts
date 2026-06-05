@@ -784,6 +784,58 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Goods worth Rs.2000 withdrawn by proprietor for personal use",
+      journalEntry: "Drawings A/c Dr. Rs.2000\nTo Purchases A/c Rs.2000",
+      amount: 2000,
+    },
+    {
+      transactionText: "Owner took goods Rs.1500 for personal use",
+      journalEntry: "Drawings A/c Dr. Rs.1500\nTo Purchases A/c Rs.1500",
+      amount: 1500,
+    },
+    {
+      transactionText: "Goods withdrawn by owner Rs.1000 for home use",
+      journalEntry: "Drawings A/c Dr. Rs.1000\nTo Purchases A/c Rs.1000",
+      amount: 1000,
+    },
+  ])("returns Correct for goods withdrawn for personal use: $transactionText", async ({ transactionText, journalEntry, amount }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Drawings", amount }],
+      credits: [{ account: "Purchases", amount }],
+    });
+  });
+
+  it.each([
+    {
+      name: "reversed drawings and purchases",
+      journalEntry: "Purchases A/c Dr. Rs.2000\nTo Drawings A/c Rs.2000",
+    },
+    {
+      name: "cash credited",
+      journalEntry: "Drawings A/c Dr. Rs.2000\nTo Cash A/c Rs.2000",
+    },
+    {
+      name: "sales credited",
+      journalEntry: "Drawings A/c Dr. Rs.2000\nTo Sales A/c Rs.2000",
+    },
+    {
+      name: "capital debited",
+      journalEntry: "Capital A/c Dr. Rs.2000\nTo Purchases A/c Rs.2000",
+    },
+  ])("does not accept wrong goods withdrawn entry: $name", async ({ journalEntry }) => {
+    const body = await checkEntry("Goods worth Rs.2000 withdrawn by proprietor for personal use", journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for debtor cash receipt", async () => {
     const body = await checkEntry(
       "Received cash Rs.10000 from debtor",
