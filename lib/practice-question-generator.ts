@@ -25,6 +25,7 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   goods_lost_by_fire: (amount) => `Goods worth ${formatRupees(amount)} lost by fire`,
   goods_lost_by_theft: (amount) => `Goods worth ${formatRupees(amount)} stolen`,
   goods_lost_general: (amount) => `Goods worth ${formatRupees(amount)} lost`,
+  sales_return: (amount) => `Goods returned by customer ${formatRupees(amount)}`,
   paid_creditor: (amount) => `Paid creditor ${formatRupees(amount)} in cash`,
   received_from_debtor: (amount) => `Received from debtor ${formatRupees(amount)} in cash`,
   loan_taken_bank: (amount) => `Took loan ${formatRupees(amount)} through bank`,

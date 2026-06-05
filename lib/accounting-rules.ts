@@ -156,6 +156,17 @@ function namedBadDebtRecoveryParty(transactionText: string): PartyDetails | null
   return partyName ? { partyName, partyRole: "debtor" } : null;
 }
 
+function namedSalesReturnCustomer(transactionText: string): PartyDetails | null {
+  const partyName = extractPartyName(transactionText, [
+    new RegExp(`goods\\s+returned\\s+(?:by|from)\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`goods\\s+worth\\s+.*returned\\s+(?:by|from)\\s+${SAFE_PARTY_PATTERN}`, "i"),
+    new RegExp(`^${SAFE_PARTY_PATTERN}\\s+returned\\s+goods`, "i"),
+    new RegExp(`sales\\s+returns?\\s+(?:from|by)\\s+${SAFE_PARTY_PATTERN}`, "i"),
+  ]);
+
+  return partyName ? { partyName, partyRole: "debtor", partyAccountSide: "credit" } : null;
+}
+
 function extractPartyName(transactionText: string, patterns: RegExp[]): string | null {
   for (const pattern of patterns) {
     const match = pattern.exec(transactionText);
@@ -550,6 +561,30 @@ const goodsLostGeneralRule: TransactionRule = {
   practiceTemplate: (amount) => `Goods worth ₹${amount} lost.`,
 };
 
+const salesReturnRule: TransactionRule = {
+  transaction_type: "sales_return",
+  patterns: [
+    /goods\s+returned\s+by\s+\w+/i,
+    /goods\s+worth\s+.*returned\s+by\s+\w+/i,
+    /\w+\s+returned\s+goods/i,
+    /goods\s+returned\s+from\s+\w+/i,
+    /goods\s+worth\s+.*returned\s+from\s+\w+/i,
+    /sales\s+returns?\s+from\s+\w+/i,
+    /sales\s+returns?\s+by\s+\w+/i,
+    /\w+\s+returned\s+goods\s+sold\s+to\s+him/i,
+    /\w+\s+returned\s+goods\s+previously\s+sold/i,
+    /customer\s+returned\s+goods/i,
+    /debtor\s+returned\s+goods/i,
+    /sales\s+returns?\s+(?:rs\.?|inr|₹|\d)/i,
+  ],
+  debitAccount: "Sales Return",
+  creditAccount: "Debtor",
+  explanationLogic:
+    "Goods sold earlier were returned by the customer. Sales Return is debited because it reduces sales, and Debtor or the named customer is credited because the receivable is reduced.",
+  practiceTemplate: (amount) => `Goods returned by customer ₹${amount}.`,
+  partyExtractor: namedSalesReturnCustomer,
+};
+
 const incomeReceivedInAdvanceRules: TransactionRule[] = [
   {
     transaction_type: "rent_received_in_advance",
@@ -912,6 +947,7 @@ export const transactionRules: TransactionRule[] = [
   ...depreciationRules,
   ...namedAssetPurchaseRules,
   ...tradeDiscountRules,
+  salesReturnRule,
   {
     transaction_type: "bought_furniture_cash",
     patterns: [/(bought|purchased).*furniture.*cash/i],

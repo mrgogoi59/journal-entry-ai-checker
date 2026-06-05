@@ -196,6 +196,9 @@ function buildAffectedAccount(
   const goodsLossAccount = buildGoodsLossAffectedAccount(line, side, classification);
   if (goodsLossAccount) return goodsLossAccount;
 
+  const salesReturnAccount = buildSalesReturnAffectedAccount(line, side, classification);
+  if (salesReturnAccount) return salesReturnAccount;
+
   const depreciationAccount = buildDepreciationAffectedAccount(line, side, classification);
   if (depreciationAccount) return depreciationAccount;
 
@@ -322,6 +325,17 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
       "This is treated as a business loss.",
       "Goods Lost A/c is debited because losses are debited.",
       "Purchases A/c is credited because goods purchased for resale are reduced.",
+    ];
+  }
+
+  if (classification.transaction_type === "sales_return") {
+    const customer = classification.partyName ?? "customer";
+    const customerAccount = displayAccountName(classification.creditAccount);
+    return [
+      `Goods sold earlier were returned by ${customer}.`,
+      "This reduces the earlier sales, so Sales Return A/c is debited.",
+      `${customerAccount} receivable balance decreases, so ${customerAccount} is credited.`,
+      "This is also called Return Inward.",
     ];
   }
 
@@ -493,6 +507,15 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not credit Sales A/c because this is not a sale.",
       "Do not use Drawings A/c because the goods were not taken by the owner.",
       "Do not record insurance claim unless the transaction clearly mentions insurance claim.",
+    ];
+  }
+
+  if (classification.transaction_type === "sales_return") {
+    return [
+      "Do not debit Sales A/c directly in beginner journal entries; use Sales Return A/c.",
+      "Do not credit Cash or Bank unless the transaction clearly says refund was paid.",
+      "Do not use Purchase Return A/c because goods were returned by customer, not returned to supplier.",
+      "Do not use Purchases A/c because this is related to sales, not purchase.",
     ];
   }
 
@@ -670,6 +693,13 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.transaction_type === "sales_return") {
+    return {
+      question: `Sales return from Amit ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: "Sales Return A/c Dr. To Amit A/c",
+    };
+  }
+
   if (classification.debitAccount === "Depreciation") {
     return {
       question: `Depreciation charged on ${classification.creditAccount.toLowerCase()} ${formatRupees(
@@ -811,6 +841,11 @@ function buildNarration(classification: TransactionClassification): string {
     return "Being goods lost/damaged.";
   }
 
+  if (classification.transaction_type === "sales_return") {
+    const customer = classification.partyName ?? "customer";
+    return `Being goods returned by ${customer}.`;
+  }
+
   if (debit === "Depreciation") {
     return `Being depreciation charged on ${credit.toLowerCase()}.`;
   }
@@ -939,6 +974,10 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.transaction_type === "goods_lost_general") {
     return "Goods were lost or damaged.";
+  }
+
+  if (classification.transaction_type === "sales_return") {
+    return "Goods sold earlier were returned by the customer.";
   }
 
   const debit = classification.debitAccount;
@@ -1525,6 +1564,43 @@ function buildGoodsLossAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the account when reducing purchases / Reduce goods purchased for resale",
       reason: "Goods originally purchased for resale are no longer available, so Purchases A/c is credited.",
+    };
+  }
+
+  return null;
+}
+
+function buildSalesReturnAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  if (classification.transaction_type !== "sales_return") return null;
+
+  if (line.account === "Sales Return") {
+    return {
+      account: "Sales Return A/c",
+      traditionalType: "Nominal Account",
+      modernType: "Contra Revenue / Sales Reduction",
+      effect: "Sales return increased and sales revenue reduced",
+      debitOrCredit: side,
+      ruleApplied: "Debit the account that reduces income / Debit sales returns",
+      reason: "Goods sold earlier were returned by the customer, so Sales Return A/c is debited.",
+    };
+  }
+
+  const isDebtorAccount = line.account === "Debtor" || line.account === classification.partyName;
+  if (isDebtorAccount) {
+    const accountLabel = displayAccountName(line.account);
+    const customer = classification.partyName ?? "customer";
+    return {
+      account: accountLabel,
+      traditionalType: "Personal Account",
+      modernType: line.account === "Debtor" ? "Asset" : "Asset / Debtor",
+      effect: `Amount receivable from ${customer} decreased`,
+      debitOrCredit: side,
+      ruleApplied: "Credit the giver / Reduce debtor asset",
+      reason: "The customer returned goods, so the amount receivable from the customer is reduced.",
     };
   }
 

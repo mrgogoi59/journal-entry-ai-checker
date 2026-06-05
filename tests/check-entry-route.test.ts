@@ -1015,6 +1015,73 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Goods returned by Raju Rs.1000",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nTo Raju A/c Rs.1000",
+      creditAccount: "Raju",
+      amount: 1000,
+    },
+    {
+      transactionText: "Goods returned by Raju Rs.1000",
+      journalEntry: "Return Inward A/c Dr. Rs.1000\nTo Raju A/c Rs.1000",
+      creditAccount: "Raju",
+      amount: 1000,
+    },
+    {
+      transactionText: "Goods returned by Raju Rs.1000",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nTo Debtor A/c Rs.1000",
+      creditAccount: "Raju",
+      amount: 1000,
+    },
+    {
+      transactionText: "Goods returned by customer Rs.1000",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nTo Debtor A/c Rs.1000",
+      creditAccount: "Debtor",
+      amount: 1000,
+    },
+    {
+      transactionText: "Sales return from Amit Rs.1500",
+      journalEntry: "Return Inward A/c Dr. Rs.1500\nTo Amit A/c Rs.1500",
+      creditAccount: "Amit",
+      amount: 1500,
+    },
+  ])("returns Correct for sales return: $transactionText", async ({ transactionText, journalEntry, creditAccount, amount }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Sales Return", amount }],
+      credits: [{ account: creditAccount, amount }],
+    });
+  });
+
+  it.each([
+    {
+      name: "reversed customer and sales return",
+      journalEntry: "Raju A/c Dr. Rs.1000\nTo Sales Return A/c Rs.1000",
+    },
+    {
+      name: "cash credited",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nTo Cash A/c Rs.1000",
+    },
+    {
+      name: "purchase return debited",
+      journalEntry: "Purchase Return A/c Dr. Rs.1000\nTo Raju A/c Rs.1000",
+    },
+    {
+      name: "sales debited directly",
+      journalEntry: "Sales A/c Dr. Rs.1000\nTo Raju A/c Rs.1000",
+    },
+  ])("does not accept wrong sales return entry: $name", async ({ journalEntry }) => {
+    const body = await checkEntry("Goods returned by Raju Rs.1000", journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for debtor cash receipt", async () => {
     const body = await checkEntry(
       "Received cash Rs.10000 from debtor",

@@ -821,10 +821,65 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve goods returned by customer yet", async () => {
+  it("solves sales return from a named customer", async () => {
+    const body = await solve("Goods returned by Raju Rs.1000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Sales Return A/c", debit: 1000, credit: 0 },
+      { account: "Raju A/c", debit: 0, credit: 1000 },
+    ]);
+    expect(body.affectedAccounts).toEqual([
+      expect.objectContaining({
+        account: "Sales Return A/c",
+        traditionalType: "Nominal Account",
+        modernType: "Contra Revenue / Sales Reduction",
+        debitOrCredit: "Debit",
+        reason: "Goods sold earlier were returned by the customer, so Sales Return A/c is debited.",
+      }),
+      expect.objectContaining({
+        account: "Raju A/c",
+        traditionalType: "Personal Account",
+        modernType: "Asset / Debtor",
+        debitOrCredit: "Credit",
+        reason: "The customer returned goods, so the amount receivable from the customer is reduced.",
+      }),
+    ]);
+    expect(body.stepByStepExplanation).toEqual([
+      "Goods sold earlier were returned by Raju.",
+      "This reduces the earlier sales, so Sales Return A/c is debited.",
+      "Raju A/c receivable balance decreases, so Raju A/c is credited.",
+      "This is also called Return Inward.",
+    ]);
+    expect(body.commonMistakes).toContain(
+      "Do not debit Sales A/c directly in beginner journal entries; use Sales Return A/c.",
+    );
+    expect(body.narration).toEqual(expect.any(String));
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves generic sales return from customer", async () => {
     const body = await solve("Goods returned by customer Rs.1000");
 
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Sales Return A/c", debit: 1000, credit: 0 },
+      { account: "Debtor A/c", debit: 0, credit: 1000 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve purchase return yet", async () => {
+    const body = await solve("Returned goods to Amit Rs.1000");
+
     expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve sales return with cash refund yet", async () => {
+    const body = await solve("Goods returned by Raju Rs.1000 and cash refunded");
+
+    expect(["unsupported", "ambiguous"]).toContain(body.status);
     expect(body.journalEntry).toEqual([]);
   });
 

@@ -87,6 +87,17 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     debitReason: "Sales are being reduced or adjusted.",
     creditReason: "Goods sold by the business create revenue.",
   },
+  "Sales Return": {
+    displayName: "Sales Return A/c",
+    traditionalType: "Nominal Account",
+    modernType: "Contra Revenue / Sales Reduction",
+    debitRule: "Debit the account that reduces income / Debit sales returns",
+    creditRule: "Credit all incomes and gains",
+    debitEffect: "Sales return increased and sales revenue reduced",
+    creditEffect: "Sales return decreased",
+    debitReason: "Goods sold earlier were returned by the customer, so Sales Return A/c is debited.",
+    creditReason: "Sales return is being reduced or adjusted.",
+  },
   Debtor: {
     displayName: "Debtor A/c",
     traditionalType: "Personal Account",

@@ -1093,6 +1093,26 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Goods worth Rs.1000 damaged", "goods_lost_general", "Goods Lost", "Purchases", 1000],
     ["Goods lost due to accident Rs.1000", "goods_lost_general", "Goods Lost", "Purchases", 1000],
     ["Goods worth Rs.1000 lost due to accident", "goods_lost_general", "Goods Lost", "Purchases", 1000],
+    ["Goods returned by Raju Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Goods worth Rs.1000 returned by Raju", "sales_return", "Sales Return", "Raju", 1000],
+    ["Raju returned goods Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Raju returned goods worth Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Goods returned from Raju Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Goods worth Rs.1000 returned from Raju", "sales_return", "Sales Return", "Raju", 1000],
+    ["Sales return from Raju Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Sales return by Raju Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Raju returned goods sold to him Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Raju returned goods previously sold Rs.1000", "sales_return", "Sales Return", "Raju", 1000],
+    ["Goods returned by customer Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Goods returned by debtor Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Customer returned goods Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Debtor returned goods Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Goods returned from customer Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Goods returned from debtor Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Sales return Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Sales returns Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Sales return from customer Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
+    ["Sales return from debtor Rs.1000", "sales_return", "Sales Return", "Debtor", 1000],
     ["Paid creditor ₹11,000 in cash", "paid_creditor", "Creditor", "Cash", 11000],
     ["Paid cash Rs.7000 to creditor", "paid_creditor", "Creditor", "Cash", 7000],
     ["Paid Rs.7000 to creditor in cash", "paid_creditor", "Creditor", "Cash", 7000],
@@ -1348,7 +1368,11 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire and insurance claim pending Rs.3000")).toBeNull();
-    expect(classifyTransaction("Goods returned by customer Rs.1000")).toBeNull();
+    expect(classifyTransaction("Returned goods to Amit Rs.1000")).toBeNull();
+    expect(classifyTransaction("Goods returned by Raju and cash refunded Rs.1000")).toBeNull();
+    expect(classifyTransaction("Goods returned by customer Rs.1000 and cash refunded")).toBeNull();
+    expect(classifyTransaction("Sales return with GST Rs.1000")).toBeNull();
+    expect(classifyTransaction("Sales return with discount Rs.1000")).toBeNull();
   });
 
   it("does not classify transactions without an amount", () => {
