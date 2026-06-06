@@ -147,7 +147,7 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-2 lg:grid-cols-3">
           <button onClick={() => setMode("own")} className={modeButtonClass(mode === "own")}>
             <span>Check My Journal Entry</span>
             <span className="text-xs font-medium leading-5 opacity-80">
@@ -178,6 +178,13 @@ export default function Home() {
               Prepare a trial balance from journal entries and ledger balances.
             </span>
             <span className="text-xs font-semibold leading-5 opacity-90">Open Trial Balance</span>
+          </Link>
+          <Link href="/final-accounts" className={modeButtonClass(false)}>
+            <span>Final Accounts</span>
+            <span className="text-xs font-medium leading-5 opacity-80">
+              Prepare Trading A/c and Profit & Loss A/c from trial balance balances.
+            </span>
+            <span className="text-xs font-semibold leading-5 opacity-90">Open Final Accounts</span>
           </Link>
         </div>
 

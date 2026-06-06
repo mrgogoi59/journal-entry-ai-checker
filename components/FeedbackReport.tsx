@@ -13,7 +13,7 @@ const issueTypes = [
 type IssueType = (typeof issueTypes)[number];
 
 export interface FeedbackReportDetails {
-  module: "Checker" | "Explainer" | "Practice" | "Ledger" | "Trial Balance";
+  module: "Checker" | "Explainer" | "Practice" | "Ledger" | "Trial Balance" | "Final Accounts";
   transaction: string;
   studentEntry?: string;
   appResult: string;
