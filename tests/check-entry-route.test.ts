@@ -1359,6 +1359,44 @@ describe("POST /api/check-entry", () => {
 
   it.each([
     {
+      transactionText: "Paid for travel tickets Rs.5000 by cash",
+      journalEntry: "Travel Expense A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+      creditAccount: "Cash",
+    },
+    {
+      transactionText: "Paid bus fare Rs.5000 in cash",
+      journalEntry: "Travel Expense A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+      creditAccount: "Cash",
+    },
+    {
+      transactionText: "Paid flight ticket Rs.5000 through bank",
+      journalEntry: "Travel Expense A/c Dr. Rs.5000\nTo Bank A/c Rs.5000",
+      creditAccount: "Bank",
+    },
+  ])("returns Correct for travel ticket/fare expense: $transactionText", async ({ transactionText, journalEntry, creditAccount }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Travelling Expense", amount: 5000 }],
+      credits: [{ account: creditAccount, amount: 5000 }],
+    });
+  });
+
+  it("does not treat for as a party name in travel ticket expense", async () => {
+    const body = await checkEntry(
+      "Paid for travel tickets Rs.5000 by cash",
+      "For A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it.each([
+    {
       transactionText: "Received rent Rs.5000 in cash",
       journalEntry: "Cash A/c Dr. Rs.5000\nTo Rent Income A/c Rs.5000",
       debitAccount: "Cash",

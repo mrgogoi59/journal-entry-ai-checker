@@ -30,28 +30,43 @@ const NO_EXPLICIT_PURCHASE_MODE_PREFIX = `^(?!.*${PAYMENT_MODE_CLUE_PATTERN})(?!
 const NO_PAYMENT_MODE_PREFIX = `^(?!.*(?:\\b(?:cash|bank|cheque|check|credit)\\b|${DIGITAL_PAYMENT_PATTERN}))`;
 const TRADE_DISCOUNT_PATTERN = "after\\s+discount";
 const PARTY_PATTERN = "([a-z][a-z.'-]*)";
-const SAFE_PARTY_PATTERN =
-  "(?!(?:amount|bad|bank|capital|cash|commission|creditor|creditors|customer|customers|debt|debts|debtor|debtors|drawings|electricity|goods|inr|interest|loan|purchase|purchases|rent|rs|salary|salaries|sale|sales|seller|supplier|suppliers|to)\\b)([a-z][a-z.'-]*)";
+const RESERVED_PARTY_WORD_PATTERN =
+  "(?:account|after|against|amount|bad|bank|before|by|capital|cash|cheque|check|commission|credit|credited|creditor|creditors|customer|customers|debit|debited|debt|debts|debtor|debtors|drawings|electricity|employee|expense|expenses|for|from|goods|in|inr|interest|landlord|loan|on|owner|proprietor|purchase|purchases|rent|rs|salary|salaries|sale|sales|seller|supplier|suppliers|through|ticket|tickets|to|with)";
+const SAFE_PARTY_PATTERN = `(?!${RESERVED_PARTY_WORD_PATTERN}\\b)([a-z][a-z.'-]*)`;
 const RESERVED_PARTY_WORDS = new Set([
   "account",
+  "after",
+  "against",
   "bank",
+  "before",
   "bad",
   "debt",
   "debts",
   "business",
+  "by",
   "cash",
   "cheque",
   "check",
   "credit",
+  "credited",
   "creditor",
   "creditors",
   "customer",
   "customers",
+  "debit",
+  "debited",
   "debtor",
   "debtors",
   "employee",
+  "expense",
+  "expenses",
   "amount",
+  "for",
+  "from",
+  "goods",
+  "in",
   "to",
+  "on",
   "landlord",
   "interest",
   "commission",
@@ -59,6 +74,10 @@ const RESERVED_PARTY_WORDS = new Set([
   "loan",
   "owner",
   "proprietor",
+  "through",
+  "ticket",
+  "tickets",
+  "with",
   "rs",
   "inr",
   "seller",
@@ -629,7 +648,8 @@ const commonExpensePaymentConfigs: ExpensePaymentConfig[] = [
     transactionType: "paid_travelling",
     account: "Travelling Expense",
     label: "travelling expenses",
-    terms: "travelling(?:\\s+expenses?|\\s+expense)?|travel\\s+expense",
+    terms:
+      "travelling(?:\\s+expenses?|\\s+expense|\\s+tickets?|\\s+ticket\\s+expenses?)?|travel(?:\\s+expenses?|\\s+expense|\\s+tickets?|\\s+ticket\\s+expenses?|\\s+fare)|bus\\s+fare|train\\s+fare|flight\\s+tickets?|ticket\\s+expense",
   },
   {
     transactionType: "paid_petrol_fuel",
@@ -880,7 +900,7 @@ const incomeReceivedInAdvanceRules: TransactionRule[] = [
   },
 ];
 
-const namedPartyPaymentStart = `(?!amount\\b|bank\\b|cash\\b|rs\\.?\\b|inr\\b|creditors?\\b|rent\\b|salary\\b|salaries\\b|interest\\b|electricity\\b|loan\\b|to\\b)${PARTY_PATTERN}`;
+const namedPartyPaymentStart = `(?!${RESERVED_PARTY_WORD_PATTERN}\\b)${PARTY_PATTERN}`;
 
 const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, account }) => [
   {

@@ -58,6 +58,18 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves paid for travel tickets as travel expense, not party name", async () => {
+    const body = await solve("Paid for travel tickets Rs.5000 by cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Travelling Expense A/c", debit: 5000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.journalEntry.map((line) => line.account)).not.toContain("For A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves rent received in cash", async () => {
     const body = await solve("Received rent Rs.5000 in cash");
 
