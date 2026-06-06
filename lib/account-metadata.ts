@@ -272,6 +272,11 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "Office expenses increased",
     "The business paid this expense, so the expense increased.",
   ),
+  "Professional Fees Expense": expenseMetadata(
+    "Professional Fees Expense",
+    "Professional/consultancy expense increased",
+    "Professional fees paid are business expenses.",
+  ),
   "Charity Expense": expenseMetadata(
     "Charity Expense",
     "Charity/donation expense increased",

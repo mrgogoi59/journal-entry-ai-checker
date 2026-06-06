@@ -2048,6 +2048,102 @@ describe("classifyTransaction supported beginner transactions", () => {
     });
   });
 
+  it.each([
+    ["Paid legal charges Rs.10000 plus GST 18% through bank", "expense_gst_legal_charges_bank", "Legal Charges", "Bank", 11800],
+    ["Paid legal charges Rs.10000 plus GST Rs.1800 through bank", "expense_gst_legal_charges_bank", "Legal Charges", "Bank", 11800],
+    ["Paid repairs Rs.5000 plus GST 18% in cash", "expense_gst_repairs_cash", "Repairs Expense", "Cash", 5900],
+    [
+      "Paid legal charges Rs.11800 including GST 18% through bank",
+      "expense_gst_inclusive_legal_charges_bank",
+      "Legal Charges",
+      "Bank",
+      11800,
+    ],
+    [
+      "Paid advertisement Rs.3000 plus CGST 9% and SGST 9% by UPI",
+      "expense_gst_cgst_sgst_advertisement_bank",
+      "Advertisement Expense",
+      "Bank",
+      3540,
+    ],
+    [
+      "Paid repairs Rs.5000 plus CGST Rs.450 and SGST Rs.450 in cash",
+      "expense_gst_cgst_sgst_repairs_cash",
+      "Repairs Expense",
+      "Cash",
+      5900,
+    ],
+    [
+      "Paid professional fees Rs.10000 plus IGST 18% through bank",
+      "expense_gst_igst_professional_fees_bank",
+      "Professional Fees Expense",
+      "Bank",
+      11800,
+    ],
+    [
+      "Legal charges from Amit Rs.10000 plus GST 18% on credit",
+      "expense_gst_legal_charges_credit",
+      "Legal Charges",
+      "Amit",
+      11800,
+    ],
+  ])("classifies GST expense payment: %s", (transaction, transactionType, debitAccount, creditAccount, amount) => {
+    const classification = classifyTransaction(transaction);
+
+    expect(classification).toMatchObject({
+      transaction_type: transactionType,
+      debitAccount,
+      creditAccount,
+      amount,
+      confidence: 0.95,
+    });
+  });
+
+  it("builds expected entries for GST expense payments", () => {
+    const generic = classifyTransaction("Paid legal charges Rs.10000 plus GST 18% through bank");
+    const inclusive = classifyTransaction("Paid legal charges Rs.11800 including GST 18% through bank");
+    const split = classifyTransaction("Paid advertisement Rs.3000 plus CGST 9% and SGST 9% by UPI");
+    const igst = classifyTransaction("Paid professional fees Rs.10000 plus IGST 18% through bank");
+    const namedCredit = classifyTransaction("Professional fees from Amit Rs.10000 plus GST 18% on credit");
+
+    expect(generateExpectedEntry(generic!)).toEqual({
+      debits: [
+        { account: "Legal Charges", amount: 10000 },
+        { account: "Input GST", amount: 1800 },
+      ],
+      credits: [{ account: "Bank", amount: 11800 }],
+    });
+    expect(generateExpectedEntry(inclusive!)).toEqual({
+      debits: [
+        { account: "Legal Charges", amount: 10000 },
+        { account: "Input GST", amount: 1800 },
+      ],
+      credits: [{ account: "Bank", amount: 11800 }],
+    });
+    expect(generateExpectedEntry(split!)).toEqual({
+      debits: [
+        { account: "Advertisement Expense", amount: 3000 },
+        { account: "Input CGST", amount: 270 },
+        { account: "Input SGST", amount: 270 },
+      ],
+      credits: [{ account: "Bank", amount: 3540 }],
+    });
+    expect(generateExpectedEntry(igst!)).toEqual({
+      debits: [
+        { account: "Professional Fees Expense", amount: 10000 },
+        { account: "Input IGST", amount: 1800 },
+      ],
+      credits: [{ account: "Bank", amount: 11800 }],
+    });
+    expect(generateExpectedEntry(namedCredit!)).toEqual({
+      debits: [
+        { account: "Professional Fees Expense", amount: 10000 },
+        { account: "Input GST", amount: 1800 },
+      ],
+      credits: [{ account: "Amit", amount: 11800, acceptedAccounts: ["Creditor"], partyRole: "creditor" }],
+    });
+  });
+
   it("does not classify unsupported transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
     expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
@@ -2087,6 +2183,9 @@ describe("classifyTransaction supported beginner transactions", () => {
         "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 and insurance claim Rs.35000",
       ),
     ).toBeNull();
+    expect(classifyTransaction("Paid salary Rs.10000 plus GST 18% through bank")).toBeNull();
+    expect(classifyTransaction("Received consultancy fees Rs.10000 plus GST 18% through bank")).toBeNull();
+    expect(classifyTransaction("Paid legal charges Rs.11800 including CGST 9% and SGST 9% through bank")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();

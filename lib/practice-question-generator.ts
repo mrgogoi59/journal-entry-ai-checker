@@ -132,6 +132,13 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Sold machinery costing ${formatRupees(amount)} with accumulated depreciation ${formatRupees(
       Math.round(amount * 0.2),
     )} for ${formatRupees(Math.round(amount * 0.9))} cash`,
+  expense_gst_legal_charges_bank: (amount) =>
+    `Paid legal charges ${formatRupees(amount)} plus GST 18% through bank`,
+  expense_gst_repairs_cash: (amount) => `Paid repairs ${formatRupees(amount)} plus GST 18% in cash`,
+  expense_gst_cgst_sgst_advertisement_bank: (amount) =>
+    `Paid advertisement ${formatRupees(amount)} plus CGST 9% and SGST 9% by UPI`,
+  expense_gst_igst_professional_fees_bank: (amount) =>
+    `Paid professional fees ${formatRupees(amount)} plus IGST 18% through bank`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -219,6 +226,10 @@ const explicitPracticeTransactionTypes = [
   "asset_sale_loss_vehicle_credit",
   "asset_sale_disposal_loss_machinery_cash",
   "asset_sale_disposal_profit_machinery_cash",
+  "expense_gst_legal_charges_bank",
+  "expense_gst_repairs_cash",
+  "expense_gst_cgst_sgst_advertisement_bank",
+  "expense_gst_igst_professional_fees_bank",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

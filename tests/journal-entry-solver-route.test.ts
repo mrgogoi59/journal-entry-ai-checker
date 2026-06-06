@@ -1006,6 +1006,57 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
+  it("solves GST expense payment through bank", async () => {
+    const body = await solve("Paid legal charges Rs.10000 plus GST 18% through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Legal Charges A/c", debit: 10000, credit: 0 },
+      { account: "Input GST A/c", debit: 1800, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 11800 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Input GST A/c is debited because GST paid on expense is input tax credit.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves GST-inclusive expense payment through bank", async () => {
+    const body = await solve("Paid legal charges Rs.11800 including GST 18% through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Legal Charges A/c", debit: 10000, credit: 0 },
+      { account: "Input GST A/c", debit: 1800, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 11800 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Base value = ₹11,800 × 100 / 118 = ₹10,000.");
+    expect(body.stepByStepExplanation).toContain("GST amount = ₹1,800.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves CGST and SGST expense payment by UPI", async () => {
+    const body = await solve("Paid advertisement Rs.3000 plus CGST 9% and SGST 9% by UPI");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Advertisement Expense A/c", debit: 3000, credit: 0 },
+      { account: "Input CGST A/c", debit: 270, credit: 0 },
+      { account: "Input SGST A/c", debit: 270, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 3540 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it.each([
+    "Paid salary Rs.10000 plus GST 18% through bank",
+    "Received consultancy fees Rs.10000 plus GST 18% through bank",
+    "Paid legal charges Rs.11800 including CGST 9% and SGST 9% through bank",
+  ])("does not solve unsupported GST expense case: %s", async (transaction) => {
+    const body = await solve(transaction);
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
   it("does not solve fixed asset GST with installation charges", async () => {
     const body = await solve("Purchased machinery Rs.50000 plus installation Rs.5000 plus GST 18%");
 

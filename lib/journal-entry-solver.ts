@@ -32,6 +32,7 @@ const commonExpenseAccounts = new Set([
   "Petrol/Fuel Expense",
   "Legal Charges",
   "Office Expenses",
+  "Professional Fees Expense",
 ]);
 
 const commonIncomeAccounts = new Set([
@@ -98,6 +99,8 @@ function isAmbiguousPersonPayment(transaction: string): boolean {
 
   const accountWords = new Set([
     "cash",
+    "advertisement",
+    "advertising",
     "bank",
     "broadband",
     "carriage",
@@ -122,9 +125,11 @@ function isAmbiguousPersonPayment(transaction: string): boolean {
     "office",
     "petrol",
     "phone",
+    "professional",
     "printing",
     "repair",
     "repairs",
+    "stationery",
   ]);
 
   return !accountWords.has(possibleName.toLowerCase());
@@ -441,6 +446,51 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
       `${asset} is a fixed asset, so ${asset} is debited.`,
       `${gstAmountExplanation(details.gstAmount, details.gstRate)}.`,
       "Input GST A/c is debited because GST paid on asset purchase is input tax credit.",
+      `${payment} is credited for the total amount ${
+        details.paymentAccount === "Creditor" ? "payable" : "paid"
+      }, ${formatRupees(details.invoiceTotal)}.`,
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "expense_gst_payment") {
+    const details = classification.compoundDetails;
+    const expense = displayAccountName(details.expenseAccount);
+    const payment = displayAccountName(details.creditorAccount);
+
+    if (details.taxLines?.length) {
+      return [
+        `${sentenceCase(details.expenseLabel)} are a business expense.`,
+        `${expense} is debited because expenses are debited.`,
+        ...details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate)),
+        `${inputTaxAccountLabel(details.taxLines)} ${
+          details.taxLines.length === 1 ? "is" : "are"
+        } debited because GST paid on expense is input tax credit.`,
+        `${payment} is credited for the total amount ${
+          details.paymentAccount === "Creditor" ? "payable" : "paid"
+        }, ${formatRupees(details.invoiceTotal)}.`,
+      ];
+    }
+
+    if (details.gstInclusive) {
+      return [
+        `Total invoice amount is ${formatRupees(details.invoiceTotal)} including GST.`,
+        `Base value = ${formatRupees(details.invoiceTotal)} × 100 / ${formatPercentDenominator(
+          details.gstRate,
+        )} = ${formatRupees(details.baseAmount)}.`,
+        `GST amount = ${formatRupees(details.gstAmount)}.`,
+        `${expense} is debited for ${formatRupees(details.baseAmount)} because expenses are debited.`,
+        `Input GST A/c is debited for ${formatRupees(details.gstAmount)} because GST paid on expense is input tax credit.`,
+        `${payment} is credited for ${formatRupees(details.invoiceTotal)} ${
+          details.paymentAccount === "Creditor" ? "payable" : "paid"
+        }.`,
+      ];
+    }
+
+    return [
+      `${sentenceCase(details.expenseLabel)} are a business expense.`,
+      `${expense} is debited because expenses are debited.`,
+      `${gstAmountExplanation(details.gstAmount, details.gstRate)}.`,
+      "Input GST A/c is debited because GST paid on expense is input tax credit.",
       `${payment} is credited for the total amount ${
         details.paymentAccount === "Creditor" ? "payable" : "paid"
       }, ${formatRupees(details.invoiceTotal)}.`,
@@ -884,6 +934,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
     ];
   }
 
+  if (classification.compoundDetails?.kind === "expense_gst_payment") {
+    return [
+      "Do not add GST amount to the expense account.",
+      "Do not credit Input GST/Input CGST/Input SGST/Input IGST.",
+      `Do not credit ${displayAccountName(classification.creditAccount)} only for the base amount.`,
+      "Do not use Output GST on expense payments.",
+      "Do not confuse paid consultancy/professional fees with consultancy income.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     if (classification.compoundDetails.taxLines?.length) {
       return [
@@ -1261,6 +1321,34 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.compoundDetails?.kind === "expense_gst_payment") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.paymentAccount === "Creditor"
+        ? details.partyName
+          ? `from ${details.partyName} on credit`
+          : "payable"
+        : details.paymentAccount === "Bank"
+          ? "through bank"
+          : "in cash";
+    return {
+      question: details.gstInclusive
+        ? `Paid ${details.expenseLabel} ${formatRupees(details.invoiceTotal)} including ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`
+        : `Paid ${details.expenseLabel} ${formatRupees(details.baseAmount)} plus ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`,
+      expectedPattern: `${displayAccountName(details.expenseAccount)} Dr., ${inputTaxPattern(
+        details.taxLines,
+      )} To ${displayAccountName(details.creditorAccount)}`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
     const mode =
@@ -1603,6 +1691,20 @@ function buildNarration(classification: TransactionClassification): string {
       : `Being ${details.assetLabel} purchased on credit ${gstLabel}.`;
   }
 
+  if (classification.compoundDetails?.kind === "expense_gst_payment") {
+    const details = classification.compoundDetails;
+    const gstLabel = details.taxLines?.length
+      ? `plus ${taxNarrationLabel(details.taxLines)}`
+      : details.gstInclusive
+        ? "including GST"
+        : "plus GST";
+    if (details.paymentAccount === "Cash") return `Being ${details.expenseLabel} paid in cash ${gstLabel}.`;
+    if (details.paymentAccount === "Bank") return `Being ${details.expenseLabel} paid through bank ${gstLabel}.`;
+    return details.partyName
+      ? `Being ${details.expenseLabel} payable to ${details.partyName} ${gstLabel}.`
+      : `Being ${details.expenseLabel} payable ${gstLabel}.`;
+  }
+
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
     const gstLabel = details.taxLines?.length
@@ -1820,6 +1922,10 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.compoundDetails?.kind === "asset_gst_purchase") {
     return "The business purchased a fixed asset and paid or became liable for GST input tax on the purchase.";
+  }
+
+  if (classification.compoundDetails?.kind === "expense_gst_payment") {
+    return "The business paid or became liable for a selected business expense with GST input tax.";
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {

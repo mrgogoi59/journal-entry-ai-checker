@@ -28,6 +28,8 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (goodsGstPurchase) return goodsGstPurchase;
   const goodsGstSale = classifyGoodsGstSale(transactionText);
   if (goodsGstSale) return goodsGstSale;
+  const expenseGstPayment = classifyExpenseGstPayment(transactionText);
+  if (expenseGstPayment) return expenseGstPayment;
   if (hasGstMention(transactionText)) return null;
   if (hasUnsupportedGoodsTaxAmbiguity(transactionText)) return null;
   const partialGoodsPurchase = classifyPartialGoodsPurchase(transactionText);
@@ -664,6 +666,83 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
   };
 }
 
+function classifyExpenseGstPayment(transactionText: string): TransactionClassification | null {
+  if (!isExpensePaymentWithGst(transactionText)) return null;
+  if (hasUnsupportedGstContext(transactionText)) return null;
+  if (hasInclusiveGstWording(transactionText) && /\b(?:cgst|central\s+gst|sgst|state\s+gst|igst|integrated\s+gst)\b/i.test(transactionText)) {
+    return null;
+  }
+
+  const expense = extractGstExpenseItem(transactionText);
+  if (!expense) return null;
+
+  const gst = extractGstDetails(transactionText);
+  if (!gst) return null;
+
+  const paymentAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText) || /\b(?:payable|unpaid|due)\b/i.test(transactionText)
+      ? "Creditor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!paymentAccount) return null;
+
+  const partyName = paymentAccount === "Creditor" ? extractExpenseGstSupplierName(transactionText) : undefined;
+  const creditorAccount = partyName ?? paymentAccount;
+  const expectedEntry = buildExpenseGstPaymentEntry(
+    expense.account,
+    gst.baseAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    gst.taxLines,
+    paymentAccount,
+    creditorAccount,
+    partyName,
+  );
+
+  const gstPrefix = gst.taxLines?.length
+    ? gst.taxLines.length === 1
+      ? "igst_"
+      : "cgst_sgst_"
+    : gst.gstInclusive
+      ? "inclusive_"
+      : "";
+  const paymentSuffix = paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit";
+
+  return {
+    transaction_type: `expense_gst_${gstPrefix}${expense.key}_${paymentSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: expense.account,
+    creditAccount: creditorAccount,
+    expectedDebitAccount: expense.account,
+    expectedCreditAccount: creditorAccount,
+    genericDebitAccount: expense.account,
+    genericCreditAccount: paymentAccount,
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "A selected business expense was paid or became payable with GST. The expense is debited for the base value, Input GST is debited for input tax credit, and Cash, Bank, Creditor, or the named supplier is credited for the invoice total.",
+    partyName,
+    partyRole: partyName ? "creditor" : undefined,
+    partyAccountSide: partyName ? "credit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "expense_gst_payment",
+      expenseAccount: expense.account,
+      expenseLabel: expense.label,
+      baseAmount: gst.baseAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
+      gstInclusive: gst.gstInclusive,
+      taxLines: gst.taxLines,
+      paymentAccount,
+      creditorAccount,
+      partyName,
+    },
+  };
+}
+
 function classifyPartialGoodsPurchase(transactionText: string): TransactionClassification | null {
   if (!isPartialGoodsPurchase(transactionText)) return null;
   if (UNSUPPORTED_COMPOUND_CONTEXT_PATTERN.test(transactionText)) return null;
@@ -852,6 +931,77 @@ interface AssetPurchaseItem {
   pattern: RegExp;
 }
 
+interface GstExpenseItem {
+  key: string;
+  label: string;
+  account: string;
+  pattern: RegExp;
+}
+
+const gstExpenseItems: GstExpenseItem[] = [
+  {
+    key: "legal_charges",
+    label: "legal charges",
+    account: "Legal Charges",
+    pattern: /\blegal\s+(?:charges|fees|expense)\b|\blawyer\s+fees\b/i,
+  },
+  {
+    key: "repairs",
+    label: "repairs",
+    account: "Repairs Expense",
+    pattern: /\brepairs?\b|\brepair\s+charges\b|\bmaintenance\s+expense\b/i,
+  },
+  {
+    key: "advertisement",
+    label: "advertisement expense",
+    account: "Advertisement Expense",
+    pattern: /\badvertis(?:ement|ing)(?:\s+expense)?\b/i,
+  },
+  {
+    key: "freight",
+    label: "freight",
+    account: "Freight Expense",
+    pattern: /\bfreight(?:\s+expense|\s+charges)?\b/i,
+  },
+  {
+    key: "carriage",
+    label: "carriage",
+    account: "Carriage Expense",
+    pattern: /\bcarriage(?:\s+expense)?\b/i,
+  },
+  {
+    key: "printing_stationery",
+    label: "printing and stationery",
+    account: "Printing and Stationery Expense",
+    pattern: /\bprinting\s+and\s+stationery\b|\bstationery(?:\s+expense)?\b|\bprinting\s+charges\b/i,
+  },
+  {
+    key: "telephone",
+    label: "telephone bill",
+    account: "Telephone Expense",
+    pattern: /\btelephone(?:\s+bill|\s+expense)?\b|\bphone\s+bill\b/i,
+  },
+  {
+    key: "internet",
+    label: "internet bill",
+    account: "Internet Expense",
+    pattern: /\binternet(?:\s+bill|\s+expense)?\b|\bbroadband\s+bill\b/i,
+  },
+  {
+    key: "office_expenses",
+    label: "office expenses",
+    account: "Office Expenses",
+    pattern: /\b(?:general\s+)?office\s+expenses?\b/i,
+  },
+  {
+    key: "professional_fees",
+    label: "professional fees",
+    account: "Professional Fees Expense",
+    pattern:
+      /\bprofessional\s+(?:fees?|charges)(?:\s+expense)?\b|\bconsultancy\s+(?:fees?|expense)\b|\bconsultant\s+fees?\b/i,
+  },
+];
+
 const assetPurchaseItems: AssetPurchaseItem[] = [
   { key: "machinery", label: "machinery", account: "Machinery", pattern: /\bmachinery\b/i },
   {
@@ -1018,6 +1168,16 @@ function isGoodsPurchaseWithGst(transactionText: string): boolean {
 
 function isGoodsSaleWithGst(transactionText: string): boolean {
   return /\b(?:sold\s+goods|goods\s+sold|sale\s+of\s+goods)\b/i.test(transactionText) && hasGstMention(transactionText);
+}
+
+function isExpensePaymentWithGst(transactionText: string): boolean {
+  if (!hasGstMention(transactionText)) return false;
+  if (/\b(?:received|earned|income)\b/i.test(transactionText)) return false;
+  return Boolean(extractGstExpenseItem(transactionText));
+}
+
+function extractGstExpenseItem(transactionText: string): GstExpenseItem | null {
+  return gstExpenseItems.find((expense) => expense.pattern.test(transactionText)) ?? null;
 }
 
 function hasGstMention(transactionText: string): boolean {
@@ -1431,6 +1591,37 @@ function buildAssetGstPurchaseEntry(
   };
 }
 
+function buildExpenseGstPaymentEntry(
+  expenseAccount: string,
+  baseAmount: number,
+  gstAmount: number,
+  invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[] | undefined,
+  paymentAccount: "Cash" | "Bank" | "Creditor",
+  creditorAccount: string,
+  partyName?: string,
+): CorrectJournalEntry {
+  const creditLine: CorrectJournalEntry["credits"][number] = {
+    account: creditorAccount,
+    amount: invoiceTotal,
+  };
+
+  if (partyName && paymentAccount === "Creditor") {
+    creditLine.acceptedAccounts = ["Creditor"];
+    creditLine.partyRole = "creditor";
+  }
+
+  return {
+    debits: [
+      { account: expenseAccount, amount: baseAmount },
+      ...(taxLines?.map((line) => ({ account: line.inputAccount, amount: line.amount })) ?? [
+        { account: "Input GST", amount: gstAmount },
+      ]),
+    ],
+    credits: [creditLine],
+  };
+}
+
 function buildAssetSaleEntry(
   assetAccount: string,
   saleValue: number,
@@ -1538,6 +1729,21 @@ function extractAssetGstSupplierName(transactionText: string): string | undefine
 
   const normalizedName = rawName.replace(/[.,]/g, "").trim();
   if (!normalizedName || /^(supplier|seller|creditor|cash|bank)$/i.test(normalizedName)) return undefined;
+
+  return normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase();
+}
+
+function extractExpenseGstSupplierName(transactionText: string): string | undefined {
+  const match =
+    /\bfrom\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bpayable\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
+  const rawName = match?.[1];
+  if (!rawName) return undefined;
+
+  const normalizedName = rawName.replace(/[.,]/g, "").trim();
+  if (!normalizedName || /^(supplier|seller|creditor|cash|bank|upi|gpay|phonepe|paytm)$/i.test(normalizedName)) {
+    return undefined;
+  }
 
   return normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase();
 }
