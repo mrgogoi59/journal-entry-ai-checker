@@ -147,7 +147,7 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-4">
           <button onClick={() => setMode("own")} className={modeButtonClass(mode === "own")}>
             <span>Check My Journal Entry</span>
             <span className="text-xs font-medium leading-5 opacity-80">
@@ -164,6 +164,12 @@ export default function Home() {
             <span>AI Journal Entry Explainer</span>
             <span className="text-xs font-medium leading-5 opacity-80">
               Enter a transaction and understand the debit-credit logic step by step.
+            </span>
+          </Link>
+          <Link href="/ledger" className={modeButtonClass(false)}>
+            <span>Ledger Posting</span>
+            <span className="text-xs font-medium leading-5 opacity-80">
+              Convert journal entries into ledger accounts and understand debit-credit posting.
             </span>
           </Link>
         </div>
