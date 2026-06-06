@@ -231,6 +231,162 @@ Cash A/c Dr Rs.45000`);
     expect(result.balanceSheetWarnings).toContain("Some accounts could not be classified.");
   });
 
+  it("applies closing stock adjustment to Trading Account and Balance Sheet", () => {
+    const result = generateFinalAccounts(
+      `Purchases Dr 20000
+Sales Cr 40000
+Capital Cr 30000
+Cash Dr 30000`,
+      "Closing stock Rs.10000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toHaveLength(1);
+    expect(line(result.tradingAccount.creditLines, "Closing Stock")).toEqual({
+      account: "Closing Stock",
+      amount: 10000,
+    });
+    expect(result.tradingAccount.grossProfit).toBe(30000);
+    expect(line(result.balanceSheet.assets, "Closing Stock")).toEqual({ account: "Closing Stock", amount: 10000 });
+  });
+
+  it("applies outstanding salary adjustment", () => {
+    const result = generateFinalAccounts(
+      `Salary Dr 10000
+Capital Cr 50000
+Cash Dr 40000`,
+      "Salary outstanding Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Salary")).toEqual({ account: "Salary", amount: 13000 });
+    expect(line(result.balanceSheet.liabilities, "Outstanding Salary")).toEqual({
+      account: "Outstanding Salary",
+      amount: 3000,
+    });
+  });
+
+  it("applies prepaid insurance adjustment", () => {
+    const result = generateFinalAccounts(
+      `Insurance Dr 10000
+Capital Cr 50000
+Cash Dr 40000`,
+      "Prepaid insurance Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Insurance")).toEqual({ account: "Insurance", amount: 8000 });
+    expect(line(result.balanceSheet.assets, "Prepaid Insurance")).toEqual({
+      account: "Prepaid Insurance",
+      amount: 2000,
+    });
+  });
+
+  it("applies accrued interest adjustment", () => {
+    const result = generateFinalAccounts(
+      `Interest Income Cr 5000
+Capital Cr 50000
+Cash Dr 55000`,
+      "Interest accrued Rs.1500",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.creditLines, "Interest Income")).toEqual({
+      account: "Interest Income",
+      amount: 6500,
+    });
+    expect(line(result.balanceSheet.assets, "Accrued Interest")).toEqual({
+      account: "Accrued Interest",
+      amount: 1500,
+    });
+  });
+
+  it("applies rent received in advance adjustment", () => {
+    const result = generateFinalAccounts(
+      `Rent Income Cr 10000
+Capital Cr 50000
+Cash Dr 60000`,
+      "Rent received in advance Rs.4000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.creditLines, "Rent Income")).toEqual({
+      account: "Rent Income",
+      amount: 6000,
+    });
+    expect(line(result.balanceSheet.liabilities, "Rent Received In Advance")).toEqual({
+      account: "Rent Received In Advance",
+      amount: 4000,
+    });
+  });
+
+  it("applies depreciation on machinery adjustment", () => {
+    const result = generateFinalAccounts(
+      `Machinery Dr 50000
+Capital Cr 50000`,
+      "Depreciation on machinery Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Depreciation")).toEqual({
+      account: "Depreciation",
+      amount: 5000,
+    });
+    expect(line(result.balanceSheet.assets, "Machinery")).toEqual({ account: "Machinery", amount: 45000 });
+  });
+
+  it("applies combined simple adjustments safely", () => {
+    const result = generateFinalAccounts(
+      `Capital Cr 50000
+Cash Dr 30000
+Purchases Dr 20000
+Sales Cr 40000
+Salary Dr 5000
+Insurance Dr 4000
+Machinery Dr 50000
+Creditors Cr 69000`,
+      `Closing stock Rs.10000
+Salary outstanding Rs.2000
+Prepaid insurance Rs.1000
+Depreciation on machinery Rs.5000`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toHaveLength(4);
+    expect(line(result.tradingAccount.creditLines, "Closing Stock")).toEqual({
+      account: "Closing Stock",
+      amount: 10000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Salary")).toEqual({ account: "Salary", amount: 7000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Insurance")).toEqual({ account: "Insurance", amount: 3000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Depreciation")).toEqual({
+      account: "Depreciation",
+      amount: 5000,
+    });
+    expect(line(result.balanceSheet.assets, "Closing Stock")).toEqual({ account: "Closing Stock", amount: 10000 });
+    expect(line(result.balanceSheet.liabilities, "Outstanding Salary")).toEqual({
+      account: "Outstanding Salary",
+      amount: 2000,
+    });
+    expect(line(result.balanceSheet.assets, "Prepaid Insurance")).toEqual({
+      account: "Prepaid Insurance",
+      amount: 1000,
+    });
+    expect(line(result.balanceSheet.assets, "Machinery")).toEqual({ account: "Machinery", amount: 45000 });
+  });
+
+  it("keeps unknown adjustments unclassified and warns", () => {
+    const result = generateFinalAccounts(
+      `Capital Cr 50000
+Cash Dr 50000`,
+      "Manager commission Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.unclassifiedAdjustments).toContain("Manager commission Rs.2000");
+    expect(result.adjustmentWarnings).toContain("Some adjustments could not be classified.");
+  });
+
   it("returns invalid when Dr or Cr is missing", () => {
     const result = generateFinalAccounts("Purchases Rs.20000");
 

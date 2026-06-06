@@ -22,9 +22,24 @@ export type CapitalWorking = {
   adjustedCapital: number;
 };
 
+export type FinalAccountAdjustment = {
+  type:
+    | "closing_stock"
+    | "outstanding_expense"
+    | "prepaid_expense"
+    | "accrued_income"
+    | "income_received_in_advance"
+    | "depreciation";
+  account: string;
+  relatedAccount?: string;
+  amount: number;
+  rawText: string;
+};
+
 export type FinalAccountsResult = {
   status: "success" | "invalid";
   parsedBalances: TrialBalanceBalance[];
+  parsedAdjustments: FinalAccountAdjustment[];
   tradingAccount: {
     debitLines: FinalAccountLine[];
     creditLines: FinalAccountLine[];
@@ -52,9 +67,12 @@ export type FinalAccountsResult = {
   };
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
+  unclassifiedAdjustments: string[];
   errors: string[];
   warnings: string[];
   balanceSheetWarnings: string[];
+  adjustmentWarnings: string[];
+  adjustmentLogic: string[];
   logic: string[];
   commonMistakes: string[];
 };
@@ -84,6 +102,7 @@ const profitAndLossDebitAccounts = new Set([
   "rent",
   "salary",
   "salaries",
+  "electricity",
   "office expenses",
   "advertisement",
   "repairs",
@@ -267,6 +286,12 @@ const assetAccounts = new Set([
   "inventory",
 ]);
 
+const supportedAdjustmentAccounts = {
+  expenses: ["salary", "rent", "wages", "electricity", "insurance"],
+  incomes: ["interest", "commission", "rent"],
+  assets: ["machinery", "furniture", "computer", "equipment", "vehicle"],
+};
+
 const commonMistakes = [
   "Do not put Cash or Bank in Trading A/c or P&L A/c.",
   "Do not put Capital in Trading A/c or P&L A/c.",
@@ -274,6 +299,13 @@ const commonMistakes = [
   "Rent and Salary usually go to Profit & Loss Account.",
   "Gross Profit is transferred to Profit & Loss Account.",
   "Capital, drawings, assets, and liabilities go to the Balance Sheet.",
+  "Do not show closing stock only in Trading A/c; it also appears as an asset.",
+  "Outstanding expense increases expense and creates liability.",
+  "Prepaid expense reduces expense and creates asset.",
+  "Accrued income increases income and creates asset.",
+  "Income received in advance reduces income and creates liability.",
+  "Depreciation is an expense and reduces the asset value.",
+  "Do not double count closing stock if it already appears in Trial Balance.",
 ];
 
 const logic = [
@@ -286,7 +318,16 @@ const logic = [
   "Balance Sheet uses asset, liability, and adjusted capital balances only.",
 ];
 
-export function generateFinalAccounts(input: string): FinalAccountsResult {
+const adjustmentLogic = [
+  "Closing stock is shown on the credit side of Trading A/c and also as an asset in the Balance Sheet.",
+  "Outstanding salary is added to salary expense and also shown as a liability.",
+  "Prepaid insurance is deducted from insurance expense and shown as an asset.",
+  "Accrued interest is added to interest income and shown as an asset.",
+  "Rent received in advance is deducted from rent income and shown as a liability.",
+  "Depreciation is charged to Profit & Loss A/c and deducted from the related asset.",
+];
+
+export function generateFinalAccounts(input: string, adjustmentsInput = ""): FinalAccountsResult {
   const lines = input
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -331,11 +372,13 @@ export function generateFinalAccounts(input: string): FinalAccountsResult {
     return invalidResult(errors.length ? errors : ["I could not read the trial balance balances."]);
   }
 
+  const adjustmentResult = parseAdjustments(adjustmentsInput);
   const warnings = trialBalanceTotalsAgree(parsedBalances)
     ? []
     : ["Trial Balance totals do not agree. Final accounts may not be reliable."];
 
   const classified = classifyBalances(parsedBalances);
+  const adjustmentWarnings = applyAdjustments(classified, adjustmentResult.parsedAdjustments);
   const tradingAccount = buildTradingAccount(classified.tradingDebitLines, classified.tradingCreditLines);
   const profitAndLossAccount = buildProfitAndLossAccount(
     classified.profitAndLossDebitLines,
@@ -349,18 +392,25 @@ export function generateFinalAccounts(input: string): FinalAccountsResult {
     profitAndLossAccount.netLoss,
   );
   const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
+  const unclassifiedAdjustmentWarnings = adjustmentResult.unclassifiedAdjustments.length
+    ? ["Some adjustments could not be classified."]
+    : [];
 
   return {
     status: "success",
     parsedBalances,
+    parsedAdjustments: adjustmentResult.parsedAdjustments,
     tradingAccount,
     profitAndLossAccount,
     balanceSheet,
     balanceSheetItems: classified.balanceSheetItems,
     unclassifiedItems: classified.unclassifiedItems,
+    unclassifiedAdjustments: adjustmentResult.unclassifiedAdjustments,
     errors: [],
-    warnings: [...warnings, ...balanceSheetWarnings],
+    warnings: [...warnings, ...adjustmentWarnings, ...unclassifiedAdjustmentWarnings, ...balanceSheetWarnings],
     balanceSheetWarnings,
+    adjustmentWarnings: [...adjustmentWarnings, ...unclassifiedAdjustmentWarnings],
+    adjustmentLogic,
     logic,
     commonMistakes,
   };
@@ -415,7 +465,6 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
     const key = cleanAccountName(balance.account);
 
     if (["closing stock", "stock", "inventory"].includes(key)) {
-      tradingCreditLines.push(toFinalAccountLine(balance));
       balanceSheetItems.push(balance);
       return;
     }
@@ -468,6 +517,216 @@ function classifyAccount(account: string): AccountCategory | "unclassified" {
   if (balanceSheetAccounts.has(key)) return "balance-sheet";
 
   return "unclassified";
+}
+
+function parseAdjustments(input: string): {
+  parsedAdjustments: FinalAccountAdjustment[];
+  unclassifiedAdjustments: string[];
+} {
+  const lines = input
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const parsedAdjustments: FinalAccountAdjustment[] = [];
+  const unclassifiedAdjustments: string[] = [];
+
+  lines.forEach((line) => {
+    const parsed = parseAdjustmentLine(line);
+    if (parsed) {
+      parsedAdjustments.push(parsed);
+    } else {
+      unclassifiedAdjustments.push(line);
+    }
+  });
+
+  return { parsedAdjustments, unclassifiedAdjustments };
+}
+
+function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
+  const amount = extractAmount(line);
+  if (!amount) return null;
+
+  const text = cleanDisplayAccountName(removeFirstAmount(line));
+
+  if (/\bclosing stock\b/.test(text) || /\bstock at end\b/.test(text)) {
+    return {
+      type: "closing_stock",
+      account: "Closing Stock",
+      amount,
+      rawText: line,
+    };
+  }
+
+  const outstandingExpense = findRelatedWord(text, supportedAdjustmentAccounts.expenses, [
+    (word) => `${word} outstanding`,
+    (word) => `outstanding ${word}`,
+  ]);
+  if (outstandingExpense) {
+    return {
+      type: "outstanding_expense",
+      account: `Outstanding ${titleCaseAccount(outstandingExpense)}`,
+      relatedAccount: titleCaseAccount(outstandingExpense),
+      amount,
+      rawText: line,
+    };
+  }
+
+  const prepaidExpense = findRelatedWord(text, supportedAdjustmentAccounts.expenses, [
+    (word) => `prepaid ${word}`,
+    (word) => `${word} prepaid`,
+    (word) => `${word} paid in advance`,
+  ]);
+  if (prepaidExpense) {
+    return {
+      type: "prepaid_expense",
+      account: `Prepaid ${titleCaseAccount(prepaidExpense)}`,
+      relatedAccount: titleCaseAccount(prepaidExpense),
+      amount,
+      rawText: line,
+    };
+  }
+
+  const accruedIncome = findRelatedWord(text, supportedAdjustmentAccounts.incomes, [
+    (word) => `${word} accrued`,
+    (word) => `accrued ${word}`,
+    (word) => `${word} receivable`,
+  ]);
+  if (accruedIncome) {
+    return {
+      type: "accrued_income",
+      account: `Accrued ${titleCaseAccount(accruedIncome)}`,
+      relatedAccount: `${titleCaseAccount(accruedIncome)} Income`,
+      amount,
+      rawText: line,
+    };
+  }
+
+  const advanceIncome = findRelatedWord(text, supportedAdjustmentAccounts.incomes, [
+    (word) => `${word} received in advance`,
+    (word) => `unearned ${word}`,
+  ]);
+  if (advanceIncome) {
+    return {
+      type: "income_received_in_advance",
+      account: `${titleCaseAccount(advanceIncome)} Received In Advance`,
+      relatedAccount: `${titleCaseAccount(advanceIncome)} Income`,
+      amount,
+      rawText: line,
+    };
+  }
+
+  const depreciationAsset = findRelatedWord(text, supportedAdjustmentAccounts.assets, [
+    (word) => `depreciation on ${word}`,
+    (word) => `depreciation charged on ${word}`,
+  ]);
+  if (depreciationAsset) {
+    return {
+      type: "depreciation",
+      account: "Depreciation",
+      relatedAccount: titleCaseAccount(depreciationAsset),
+      amount,
+      rawText: line,
+    };
+  }
+
+  return null;
+}
+
+function applyAdjustments(
+  classified: {
+    tradingDebitLines: FinalAccountLine[];
+    tradingCreditLines: FinalAccountLine[];
+    profitAndLossDebitLines: FinalAccountLine[];
+    profitAndLossCreditLines: FinalAccountLine[];
+    balanceSheetItems: TrialBalanceBalance[];
+  },
+  adjustments: FinalAccountAdjustment[],
+): string[] {
+  const warnings: string[] = [];
+
+  adjustments.forEach((adjustment) => {
+    if (adjustment.type === "closing_stock") {
+      addAmount(classified.tradingCreditLines, adjustment.account, adjustment.amount);
+      classified.balanceSheetItems.push({
+        account: adjustment.account,
+        side: "debit",
+        amount: adjustment.amount,
+      });
+      return;
+    }
+
+    if (adjustment.type === "outstanding_expense") {
+      const relatedAccount = adjustment.relatedAccount ?? adjustment.account;
+      if (
+        !addAmountIfExists(classified.tradingDebitLines, relatedAccount, adjustment.amount) &&
+        !addAmountIfExists(classified.profitAndLossDebitLines, relatedAccount, adjustment.amount)
+      ) {
+        addAmount(classified.profitAndLossDebitLines, relatedAccount, adjustment.amount);
+      }
+      classified.balanceSheetItems.push({
+        account: adjustment.account,
+        side: "credit",
+        amount: adjustment.amount,
+      });
+      return;
+    }
+
+    if (adjustment.type === "prepaid_expense") {
+      const relatedAccount = adjustment.relatedAccount ?? adjustment.account;
+      const reduced =
+        reduceAmountIfExists(classified.profitAndLossDebitLines, relatedAccount, adjustment.amount) ||
+        reduceAmountIfExists(classified.tradingDebitLines, relatedAccount, adjustment.amount);
+
+      if (!reduced) {
+        warnings.push(`Related expense not found for ${cleanAccountName(adjustment.account)}.`);
+      }
+
+      classified.balanceSheetItems.push({
+        account: adjustment.account,
+        side: "debit",
+        amount: adjustment.amount,
+      });
+      return;
+    }
+
+    if (adjustment.type === "accrued_income") {
+      addAmount(classified.profitAndLossCreditLines, adjustment.relatedAccount ?? adjustment.account, adjustment.amount);
+      classified.balanceSheetItems.push({
+        account: adjustment.account,
+        side: "debit",
+        amount: adjustment.amount,
+      });
+      return;
+    }
+
+    if (adjustment.type === "income_received_in_advance") {
+      const relatedAccount = adjustment.relatedAccount ?? adjustment.account;
+      const reduced = reduceAmountIfExists(classified.profitAndLossCreditLines, relatedAccount, adjustment.amount);
+
+      if (!reduced) {
+        warnings.push(`Related income not found for ${cleanAccountName(adjustment.account)}.`);
+      }
+
+      classified.balanceSheetItems.push({
+        account: adjustment.account,
+        side: "credit",
+        amount: adjustment.amount,
+      });
+      return;
+    }
+
+    if (adjustment.type === "depreciation") {
+      addAmount(classified.profitAndLossDebitLines, adjustment.account, adjustment.amount);
+      const relatedAccount = adjustment.relatedAccount ?? "";
+      const reduced = reduceBalanceSheetAsset(classified.balanceSheetItems, relatedAccount, adjustment.amount);
+
+      if (!reduced) {
+        warnings.push(`Related asset not found for depreciation on ${cleanAccountName(relatedAccount)}.`);
+      }
+    }
+  });
+
+  return warnings;
 }
 
 function buildTradingAccount(
@@ -626,6 +885,55 @@ function buildBalanceSheetWarnings(
   return warnings;
 }
 
+function findRelatedWord(
+  text: string,
+  words: string[],
+  patterns: Array<(word: string) => string>,
+): string | null {
+  return (
+    words.find((word) =>
+      patterns.some((pattern) => {
+        const phrase = pattern(word);
+        return new RegExp(`\\b${escapeRegExp(phrase)}\\b`).test(text);
+      }),
+    ) ?? null
+  );
+}
+
+function addAmount(lines: FinalAccountLine[], account: string, amount: number): void {
+  const existing = lines.find((line) => cleanAccountName(line.account) === cleanAccountName(account));
+  if (existing) {
+    existing.amount += amount;
+    return;
+  }
+
+  lines.push({ account, amount });
+}
+
+function addAmountIfExists(lines: FinalAccountLine[], account: string, amount: number): boolean {
+  const existing = lines.find((line) => cleanAccountName(line.account) === cleanAccountName(account));
+  if (!existing) return false;
+
+  existing.amount += amount;
+  return true;
+}
+
+function reduceAmountIfExists(lines: FinalAccountLine[], account: string, amount: number): boolean {
+  const existing = lines.find((line) => cleanAccountName(line.account) === cleanAccountName(account));
+  if (!existing) return false;
+
+  existing.amount = Math.max(existing.amount - amount, 0);
+  return true;
+}
+
+function reduceBalanceSheetAsset(items: TrialBalanceBalance[], account: string, amount: number): boolean {
+  const existing = items.find((item) => item.side === "debit" && cleanAccountName(item.account) === cleanAccountName(account));
+  if (!existing) return false;
+
+  existing.amount = Math.max(existing.amount - amount, 0);
+  return true;
+}
+
 function trialBalanceTotalsAgree(parsedBalances: TrialBalanceBalance[]): boolean {
   const debitTotal = parsedBalances
     .filter((balance) => balance.side === "debit")
@@ -662,17 +970,24 @@ function titleCaseAccount(value: string): string {
     .join(" ");
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function emptyAccounts(): Pick<
   FinalAccountsResult,
   | "tradingAccount"
   | "profitAndLossAccount"
   | "balanceSheet"
   | "parsedBalances"
+  | "parsedAdjustments"
   | "balanceSheetItems"
   | "unclassifiedItems"
+  | "unclassifiedAdjustments"
 > {
   return {
     parsedBalances: [],
+    parsedAdjustments: [],
     tradingAccount: {
       debitLines: [],
       creditLines: [],
@@ -699,6 +1014,7 @@ function emptyAccounts(): Pick<
     },
     balanceSheetItems: [],
     unclassifiedItems: [],
+    unclassifiedAdjustments: [],
   };
 }
 
@@ -709,6 +1025,8 @@ function invalidResult(errors: string[]): FinalAccountsResult {
     errors,
     warnings: [],
     balanceSheetWarnings: [],
+    adjustmentWarnings: [],
+    adjustmentLogic: [],
     logic: [],
     commonMistakes,
   };

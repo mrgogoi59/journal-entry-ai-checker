@@ -6,6 +6,7 @@ import { FeedbackReport } from "@/components/FeedbackReport";
 import {
   generateFinalAccounts,
   type CapitalWorking,
+  type FinalAccountAdjustment,
   type FinalAccountLine,
   type FinalAccountsResult,
   type TrialBalanceBalance,
@@ -24,6 +25,13 @@ Furniture A/c Dr Rs.15000
 Drawings A/c Dr Rs.5000
 Bank A/c Dr Rs.32000`;
 
+const sampleAdjustments = `Closing stock Rs.10000
+Salary outstanding Rs.3000
+Prepaid insurance Rs.2000
+Interest accrued Rs.1500
+Rent received in advance Rs.4000
+Depreciation on machinery Rs.5000`;
+
 const limitations = [
   "No adjustment processing yet",
   "No detailed schedules",
@@ -36,10 +44,11 @@ const limitations = [
 
 export default function FinalAccountsPage() {
   const [trialBalanceInput, setTrialBalanceInput] = useState("");
+  const [adjustmentsInput, setAdjustmentsInput] = useState("");
   const [result, setResult] = useState<FinalAccountsResult | null>(null);
 
   function prepareFinalAccounts() {
-    setResult(generateFinalAccounts(trialBalanceInput));
+    setResult(generateFinalAccounts(trialBalanceInput, adjustmentsInput));
   }
 
   return (
@@ -74,8 +83,21 @@ export default function FinalAccountsPage() {
                 className="min-h-64 resize-y rounded-lg border border-line bg-white px-4 py-3 font-mono text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
               />
             </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-ink">Adjustments</span>
+              <textarea
+                value={adjustmentsInput}
+                onChange={(event) => {
+                  setAdjustmentsInput(event.target.value);
+                  setResult(null);
+                }}
+                placeholder={sampleAdjustments}
+                className="min-h-44 resize-y rounded-lg border border-line bg-white px-4 py-3 font-mono text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
+              />
+            </label>
             <p className="rounded-md bg-paper px-3 py-2 text-sm leading-6 text-slate-600">
-              Write one balance per line using Dr or Cr.
+              Enter one adjustment per line. This MVP supports closing stock, outstanding expenses, prepaid expenses,
+              accrued income, income received in advance, and depreciation.
             </p>
             <button
               type="button"
@@ -96,13 +118,21 @@ export default function FinalAccountsPage() {
           </ul>
         </section>
 
-        {result ? <FinalAccountsResultView result={result} input={trialBalanceInput} /> : null}
+        {result ? <FinalAccountsResultView result={result} input={trialBalanceInput} adjustments={adjustmentsInput} /> : null}
       </section>
     </main>
   );
 }
 
-function FinalAccountsResultView({ result, input }: { result: FinalAccountsResult; input: string }) {
+function FinalAccountsResultView({
+  result,
+  input,
+  adjustments,
+}: {
+  result: FinalAccountsResult;
+  input: string;
+  adjustments: string;
+}) {
   if (result.status === "invalid") {
     const message = result.errors.join("\n");
 
@@ -121,7 +151,7 @@ function FinalAccountsResultView({ result, input }: { result: FinalAccountsResul
             buttonLabel="Report issue"
             details={{
               module: "Final Accounts",
-              transaction: input,
+              transaction: formatReportInput(input, adjustments),
               appResult: message,
               appCorrectEntry: "No Final Accounts prepared.",
             }}
@@ -137,6 +167,10 @@ function FinalAccountsResultView({ result, input }: { result: FinalAccountsResul
 
       <ResultSection title="Parsed Trial Balance">
         <ParsedTrialBalance balances={result.parsedBalances} />
+      </ResultSection>
+
+      <ResultSection title="Parsed Adjustments">
+        <ParsedAdjustments adjustments={result.parsedAdjustments} unclassifiedAdjustments={result.unclassifiedAdjustments} />
       </ResultSection>
 
       <ResultSection title="Trading Account">
@@ -201,8 +235,8 @@ function FinalAccountsResultView({ result, input }: { result: FinalAccountsResul
 
       <UnclassifiedItems items={result.unclassifiedItems} />
 
-      <ResultSection title="Final Accounts Logic">
-        <TextList items={result.logic} keyPrefix="final-accounts-logic" />
+      <ResultSection title="Adjustment Logic">
+        <TextList items={result.adjustmentLogic} keyPrefix="final-accounts-adjustment-logic" />
       </ResultSection>
 
       <ResultSection title="Common Mistakes">
@@ -213,7 +247,7 @@ function FinalAccountsResultView({ result, input }: { result: FinalAccountsResul
         buttonLabel="Report issue"
         details={{
           module: "Final Accounts",
-          transaction: input,
+          transaction: formatReportInput(input, adjustments),
           appResult: `Status: ${result.status}\nGross profit: Rs.${result.tradingAccount.grossProfit}\nGross loss: Rs.${result.tradingAccount.grossLoss}\nNet profit: Rs.${result.profitAndLossAccount.netProfit}\nNet loss: Rs.${result.profitAndLossAccount.netLoss}\nBalance Sheet agrees: ${
             result.balanceSheet.agrees ? "Yes" : "No"
           }`,
@@ -255,6 +289,62 @@ function ParsedTrialBalance({ balances }: { balances: TrialBalanceBalance[] }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function ParsedAdjustments({
+  adjustments,
+  unclassifiedAdjustments,
+}: {
+  adjustments: FinalAccountAdjustment[];
+  unclassifiedAdjustments: string[];
+}) {
+  return (
+    <div className="grid gap-4">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-line bg-paper text-left text-slate-700">
+              <th className="px-3 py-2 font-semibold">Type</th>
+              <th className="px-3 py-2 font-semibold">Account</th>
+              <th className="px-3 py-2 font-semibold">Related Account</th>
+              <th className="px-3 py-2 text-right font-semibold">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {adjustments.length ? (
+              adjustments.map((adjustment, index) => (
+                <tr
+                  key={`parsed-adjustment-${adjustment.type}-${adjustment.account}-${adjustment.amount}-${index}`}
+                  className="border-b border-line"
+                >
+                  <td className="px-3 py-2 text-slate-700">{formatAdjustmentType(adjustment.type)}</td>
+                  <td className="px-3 py-2 font-medium text-ink">{adjustment.account}</td>
+                  <td className="px-3 py-2 text-slate-700">{adjustment.relatedAccount ?? "-"}</td>
+                  <td className="px-3 py-2 text-right text-ink">Rs.{adjustment.amount.toLocaleString("en-IN")}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-3 py-2 text-slate-500" colSpan={4}>
+                  No adjustments entered.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {unclassifiedAdjustments.length ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+          <div className="font-semibold">Unclassified adjustments</div>
+          <ul className="mt-2 grid gap-1">
+            {unclassifiedAdjustments.map((adjustment, index) => (
+              <li key={`unclassified-adjustment-${adjustment}-${index}`}>{adjustment}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -550,4 +640,17 @@ function formatFinalAccountsReport(result: FinalAccountsResult): string {
     `Total Assets: Rs.${result.balanceSheet.assetTotal}`,
     `Agrees: ${result.balanceSheet.agrees ? "Yes" : "No"}`,
   ].join("\n");
+}
+
+function formatAdjustmentType(type: FinalAccountAdjustment["type"]): string {
+  return type
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function formatReportInput(trialBalanceInput: string, adjustmentsInput: string): string {
+  return ["Trial Balance:", trialBalanceInput || "Not provided", "", "Adjustments:", adjustmentsInput || "Not provided"].join(
+    "\n",
+  );
 }
