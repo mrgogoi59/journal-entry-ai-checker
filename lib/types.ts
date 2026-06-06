@@ -54,6 +54,7 @@ export interface TransactionClassification {
   compoundDetails?:
     | PartialGoodsPurchaseDetails
     | PartialGoodsSaleDetails
+    | AssetInstallationChargeDetails
     | AssetGstPurchaseDetails
     | GoodsGstPurchaseDetails
     | GoodsGstSaleDetails
@@ -109,6 +110,17 @@ export interface AssetGstPurchaseDetails {
   gstRate?: number;
   gstInclusive?: boolean;
   taxLines?: GoodsGstTaxLine[];
+  paymentAccount: "Cash" | "Bank" | "Creditor";
+  creditorAccount: string;
+  partyName?: string;
+}
+
+export interface AssetInstallationChargeDetails {
+  kind: "asset_installation_charge";
+  assetAccount: string;
+  assetLabel: string;
+  chargeLabel: string;
+  amount: number;
   paymentAccount: "Cash" | "Bank" | "Creditor";
   creditorAccount: string;
   partyName?: string;

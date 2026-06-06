@@ -16,6 +16,8 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (discountAllowedSettlement) return discountAllowedSettlement;
   const discountReceivedSettlement = classifyDiscountReceivedSettlement(transactionText);
   if (discountReceivedSettlement) return discountReceivedSettlement;
+  const assetInstallationCharge = classifyAssetInstallationCharge(transactionText);
+  if (assetInstallationCharge) return assetInstallationCharge;
   const assetGstPurchase = classifyAssetGstPurchase(transactionText);
   if (assetGstPurchase) return assetGstPurchase;
   const goodsGstPurchase = classifyGoodsGstPurchase(transactionText);
@@ -32,6 +34,7 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (hasUnsupportedGoodsLossInsuranceContext(transactionText)) return null;
   if (hasUnsupportedSalesReturnContext(transactionText)) return null;
   if (hasUnsupportedPurchaseReturnContext(transactionText)) return null;
+  if (hasAssetPurchasePlusInstallationContext(transactionText)) return null;
 
   const rule = transactionRules.find((candidate) =>
     candidate.patterns.some((pattern) => pattern.test(transactionText)),
@@ -303,6 +306,59 @@ function classifyAssetGstPurchase(transactionText: string): TransactionClassific
       paymentAccount,
       creditorAccount,
       partyName,
+    },
+  };
+}
+
+function classifyAssetInstallationCharge(transactionText: string): TransactionClassification | null {
+  if (!isAssetInstallationCharge(transactionText)) return null;
+  if (hasGstMention(transactionText)) return null;
+  if (hasAssetPurchasePlusInstallationContext(transactionText)) return null;
+
+  const asset = extractAssetInstallationItem(transactionText);
+  const charge = extractAssetInstallationCharge(transactionText);
+  if (!asset || !charge) return null;
+
+  const amount = parseAmount(transactionText);
+  if (!amount) return null;
+
+  const paymentAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+      ? "Creditor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!paymentAccount) return null;
+
+  const creditorAccount = paymentAccount;
+  const expectedEntry: CorrectJournalEntry = {
+    debits: [{ account: asset.account, amount }],
+    credits: [{ account: creditorAccount, amount }],
+  };
+  const paymentSuffix = paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit";
+
+  return {
+    transaction_type: `asset_installation_${charge.key}_${asset.key}_${paymentSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: asset.account,
+    creditAccount: creditorAccount,
+    expectedDebitAccount: asset.account,
+    expectedCreditAccount: creditorAccount,
+    genericDebitAccount: asset.account,
+    genericCreditAccount: paymentAccount,
+    amount,
+    explanationLogic:
+      "Installation, setup, fitting, freight, or carriage charges directly related to a fixed asset are capitalized into the asset account. The asset is debited and Cash, Bank, or Creditor is credited.",
+    expectedEntry,
+    compoundDetails: {
+      kind: "asset_installation_charge",
+      assetAccount: asset.account,
+      assetLabel: asset.label,
+      chargeLabel: charge.label,
+      amount,
+      paymentAccount,
+      creditorAccount,
     },
   };
 }
@@ -584,6 +640,28 @@ const assetPurchaseItems: AssetPurchaseItem[] = [
   { key: "vehicle", label: "vehicle", account: "Vehicle", pattern: /\b(?:vehicles?|cars?|vans?|bikes?|scooters?)\b/i },
 ];
 
+interface AssetInstallationCharge {
+  key: string;
+  label: string;
+  pattern: RegExp;
+}
+
+const assetInstallationCharges: AssetInstallationCharge[] = [
+  {
+    key: "installation",
+    label: "installation charges",
+    pattern: /\binstallation\s+(?:charges?|expense|cost)\b/i,
+  },
+  { key: "erection", label: "erection charges", pattern: /\berection\s+charges?\b/i },
+  { key: "fitting", label: "fitting charges", pattern: /\bfitting\s+charges?\b/i },
+  { key: "setup", label: "setup charges", pattern: /\bsetup\s+(?:charges?|cost)\b/i },
+  { key: "freight", label: "freight", pattern: /\bfreight\b/i },
+  { key: "carriage", label: "carriage", pattern: /\bcarriage(?:\s+inward)?\b/i },
+  { key: "transport", label: "transport charges", pattern: /\btransport\s+charges?\b/i },
+];
+
+const assetInstallationAccounts = new Set(["Machinery", "Furniture", "Computer", "Equipment", "Vehicle", "Building"]);
+
 function isAssetPurchaseWithGst(transactionText: string): boolean {
   return (
     /\b(?:bought|purchased|purchase)\b/i.test(transactionText) &&
@@ -594,6 +672,28 @@ function isAssetPurchaseWithGst(transactionText: string): boolean {
 
 function extractAssetPurchaseItem(transactionText: string): AssetPurchaseItem | null {
   return assetPurchaseItems.find((asset) => asset.pattern.test(transactionText)) ?? null;
+}
+
+function isAssetInstallationCharge(transactionText: string): boolean {
+  return Boolean(extractAssetInstallationItem(transactionText) && extractAssetInstallationCharge(transactionText));
+}
+
+function extractAssetInstallationItem(transactionText: string): AssetPurchaseItem | null {
+  const asset = extractAssetPurchaseItem(transactionText);
+  if (!asset || !assetInstallationAccounts.has(asset.account)) return null;
+  return asset;
+}
+
+function extractAssetInstallationCharge(transactionText: string): AssetInstallationCharge | null {
+  return assetInstallationCharges.find((charge) => charge.pattern.test(transactionText)) ?? null;
+}
+
+function hasAssetPurchasePlusInstallationContext(transactionText: string): boolean {
+  return (
+    /\b(?:bought|purchased|purchase)\b/i.test(transactionText) &&
+    Boolean(extractAssetInstallationItem(transactionText)) &&
+    Boolean(extractAssetInstallationCharge(transactionText))
+  );
 }
 
 function hasUnsupportedAssetGstContext(transactionText: string): boolean {

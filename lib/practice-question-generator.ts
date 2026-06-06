@@ -94,6 +94,14 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Purchased machinery ${formatRupees(amount)} plus CGST 9% and SGST 9% for cash`,
   asset_gst_igst_purchase_machinery_cash: (amount) =>
     `Purchased machinery ${formatRupees(amount)} plus IGST 18% for cash`,
+  asset_installation_installation_machinery_cash: (amount) =>
+    `Paid installation charges on machinery ${formatRupees(amount)} in cash`,
+  asset_installation_erection_machinery_bank: (amount) =>
+    `Paid erection charges on machinery ${formatRupees(amount)} through bank`,
+  asset_installation_setup_laptop_bank: (amount) =>
+    `Paid setup charges on laptop ${formatRupees(amount)} by UPI`,
+  asset_installation_fitting_printer_cash: (amount) =>
+    `Paid fitting charges on printer ${formatRupees(amount)} in cash`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -163,6 +171,10 @@ const explicitPracticeTransactionTypes = [
   "asset_gst_inclusive_purchase_laptop_bank",
   "asset_gst_cgst_sgst_purchase_machinery_cash",
   "asset_gst_igst_purchase_machinery_cash",
+  "asset_installation_installation_machinery_cash",
+  "asset_installation_erection_machinery_bank",
+  "asset_installation_setup_laptop_bank",
+  "asset_installation_fitting_printer_cash",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

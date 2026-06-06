@@ -230,6 +230,7 @@ function buildAffectedAccount(
   const compoundAccount =
     buildPartialGoodsPurchaseAffectedAccount(line, side, classification) ??
     buildPartialGoodsSaleAffectedAccount(line, side, classification) ??
+    buildAssetInstallationChargeAffectedAccount(line, side, classification) ??
     buildDiscountSettlementAffectedAccount(line, side, classification);
   if (compoundAccount) return compoundAccount;
 
@@ -278,6 +279,25 @@ function buildAffectedAccount(
 }
 
 function buildStepByStepExplanation(classification: TransactionClassification): string[] {
+  if (classification.compoundDetails?.kind === "asset_installation_charge") {
+    const details = classification.compoundDetails;
+    const asset = displayAccountName(details.assetAccount);
+    const payment = displayAccountName(details.creditorAccount);
+    return [
+      `${titleCase(details.chargeLabel)} are directly related to ${details.assetLabel}.`,
+      `These charges help bring the ${details.assetLabel} into usable condition.`,
+      `Therefore, they are capitalized into ${asset}, not treated as a normal expense.`,
+      `${asset} is debited because asset cost increases.`,
+      `${payment} is credited because ${
+        details.paymentAccount === "Bank"
+          ? "payment was made through bank/digital mode"
+          : details.paymentAccount === "Cash"
+            ? "cash is paid"
+            : "the amount is payable"
+      }.`,
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "asset_gst_purchase") {
     const details = classification.compoundDetails;
     const asset = displayAccountName(details.assetAccount);
@@ -709,6 +729,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 function buildCommonMistakes(classification: TransactionClassification): string[] {
   const mistakes: string[] = [];
 
+  if (classification.compoundDetails?.kind === "asset_installation_charge") {
+    return [
+      "Do not debit Installation Expense A/c when charges are directly related to installing an asset.",
+      "Do not debit Repairs Expense A/c; installation is not repair.",
+      "Do not debit Purchases A/c; this is a fixed asset cost.",
+      "If paid by UPI, bank, or cheque, use Bank A/c instead of Cash A/c.",
+      "Do not add GST unless GST on installation charges is clearly supported later.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "asset_gst_purchase") {
     return [
       "Do not debit Purchases A/c for fixed assets.",
@@ -991,6 +1021,22 @@ function buildCommonMistakes(classification: TransactionClassification): string[
 }
 
 function buildPracticeQuestion(classification: TransactionClassification): SolverPracticeQuestion {
+  if (classification.compoundDetails?.kind === "asset_installation_charge") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.paymentAccount === "Bank"
+        ? "through bank"
+        : details.paymentAccount === "Cash"
+          ? "in cash"
+          : "on credit";
+    return {
+      question: `Paid ${details.chargeLabel} on ${details.assetLabel} ${formatRupees(details.amount)} ${mode}`,
+      expectedPattern: `${displayAccountName(details.assetAccount)} Dr. To ${displayAccountName(
+        details.creditorAccount,
+      )}`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "asset_gst_purchase") {
     const details = classification.compoundDetails;
     const mode =
@@ -1302,6 +1348,17 @@ function buildNarration(classification: TransactionClassification): string {
   const credit = classification.creditAccount;
   const partyName = classification.partyName;
 
+  if (classification.compoundDetails?.kind === "asset_installation_charge") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.paymentAccount === "Bank"
+        ? "through bank/digital mode"
+        : details.paymentAccount === "Cash"
+          ? "in cash"
+          : "on credit";
+    return `Being ${details.chargeLabel} on ${details.assetLabel} paid ${mode}.`;
+  }
+
   if (classification.compoundDetails?.kind === "asset_gst_purchase") {
     const details = classification.compoundDetails;
     const gstLabel = details.taxLines?.length
@@ -1513,6 +1570,10 @@ function buildNarration(classification: TransactionClassification): string {
 }
 
 function describeTransactionAction(classification: TransactionClassification): string {
+  if (classification.compoundDetails?.kind === "asset_installation_charge") {
+    return "The business paid a charge directly related to bringing a fixed asset into usable condition.";
+  }
+
   if (classification.compoundDetails?.kind === "asset_gst_purchase") {
     return "The business purchased a fixed asset and paid or became liable for GST input tax on the purchase.";
   }
@@ -1960,6 +2021,53 @@ function buildPartialGoodsPurchaseAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the giver",
       reason: "Balance amount remains payable on credit.",
+    };
+  }
+
+  return null;
+}
+
+function buildAssetInstallationChargeAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  const details = classification.compoundDetails;
+  if (details?.kind !== "asset_installation_charge") return null;
+
+  if (line.account === details.assetAccount) {
+    const metadata = getAccountMetadata(details.assetAccount);
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType,
+      effect: `Asset cost increased by ${formatRupees(details.amount)}`,
+      debitOrCredit: side,
+      ruleApplied: "Debit what comes in / Asset increases are debited",
+      reason: `${titleCase(
+        details.chargeLabel,
+      )} directly related to making the ${details.assetLabel} usable are capitalized into the asset account.`,
+    };
+  }
+
+  if (line.account === details.creditorAccount) {
+    const metadata = getAccountMetadata(details.creditorAccount);
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType,
+      effect:
+        details.paymentAccount === "Creditor"
+          ? `Amount payable increased by ${formatRupees(details.amount)}`
+          : `${details.paymentAccount} decreased by ${formatRupees(details.amount)}`,
+      debitOrCredit: side,
+      ruleApplied: metadata.creditRule,
+      reason:
+        details.paymentAccount === "Bank"
+          ? "Payment was made through bank/digital mode."
+          : details.paymentAccount === "Cash"
+            ? "Cash was paid."
+            : "The charge remains payable.",
     };
   }
 

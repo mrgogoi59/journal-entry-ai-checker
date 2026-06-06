@@ -3163,6 +3163,68 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Paid installation charges on machinery Rs.5000 in cash",
+      journalEntry: "Machinery A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+      debits: [{ account: "Machinery", amount: 5000 }],
+      credits: [{ account: "Cash", amount: 5000 }],
+    },
+    {
+      transactionText: "Paid erection charges on machinery Rs.5000 through bank",
+      journalEntry: "Machinery A/c Dr. Rs.5000\nTo Bank A/c Rs.5000",
+      debits: [{ account: "Machinery", amount: 5000 }],
+      credits: [{ account: "Bank", amount: 5000 }],
+    },
+    {
+      transactionText: "Paid setup charges on laptop Rs.1500 by UPI",
+      journalEntry: "Computer A/c Dr. Rs.1500\nTo Bank A/c Rs.1500",
+      debits: [{ account: "Computer", amount: 1500 }],
+      credits: [{ account: "Bank", amount: 1500 }],
+    },
+    {
+      transactionText: "Paid fitting charges on printer Rs.1000 in cash",
+      journalEntry: "Equipment A/c Dr. Rs.1000\nTo Cash A/c Rs.1000",
+      debits: [{ account: "Equipment", amount: 1000 }],
+      credits: [{ account: "Cash", amount: 1000 }],
+    },
+  ])("returns Correct for asset installation charge: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      transactionText: "Paid installation charges on machinery Rs.5000 in cash",
+      journalEntry: "Installation Expense A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid installation charges on machinery Rs.5000 in cash",
+      journalEntry: "Repairs A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid installation charges on machinery Rs.5000 in cash",
+      journalEntry: "Purchases A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid installation charges on machinery Rs.5000 in cash",
+      journalEntry: "Cash A/c Dr. Rs.5000\nTo Machinery A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid erection charges on machinery Rs.5000 through bank",
+      journalEntry: "Machinery A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+  ])("does not accept wrong asset installation charge entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for partial goods sale with cash received and balance on credit", async () => {
     const body = await checkEntry(
       "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",

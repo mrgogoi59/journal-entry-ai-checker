@@ -1020,6 +1020,53 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
+  it("solves installation charges on machinery as capitalized asset cost", async () => {
+    const body = await solve("Paid installation charges on machinery Rs.5000 in cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Machinery A/c", debit: 5000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Machinery A/c",
+      modernType: "Asset",
+      effect: "Asset cost increased by ₹5,000",
+      debitOrCredit: "Debit",
+    });
+    expect(body.stepByStepExplanation).toContain(
+      "Therefore, they are capitalized into Machinery A/c, not treated as a normal expense.",
+    );
+    expect(body.narration).toBe("Being installation charges on machinery paid in cash.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves setup charges on laptop by UPI through Bank", async () => {
+    const body = await solve("Paid setup charges on laptop Rs.1500 by UPI");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Computer A/c", debit: 1500, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 1500 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Bank A/c is credited because payment was made through bank/digital mode.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve installation charges with GST yet", async () => {
+    const body = await solve("Paid installation charges on machinery Rs.5000 plus GST 18%");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve asset purchase plus installation charges in one transaction", async () => {
+    const body = await solve("Purchased machinery Rs.50000 and paid installation charges Rs.5000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
   it("does not solve GST yet", async () => {
     const body = await solve("GST paid Rs.1000");
 
