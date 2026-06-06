@@ -1037,6 +1037,43 @@ describe("POST /api/journal-entry-solver", () => {
     ]);
   });
 
+  it("solves laptop purchased for cash as a fixed asset", async () => {
+    const body = await solve("Bought laptop for cash Rs.30000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Computer A/c", debit: 30000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 30000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Computer A/c",
+      traditionalType: "Real Account",
+      modernType: "Asset",
+      debitOrCredit: "Debit",
+    });
+    expect(body.stepByStepExplanation).toContain("Computer A/c is debited because the asset increases.");
+    expect(body.commonMistakes).toContain("Do not debit Purchases A/c if the item is a business asset.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves camera purchased from a named supplier on credit", async () => {
+    const body = await solve("Bought camera from Amit on credit Rs.20000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Equipment A/c", debit: 20000, credit: 0 },
+      { account: "Amit A/c", debit: 0, credit: 20000 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Amit A/c",
+      traditionalType: "Personal Account",
+      modernType: "Liability / Creditor",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being camera purchased from Amit on credit.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("explains UPI payment to a named creditor as Bank payment", async () => {
     const body = await solve("Paid Rs.7000 to Amit through UPI");
 

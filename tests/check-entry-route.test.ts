@@ -2049,6 +2049,92 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Bought laptop for cash Rs.30000",
+      journalEntry: "Computer Equipment A/c Dr. Rs.30000\nTo Cash A/c Rs.30000",
+      debitAccount: "Computer",
+      creditAccount: "Cash",
+      amount: 30000,
+    },
+    {
+      transactionText: "Bought laptop for cash Rs.30000",
+      journalEntry: "Computer A/c Dr. Rs.30000\nTo Cash A/c Rs.30000",
+      debitAccount: "Computer",
+      creditAccount: "Cash",
+      amount: 30000,
+    },
+    {
+      transactionText: "Purchased printer through bank Rs.8000",
+      journalEntry: "Office Equipment A/c Dr. Rs.8000\nTo Bank A/c Rs.8000",
+      debitAccount: "Equipment",
+      creditAccount: "Bank",
+      amount: 8000,
+    },
+    {
+      transactionText: "Bought camera from Amit on credit Rs.20000",
+      journalEntry: "Office Equipment A/c Dr. Rs.20000\nTo Amit A/c Rs.20000",
+      debitAccount: "Equipment",
+      creditAccount: "Amit",
+      amount: 20000,
+    },
+    {
+      transactionText: "Purchased land through bank Rs.100000",
+      journalEntry: "Land A/c Dr. Rs.100000\nTo Bank A/c Rs.100000",
+      debitAccount: "Land",
+      creditAccount: "Bank",
+      amount: 100000,
+    },
+    {
+      transactionText: "Bought vehicle on credit Rs.300000",
+      journalEntry: "Vehicle A/c Dr. Rs.300000\nTo Creditor A/c Rs.300000",
+      debitAccount: "Vehicle",
+      creditAccount: "Creditor",
+      amount: 300000,
+    },
+  ])(
+    "returns Correct for common asset purchase: $transactionText",
+    async ({ transactionText, journalEntry, debitAccount, creditAccount, amount }) => {
+      const body = await checkEntry(transactionText, journalEntry);
+
+      expect(body.result_status).toBe("Correct");
+      expect(body.score).toBe(100);
+      expect(body.mistake_type).toBe("correct");
+      expect(body.correct_journal_entry).toEqual({
+        debits: [{ account: debitAccount, amount }],
+        credits: [{ account: creditAccount, amount }],
+      });
+    },
+  );
+
+  it.each([
+    {
+      transactionText: "Bought laptop for cash Rs.30000",
+      journalEntry: "Purchases A/c Dr. Rs.30000\nTo Cash A/c Rs.30000",
+    },
+    {
+      transactionText: "Bought laptop for cash Rs.30000",
+      journalEntry: "Cash A/c Dr. Rs.30000\nTo Computer Equipment A/c Rs.30000",
+    },
+    {
+      transactionText: "Purchased printer through bank Rs.8000",
+      journalEntry: "Office Equipment A/c Dr. Rs.8000\nTo Cash A/c Rs.8000",
+    },
+    {
+      transactionText: "Purchased land through bank Rs.100000",
+      journalEntry: "Land A/c Dr. Rs.100000\nTo Cash A/c Rs.100000",
+    },
+    {
+      transactionText: "Bought camera from Amit on credit Rs.20000",
+      journalEntry: "Office Equipment A/c Dr. Rs.20000\nTo Sales A/c Rs.20000",
+    },
+  ])("does not accept wrong common asset purchase entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Unsupported Transaction for ambiguous furniture item purchase", async () => {
     const body = await checkEntry(
       "Bought table Rs.1000",

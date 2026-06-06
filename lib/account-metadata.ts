@@ -331,6 +331,8 @@ export const accountMetadata: Record<string, AccountMetadata> = {
   Equipment: assetMetadata("Equipment", "Equipment increased", "Equipment decreased"),
   Vehicle: assetMetadata("Vehicle", "Vehicle increased", "Vehicle decreased"),
   Computer: assetMetadata("Computer", "Computer increased", "Computer decreased"),
+  Land: assetMetadata("Land", "Land increased", "Land decreased"),
+  Building: assetMetadata("Building", "Building increased", "Building decreased"),
 };
 
 export function getAccountMetadata(account: string, context?: AccountMetadataContext): AccountMetadata {

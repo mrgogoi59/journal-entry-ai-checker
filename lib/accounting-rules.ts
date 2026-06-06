@@ -907,6 +907,125 @@ const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, a
   },
 ]);
 
+interface CommonAssetPurchaseConfig {
+  transactionType: string;
+  account: string;
+  label: string;
+  terms: string;
+}
+
+const commonAssetPurchaseConfigs: CommonAssetPurchaseConfig[] = [
+  {
+    transactionType: "asset_purchase_laptop",
+    account: "Computer",
+    label: "laptop",
+    terms: "laptops?|desktops?",
+  },
+  {
+    transactionType: "asset_purchase_computer",
+    account: "Computer",
+    label: "computer",
+    terms: "computers?|computer\\s+equipment",
+  },
+  {
+    transactionType: "asset_purchase_printer",
+    account: "Equipment",
+    label: "printer",
+    terms: "printers?|scanners?",
+  },
+  {
+    transactionType: "asset_purchase_mobile_phone",
+    account: "Equipment",
+    label: "mobile phone",
+    terms: "mobile\\s+phones?|mobiles?|phones?",
+  },
+  {
+    transactionType: "asset_purchase_air_conditioner",
+    account: "Equipment",
+    label: "air conditioner",
+    terms: "air\\s+conditioners?|\\bac\\b|a\\.?c\\.?",
+  },
+  {
+    transactionType: "asset_purchase_fan",
+    account: "Equipment",
+    label: "fan",
+    terms: "fans?",
+  },
+  {
+    transactionType: "asset_purchase_camera",
+    account: "Equipment",
+    label: "camera",
+    terms: "cameras?",
+  },
+  {
+    transactionType: "asset_purchase_generator",
+    account: "Equipment",
+    label: "generator",
+    terms: "generators?",
+  },
+  {
+    transactionType: "asset_purchase_tools",
+    account: "Equipment",
+    label: "tools",
+    terms: "tools?",
+  },
+  {
+    transactionType: "asset_purchase_office_equipment",
+    account: "Equipment",
+    label: "office equipment",
+    terms: "office\\s+equipment|equipment",
+  },
+  {
+    transactionType: "asset_purchase_land",
+    account: "Land",
+    label: "land",
+    terms: "land",
+  },
+  {
+    transactionType: "asset_purchase_building",
+    account: "Building",
+    label: "building",
+    terms: "buildings?",
+  },
+  {
+    transactionType: "asset_purchase_vehicle",
+    account: "Vehicle",
+    label: "vehicle",
+    terms: "vehicles?|cars?|vans?|bikes?|scooters?",
+  },
+];
+
+const commonAssetPurchaseRules: TransactionRule[] = commonAssetPurchaseConfigs.flatMap((config) => [
+  assetPurchaseRule(config, "Cash"),
+  assetPurchaseRule(config, "Bank"),
+  assetPurchaseRule(config, "Creditor"),
+]);
+
+function assetPurchaseRule(
+  config: CommonAssetPurchaseConfig,
+  paymentAccount: "Cash" | "Bank" | "Creditor",
+): TransactionRule {
+  const isCredit = paymentAccount === "Creditor";
+  const modePattern = paymentAccount === "Bank" ? BANK_PAYMENT_PATTERN : paymentAccount === "Cash" ? CASH_PAYMENT_PATTERN : CREDIT_PAYMENT_PATTERN;
+  const transactionSuffix = paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit";
+  const paymentLabel = paymentAccount === "Creditor" ? "on credit" : paymentAccount === "Bank" ? "through bank" : "for cash";
+
+  return {
+    transaction_type: `${config.transactionType}_${transactionSuffix}`,
+    patterns: [
+      new RegExp(`(?:purchase|purchased|bought)\\s+.*(?:${config.terms}).*${modePattern}`, "i"),
+      ...(paymentAccount === "Cash" ? [new RegExp(`cash\\s+purchase\\s+.*(?:${config.terms})`, "i")] : []),
+    ],
+    debitAccount: config.account,
+    creditAccount: paymentAccount,
+    explanationLogic: isCredit
+      ? `${config.account} is an asset and it is increasing, so ${config.account} is debited. The supplier is owed money, so Creditor is credited.`
+      : `${config.account} is an asset and it is increasing, so ${config.account} is debited. ${paymentAccount} decreases because payment is made, so ${paymentAccount} is credited.`,
+    practiceTemplate: (amount) => `Bought ${config.label} ${paymentLabel} ₹${amount}.`,
+    partyExtractor: isCredit ? namedAssetCreditor : namedAssetSupplier,
+  };
+}
+
 const namedDebtorReceiptRules: TransactionRule[] = [
   {
     transaction_type: "received_from_named_debtor_bank",
@@ -1211,6 +1330,7 @@ export const transactionRules: TransactionRule[] = [
       "Machinery is an asset and it is increasing, so Machinery is debited. Payment by cheque reduces Bank, so Bank is credited.",
     practiceTemplate: (amount) => `Bought machinery by cheque ₹${amount}.`,
   },
+  ...commonAssetPurchaseRules,
   {
     transaction_type: "bought_goods_cash",
     patterns: [

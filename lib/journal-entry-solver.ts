@@ -46,6 +46,8 @@ const commonIncomeAccounts = new Set([
   "Miscellaneous Income",
 ]);
 
+const fixedAssetAccounts = new Set(["Furniture", "Machinery", "Equipment", "Vehicle", "Computer", "Land", "Building"]);
+
 export function solveJournalEntry(transaction: string, mode: SolverMode = "beginner"): JournalEntrySolverResponse {
   const transactionSummary = transaction.trim();
   const safeMode = mode === "exam" ? "exam" : "beginner";
@@ -425,6 +427,23 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (isFixedAssetPurchase(classification)) {
+    const asset = displayAccountName(classification.debitAccount);
+    const payment = displayAccountName(classification.creditAccount);
+    const itemLabel = assetItemLabel(classification);
+    const supplier = classification.partyName ?? classification.creditAccount;
+    return [
+      `A ${itemLabel} was purchased for business use.`,
+      `${titleCase(itemLabel)} is treated as a fixed asset, not goods for resale.`,
+      `${asset} is debited because the asset increases.`,
+      classification.partyAccountSide === "credit"
+        ? `${payment} is credited because amount is payable to ${supplier}.`
+        : `${payment} is credited because ${
+            classification.creditAccount === "Bank" ? "bank/digital payment was made" : "cash goes out"
+          }.`,
+    ];
+  }
+
   if (classification.debitAccount === "Depreciation") {
     const asset = classification.creditAccount;
     return [
@@ -628,6 +647,15 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       `Do not credit ${displayAccountName(classification.debitAccount)} when ${classification.debitAccount.toLowerCase()} is received.`,
       "If received by UPI/bank/cheque, use Bank A/c instead of Cash A/c.",
       `Do not confuse ${displayAccountName(classification.creditAccount)} with an expense account.`,
+    ];
+  }
+
+  if (isFixedAssetPurchase(classification)) {
+    return [
+      "Do not debit Purchases A/c if the item is a business asset.",
+      "Do not credit Sales A/c.",
+      "If paid by UPI/bank/cheque, use Bank A/c instead of Cash A/c.",
+      "If purchased on credit from a named supplier, credit the supplier's account.",
     ];
   }
 
@@ -840,6 +868,21 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
       expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${displayAccountName(
         classification.creditAccount,
       )}`,
+    };
+  }
+
+  if (isFixedAssetPurchase(classification)) {
+    const itemLabel = assetItemLabel(classification);
+    const mode = classification.partyAccountSide === "credit"
+      ? "from Amit on credit"
+      : classification.creditAccount === "Bank"
+        ? "through bank"
+        : "for cash";
+    return {
+      question: `Bought ${itemLabel} ${mode} ${formatRupees(classification.amount * 2)}`,
+      expectedPattern: `${displayAccountName(classification.debitAccount)} Dr. To ${
+        classification.partyAccountSide === "credit" ? "Amit A/c" : displayAccountName(classification.creditAccount)
+      }`,
     };
   }
 
@@ -1080,8 +1123,8 @@ function buildNarration(classification: TransactionClassification): string {
   if (debit === "Cash" && credit === "Loan") return "Being loan taken in cash.";
   if (debit === "Loan" && credit === "Bank") return "Being loan repaid through bank.";
   if (debit === "Loan" && credit === "Cash") return "Being loan repaid in cash.";
-  if (["Furniture", "Machinery", "Equipment", "Vehicle", "Computer"].includes(debit)) {
-    const asset = debit.toLowerCase();
+  if (isFixedAssetPurchase(classification)) {
+    const asset = assetItemLabel(classification);
     if (credit === "Cash") {
       return partyName ? `Being ${asset} purchased from ${partyName} for cash.` : `Being ${asset} purchased for cash.`;
     }
@@ -1150,6 +1193,10 @@ function describeTransactionAction(classification: TransactionClassification): s
     return `${displayAccountName(classification.creditAccount)} was received.`;
   }
 
+  if (isFixedAssetPurchase(classification)) {
+    return `${displayAccountName(classification.debitAccount)} was purchased as a business asset.`;
+  }
+
   const debit = classification.debitAccount;
   const credit = classification.creditAccount;
 
@@ -1209,6 +1256,28 @@ function isCommonIncomeReceipt(classification: TransactionClassification): boole
     commonIncomeAccounts.has(classification.creditAccount) &&
     classification.transaction_type.includes("received")
   );
+}
+
+function isFixedAssetPurchase(classification: TransactionClassification): boolean {
+  return (
+    fixedAssetAccounts.has(classification.debitAccount) &&
+    (classification.creditAccount === "Cash" ||
+      classification.creditAccount === "Bank" ||
+      classification.creditAccount === "Creditor" ||
+      classification.partyAccountSide === "credit")
+  );
+}
+
+function assetItemLabel(classification: TransactionClassification): string {
+  const match = classification.transaction_type.match(/^asset_purchase_([a-z_]+)_(?:cash|bank|credit)$/);
+  if (match?.[1]) return match[1].replace(/_/g, " ");
+  if (classification.transaction_type === "bought_machinery_cheque") return "machinery";
+  if (classification.transaction_type === "bought_furniture_cash") return "furniture";
+  return displayAccountName(classification.debitAccount).replace(" A/c", "").toLowerCase();
+}
+
+function titleCase(value: string): string {
+  return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
 }
 
 function emptyPracticeQuestion(): SolverPracticeQuestion {
