@@ -2144,6 +2144,127 @@ describe("classifyTransaction supported beginner transactions", () => {
     });
   });
 
+  it.each([
+    [
+      "Received consultancy fees Rs.10000 plus GST 18% through bank",
+      "income_gst_consultancy_income_bank",
+      "Bank",
+      "Consultancy Income",
+      11800,
+    ],
+    [
+      "Received service income Rs.10000 plus GST 18% in cash",
+      "income_gst_service_income_cash",
+      "Cash",
+      "Service Income",
+      11800,
+    ],
+    [
+      "Received consultancy fees Rs.11800 including GST 18% through bank",
+      "income_gst_inclusive_consultancy_income_bank",
+      "Bank",
+      "Consultancy Income",
+      11800,
+    ],
+    [
+      "Received tuition fees Rs.5000 plus CGST 9% and SGST 9% by UPI",
+      "income_gst_cgst_sgst_tuition_income_bank",
+      "Bank",
+      "Tuition Income",
+      5900,
+    ],
+    [
+      "Received royalty Rs.4000 plus IGST 18% in cash",
+      "income_gst_igst_royalty_income_cash",
+      "Cash",
+      "Royalty Income",
+      4720,
+    ],
+    [
+      "Received consultancy fees Rs.10000 plus GST Rs.1800 through bank",
+      "income_gst_consultancy_income_bank",
+      "Bank",
+      "Consultancy Income",
+      11800,
+    ],
+    [
+      "Received service income Rs.10000 plus CGST Rs.900 and SGST Rs.900 through bank",
+      "income_gst_cgst_sgst_service_income_bank",
+      "Bank",
+      "Service Income",
+      11800,
+    ],
+    [
+      "Consultancy fees from Raju Rs.10000 plus GST 18% on credit",
+      "income_gst_consultancy_income_credit",
+      "Raju",
+      "Consultancy Income",
+      11800,
+    ],
+    [
+      "Service fees billed to Raju Rs.10000 plus GST 18%",
+      "income_gst_service_income_credit",
+      "Raju",
+      "Service Income",
+      11800,
+    ],
+  ])("classifies GST income receipt: %s", (transaction, transactionType, debitAccount, creditAccount, amount) => {
+    const classification = classifyTransaction(transaction);
+
+    expect(classification).toMatchObject({
+      transaction_type: transactionType,
+      debitAccount,
+      creditAccount,
+      amount,
+      confidence: 0.95,
+    });
+  });
+
+  it("builds expected entries for GST income receipts", () => {
+    const generic = classifyTransaction("Received consultancy fees Rs.10000 plus GST 18% through bank");
+    const inclusive = classifyTransaction("Received consultancy fees Rs.11800 including GST 18% through bank");
+    const split = classifyTransaction("Received tuition fees Rs.5000 plus CGST 9% and SGST 9% by UPI");
+    const igst = classifyTransaction("Received royalty Rs.4000 plus IGST 18% in cash");
+    const namedCredit = classifyTransaction("Consultancy fees from Raju Rs.10000 plus GST 18% on credit");
+
+    expect(generateExpectedEntry(generic!)).toEqual({
+      debits: [{ account: "Bank", amount: 11800 }],
+      credits: [
+        { account: "Consultancy Income", amount: 10000 },
+        { account: "Output GST", amount: 1800 },
+      ],
+    });
+    expect(generateExpectedEntry(inclusive!)).toEqual({
+      debits: [{ account: "Bank", amount: 11800 }],
+      credits: [
+        { account: "Consultancy Income", amount: 10000 },
+        { account: "Output GST", amount: 1800 },
+      ],
+    });
+    expect(generateExpectedEntry(split!)).toEqual({
+      debits: [{ account: "Bank", amount: 5900 }],
+      credits: [
+        { account: "Tuition Income", amount: 5000 },
+        { account: "Output CGST", amount: 450 },
+        { account: "Output SGST", amount: 450 },
+      ],
+    });
+    expect(generateExpectedEntry(igst!)).toEqual({
+      debits: [{ account: "Cash", amount: 4720 }],
+      credits: [
+        { account: "Royalty Income", amount: 4000 },
+        { account: "Output IGST", amount: 720 },
+      ],
+    });
+    expect(generateExpectedEntry(namedCredit!)).toEqual({
+      debits: [{ account: "Raju", amount: 11800, acceptedAccounts: ["Debtor"], partyRole: "debtor" }],
+      credits: [
+        { account: "Consultancy Income", amount: 10000 },
+        { account: "Output GST", amount: 1800 },
+      ],
+    });
+  });
+
   it("does not classify unsupported transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
     expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
@@ -2184,8 +2305,10 @@ describe("classifyTransaction supported beginner transactions", () => {
       ),
     ).toBeNull();
     expect(classifyTransaction("Paid salary Rs.10000 plus GST 18% through bank")).toBeNull();
-    expect(classifyTransaction("Received consultancy fees Rs.10000 plus GST 18% through bank")).toBeNull();
     expect(classifyTransaction("Paid legal charges Rs.11800 including CGST 9% and SGST 9% through bank")).toBeNull();
+    expect(classifyTransaction("Received interest Rs.10000 plus GST 18% through bank")).toBeNull();
+    expect(classifyTransaction("Discount received Rs.500 plus GST 18% in cash")).toBeNull();
+    expect(classifyTransaction("Received consultancy fees Rs.11800 including CGST 9% and SGST 9% through bank")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();

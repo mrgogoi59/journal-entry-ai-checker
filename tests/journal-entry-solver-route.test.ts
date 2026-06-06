@@ -1048,9 +1048,59 @@ describe("POST /api/journal-entry-solver", () => {
 
   it.each([
     "Paid salary Rs.10000 plus GST 18% through bank",
-    "Received consultancy fees Rs.10000 plus GST 18% through bank",
     "Paid legal charges Rs.11800 including CGST 9% and SGST 9% through bank",
   ])("does not solve unsupported GST expense case: %s", async (transaction) => {
+    const body = await solve(transaction);
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("solves GST income receipt through bank", async () => {
+    const body = await solve("Received consultancy fees Rs.10000 plus GST 18% through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 11800, credit: 0 },
+      { account: "Consultancy Income A/c", debit: 0, credit: 10000 },
+      { account: "Output GST A/c", debit: 0, credit: 1800 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Output GST A/c is credited because GST collected on income/service is payable to the government.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves GST-inclusive income receipt through bank", async () => {
+    const body = await solve("Received consultancy fees Rs.11800 including GST 18% through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 11800, credit: 0 },
+      { account: "Consultancy Income A/c", debit: 0, credit: 10000 },
+      { account: "Output GST A/c", debit: 0, credit: 1800 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Base income = ₹11,800 × 100 / 118 = ₹10,000.");
+    expect(body.stepByStepExplanation).toContain("GST amount = ₹1,800.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves CGST and SGST income receipt by UPI", async () => {
+    const body = await solve("Received tuition fees Rs.5000 plus CGST 9% and SGST 9% by UPI");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 5900, credit: 0 },
+      { account: "Tuition Income A/c", debit: 0, credit: 5000 },
+      { account: "Output CGST A/c", debit: 0, credit: 450 },
+      { account: "Output SGST A/c", debit: 0, credit: 450 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it.each([
+    "Received interest Rs.10000 plus GST 18% through bank",
+    "Discount received Rs.500 plus GST 18% in cash",
+    "Received consultancy fees Rs.11800 including CGST 9% and SGST 9% through bank",
+  ])("does not solve unsupported GST income case: %s", async (transaction) => {
     const body = await solve(transaction);
 
     expect(body.status).toBe("unsupported");

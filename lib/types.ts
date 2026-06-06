@@ -59,6 +59,7 @@ export interface TransactionClassification {
     | AssetSaleDetails
     | AssetGstPurchaseDetails
     | ExpenseGstPaymentDetails
+    | IncomeGstReceiptDetails
     | GoodsGstPurchaseDetails
     | GoodsGstSaleDetails
     | DiscountAllowedSettlementDetails
@@ -115,6 +116,21 @@ export interface ExpenseGstPaymentDetails {
   taxLines?: GoodsGstTaxLine[];
   paymentAccount: "Cash" | "Bank" | "Creditor";
   creditorAccount: string;
+  partyName?: string;
+}
+
+export interface IncomeGstReceiptDetails {
+  kind: "income_gst_receipt";
+  incomeAccount: string;
+  incomeLabel: string;
+  baseAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  gstRate?: number;
+  gstInclusive?: boolean;
+  taxLines?: GoodsGstTaxLine[];
+  receiptAccount: "Cash" | "Bank" | "Debtor";
+  debtorAccount: string;
   partyName?: string;
 }
 

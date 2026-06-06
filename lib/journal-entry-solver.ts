@@ -39,6 +39,7 @@ const commonIncomeAccounts = new Set([
   "Rent Income",
   "Service Income",
   "Consultancy Income",
+  "Professional Fees Income",
   "Tuition Income",
   "Dividend Income",
   "Royalty Income",
@@ -497,6 +498,51 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (classification.compoundDetails?.kind === "income_gst_receipt") {
+    const details = classification.compoundDetails;
+    const income = displayAccountName(details.incomeAccount);
+    const receipt = displayAccountName(details.debtorAccount);
+
+    if (details.taxLines?.length) {
+      return [
+        `${sentenceCase(details.incomeLabel)} of ${formatRupees(details.baseAmount)} were earned.`,
+        `${income} is credited because incomes are credited.`,
+        ...details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate)),
+        `${outputTaxAccountLabel(details.taxLines)} ${
+          details.taxLines.length === 1 ? "is" : "are"
+        } credited because GST collected is payable to the government.`,
+        `${receipt} is debited for the total amount ${
+          details.receiptAccount === "Debtor" ? "receivable" : "received"
+        }, ${formatRupees(details.invoiceTotal)}.`,
+      ];
+    }
+
+    if (details.gstInclusive) {
+      return [
+        `Total amount received is ${formatRupees(details.invoiceTotal)} including GST.`,
+        `Base income = ${formatRupees(details.invoiceTotal)} × 100 / ${formatPercentDenominator(
+          details.gstRate,
+        )} = ${formatRupees(details.baseAmount)}.`,
+        `GST amount = ${formatRupees(details.gstAmount)}.`,
+        `${receipt} is debited for ${formatRupees(details.invoiceTotal)} ${
+          details.receiptAccount === "Debtor" ? "receivable" : "received"
+        }.`,
+        `${income} is credited for ${formatRupees(details.baseAmount)} because income is credited.`,
+        `Output GST A/c is credited for ${formatRupees(details.gstAmount)} because GST collected is payable to the government.`,
+      ];
+    }
+
+    return [
+      `${sentenceCase(details.incomeLabel)} of ${formatRupees(details.baseAmount)} were earned.`,
+      `${income} is credited because incomes are credited.`,
+      `${gstAmountExplanation(details.gstAmount, details.gstRate)}.`,
+      "Output GST A/c is credited because GST collected on income/service is payable to the government.",
+      `${receipt} is debited for the total amount ${
+        details.receiptAccount === "Debtor" ? "receivable" : "received"
+      }, ${formatRupees(details.invoiceTotal)}.`,
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
     if (details.taxLines?.length) {
@@ -944,6 +990,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
     ];
   }
 
+  if (classification.compoundDetails?.kind === "income_gst_receipt") {
+    return [
+      `Do not debit ${displayAccountName(classification.creditAccount)} when income is received.`,
+      "Do not use Input GST on income receipts.",
+      "Do not include GST amount inside the income account.",
+      `Do not debit ${displayAccountName(classification.debitAccount)} only for the base amount.`,
+      "Do not confuse consultancy/professional fees received with consultancy/professional fees paid.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     if (classification.compoundDetails.taxLines?.length) {
       return [
@@ -1349,6 +1405,34 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.compoundDetails?.kind === "income_gst_receipt") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.receiptAccount === "Debtor"
+        ? details.partyName
+          ? `from ${details.partyName} on credit`
+          : "receivable"
+        : details.receiptAccount === "Bank"
+          ? "through bank"
+          : "in cash";
+    return {
+      question: details.gstInclusive
+        ? `Received ${details.incomeLabel} ${formatRupees(details.invoiceTotal)} including ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`
+        : `Received ${details.incomeLabel} ${formatRupees(details.baseAmount)} plus ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`,
+      expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To ${displayAccountName(
+        details.incomeAccount,
+      )}, ${outputTaxPattern(details.taxLines)}`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
     const mode =
@@ -1705,6 +1789,20 @@ function buildNarration(classification: TransactionClassification): string {
       : `Being ${details.expenseLabel} payable ${gstLabel}.`;
   }
 
+  if (classification.compoundDetails?.kind === "income_gst_receipt") {
+    const details = classification.compoundDetails;
+    const gstLabel = details.taxLines?.length
+      ? `${details.gstInclusive ? "including" : "plus"} ${taxNarrationLabel(details.taxLines)}`
+      : details.gstInclusive
+        ? "including GST"
+        : "plus GST";
+    if (details.receiptAccount === "Cash") return `Being ${details.incomeLabel} received in cash ${gstLabel}.`;
+    if (details.receiptAccount === "Bank") return `Being ${details.incomeLabel} received through bank ${gstLabel}.`;
+    return details.partyName
+      ? `Being ${details.incomeLabel} receivable from ${details.partyName} ${gstLabel}.`
+      : `Being ${details.incomeLabel} receivable ${gstLabel}.`;
+  }
+
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
     const gstLabel = details.taxLines?.length
@@ -1926,6 +2024,10 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.compoundDetails?.kind === "expense_gst_payment") {
     return "The business paid or became liable for a selected business expense with GST input tax.";
+  }
+
+  if (classification.compoundDetails?.kind === "income_gst_receipt") {
+    return "The business earned or received a selected income/service revenue with GST output tax.";
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {

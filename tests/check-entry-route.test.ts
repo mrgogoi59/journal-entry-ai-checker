@@ -3169,6 +3169,104 @@ describe("POST /api/check-entry", () => {
 
   it.each([
     {
+      transactionText: "Received consultancy fees Rs.10000 plus GST 18% through bank",
+      journalEntry: "Bank A/c Dr. Rs.11800\nTo Consultancy Income A/c Rs.10000\nTo Output GST A/c Rs.1800",
+      debits: [{ account: "Bank", amount: 11800 }],
+      credits: [
+        { account: "Consultancy Income", amount: 10000 },
+        { account: "Output GST", amount: 1800 },
+      ],
+    },
+    {
+      transactionText: "Received service income Rs.10000 plus GST 18% in cash",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Service Income A/c Rs.10000\nTo Output GST A/c Rs.1800",
+      debits: [{ account: "Cash", amount: 11800 }],
+      credits: [
+        { account: "Service Income", amount: 10000 },
+        { account: "Output GST", amount: 1800 },
+      ],
+    },
+    {
+      transactionText: "Received consultancy fees Rs.11800 including GST 18% through bank",
+      journalEntry: "Bank A/c Dr. Rs.11800\nTo Consultancy Income A/c Rs.10000\nTo Output GST A/c Rs.1800",
+      debits: [{ account: "Bank", amount: 11800 }],
+      credits: [
+        { account: "Consultancy Income", amount: 10000 },
+        { account: "Output GST", amount: 1800 },
+      ],
+    },
+    {
+      transactionText: "Received tuition fees Rs.5000 plus CGST 9% and SGST 9% by UPI",
+      journalEntry: "Bank A/c Dr. Rs.5900\nTo Tuition Income A/c Rs.5000\nTo Output CGST A/c Rs.450\nTo Output SGST A/c Rs.450",
+      debits: [{ account: "Bank", amount: 5900 }],
+      credits: [
+        { account: "Tuition Income", amount: 5000 },
+        { account: "Output CGST", amount: 450 },
+        { account: "Output SGST", amount: 450 },
+      ],
+    },
+    {
+      transactionText: "Received tuition fees Rs.5000 plus CGST 9% and SGST 9% by UPI",
+      journalEntry: "Bank A/c Dr. Rs.5900\nTo Output SGST A/c Rs.450\nTo Tuition Income A/c Rs.5000\nTo Output CGST A/c Rs.450",
+      debits: [{ account: "Bank", amount: 5900 }],
+      credits: [
+        { account: "Tuition Income", amount: 5000 },
+        { account: "Output CGST", amount: 450 },
+        { account: "Output SGST", amount: 450 },
+      ],
+    },
+    {
+      transactionText: "Received royalty Rs.4000 plus IGST 18% in cash",
+      journalEntry: "Cash A/c Dr. Rs.4720\nTo Royalty Income A/c Rs.4000\nTo Output IGST A/c Rs.720",
+      debits: [{ account: "Cash", amount: 4720 }],
+      credits: [
+        { account: "Royalty Income", amount: 4000 },
+        { account: "Output IGST", amount: 720 },
+      ],
+    },
+  ])("returns Correct for GST income receipt: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      transactionText: "Received consultancy fees Rs.10000 plus GST 18% through bank",
+      journalEntry: "Bank A/c Dr. Rs.11800\nTo Consultancy Income A/c Rs.11800",
+    },
+    {
+      transactionText: "Received consultancy fees Rs.10000 plus GST 18% through bank",
+      journalEntry: "Bank A/c Dr. Rs.10000\nTo Consultancy Income A/c Rs.10000",
+    },
+    {
+      transactionText: "Received consultancy fees Rs.10000 plus GST 18% through bank",
+      journalEntry: "Bank A/c Dr. Rs.11800\nTo Consultancy Income A/c Rs.10000\nTo Input GST A/c Rs.1800",
+    },
+    {
+      transactionText: "Received consultancy fees Rs.10000 plus GST 18% through bank",
+      journalEntry: "Bank A/c Dr. Rs.11800\nTo Professional Fees Expense A/c Rs.10000\nTo Output GST A/c Rs.1800",
+    },
+    {
+      transactionText: "Received consultancy fees Rs.10000 plus GST 18% through bank",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Consultancy Income A/c Rs.10000\nTo Output GST A/c Rs.1800",
+    },
+    {
+      transactionText: "Received service income Rs.10000 plus GST 18% in cash",
+      journalEntry: "Bank A/c Dr. Rs.11800\nTo Service Income A/c Rs.10000\nTo Output GST A/c Rs.1800",
+    },
+  ])("does not accept wrong GST income receipt entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it.each([
+    {
       transactionText: "Purchased machinery Rs.50000 plus GST 18% for cash",
       journalEntry: "Machinery A/c Dr. Rs.50000\nInput GST A/c Dr. Rs.9000\nTo Cash A/c Rs.59000",
       debits: [

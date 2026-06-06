@@ -139,6 +139,14 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Paid advertisement ${formatRupees(amount)} plus CGST 9% and SGST 9% by UPI`,
   expense_gst_igst_professional_fees_bank: (amount) =>
     `Paid professional fees ${formatRupees(amount)} plus IGST 18% through bank`,
+  income_gst_consultancy_income_bank: (amount) =>
+    `Received consultancy fees ${formatRupees(amount)} plus GST 18% through bank`,
+  income_gst_service_income_cash: (amount) =>
+    `Received service income ${formatRupees(amount)} plus GST 18% in cash`,
+  income_gst_cgst_sgst_tuition_income_bank: (amount) =>
+    `Received tuition fees ${formatRupees(amount)} plus CGST 9% and SGST 9% by UPI`,
+  income_gst_igst_royalty_income_cash: (amount) =>
+    `Received royalty ${formatRupees(amount)} plus IGST 18% in cash`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -230,6 +238,10 @@ const explicitPracticeTransactionTypes = [
   "expense_gst_repairs_cash",
   "expense_gst_cgst_sgst_advertisement_bank",
   "expense_gst_igst_professional_fees_bank",
+  "income_gst_consultancy_income_bank",
+  "income_gst_service_income_cash",
+  "income_gst_cgst_sgst_tuition_income_bank",
+  "income_gst_igst_royalty_income_cash",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

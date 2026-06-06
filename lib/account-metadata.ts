@@ -334,6 +334,12 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     "The business received this income, so the income account increased.",
     "Income / Revenue",
   ),
+  "Professional Fees Income": incomeMetadata(
+    "Professional Fees Income",
+    "Professional fees income increased",
+    "The business earned professional fees, so the income account increased.",
+    "Income / Revenue",
+  ),
   "Tuition Income": incomeMetadata(
     "Tuition Income",
     "Tuition income increased",
