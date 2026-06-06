@@ -56,6 +56,7 @@ export interface TransactionClassification {
     | PartialGoodsSaleDetails
     | AssetPurchaseInstallationChargeDetails
     | AssetInstallationChargeDetails
+    | AssetSaleDetails
     | AssetGstPurchaseDetails
     | GoodsGstPurchaseDetails
     | GoodsGstSaleDetails
@@ -137,6 +138,16 @@ export interface AssetPurchaseInstallationChargeDetails {
   totalAmount: number;
   paymentAccount: "Cash" | "Bank" | "Creditor";
   creditorAccount: string;
+  partyName?: string;
+}
+
+export interface AssetSaleDetails {
+  kind: "asset_sale";
+  assetAccount: string;
+  assetLabel: string;
+  amount: number;
+  receiptAccount: "Cash" | "Bank" | "Debtor";
+  debtorAccount: string;
   partyName?: string;
 }
 

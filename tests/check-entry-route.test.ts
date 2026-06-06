@@ -3294,6 +3294,72 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Sold machinery Rs.40000 for cash",
+      journalEntry: "Cash A/c Dr. Rs.40000\nTo Machinery A/c Rs.40000",
+      debits: [{ account: "Cash", amount: 40000 }],
+      credits: [{ account: "Machinery", amount: 40000 }],
+    },
+    {
+      transactionText: "Sold laptop Rs.20000 through bank",
+      journalEntry: "Bank A/c Dr. Rs.20000\nTo Computer A/c Rs.20000",
+      debits: [{ account: "Bank", amount: 20000 }],
+      credits: [{ account: "Computer", amount: 20000 }],
+    },
+    {
+      transactionText: "Sold car to Raju Rs.250000 on credit",
+      journalEntry: "Raju A/c Dr. Rs.250000\nTo Vehicle A/c Rs.250000",
+      debits: [{ account: "Raju", amount: 250000 }],
+      credits: [{ account: "Vehicle", amount: 250000 }],
+    },
+    {
+      transactionText: "Sold land through bank Rs.300000",
+      journalEntry: "Bank A/c Dr. Rs.300000\nTo Land A/c Rs.300000",
+      debits: [{ account: "Bank", amount: 300000 }],
+      credits: [{ account: "Land", amount: 300000 }],
+    },
+  ])("returns Correct for asset sale: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      transactionText: "Sold machinery Rs.40000 for cash",
+      journalEntry: "Cash A/c Dr. Rs.40000\nTo Sales A/c Rs.40000",
+    },
+    {
+      transactionText: "Sold machinery Rs.40000 for cash",
+      journalEntry: "Machinery A/c Dr. Rs.40000\nTo Cash A/c Rs.40000",
+    },
+    {
+      transactionText: "Sold machinery Rs.40000 for cash",
+      journalEntry: "Purchases A/c Dr. Rs.40000\nTo Machinery A/c Rs.40000",
+    },
+    {
+      transactionText: "Sold machinery Rs.40000 for cash",
+      journalEntry: "Machinery A/c Dr. Rs.40000\nTo Profit on Sale of Asset A/c Rs.40000",
+    },
+    {
+      transactionText: "Sold machinery Rs.40000 for cash",
+      journalEntry: "Bank A/c Dr. Rs.40000\nTo Machinery A/c Rs.40000",
+    },
+    {
+      transactionText: "Sold laptop Rs.20000 through bank",
+      journalEntry: "Cash A/c Dr. Rs.20000\nTo Computer A/c Rs.20000",
+    },
+  ])("does not accept wrong asset sale entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for partial goods sale with cash received and balance on credit", async () => {
     const body = await checkEntry(
       "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",

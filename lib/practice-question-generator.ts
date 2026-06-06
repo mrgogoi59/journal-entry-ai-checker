@@ -112,6 +112,10 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Purchased machinery from Amit ${formatRupees(amount)} plus installation charges ${formatRupees(
       Math.round(amount * 0.1),
     )} on credit`,
+  asset_sale_machinery_cash: (amount) => `Sold machinery ${formatRupees(amount)} for cash`,
+  asset_sale_laptop_bank: (amount) => `Sold laptop ${formatRupees(amount)} through bank`,
+  asset_sale_vehicle_credit: (amount) => `Sold car to Raju ${formatRupees(amount)} on credit`,
+  asset_sale_land_bank: (amount) => `Sold land through bank ${formatRupees(amount)}`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -189,6 +193,10 @@ const explicitPracticeTransactionTypes = [
   "asset_purchase_installation_setup_laptop_bank",
   "asset_purchase_installation_fitting_printer_cash",
   "asset_purchase_installation_installation_machinery_credit",
+  "asset_sale_machinery_cash",
+  "asset_sale_laptop_bank",
+  "asset_sale_vehicle_credit",
+  "asset_sale_land_bank",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

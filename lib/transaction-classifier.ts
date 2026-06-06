@@ -16,6 +16,8 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (discountAllowedSettlement) return discountAllowedSettlement;
   const discountReceivedSettlement = classifyDiscountReceivedSettlement(transactionText);
   if (discountReceivedSettlement) return discountReceivedSettlement;
+  const assetSale = classifyAssetSale(transactionText);
+  if (assetSale) return assetSale;
   const assetPurchaseInstallationCharge = classifyAssetPurchaseInstallationCharge(transactionText);
   if (assetPurchaseInstallationCharge) return assetPurchaseInstallationCharge;
   const assetInstallationCharge = classifyAssetInstallationCharge(transactionText);
@@ -38,6 +40,7 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (hasUnsupportedPurchaseReturnContext(transactionText)) return null;
   if (hasAssetPurchasePlusInstallationContext(transactionText)) return null;
   if (hasAssetPurchaseRepairContext(transactionText)) return null;
+  if (hasAssetSaleContext(transactionText)) return null;
 
   const rule = transactionRules.find((candidate) =>
     candidate.patterns.some((pattern) => pattern.test(transactionText)),
@@ -436,6 +439,68 @@ function classifyAssetPurchaseInstallationCharge(transactionText: string): Trans
   };
 }
 
+function classifyAssetSale(transactionText: string): TransactionClassification | null {
+  if (!hasAssetSaleContext(transactionText)) return null;
+  if (hasUnsupportedAssetSaleContext(transactionText)) return null;
+
+  const asset = extractAssetPurchaseItem(transactionText);
+  if (!asset) return null;
+
+  const amount = parseAmount(transactionText);
+  if (!amount) return null;
+
+  const partyName = extractAssetSaleBuyerName(transactionText);
+  const receiptAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CASH_PAYMENT_PATTERN.test(transactionText)
+      ? "Cash"
+      : partyName
+        ? "Debtor"
+        : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+          ? "Debtor"
+          : null;
+  if (!receiptAccount) return null;
+
+  const debtorAccount = receiptAccount === "Debtor" ? (partyName ?? "Debtor") : receiptAccount;
+  const expectedEntry: CorrectJournalEntry = {
+    debits: [{ account: debtorAccount, amount }],
+    credits: [{ account: asset.account, amount }],
+  };
+  if (partyName && receiptAccount === "Debtor") {
+    expectedEntry.debits[0].acceptedAccounts = ["Debtor"];
+    expectedEntry.debits[0].partyRole = "debtor";
+  }
+
+  const receiptSuffix = receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit";
+
+  return {
+    transaction_type: `asset_sale_${asset.key}_${receiptSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: debtorAccount,
+    creditAccount: asset.account,
+    expectedDebitAccount: debtorAccount,
+    expectedCreditAccount: asset.account,
+    genericDebitAccount: receiptAccount,
+    genericCreditAccount: asset.account,
+    amount,
+    explanationLogic:
+      "A fixed asset was sold without profit/loss calculation. Cash, Bank, Debtor, or the named buyer is debited, and the fixed asset account is credited because the asset goes out of the business.",
+    partyName,
+    partyRole: partyName ? "debtor" : undefined,
+    partyAccountSide: partyName ? "debit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "asset_sale",
+      assetAccount: asset.account,
+      assetLabel: asset.label,
+      amount,
+      receiptAccount,
+      debtorAccount,
+      partyName,
+    },
+  };
+}
+
 function classifyGoodsGstSale(transactionText: string): TransactionClassification | null {
   if (!isGoodsSaleWithGst(transactionText)) return null;
   if (hasUnsupportedGstContext(transactionText)) return null;
@@ -785,6 +850,18 @@ function hasAssetPurchaseRepairContext(transactionText: string): boolean {
     /\b(?:bought|purchased|purchase)\b/i.test(transactionText) &&
     Boolean(extractAssetInstallationItem(transactionText)) &&
     /\b(?:repairs?|repair\s+charges?|maintenance\s+charges?|maintenance\s+expense)\b/i.test(transactionText)
+  );
+}
+
+function hasAssetSaleContext(transactionText: string): boolean {
+  return /\b(?:sold|sale\s+of)\b/i.test(transactionText) && Boolean(extractAssetPurchaseItem(transactionText));
+}
+
+function hasUnsupportedAssetSaleContext(transactionText: string): boolean {
+  return (
+    hasGstMention(transactionText) ||
+    /\b(?:costing|book\s+value|profit|loss|accumulated\s+depreciation|depreciation|disposal)\b/i.test(transactionText) ||
+    /\b(?:balance\s+on\s+credit|partly|partial|received\s+rs\.?\s*|received\s+₹)\b/i.test(transactionText)
   );
 }
 
@@ -1262,6 +1339,19 @@ function extractAssetGstSupplierName(transactionText: string): string | undefine
 
   const normalizedName = rawName.replace(/[.,]/g, "").trim();
   if (!normalizedName || /^(supplier|seller|creditor|cash|bank)$/i.test(normalizedName)) return undefined;
+
+  return normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase();
+}
+
+function extractAssetSaleBuyerName(transactionText: string): string | undefined {
+  const match =
+    /\bsold\s+\w+(?:\s+\w+)?\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\b\w+(?:\s+\w+)?\s+sold\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
+  const rawName = match?.[1];
+  if (!rawName) return undefined;
+
+  const normalizedName = rawName.replace(/[.,]/g, "").trim();
+  if (!normalizedName || /^(customer|debtor|cash|bank)$/i.test(normalizedName)) return undefined;
 
   return normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase();
 }

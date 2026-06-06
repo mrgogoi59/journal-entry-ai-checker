@@ -1120,6 +1120,63 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
+  it("solves simple asset sale for cash without profit or loss", async () => {
+    const body = await solve("Sold machinery Rs.40000 for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 40000, credit: 0 },
+      { account: "Machinery A/c", debit: 0, credit: 40000 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Machinery A/c",
+      modernType: "Asset",
+      effect: "Asset decreased",
+      debitOrCredit: "Credit",
+    });
+    expect(body.stepByStepExplanation).toContain(
+      "In this beginner MVP, profit/loss on sale is not calculated because book value is not given.",
+    );
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves asset sale to named buyer on credit", async () => {
+    const body = await solve("Sold car to Raju Rs.250000 on credit");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Raju A/c", debit: 250000, credit: 0 },
+      { account: "Vehicle A/c", debit: 0, credit: 250000 },
+    ]);
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Raju A/c",
+      modernType: "Asset / Debtor",
+      debitOrCredit: "Debit",
+    });
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve ambiguous asset sale without mode or buyer", async () => {
+    const body = await solve("Sold machinery Rs.40000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve asset sale with costing/book value", async () => {
+    const body = await solve("Sold machinery costing Rs.50000 for Rs.40000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve asset sale with GST yet", async () => {
+    const body = await solve("Sold machinery Rs.40000 plus GST 18%");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
   it("does not solve GST yet", async () => {
     const body = await solve("GST paid Rs.1000");
 

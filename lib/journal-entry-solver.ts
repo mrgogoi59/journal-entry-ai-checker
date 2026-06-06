@@ -230,6 +230,7 @@ function buildAffectedAccount(
   const compoundAccount =
     buildPartialGoodsPurchaseAffectedAccount(line, side, classification) ??
     buildPartialGoodsSaleAffectedAccount(line, side, classification) ??
+    buildAssetSaleAffectedAccount(line, side, classification) ??
     buildAssetPurchaseInstallationChargeAffectedAccount(line, side, classification) ??
     buildAssetInstallationChargeAffectedAccount(line, side, classification) ??
     buildDiscountSettlementAffectedAccount(line, side, classification);
@@ -280,6 +281,25 @@ function buildAffectedAccount(
 }
 
 function buildStepByStepExplanation(classification: TransactionClassification): string[] {
+  if (classification.compoundDetails?.kind === "asset_sale") {
+    const details = classification.compoundDetails;
+    const receipt = displayAccountName(details.debtorAccount);
+    const asset = displayAccountName(details.assetAccount);
+    return [
+      `${titleCase(details.assetLabel)} is a fixed asset of the business.`,
+      `The business sold the ${details.assetLabel} for ${formatRupees(details.amount)}.`,
+      `${receipt} is debited because ${
+        details.receiptAccount === "Bank"
+          ? "the amount is received through bank/digital mode"
+          : details.receiptAccount === "Cash"
+            ? "cash is received"
+            : `${details.debtorAccount} is treated as a buyer/debtor for the credit sale`
+      }.`,
+      `${asset} is credited because the asset goes out of the business.`,
+      "In this beginner MVP, profit/loss on sale is not calculated because book value is not given.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
     const details = classification.compoundDetails;
     const asset = displayAccountName(details.assetAccount);
@@ -754,6 +774,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 function buildCommonMistakes(classification: TransactionClassification): string[] {
   const mistakes: string[] = [];
 
+  if (classification.compoundDetails?.kind === "asset_sale") {
+    return [
+      "Do not credit Sales A/c because this is sale of an asset, not sale of goods.",
+      "Do not debit Purchases A/c.",
+      "Do not calculate profit/loss unless book value is given.",
+      "Do not use Asset Disposal A/c in this beginner case.",
+      "Do not add GST unless GST on asset sale is clearly supported later.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
     return [
       "Do not debit Installation Expense A/c.",
@@ -1056,6 +1086,24 @@ function buildCommonMistakes(classification: TransactionClassification): string[
 }
 
 function buildPracticeQuestion(classification: TransactionClassification): SolverPracticeQuestion {
+  if (classification.compoundDetails?.kind === "asset_sale") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.receiptAccount === "Debtor"
+        ? details.partyName
+          ? `to ${details.partyName} on credit`
+          : "on credit"
+        : details.receiptAccount === "Bank"
+          ? "through bank"
+          : "for cash";
+    return {
+      question: `Sold ${details.assetLabel} ${formatRupees(details.amount)} ${mode}`,
+      expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To ${displayAccountName(
+        details.assetAccount,
+      )}`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
     const details = classification.compoundDetails;
     const mode =
@@ -1404,6 +1452,15 @@ function buildNarration(classification: TransactionClassification): string {
   const credit = classification.creditAccount;
   const partyName = classification.partyName;
 
+  if (classification.compoundDetails?.kind === "asset_sale") {
+    const details = classification.compoundDetails;
+    if (details.receiptAccount === "Cash") return `Being ${details.assetLabel} sold for cash.`;
+    if (details.receiptAccount === "Bank") return `Being ${details.assetLabel} sold through bank.`;
+    return details.partyName
+      ? `Being ${details.assetLabel} sold to ${details.partyName} on credit.`
+      : `Being ${details.assetLabel} sold on credit.`;
+  }
+
   if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
     const details = classification.compoundDetails;
     if (details.paymentAccount === "Cash") {
@@ -1639,6 +1696,10 @@ function buildNarration(classification: TransactionClassification): string {
 }
 
 function describeTransactionAction(classification: TransactionClassification): string {
+  if (classification.compoundDetails?.kind === "asset_sale") {
+    return "The business sold a fixed asset without calculating profit or loss on sale.";
+  }
+
   if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
     return "The business purchased a fixed asset and included installation-related charges in the asset cost.";
   }
@@ -2098,6 +2159,56 @@ function buildPartialGoodsPurchaseAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the giver",
       reason: "Balance amount remains payable on credit.",
+    };
+  }
+
+  return null;
+}
+
+function buildAssetSaleAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  const details = classification.compoundDetails;
+  if (details?.kind !== "asset_sale") return null;
+
+  if (line.account === details.debtorAccount) {
+    const metadata = getAccountMetadata(details.debtorAccount, {
+      partyName: details.partyName,
+      partyRole: line.partyRole ?? "debtor",
+    });
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: details.receiptAccount === "Debtor" ? "Asset / Debtor" : metadata.modernType,
+      effect:
+        details.receiptAccount === "Bank"
+          ? `Bank balance increased by ${formatRupees(details.amount)}`
+          : details.receiptAccount === "Cash"
+            ? `Cash increased by ${formatRupees(details.amount)}`
+            : `Amount receivable from buyer increased by ${formatRupees(details.amount)}`,
+      debitOrCredit: side,
+      ruleApplied: side === "Debit" ? metadata.debitRule : metadata.creditRule,
+      reason:
+        details.receiptAccount === "Bank"
+          ? "Amount is received through bank/digital mode."
+          : details.receiptAccount === "Cash"
+            ? "Cash is received from sale of asset."
+            : "The buyer owes money for the asset sold on credit.",
+    };
+  }
+
+  if (line.account === details.assetAccount) {
+    const metadata = getAccountMetadata(details.assetAccount);
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType,
+      effect: "Asset decreased",
+      debitOrCredit: side,
+      ruleApplied: "Credit what goes out / Asset decreases are credited",
+      reason: "The asset is sold, so it goes out of the business.",
     };
   }
 
