@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion } from "@/lib/types";
 
-const sampleTransaction = "Started business with ₹50,000 cash";
-const sampleEntry = "Cash A/c Dr. ₹50,000\n    To Capital A/c ₹50,000";
+const sampleTransaction = "Bought goods for cash Rs.10000";
+const sampleEntry = "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.10000";
 type AppMode = "own" | "practice";
 
 export default function Home() {
@@ -137,32 +137,38 @@ export default function Home() {
     <main className="min-h-screen px-4 py-5 sm:px-6 sm:py-9">
       <section className="mx-auto flex w-full max-w-[760px] flex-col gap-4 sm:gap-5">
         <header className="text-center sm:text-left">
-          <p className="text-sm font-semibold text-accent">Journal Entry Practice</p>
+          <p className="text-sm font-semibold text-accent">Beta learning tool for beginner accountancy journal entries.</p>
           <h1 className="mt-2 text-3xl font-bold tracking-normal text-ink sm:text-4xl">
             Journal Entry AI Checker
           </h1>
           <p className="mt-3 text-base leading-7 text-slate-600">
-            Practice one transaction at a time. Write the entry, check it, and learn the reason.
+            Practice one transaction at a time. Write the entry, check it, and learn the debit-credit reason.
           </p>
         </header>
 
         <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-3">
           <button onClick={() => setMode("own")} className={modeButtonClass(mode === "own")}>
-            <span>Check My Own Entry</span>
-            <span className="text-xs font-medium opacity-80">Paste any supported transaction</span>
+            <span>Check My Journal Entry</span>
+            <span className="text-xs font-medium leading-5 opacity-80">
+              Enter a transaction and your answer. Get instant correction and explanation.
+            </span>
           </button>
           <button onClick={selectPracticeMode} className={modeButtonClass(mode === "practice")}>
             <span>Practice Questions</span>
-            <span className="text-xs font-medium opacity-80">Get one question and solve it</span>
+            <span className="text-xs font-medium leading-5 opacity-80">
+              Solve beginner journal-entry questions and check your answer.
+            </span>
           </button>
           <Link href="/journal-entry-solver" className={modeButtonClass(false)}>
-            <span>Explain Transaction</span>
-            <span className="text-xs font-medium opacity-80">See debit-credit logic</span>
+            <span>AI Journal Entry Explainer</span>
+            <span className="text-xs font-medium leading-5 opacity-80">
+              Enter a transaction and understand the debit-credit logic step by step.
+            </span>
           </Link>
         </div>
 
-        <div className="rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
-          <span>Not sure what works?</span>{" "}
+        <div className="flex flex-col gap-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft sm:flex-row sm:items-center sm:justify-between">
+          <span>Not sure what the app supports?</span>
           <Link href="/supported-transactions" className="font-semibold text-accent hover:text-blue-700">
             View supported transactions
           </Link>
@@ -174,7 +180,7 @@ export default function Home() {
             journalEntry={journalEntry}
             error={error}
             isLoading={isLoading}
-            buttonText="Check My Entry"
+            buttonText="Check My Journal Entry"
             loadingText="Checking..."
             onTransactionChange={setTransactionText}
             onJournalEntryChange={setJournalEntry}
@@ -226,11 +232,11 @@ function EntryCard({
     <div className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
       <div className="flex flex-col gap-4">
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-ink">Transaction</span>
+          <span className="text-sm font-semibold text-ink">Business Transaction</span>
           <textarea
             value={transactionText}
             onChange={(event) => onTransactionChange(event.target.value)}
-            placeholder={sampleTransaction}
+            placeholder={`Example: ${sampleTransaction}`}
             className="min-h-24 resize-y rounded-lg border border-line bg-white px-4 py-3 text-base leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
           />
         </label>
@@ -272,11 +278,12 @@ function PracticeCard({
     <div className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
       <div className="flex flex-col gap-4">
         <div className="rounded-lg border border-line bg-paper p-4">
-          <div className="text-sm font-semibold text-ink">Transaction</div>
+          <div className="text-sm font-semibold text-ink">Practice Question</div>
           <p className="mt-2 min-h-7 text-base font-medium leading-7 text-slate-800">
             {isQuestionLoading ? "Generating a question..." : question?.transaction_text ?? "No question yet."}
           </p>
         </div>
+        <p className="text-sm leading-6 text-slate-600">Try solving first before checking the answer.</p>
 
         <JournalEntryInput value={journalEntry} onChange={onJournalEntryChange} />
 
@@ -315,11 +322,11 @@ function JournalEntryInput({
         aria-describedby="journal-entry-helper"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={sampleEntry}
+        placeholder={`Example:\n${sampleEntry}`}
         className="min-h-36 resize-y rounded-lg border border-line bg-white px-4 py-3 font-mono text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
       />
-      <p id="journal-entry-helper" className="rounded-md bg-paper px-3 py-2 text-xs leading-5 text-slate-600">
-        Sample format: Cash A/c Dr. ₹50,000, then To Capital A/c ₹50,000 on the next line.
+      <p id="journal-entry-helper" className="rounded-md bg-paper px-3 py-2 text-sm leading-6 text-slate-600">
+        Write one account per line. Use Dr. and To for best results.
       </p>
     </div>
   );
@@ -333,19 +340,20 @@ function ResultCard({ result }: { result: CheckEntryResponse }) {
       <div className={`rounded-lg border px-4 py-4 ${status.panelClass}`}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wide">{status.label}</div>
-            <div className="mt-1 text-sm font-medium">{status.message}</div>
+            <div className="text-sm font-bold">{status.label}</div>
+            <div className="mt-1 text-sm font-medium leading-6">{status.message}</div>
           </div>
           <div className="text-3xl font-bold">{result.score}/100</div>
         </div>
       </div>
 
       <div className="mt-4 grid gap-3">
-        <ResultSection title="Your mistake" body={formatMistake(result.mistake_type)} />
+        <ResultSection title="Your result" body={formatResultSummary(result)} />
         <ResultSection title="Correct journal entry">
           <JournalEntryView entry={result.correct_journal_entry} />
         </ResultSection>
-        <ResultSection title="Why this is correct" body={simplifyExplanation(result.simple_explanation)} />
+        <ResultSection title="What went wrong" body={formatMistake(result.mistake_type)} />
+        <ResultSection title="Simple explanation" body={simplifyExplanation(result.simple_explanation)} />
         <ResultSection title="Similar practice question" body={result.similar_practice_question} />
       </div>
     </section>
@@ -449,7 +457,7 @@ function getMissingInputMessage(transaction: string, entry: string): string {
 function getStatusDisplay(status: CheckEntryResponse["result_status"]) {
   if (status === "Correct") {
     return {
-      label: "Correct",
+      label: "Correct — 100/100",
       message: "Great. Your accounts, sides, amount, and balance match.",
       panelClass: "border-emerald-200 bg-emerald-50 text-emerald-800",
     };
@@ -480,10 +488,17 @@ function getStatusDisplay(status: CheckEntryResponse["result_status"]) {
   }
 
   return {
-    label: "Incorrect",
+    label: "Needs correction",
     message: "Review the correct entry below, then try the same idea again.",
     panelClass: "border-red-200 bg-red-50 text-red-800",
   };
+}
+
+function formatResultSummary(result: CheckEntryResponse): string {
+  if (result.result_status === "Correct") return "Correct — 100/100";
+  if (result.result_status === "Unsupported Transaction") return "Unsupported transaction";
+  if (result.result_status === "Invalid Format") return "Invalid format";
+  return `${result.result_status}. Score: ${result.score}/100`;
 }
 
 function formatJournalEntry(entry: CorrectJournalEntry): string {

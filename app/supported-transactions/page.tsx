@@ -251,6 +251,9 @@ export default function SupportedTransactionsPage() {
           <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
             Use this page to choose transaction wording that fits the current beginner rule library.
           </p>
+          <p className="mt-3 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
+            If your transaction is unsupported, rewrite it with amount, payment mode, and account context.
+          </p>
         </header>
 
         <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
@@ -260,6 +263,15 @@ export default function SupportedTransactionsPage() {
 
         <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
           <h2 className="text-sm font-bold text-ink">How to write better transactions</h2>
+          <div className="mt-3 grid gap-2 text-sm leading-6 text-slate-700 sm:grid-cols-3">
+            <p className="rounded-md bg-paper px-3 py-2">Include the amount clearly.</p>
+            <p className="rounded-md bg-paper px-3 py-2">Mention cash, bank, UPI, credit, or party name.</p>
+            <p className="rounded-md bg-paper px-3 py-2">Keep one transaction idea at a time.</p>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
+          <h2 className="text-sm font-bold text-ink">Good transaction examples</h2>
           <div className="mt-3 grid gap-2">
             {exampleTransactions.map((example) => (
               <div
@@ -285,10 +297,11 @@ function InfoCard({
   items: string[];
   accent: "blue" | "red";
 }) {
-  const markerClass = accent === "blue" ? "bg-accent" : "bg-red-500";
+  const markerClass = accent === "blue" ? "bg-accent" : "bg-amber-500";
+  const cardClass = accent === "blue" ? "border-line bg-white" : "border-amber-200 bg-amber-50";
 
   return (
-    <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
+    <section className={`rounded-lg border p-4 shadow-soft sm:p-6 ${cardClass}`}>
       <h2 className="text-sm font-bold text-ink">{title}</h2>
       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700 sm:grid-cols-2 lg:grid-cols-1">
         {items.map((item) => (

@@ -11,11 +11,11 @@ import type {
 } from "@/lib/types";
 
 const examples = [
-  "Bought goods for cash ₹10,000",
-  "Sold goods to Ram on credit ₹5,000",
-  "Paid rent by UPI ₹2,000",
-  "Started business with cash ₹50,000",
-  "Deposited cash into bank ₹20,000",
+  "Bought goods for cash Rs.10000",
+  "Sold goods to Ram on credit Rs.5000",
+  "Paid rent by UPI Rs.2000",
+  "Started business with cash Rs.50000",
+  "Set off Input GST Rs.5000 against Output GST Rs.8000 and paid balance through bank",
 ];
 
 export default function JournalEntrySolverPage() {
@@ -69,7 +69,10 @@ export default function JournalEntrySolverPage() {
             AI Journal Entry Explainer
           </h1>
           <p className="mt-3 text-base leading-7 text-slate-600">
-            Enter any transaction and understand the exact debit-credit logic.
+            Enter a transaction and understand the exact debit-credit logic.
+          </p>
+          <p className="mt-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
+            This tool teaches the logic. It is not just an answer shortcut.
           </p>
         </header>
 
@@ -77,10 +80,12 @@ export default function JournalEntrySolverPage() {
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-2 rounded-lg border border-line bg-paper p-2">
               <button type="button" onClick={() => setMode("beginner")} className={modeButtonClass(mode === "beginner")}>
-                Beginner Mode
+                <span>Beginner Mode</span>
+                <span className="text-xs font-medium leading-5 opacity-80">Detailed explanation</span>
               </button>
               <button type="button" onClick={() => setMode("exam")} className={modeButtonClass(mode === "exam")}>
-                Exam Mode
+                <span>Exam Mode</span>
+                <span className="text-xs font-medium leading-5 opacity-80">Concise answer</span>
               </button>
             </div>
 
@@ -89,7 +94,7 @@ export default function JournalEntrySolverPage() {
               <textarea
                 value={transaction}
                 onChange={(event) => setTransaction(event.target.value)}
-                placeholder="Example: Bought goods for cash ₹10,000"
+                placeholder="Example: Bought goods for cash Rs.10000"
                 className="min-h-32 resize-y rounded-lg border border-line bg-white px-4 py-3 text-base leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
               />
             </label>
@@ -120,7 +125,7 @@ export default function JournalEntrySolverPage() {
               className="min-h-12 rounded-lg bg-accent px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
               {isLoading
-                ? "Analyzing transaction... identifying affected accounts... applying debit-credit rules..."
+                ? "Analyzing transaction... Identifying affected accounts... Applying debit-credit rules..."
                 : "Explain Journal Entry"}
             </button>
           </div>
@@ -143,7 +148,7 @@ function SolverResult({ result, mode }: { result: JournalEntrySolverResponse; mo
 
   return (
     <section className="grid gap-4">
-      <ResultSection title="Final Journal Entry">
+      <ResultSection title="Final Journal Entry" emphasis>
         <JournalEntryTable lines={result.journalEntry} />
       </ResultSection>
 
@@ -226,7 +231,9 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
           <h3 className="text-sm font-bold">Questions to ask</h3>
           <ul className="mt-2 grid gap-2 text-sm leading-6">
             {result.ambiguityQuestions.map((question, index) => (
-              <li key={`question-${question}-${index}`}>{question}</li>
+              <li key={`question-${question}-${index}`} className="rounded-md bg-white px-3 py-2">
+                {question}
+              </li>
             ))}
           </ul>
         </div>
@@ -246,10 +253,13 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
 
 function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
   return (
-    <section className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 shadow-soft sm:p-6">
+    <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
       <h2 className="text-lg font-bold">I cannot safely solve this transaction yet.</h2>
       <p className="mt-2 text-sm leading-6">
         {result.message ?? "Please rewrite with amount, payment mode, and account context."}
+      </p>
+      <p className="mt-3 rounded-md bg-white px-3 py-2 text-sm leading-6">
+        Please add amount, payment mode, and account context.
       </p>
     </section>
   );
@@ -267,10 +277,14 @@ function InterpretationCard({ interpretation }: { interpretation: SolverPossible
   );
 }
 
-function ResultSection({ title, children }: { title: string; children: ReactNode }) {
+function ResultSection({ title, children, emphasis = false }: { title: string; children: ReactNode; emphasis?: boolean }) {
   return (
-    <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-      <h2 className="text-sm font-bold text-ink">{title}</h2>
+    <section
+      className={`rounded-lg border bg-white p-4 shadow-soft sm:p-6 ${
+        emphasis ? "border-accent ring-2 ring-blue-100" : "border-line"
+      }`}
+    >
+      <h2 className={emphasis ? "text-base font-bold text-ink" : "text-sm font-bold text-ink"}>{title}</h2>
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -281,10 +295,10 @@ function JournalEntryTable({ lines }: { lines: SolverJournalEntryLine[] }) {
     <div className="overflow-x-auto">
       <table className="w-full min-w-[420px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line text-left text-slate-600">
-            <th className="py-2 pr-3 font-semibold">Particulars</th>
-            <th className="py-2 pr-3 text-right font-semibold">Debit ₹</th>
-            <th className="py-2 text-right font-semibold">Credit ₹</th>
+          <tr className="border-b border-line bg-paper text-left text-slate-700">
+            <th className="px-3 py-2 font-semibold">Particulars</th>
+            <th className="px-3 py-2 text-right font-semibold">Debit ₹</th>
+            <th className="px-3 py-2 text-right font-semibold">Credit ₹</th>
           </tr>
         </thead>
         <tbody>
@@ -293,11 +307,11 @@ function JournalEntryTable({ lines }: { lines: SolverJournalEntryLine[] }) {
               key={`journal-${line.account}-${line.debit}-${line.credit}-${index}`}
               className="border-b border-line last:border-b-0"
             >
-              <td className="py-3 pr-3 font-medium text-ink">
+              <td className="px-3 py-3 font-medium text-ink">
                 {line.debit > 0 ? `${line.account} Dr.` : `To ${line.account}`}
               </td>
-              <td className="py-3 pr-3 text-right text-ink">{line.debit > 0 ? formatAmount(line.debit) : "-"}</td>
-              <td className="py-3 text-right text-ink">{line.credit > 0 ? formatAmount(line.credit) : "-"}</td>
+              <td className="px-3 py-3 text-right text-ink">{line.debit > 0 ? formatAmount(line.debit) : "-"}</td>
+              <td className="px-3 py-3 text-right text-ink">{line.credit > 0 ? formatAmount(line.credit) : "-"}</td>
             </tr>
           ))}
         </tbody>
@@ -311,7 +325,7 @@ function AffectedAccountsTable({ accounts }: { accounts: SolverAffectedAccount[]
     <div className="overflow-x-auto">
       <table className="w-full min-w-[680px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line text-left text-slate-600">
+          <tr className="border-b border-line bg-paper text-left text-slate-700">
             <th className="py-2 pr-3 font-semibold">Account</th>
             <th className="py-2 pr-3 font-semibold">Nature</th>
             <th className="py-2 pr-3 font-semibold">Effect</th>
@@ -358,7 +372,7 @@ function MessageBox({ message }: { message: string }) {
 
 function modeButtonClass(isActive: boolean): string {
   return [
-    "min-h-11 rounded-md px-3 py-2 text-sm font-semibold transition",
+    "flex min-h-14 flex-col items-center justify-center rounded-md px-3 py-2 text-center text-sm font-semibold transition",
     isActive ? "bg-accent text-white" : "bg-white text-slate-700 hover:bg-white",
   ].join(" ");
 }
