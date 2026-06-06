@@ -281,6 +281,26 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
     if (details.taxLines?.length) {
+      if (details.gstInclusive) {
+        return [
+          `The total invoice amount is ${formatRupees(details.invoiceTotal)} including ${taxNarrationLabel(
+            details.taxLines,
+          )}.`,
+          splitGstRateExplanation(details.taxLines),
+          `Base value = ${formatRupees(details.invoiceTotal)} × 100 / ${formatPercentDenominator(
+            totalTaxRate(details.taxLines),
+          )} = ${formatRupees(details.baseAmount)}.`,
+          ...details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate)),
+          "Purchases A/c is debited for the base value of goods.",
+          `${inputTaxAccountLabel(details.taxLines)} ${
+            details.taxLines.length === 1 ? "is" : "are"
+          } debited because GST paid on purchase is input tax credit.`,
+          `${displayAccountName(details.creditorAccount)} is credited for the total invoice amount ${
+            details.paymentAccount === "Creditor" ? "payable" : "paid"
+          }.`,
+        ];
+      }
+
       return [
         `Goods worth ${formatRupees(details.baseAmount)} were purchased.`,
         ...details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate)),
@@ -326,6 +346,26 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
     const details = classification.compoundDetails;
     if (details.taxLines?.length) {
+      if (details.gstInclusive) {
+        return [
+          `The total invoice amount is ${formatRupees(details.invoiceTotal)} including ${taxNarrationLabel(
+            details.taxLines,
+          )}.`,
+          splitGstRateExplanation(details.taxLines),
+          `Base value = ${formatRupees(details.invoiceTotal)} × 100 / ${formatPercentDenominator(
+            totalTaxRate(details.taxLines),
+          )} = ${formatRupees(details.baseAmount)}.`,
+          ...details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate)),
+          `${displayAccountName(details.debtorAccount)} is debited for the total invoice amount ${
+            details.receiptAccount === "Debtor" ? "receivable" : "received"
+          }.`,
+          "Sales A/c is credited for the base value of goods.",
+          `${outputTaxAccountLabel(details.taxLines)} ${
+            details.taxLines.length === 1 ? "is" : "are"
+          } credited because GST collected is payable to the government.`,
+        ];
+      }
+
       return [
         `Goods worth ${formatRupees(details.baseAmount)} were sold.`,
         ...details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate)),
@@ -631,7 +671,7 @@ function buildCommonMistakes(classification: TransactionClassification): string[
         "Do not add tax amount into Purchases/Sales.",
         "Do not credit Input CGST/SGST/IGST on purchase.",
         "Do not debit Output CGST/SGST/IGST on sale.",
-        "Do not solve GST-inclusive split cases yet.",
+        "Do not solve split GST if clear tax rates or tax amounts are missing.",
       ];
     }
 
@@ -663,7 +703,7 @@ function buildCommonMistakes(classification: TransactionClassification): string[
         "Do not add tax amount into Purchases/Sales.",
         "Do not credit Input CGST/SGST/IGST on purchase.",
         "Do not debit Output CGST/SGST/IGST on sale.",
-        "Do not solve GST-inclusive split cases yet.",
+        "Do not solve split GST if clear tax rates or tax amounts are missing.",
       ];
     }
 
@@ -908,11 +948,19 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
           : "for cash";
     return {
       question: details.gstInclusive
-        ? `Purchased goods ${formatRupees(details.invoiceTotal)} including GST ${formatPercent(details.gstRate)} ${mode}`
-        : `Purchased goods ${formatRupees(details.baseAmount)} plus GST ${
-            details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
-          } ${mode}`,
-      expectedPattern: `Purchases A/c Dr., Input GST A/c Dr. To ${displayAccountName(details.creditorAccount)}`,
+        ? `Purchased goods ${formatRupees(details.invoiceTotal)} including ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`
+        : `Purchased goods ${formatRupees(details.baseAmount)} plus ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`,
+      expectedPattern: `Purchases A/c Dr., ${inputTaxPattern(details.taxLines)} To ${displayAccountName(
+        details.creditorAccount,
+      )}`,
     };
   }
 
@@ -928,11 +976,19 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
           : "for cash";
     return {
       question: details.gstInclusive
-        ? `Sold goods ${formatRupees(details.invoiceTotal)} including GST ${formatPercent(details.gstRate)} ${mode}`
-        : `Sold goods ${formatRupees(details.baseAmount)} plus GST ${
-            details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
-          } ${mode}`,
-      expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To Sales A/c, To Output GST A/c`,
+        ? `Sold goods ${formatRupees(details.invoiceTotal)} including ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`
+        : `Sold goods ${formatRupees(details.baseAmount)} plus ${taxQuestionLabel(
+            details.taxLines,
+            details.gstRate,
+            details.gstAmount,
+          )} ${mode}`,
+      expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To Sales A/c, ${outputTaxPattern(
+        details.taxLines,
+      )}`,
     };
   }
 
@@ -1163,7 +1219,11 @@ function buildNarration(classification: TransactionClassification): string {
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
-    const gstLabel = details.taxLines?.length ? `plus ${taxNarrationLabel(details.taxLines)}` : details.gstInclusive ? "including GST" : "plus GST";
+    const gstLabel = details.taxLines?.length
+      ? `${details.gstInclusive ? "including" : "plus"} ${taxNarrationLabel(details.taxLines)}`
+      : details.gstInclusive
+        ? "including GST"
+        : "plus GST";
     if (details.paymentAccount === "Cash") return `Being goods purchased for cash ${gstLabel}.`;
     if (details.paymentAccount === "Bank") return `Being goods purchased through bank ${gstLabel}.`;
     return details.partyName
@@ -1173,7 +1233,11 @@ function buildNarration(classification: TransactionClassification): string {
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
     const details = classification.compoundDetails;
-    const gstLabel = details.taxLines?.length ? `plus ${taxNarrationLabel(details.taxLines)}` : details.gstInclusive ? "including GST" : "plus GST";
+    const gstLabel = details.taxLines?.length
+      ? `${details.gstInclusive ? "including" : "plus"} ${taxNarrationLabel(details.taxLines)}`
+      : details.gstInclusive
+        ? "including GST"
+        : "plus GST";
     if (details.receiptAccount === "Cash") return `Being goods sold for cash ${gstLabel}.`;
     if (details.receiptAccount === "Bank") return `Being goods sold through bank ${gstLabel}.`;
     return details.partyName
@@ -1509,6 +1573,19 @@ function taxLineExplanation(taxType: GoodsGstTaxLine["taxType"], amount: number,
   return rate ? `${taxType} at ${formatPercent(rate)} is ${formatRupees(amount)}.` : `${taxType} amount is ${formatRupees(amount)}.`;
 }
 
+function splitGstRateExplanation(taxLines: GoodsGstTaxLine[]): string {
+  const totalRate = totalTaxRate(taxLines);
+  const rateParts = taxLines.map((line) => `${formatPercent(line.rate)} ${line.taxType}`).join(" + ");
+  return taxLines.length === 1
+    ? `${taxLines[0].taxType} rate is ${formatPercent(taxLines[0].rate)}.`
+    : `Total GST rate = ${rateParts} = ${formatPercent(totalRate)}.`;
+}
+
+function totalTaxRate(taxLines: GoodsGstTaxLine[]): number | undefined {
+  if (taxLines.some((line) => line.rate === undefined)) return undefined;
+  return taxLines.reduce((total, line) => total + (line.rate ?? 0), 0);
+}
+
 function inputTaxAccountLabel(taxLines: GoodsGstTaxLine[]): string {
   return taxLines.map((line) => displayAccountName(line.inputAccount).replace(" A/c", "")).join(" and ");
 }
@@ -1519,6 +1596,26 @@ function outputTaxAccountLabel(taxLines: GoodsGstTaxLine[]): string {
 
 function taxNarrationLabel(taxLines: GoodsGstTaxLine[]): string {
   return taxLines.map((line) => line.taxType).join(" and ");
+}
+
+function taxQuestionLabel(taxLines: GoodsGstTaxLine[] | undefined, gstRate: number | undefined, gstAmount: number): string {
+  if (taxLines?.length) {
+    return taxLines
+      .map((line) => (line.rate ? `${line.taxType} ${formatPercent(line.rate)}` : `${line.taxType} ${formatRupees(line.amount)}`))
+      .join(" and ");
+  }
+
+  return gstRate ? `GST ${formatPercent(gstRate)}` : `GST ${formatRupees(gstAmount)}`;
+}
+
+function inputTaxPattern(taxLines: GoodsGstTaxLine[] | undefined): string {
+  if (!taxLines?.length) return "Input GST A/c Dr.";
+  return taxLines.map((line) => `${displayAccountName(line.inputAccount)} Dr.`).join(", ");
+}
+
+function outputTaxPattern(taxLines: GoodsGstTaxLine[] | undefined): string {
+  if (!taxLines?.length) return "To Output GST A/c";
+  return taxLines.map((line) => `To ${displayAccountName(line.outputAccount)}`).join(", ");
 }
 
 function formatPercent(value: number | undefined): string {

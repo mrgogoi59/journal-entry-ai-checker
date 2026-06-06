@@ -17,7 +17,7 @@ const supportedTransactions = [
   "More common incomes received in cash, bank, or digital mode",
   "Digital payments like UPI, GPay, PhonePe, and NEFT as Bank",
   "Basic GST on goods purchases and sales — plus GST and GST-inclusive amounts with GST rate",
-  "CGST/SGST and IGST split on goods purchases and sales with clear tax rates or amounts",
+  "CGST/SGST and IGST split on goods purchases and sales with clear tax rates or amounts, including GST-inclusive split with rates",
   "Partial goods purchase: part cash or bank, balance credit",
   "Partial goods sale: part cash or bank received, balance credit",
   "Depreciation on machinery, furniture, computer, equipment, or vehicle",
@@ -38,7 +38,7 @@ const supportedTransactions = [
 
 const unsupportedTransactions = [
   "GST inclusive amount without GST rate",
-  "GST-inclusive CGST/SGST/IGST split",
+  "CGST/SGST/IGST inclusive amount without tax rate",
   "GST set-off or GST payment",
   "GST on fixed asset purchases",
   "GST on expenses or incomes",
@@ -103,6 +103,10 @@ const exampleTransactions = [
   "Sold goods Rs.10000 plus CGST 9% and SGST 9% for cash",
   "Purchased goods Rs.10000 plus IGST 18% for cash",
   "Sold goods Rs.10000 plus IGST 18% for cash",
+  "Purchased goods Rs.11800 including CGST 9% and SGST 9% for cash",
+  "Sold goods Rs.11800 including CGST 9% and SGST 9% for cash",
+  "Purchased goods Rs.11800 including IGST 18% for cash",
+  "Sold goods Rs.11800 including IGST 18% for cash",
   "Purchased goods Rs.10000, paid Rs.4000 cash and balance on credit",
   "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
   "Depreciation charged on machinery Rs.5000",

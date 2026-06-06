@@ -21,6 +21,7 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   const goodsGstSale = classifyGoodsGstSale(transactionText);
   if (goodsGstSale) return goodsGstSale;
   if (hasGstMention(transactionText)) return null;
+  if (hasUnsupportedGoodsTaxAmbiguity(transactionText)) return null;
   const partialGoodsPurchase = classifyPartialGoodsPurchase(transactionText);
   if (partialGoodsPurchase) return partialGoodsPurchase;
   const partialGoodsSale = classifyPartialGoodsSale(transactionText);
@@ -481,15 +482,23 @@ function isGoodsSaleWithGst(transactionText: string): boolean {
 }
 
 function hasGstMention(transactionText: string): boolean {
-  return /\b(?:gst|cgst|sgst|igst|goods\s+and\s+services\s+tax)\b/i.test(transactionText);
+  return /\b(?:gst|cgst|sgst|igst|central\s+gst|state\s+gst|integrated\s+gst|goods\s+and\s+services\s+tax)\b/i.test(
+    transactionText,
+  );
 }
 
 function hasUnsupportedGstContext(transactionText: string): boolean {
   return (
-    (hasInclusiveGstWording(transactionText) && hasSplitGstMention(transactionText)) ||
     /\bdiscount\b/i.test(transactionText) ||
     /\b(?:return|returned|set-?off|paid\s+gst|gst\s+paid|gst\s+payment)\b/i.test(transactionText)
   );
+}
+
+function hasUnsupportedGoodsTaxAmbiguity(transactionText: string): boolean {
+  const isGoodsTrade =
+    /\b(?:bought|purchased|purchase)\s+goods\b/i.test(transactionText) ||
+    /\b(?:sold\s+goods|goods\s+sold|sale\s+of\s+goods)\b/i.test(transactionText);
+  return isGoodsTrade && /\b(?:including|inclusive\s+of|tax\s+inclusive|plus|with)\s+tax(?:es)?\b/i.test(transactionText);
 }
 
 function extractGstDetails(
@@ -510,6 +519,17 @@ function extractGstDetails(
   const gstInclusive = hasInclusiveGstWording(transactionText);
   const splitTaxLines = extractSplitGstTaxLines(transactionText, firstAmount);
   if (splitTaxLines) {
+    if (gstInclusive) {
+      const inclusiveSplit = buildInclusiveSplitGstDetails(firstAmount, splitTaxLines);
+      if (!inclusiveSplit) return null;
+
+      return {
+        ...inclusiveSplit,
+        gstInclusive,
+        transactionTypePrefix: splitTaxLines.length === 1 ? "igst_" : "cgst_sgst_",
+      };
+    }
+
     const gstAmount = roundCurrency(splitTaxLines.reduce((total, line) => total + line.amount, 0));
     return {
       baseAmount: firstAmount,
@@ -551,7 +571,8 @@ function extractGstDetails(
 }
 
 function hasInclusiveGstWording(transactionText: string): boolean {
-  const gstTerm = "(?:gst|cgst|sgst|igst|goods\\s+and\\s+services\\s+tax)";
+  const gstTerm =
+    "(?:gst|cgst|sgst|igst|central\\s+gst|state\\s+gst|integrated\\s+gst|goods\\s+and\\s+services\\s+tax)";
   return (
     new RegExp(`\\bincluding\\s+${gstTerm}\\b`, "i").test(transactionText) ||
     new RegExp(`\\binclusive\\s+of\\s+${gstTerm}\\b`, "i").test(transactionText) ||
@@ -560,12 +581,8 @@ function hasInclusiveGstWording(transactionText: string): boolean {
   );
 }
 
-function hasSplitGstMention(transactionText: string): boolean {
-  return /\b(?:cgst|sgst|igst)\b/i.test(transactionText);
-}
-
 function extractSplitGstTaxLines(transactionText: string, baseAmount: number): GoodsGstTaxLine[] | null {
-  if (/\bigst\b/i.test(transactionText)) {
+  if (/\b(?:igst|integrated\s+gst)\b/i.test(transactionText)) {
     const igstAmount = extractTaxAmount(transactionText, "igst", baseAmount);
     if (!igstAmount) return null;
 
@@ -580,7 +597,7 @@ function extractSplitGstTaxLines(transactionText: string, baseAmount: number): G
     ];
   }
 
-  if (/\bcgst\b/i.test(transactionText) || /\bsgst\b/i.test(transactionText)) {
+  if (/\b(?:cgst|central\s+gst|sgst|state\s+gst)\b/i.test(transactionText)) {
     const cgstAmount = extractTaxAmount(transactionText, "cgst", baseAmount);
     const sgstAmount = extractTaxAmount(transactionText, "sgst", baseAmount);
     if (!cgstAmount || !sgstAmount) return null;
@@ -611,9 +628,11 @@ function extractTaxAmount(
   taxType: "cgst" | "sgst" | "igst",
   baseAmount: number,
 ): { amount: number; rate?: number } | null {
-  const rateMatch = new RegExp(`\\b${taxType}\\s*(?:@|at)?\\s*([0-9]+(?:\\.\\d+)?)\\s*%`, "i").exec(
-    transactionText,
-  );
+  const taxTerm = splitGstTaxTerm(taxType);
+  const rateMatch = new RegExp(
+    `\\b${taxTerm}\\s*(?:(?:@|at|inclusive|included)\\s*)?([0-9]+(?:\\.\\d+)?)\\s*%`,
+    "i",
+  ).exec(transactionText);
   if (rateMatch?.[1]) {
     const rate = Number(rateMatch[1]);
     if (!Number.isFinite(rate) || rate <= 0) return null;
@@ -621,11 +640,46 @@ function extractTaxAmount(
   }
 
   const amountMatch = new RegExp(
-    `\\b${taxType}\\s*(?:amount\\s*)?(?:of\\s*)?(?:₹|rs\\.?|inr)\\s*${AMOUNT_TOKEN_PATTERN}`,
+    `\\b${taxTerm}\\s*(?:amount\\s*)?(?:of\\s*)?(?:₹|rs\\.?|inr)\\s*${AMOUNT_TOKEN_PATTERN}`,
     "i",
   ).exec(transactionText);
   const amount = parseAmountToken(amountMatch?.[1]);
   return amount ? { amount } : null;
+}
+
+function splitGstTaxTerm(taxType: "cgst" | "sgst" | "igst"): string {
+  if (taxType === "cgst") return "(?:cgst|central\\s+gst)";
+  if (taxType === "sgst") return "(?:sgst|state\\s+gst)";
+  return "(?:igst|integrated\\s+gst)";
+}
+
+function buildInclusiveSplitGstDetails(
+  invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[],
+): {
+  baseAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  taxLines: GoodsGstTaxLine[];
+} | null {
+  if (taxLines.some((line) => line.rate === undefined)) return null;
+
+  const totalRate = taxLines.reduce((total, line) => total + (line.rate ?? 0), 0);
+  if (!Number.isFinite(totalRate) || totalRate <= 0) return null;
+
+  const baseAmount = roundCurrency((invoiceTotal * 100) / (100 + totalRate));
+  const gstAmount = roundCurrency(invoiceTotal - baseAmount);
+  let allocatedTax = 0;
+  const recalculatedTaxLines = taxLines.map((line, index) => {
+    const amount =
+      index === taxLines.length - 1
+        ? roundCurrency(gstAmount - allocatedTax)
+        : roundCurrency((baseAmount * (line.rate ?? 0)) / 100);
+    allocatedTax = roundCurrency(allocatedTax + amount);
+    return { ...line, amount };
+  });
+
+  return { baseAmount, gstAmount, invoiceTotal, taxLines: recalculatedTaxLines };
 }
 
 function parseAmountToken(value: string | undefined): number | null {
