@@ -4356,4 +4356,123 @@ describe("POST /api/check-entry", () => {
     expect(body.result_status).not.toBe("Correct");
     expect(body.score).not.toBe(100);
   });
+
+  it.each([
+    {
+      name: "travelling expenses plural paid in cash",
+      transactionText: "Paid travelling expenses Rs.2000 in cash",
+      journalEntry: "Travelling Expenses A/c Dr Rs 2000\nTo Cash A/c Rs.2000",
+      expected: {
+        debits: [{ account: "Travelling Expense", amount: 2000 }],
+        credits: [{ account: "Cash", amount: 2000 }],
+      },
+    },
+    {
+      name: "travel expense singular paid in cash",
+      transactionText: "Paid travelling expenses Rs.2000 in cash",
+      journalEntry: "Travel Expense A/c Dr. Rs.2000\nTo Cash A/c Rs.2000",
+      expected: {
+        debits: [{ account: "Travelling Expense", amount: 2000 }],
+        credits: [{ account: "Cash", amount: 2000 }],
+      },
+    },
+    {
+      name: "travelling account paid in cash",
+      transactionText: "Paid travelling expenses Rs.2000 in cash",
+      journalEntry: "Travelling A/c Dr. Rs.2000\nTo Cash A/c Rs.2000",
+      expected: {
+        debits: [{ account: "Travelling Expense", amount: 2000 }],
+        credits: [{ account: "Cash", amount: 2000 }],
+      },
+    },
+    {
+      name: "travel expenses paid through bank",
+      transactionText: "Paid travelling expenses Rs.2000 through bank",
+      journalEntry: "Travel Expenses A/c Dr. Rs.2000\nTo Bank A/c Rs.2000",
+      expected: {
+        debits: [{ account: "Travelling Expense", amount: 2000 }],
+        credits: [{ account: "Bank", amount: 2000 }],
+      },
+    },
+    {
+      name: "legal charge with account suffix",
+      transactionText: "Paid legal charges Rs.5000 in cash",
+      journalEntry: "Legal Charge A/c Dr. Rs.5000\nTo Cash Account Rs.5000",
+      expected: {
+        debits: [{ account: "Legal Charges", amount: 5000 }],
+        credits: [{ account: "Cash", amount: 5000 }],
+      },
+    },
+    {
+      name: "consulting fees for consultancy income",
+      transactionText: "Received consultancy fees Rs.10000 through bank",
+      journalEntry: "Bank Account Dr. Rs.10000\nTo Consulting Fees A/c Rs.10000",
+      expected: {
+        debits: [{ account: "Bank", amount: 10000 }],
+        credits: [{ account: "Consultancy Income", amount: 10000 }],
+      },
+    },
+    {
+      name: "office equipment for printer",
+      transactionText: "Purchased printer through bank Rs.8000",
+      journalEntry: "Office Equipment Account Dr. Rs.8000\nTo Bank Account Rs.8000",
+      expected: {
+        debits: [{ account: "Equipment", amount: 8000 }],
+        credits: [{ account: "Bank", amount: 8000 }],
+      },
+    },
+    {
+      name: "returns inward for sales return",
+      transactionText: "Goods returned by Raju Rs.1000",
+      journalEntry: "Returns Inward A/c Dr. Rs.1000\nTo Raju Account Rs.1000",
+      expected: {
+        debits: [{ account: "Sales Return", amount: 1000 }],
+        credits: [{ account: "Raju", amount: 1000 }],
+      },
+    },
+    {
+      name: "returns outward for purchase return",
+      transactionText: "Goods returned to Amit Rs.1000",
+      journalEntry: "Amit Account Dr. Rs.1000\nTo Returns Outward A/c Rs.1000",
+      expected: {
+        debits: [{ account: "Amit", amount: 1000 }],
+        credits: [{ account: "Purchase Return", amount: 1000 }],
+      },
+    },
+  ])("accepts safe global account-name normalization: $name", async ({ transactionText, journalEntry, expected }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual(expected);
+  });
+
+  it.each([
+    {
+      name: "sales is not accepted for sales return",
+      transactionText: "Goods returned by Raju Rs.1000",
+      journalEntry: "Sales A/c Dr. Rs.1000\nTo Raju A/c Rs.1000",
+    },
+    {
+      name: "purchases is not accepted for purchase return",
+      transactionText: "Goods returned to Amit Rs.1000",
+      journalEntry: "Amit A/c Dr. Rs.1000\nTo Purchases A/c Rs.1000",
+    },
+    {
+      name: "input gst is not accepted for output gst",
+      transactionText: "Sold goods Rs.10000 plus GST 18% for cash",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Sales A/c Rs.10000\nTo Input GST A/c Rs.1800",
+    },
+    {
+      name: "rent income is not accepted for rent expense",
+      transactionText: "Paid rent Rs.5000 in cash",
+      journalEntry: "Rent Income A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    },
+  ])("protects dangerous account-name pairs: $name", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
 });

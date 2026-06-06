@@ -105,6 +105,19 @@ describe("parseJournalEntry account synonyms and fuzzy corrections", () => {
     ["Bank Loan Cr 5000", "Loan"],
     ["Borrowings Cr 5000", "Loan"],
     ["Borrowed Loan Cr 5000", "Loan"],
+    ["Travelling Expenses A/c Dr 5000", "Travelling Expense"],
+    ["Travel Expenses Dr 5000", "Travelling Expense"],
+    ["Travelling Expnse Dr 5000", "Travelling Expense"],
+    ["Legal Charge Dr 5000", "Legal Charges"],
+    ["Legal Chargs Dr 5000", "Legal Charges"],
+    ["Repair Expense Dr 5000", "Repairs Expense"],
+    ["Repair Charge Dr 5000", "Repairs Expense"],
+    ["Bank Accounts Dr 5000", "Bank"],
+    ["Printing & Stationery Dr 5000", "Printing and Stationery Expense"],
+    ["Telefone Expense Dr 5000", "Telephone Expense"],
+    ["Received Commission Cr 5000", "Commission Income"],
+    ["AC Dr 5000", "Equipment"],
+    ["Table Dr 5000", "Furniture"],
     ["Capitol Cr 5000", "Capital"],
     ["Salery Dr 5000", "Salary Expense"],
     ["Purchse Dr 5000", "Purchases"],
@@ -118,6 +131,16 @@ describe("parseJournalEntry account synonyms and fuzzy corrections", () => {
     const accounts = [...parsed.debits, ...parsed.credits].map((entryLine) => entryLine.account);
 
     expect(accounts).toContain(expectedAccount);
+  });
+});
+
+describe("parseJournalEntry extended side words", () => {
+  it("parses debited and credited as debit and credit labels", () => {
+    const parsed = parseJournalEntry("Cash Debited Rs.5000\nCapital Credited Rs.5000");
+
+    expect(parsed.errors).toEqual([]);
+    expect(parsed.debits).toEqual([{ account: "Cash", amount: 5000 }]);
+    expect(parsed.credits).toEqual([{ account: "Capital", amount: 5000 }]);
   });
 });
 

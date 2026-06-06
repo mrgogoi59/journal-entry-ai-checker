@@ -56,7 +56,7 @@ function parseLine(line: string): { side: EntryLineSide; entry: JournalLine } | 
   if (!amount) return null;
 
   const accountText = removeFirstAmount(line)
-    .replace(/\b(dr\.?|debit|cr\.?|credit|to)\b/gi, " ")
+    .replace(/\b(dr\.?|debit(?:ed)?|cr\.?|credit(?:ed)?|to)\b/gi, " ")
     .replace(/\b(rs\.?|inr)\b/gi, " ")
     .replace(/[₹]/g, " ")
     .replace(/\s+/g, " ")
@@ -77,8 +77,8 @@ function parseLine(line: string): { side: EntryLineSide; entry: JournalLine } | 
 }
 
 function detectSide(line: string): EntryLineSide | null {
-  if (/^\s*to\b/i.test(line) || /\b(cr\.?|credit)\b/i.test(line)) return "credit";
-  if (/\b(dr\.?|debit)\b/i.test(line)) return "debit";
+  if (/^\s*to\b/i.test(line) || /\b(cr\.?|credit(?:ed)?)\b/i.test(line)) return "credit";
+  if (/\b(dr\.?|debit(?:ed)?)\b/i.test(line)) return "debit";
   return null;
 }
 

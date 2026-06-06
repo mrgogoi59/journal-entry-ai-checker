@@ -133,11 +133,14 @@ const ACCOUNT_SYNONYMS: Record<string, string> = {
   repair: "Repairs Expense",
   "repairs account": "Repairs Expense",
   "repairs expense": "Repairs Expense",
+  "repair expense": "Repairs Expense",
   "repair charges": "Repairs Expense",
+  "repair charge": "Repairs Expense",
   "maintenance expense": "Repairs Expense",
   "printing and stationery": "Printing and Stationery Expense",
   stationery: "Printing and Stationery Expense",
   "printing charges": "Printing and Stationery Expense",
+  "printing charge": "Printing and Stationery Expense",
   "stationery expense": "Printing and Stationery Expense",
   "printing and stationery account": "Printing and Stationery Expense",
   telephone: "Telephone Expense",
@@ -153,8 +156,11 @@ const ACCOUNT_SYNONYMS: Record<string, string> = {
   travelling: "Travelling Expense",
   travel: "Travelling Expense",
   "travelling expense": "Travelling Expense",
+  "travelling expenses": "Travelling Expense",
   "travel expense": "Travelling Expense",
+  "travel expenses": "Travelling Expense",
   "travelling account": "Travelling Expense",
+  "travel account": "Travelling Expense",
   petrol: "Petrol/Fuel Expense",
   fuel: "Petrol/Fuel Expense",
   "petrol expense": "Petrol/Fuel Expense",
@@ -162,6 +168,7 @@ const ACCOUNT_SYNONYMS: Record<string, string> = {
   "petrol account": "Petrol/Fuel Expense",
   "fuel account": "Petrol/Fuel Expense",
   "legal charges": "Legal Charges",
+  "legal charge": "Legal Charges",
   "legal charges account": "Legal Charges",
   "legal fees": "Legal Charges",
   "lawyer fees": "Legal Charges",
@@ -179,6 +186,7 @@ const ACCOUNT_SYNONYMS: Record<string, string> = {
   "office expenses": "Office Expenses",
   "office expense": "Office Expenses",
   "general office expenses": "Office Expenses",
+  "general office expense": "Office Expenses",
   "office expenses account": "Office Expenses",
   charity: "Charity Expense",
   "charity account": "Charity Expense",
@@ -241,6 +249,12 @@ const ACCOUNT_SYNONYMS: Record<string, string> = {
   "depreciation account": "Depreciation",
   "depreciation expense": "Depreciation",
   furniture: "Furniture",
+  table: "Furniture",
+  tables: "Furniture",
+  chair: "Furniture",
+  chairs: "Furniture",
+  desk: "Furniture",
+  desks: "Furniture",
   machinery: "Machinery",
   computer: "Computer",
   computers: "Computer",
@@ -357,6 +371,7 @@ const ACCOUNT_SYNONYMS: Record<string, string> = {
   commission: "Commission Income",
   "commission income": "Commission Income",
   "commission received": "Commission Income",
+  "received commission": "Commission Income",
   "commission earned": "Commission Income",
   "commission account": "Commission Income",
   "commission income account": "Commission Income",
@@ -467,17 +482,25 @@ const SPELLING_CORRECTIONS: Record<string, string> = {
   salery: "salary",
   purchse: "purchases",
   commision: "commission",
+  recieved: "received",
   machinary: "machinery",
   furnitur: "furniture",
   crediter: "creditor",
   debter: "debtor",
+  expnse: "expense",
+  expnses: "expenses",
+  chargs: "charges",
+  telefone: "telephone",
 };
 
 export function cleanAccountName(value: string): string {
   const cleaned = value
     .toLowerCase()
-    .replace(/\ba\s*\/?\s*c\b|\bac\b|\baccount\b/g, " account ")
-    .replace(/\bdr\b|\bcr\b|\bdebit\b|\bcredit\b|\bto\b/g, " ")
+    .replace(/\ba\s*\/\s*c\b|\baccounts?\b/g, " account ")
+    .replace(/\s+ac\b/g, " account ")
+    .replace(/\bdr\b|\bcr\b|\bdebit(?:ed)?\b|\bcredit(?:ed)?\b|\bto\b/g, " ")
+    .replace(/&/g, " and ")
+    .replace(/[-_/]/g, " ")
     .replace(/[.:,()]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
