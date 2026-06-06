@@ -7,7 +7,6 @@ import type {
   JournalEntrySolverResponse,
   SolverAffectedAccount,
   SolverJournalEntryLine,
-  SolverMode,
   SolverPossibleInterpretation,
 } from "@/lib/types";
 
@@ -21,7 +20,6 @@ const examples = [
 
 export default function JournalEntrySolverPage() {
   const [transaction, setTransaction] = useState("");
-  const [mode, setMode] = useState<SolverMode>("beginner");
   const [result, setResult] = useState<JournalEntrySolverResponse | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +39,7 @@ export default function JournalEntrySolverPage() {
       const response = await fetch("/api/journal-entry-solver", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transaction, mode }),
+        body: JSON.stringify({ transaction, mode: "beginner" }),
       });
       const data = (await response.json()) as JournalEntrySolverResponse;
 
@@ -79,17 +77,6 @@ export default function JournalEntrySolverPage() {
 
         <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
           <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-2 rounded-lg border border-line bg-paper p-2">
-              <button type="button" onClick={() => setMode("beginner")} className={modeButtonClass(mode === "beginner")}>
-                <span>Beginner Mode</span>
-                <span className="text-xs font-medium leading-5 opacity-80">Detailed explanation</span>
-              </button>
-              <button type="button" onClick={() => setMode("exam")} className={modeButtonClass(mode === "exam")}>
-                <span>Exam Mode</span>
-                <span className="text-xs font-medium leading-5 opacity-80">Concise answer</span>
-              </button>
-            </div>
-
             <label className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-ink">Transaction</span>
               <textarea
@@ -132,19 +119,19 @@ export default function JournalEntrySolverPage() {
           </div>
         </section>
 
-        {result ? <SolverResult result={result} mode={mode} /> : <EmptyPreview />}
+        {result ? <SolverResult result={result} /> : <EmptyPreview />}
       </section>
     </main>
   );
 }
 
-function SolverResult({ result, mode }: { result: JournalEntrySolverResponse; mode: SolverMode }) {
+function SolverResult({ result }: { result: JournalEntrySolverResponse }) {
   if (result.status === "ambiguous") {
-    return <AmbiguousResult result={result} mode={mode} />;
+    return <AmbiguousResult result={result} />;
   }
 
   if (result.status === "unsupported") {
-    return <UnsupportedResult result={result} mode={mode} />;
+    return <UnsupportedResult result={result} />;
   }
 
   return (
@@ -157,36 +144,28 @@ function SolverResult({ result, mode }: { result: JournalEntrySolverResponse; mo
         <p className="text-sm leading-6 text-slate-700">{result.narration}</p>
       </ResultSection>
 
-      {mode === "beginner" ? (
-        <>
-          <ResultSection title="Affected Accounts">
-            <AffectedAccountsTable accounts={result.affectedAccounts} />
-          </ResultSection>
+      <ResultSection title="Affected Accounts">
+        <AffectedAccountsTable accounts={result.affectedAccounts} />
+      </ResultSection>
 
-          <ResultSection title="Step-by-step Logic">
-            <StepList steps={result.stepByStepExplanation} />
-          </ResultSection>
+      <ResultSection title="Step-by-step Logic">
+        <StepList steps={result.stepByStepExplanation} />
+      </ResultSection>
 
-          <ResultSection title="Common Mistakes">
-            <ul className="grid gap-2 text-sm leading-6 text-slate-700">
-              {result.commonMistakes.map((mistake, index) => (
-                <li key={`mistake-${mistake}-${index}`}>{mistake}</li>
-              ))}
-            </ul>
-          </ResultSection>
+      <ResultSection title="Common Mistakes">
+        <ul className="grid gap-2 text-sm leading-6 text-slate-700">
+          {result.commonMistakes.map((mistake, index) => (
+            <li key={`mistake-${mistake}-${index}`}>{mistake}</li>
+          ))}
+        </ul>
+      </ResultSection>
 
-          <ResultSection title="Practice Next">
-            <p className="text-sm font-semibold text-ink">{result.practiceQuestion.question}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{result.practiceQuestion.expectedPattern}</p>
-          </ResultSection>
-        </>
-      ) : (
-        <ResultSection title="Short Logic">
-          <StepList steps={result.stepByStepExplanation} />
-        </ResultSection>
-      )}
+      <ResultSection title="Practice Next">
+        <p className="text-sm font-semibold text-ink">{result.practiceQuestion.question}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{result.practiceQuestion.expectedPattern}</p>
+      </ResultSection>
 
-      <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result, mode)} />
+      <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
     </section>
   );
 }
@@ -223,7 +202,7 @@ function EmptyPreview() {
   );
 }
 
-function AmbiguousResult({ result, mode }: { result: JournalEntrySolverResponse; mode: SolverMode }) {
+function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
   return (
     <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
       <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
@@ -252,13 +231,13 @@ function AmbiguousResult({ result, mode }: { result: JournalEntrySolverResponse;
       </div>
 
       <div className="mt-4">
-        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result, mode)} />
+        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
       </div>
     </section>
   );
 }
 
-function UnsupportedResult({ result, mode }: { result: JournalEntrySolverResponse; mode: SolverMode }) {
+function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
   return (
     <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
       <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
@@ -267,7 +246,7 @@ function UnsupportedResult({ result, mode }: { result: JournalEntrySolverRespons
       </p>
 
       <div className="mt-4">
-        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result, mode)} />
+        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
       </div>
     </section>
   );
@@ -378,23 +357,15 @@ function MessageBox({ message }: { message: string }) {
   );
 }
 
-function modeButtonClass(isActive: boolean): string {
-  return [
-    "flex min-h-14 flex-col items-center justify-center rounded-md px-3 py-2 text-center text-sm font-semibold transition",
-    isActive ? "bg-accent text-white" : "bg-white text-slate-700 hover:bg-white",
-  ].join(" ");
-}
-
 function formatAmount(amount: number): string {
   return amount.toLocaleString("en-IN");
 }
 
-function buildSolverFeedbackDetails(result: JournalEntrySolverResponse, mode: SolverMode) {
+function buildSolverFeedbackDetails(result: JournalEntrySolverResponse) {
   return {
     module: "Explainer" as const,
     transaction: result.transactionSummary,
     appResult: [
-      `Mode: ${mode === "exam" ? "Exam" : "Beginner"}`,
       `Solver status: ${result.status}`,
       result.narration ? `Narration: ${result.narration}` : "",
       result.message ? `Reason/message: ${result.message}` : "",
