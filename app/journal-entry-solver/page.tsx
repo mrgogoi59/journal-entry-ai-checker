@@ -163,8 +163,8 @@ function SolverResult({ result, mode }: { result: JournalEntrySolverResponse; mo
 
           <ResultSection title="Common Mistakes">
             <ul className="grid gap-2 text-sm leading-6 text-slate-700">
-              {result.commonMistakes.map((mistake) => (
-                <li key={mistake}>{mistake}</li>
+              {result.commonMistakes.map((mistake, index) => (
+                <li key={`mistake-${mistake}-${index}`}>{mistake}</li>
               ))}
             </ul>
           </ResultSection>
@@ -225,8 +225,8 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
         <div>
           <h3 className="text-sm font-bold">Questions to ask</h3>
           <ul className="mt-2 grid gap-2 text-sm leading-6">
-            {result.ambiguityQuestions.map((question) => (
-              <li key={question}>{question}</li>
+            {result.ambiguityQuestions.map((question, index) => (
+              <li key={`question-${question}-${index}`}>{question}</li>
             ))}
           </ul>
         </div>
@@ -234,8 +234,8 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
         <div>
           <h3 className="text-sm font-bold">Possible interpretations</h3>
           <div className="mt-2 grid gap-2">
-            {result.possibleInterpretations.map((interpretation) => (
-              <InterpretationCard key={interpretation.context} interpretation={interpretation} />
+            {result.possibleInterpretations.map((interpretation, index) => (
+              <InterpretationCard key={`interpretation-${interpretation.context}-${index}`} interpretation={interpretation} />
             ))}
           </div>
         </div>
@@ -288,8 +288,11 @@ function JournalEntryTable({ lines }: { lines: SolverJournalEntryLine[] }) {
           </tr>
         </thead>
         <tbody>
-          {lines.map((line) => (
-            <tr key={`${line.account}-${line.debit}-${line.credit}`} className="border-b border-line last:border-b-0">
+          {lines.map((line, index) => (
+            <tr
+              key={`journal-${line.account}-${line.debit}-${line.credit}-${index}`}
+              className="border-b border-line last:border-b-0"
+            >
               <td className="py-3 pr-3 font-medium text-ink">
                 {line.debit > 0 ? `${line.account} Dr.` : `To ${line.account}`}
               </td>
@@ -317,8 +320,11 @@ function AffectedAccountsTable({ accounts }: { accounts: SolverAffectedAccount[]
           </tr>
         </thead>
         <tbody>
-          {accounts.map((account) => (
-            <tr key={`${account.account}-${account.debitOrCredit}`} className="border-b border-line last:border-b-0">
+          {accounts.map((account, index) => (
+            <tr
+              key={`affected-${account.account}-${account.debitOrCredit}-${index}`}
+              className="border-b border-line last:border-b-0"
+            >
               <td className="py-3 pr-3 font-medium text-ink">{account.account}</td>
               <td className="py-3 pr-3 text-slate-700">{account.modernType}</td>
               <td className="py-3 pr-3 text-slate-700">{account.effect}</td>
@@ -335,8 +341,8 @@ function AffectedAccountsTable({ accounts }: { accounts: SolverAffectedAccount[]
 function StepList({ steps }: { steps: string[] }) {
   return (
     <ol className="grid list-decimal gap-2 pl-5 text-sm leading-6 text-slate-700">
-      {steps.map((step) => (
-        <li key={step}>{step}</li>
+      {steps.map((step, index) => (
+        <li key={`step-${step}-${index}`}>{step}</li>
       ))}
     </ol>
   );
