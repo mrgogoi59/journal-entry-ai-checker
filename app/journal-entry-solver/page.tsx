@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
+import { FeedbackReport } from "@/components/FeedbackReport";
 import type {
   JournalEntrySolverResponse,
   SolverAffectedAccount,
@@ -139,11 +140,11 @@ export default function JournalEntrySolverPage() {
 
 function SolverResult({ result, mode }: { result: JournalEntrySolverResponse; mode: SolverMode }) {
   if (result.status === "ambiguous") {
-    return <AmbiguousResult result={result} />;
+    return <AmbiguousResult result={result} mode={mode} />;
   }
 
   if (result.status === "unsupported") {
-    return <UnsupportedResult result={result} />;
+    return <UnsupportedResult result={result} mode={mode} />;
   }
 
   return (
@@ -184,6 +185,8 @@ function SolverResult({ result, mode }: { result: JournalEntrySolverResponse; mo
           <StepList steps={result.stepByStepExplanation} />
         </ResultSection>
       )}
+
+      <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result, mode)} />
     </section>
   );
 }
@@ -220,7 +223,7 @@ function EmptyPreview() {
   );
 }
 
-function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
+function AmbiguousResult({ result, mode }: { result: JournalEntrySolverResponse; mode: SolverMode }) {
   return (
     <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
       <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
@@ -247,17 +250,25 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
           </div>
         </div>
       </div>
+
+      <div className="mt-4">
+        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result, mode)} />
+      </div>
     </section>
   );
 }
 
-function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
+function UnsupportedResult({ result, mode }: { result: JournalEntrySolverResponse; mode: SolverMode }) {
   return (
     <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
       <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
       <p className="mt-2 whitespace-pre-line text-sm leading-6">
         {result.message ?? "Please rewrite with amount, payment mode, and account context."}
       </p>
+
+      <div className="mt-4">
+        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result, mode)} />
+      </div>
     </section>
   );
 }
@@ -376,4 +387,33 @@ function modeButtonClass(isActive: boolean): string {
 
 function formatAmount(amount: number): string {
   return amount.toLocaleString("en-IN");
+}
+
+function buildSolverFeedbackDetails(result: JournalEntrySolverResponse, mode: SolverMode) {
+  return {
+    module: "Explainer" as const,
+    transaction: result.transactionSummary,
+    appResult: [
+      `Mode: ${mode === "exam" ? "Exam" : "Beginner"}`,
+      `Solver status: ${result.status}`,
+      result.narration ? `Narration: ${result.narration}` : "",
+      result.message ? `Reason/message: ${result.message}` : "",
+      result.stepByStepExplanation.length
+        ? `Step-by-step explanation:\n${result.stepByStepExplanation.join("\n")}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    appCorrectEntry: result.journalEntry.length ? formatSolverJournalEntry(result.journalEntry) : "No final entry shown.",
+  };
+}
+
+function formatSolverJournalEntry(lines: SolverJournalEntryLine[]): string {
+  return lines
+    .map((line) =>
+      line.debit > 0
+        ? `${line.account} Dr. Rs.${line.debit.toLocaleString("en-IN")}`
+        : `To ${line.account} Rs.${line.credit.toLocaleString("en-IN")}`,
+    )
+    .join("\n");
 }

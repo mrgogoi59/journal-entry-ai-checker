@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { FeedbackReport } from "@/components/FeedbackReport";
 import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion } from "@/lib/types";
 
 const sampleTransaction = "Bought goods for cash Rs.10000";
@@ -200,8 +201,24 @@ export default function Home() {
           />
         )}
 
-        {mode === "own" && result ? <ResultCard result={result} /> : null}
-        {mode === "practice" && practiceResult ? <ResultCard result={practiceResult} /> : null}
+        {mode === "own" && result ? (
+          <ResultCard
+            result={result}
+            moduleName="Checker"
+            transactionText={transactionText}
+            studentEntry={journalEntry}
+            buttonLabel="Report wrong answer"
+          />
+        ) : null}
+        {mode === "practice" && practiceResult ? (
+          <ResultCard
+            result={practiceResult}
+            moduleName="Practice"
+            transactionText={practiceQuestion?.transaction_text ?? ""}
+            studentEntry={practiceEntry}
+            buttonLabel="Report wrong answer"
+          />
+        ) : null}
       </section>
     </main>
   );
@@ -332,8 +349,21 @@ function JournalEntryInput({
   );
 }
 
-function ResultCard({ result }: { result: CheckEntryResponse }) {
+function ResultCard({
+  result,
+  moduleName,
+  transactionText,
+  studentEntry,
+  buttonLabel,
+}: {
+  result: CheckEntryResponse;
+  moduleName: "Checker" | "Practice";
+  transactionText: string;
+  studentEntry: string;
+  buttonLabel: string;
+}) {
   const status = getStatusDisplay(result.result_status);
+  const correctEntry = formatJournalEntry(result.correct_journal_entry);
 
   return (
     <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
@@ -355,6 +385,24 @@ function ResultCard({ result }: { result: CheckEntryResponse }) {
         <ResultSection title="What went wrong" body={formatMistake(result.mistake_type)} />
         <ResultSection title="Simple explanation" body={simplifyExplanation(result.simple_explanation)} />
         <ResultSection title="Similar practice question" body={result.similar_practice_question} />
+      </div>
+
+      <div className="mt-4">
+        <FeedbackReport
+          buttonLabel={buttonLabel}
+          details={{
+            module: moduleName,
+            transaction: transactionText,
+            studentEntry,
+            appResult: [
+              `Status: ${result.result_status}`,
+              `Score: ${result.score}/100`,
+              `Mistake type: ${result.mistake_type}`,
+              `Explanation: ${simplifyExplanation(result.simple_explanation)}`,
+            ].join("\n"),
+            appCorrectEntry: correctEntry || "No expected entry available.",
+          }}
+        />
       </div>
     </section>
   );
