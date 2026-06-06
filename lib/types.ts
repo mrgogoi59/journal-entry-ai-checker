@@ -62,6 +62,8 @@ export interface TransactionClassification {
     | IncomeGstReceiptDetails
     | GoodsGstPurchaseDetails
     | GoodsGstSaleDetails
+    | SalesReturnGstDetails
+    | PurchaseReturnGstDetails
     | DiscountAllowedSettlementDetails
     | DiscountReceivedSettlementDetails;
 }
@@ -206,6 +208,28 @@ export interface GoodsGstSaleDetails {
   taxLines?: GoodsGstTaxLine[];
   receiptAccount: "Cash" | "Bank" | "Debtor";
   debtorAccount: string;
+  partyName?: string;
+}
+
+export interface SalesReturnGstDetails {
+  kind: "sales_return_gst";
+  baseAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  gstRate?: number;
+  taxLines?: GoodsGstTaxLine[];
+  customerAccount: string;
+  partyName?: string;
+}
+
+export interface PurchaseReturnGstDetails {
+  kind: "purchase_return_gst";
+  baseAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  gstRate?: number;
+  taxLines?: GoodsGstTaxLine[];
+  supplierAccount: string;
   partyName?: string;
 }
 

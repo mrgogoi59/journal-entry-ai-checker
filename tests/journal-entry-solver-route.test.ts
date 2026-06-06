@@ -1676,6 +1676,64 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves sales return with GST and explains output GST reduction", async () => {
+    const body = await solve("Goods returned by Raju Rs.1000 plus GST 18%");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Sales Return A/c", debit: 1000, credit: 0 },
+      { account: "Output GST A/c", debit: 180, credit: 0 },
+      { account: "Raju A/c", debit: 0, credit: 1180 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Output GST A/c is debited because output tax liability is reduced.");
+    expect(body.commonMistakes).toContain("Do not use Input GST on sales return.");
+    expect(body.narration).toBe("Being goods returned by Raju with GST.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves purchase return with GST and explains input GST reduction", async () => {
+    const body = await solve("Goods returned to Amit Rs.1000 plus GST 18%");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Amit A/c", debit: 1180, credit: 0 },
+      { account: "Purchase Return A/c", debit: 0, credit: 1000 },
+      { account: "Input GST A/c", debit: 0, credit: 180 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Input GST A/c is credited because input tax credit is reduced.");
+    expect(body.commonMistakes).toContain("Do not use Output GST on purchase return.");
+    expect(body.narration).toBe("Being goods returned to Amit with GST.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves split GST sales return", async () => {
+    const body = await solve("Goods returned by customer Rs.1000 plus CGST 9% and SGST 9%");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Sales Return A/c", debit: 1000, credit: 0 },
+      { account: "Output CGST A/c", debit: 90, credit: 0 },
+      { account: "Output SGST A/c", debit: 90, credit: 0 },
+      { account: "Debtor A/c", debit: 0, credit: 1180 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve unsupported GST return variations", async () => {
+    const cases = [
+      "Goods returned by Raju Rs.1180 including GST 18%",
+      "Goods returned by Raju Rs.1000 plus GST 18% and cash refunded",
+      "Goods returned to Amit Rs.1000 plus GST",
+      "Goods returned to Amit Rs.1000 plus GST 18% less discount Rs.100",
+    ];
+
+    for (const transaction of cases) {
+      const body = await solve(transaction);
+      expect(["unsupported", "ambiguous"]).toContain(body.status);
+      expect(body.journalEntry).toEqual([]);
+    }
+  });
+
   it("does not solve sales return with cash refund yet", async () => {
     const body = await solve("Goods returned by Raju Rs.1000 and cash refunded");
 

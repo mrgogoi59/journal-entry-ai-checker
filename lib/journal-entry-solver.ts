@@ -721,6 +721,50 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (classification.compoundDetails?.kind === "sales_return_gst") {
+    const details = classification.compoundDetails;
+    const taxSteps = details.taxLines?.length
+      ? details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate))
+      : [`${gstAmountExplanation(details.gstAmount, details.gstRate)}.`];
+
+    return [
+      `Goods sold earlier were returned by ${details.partyName ?? "customer"}.`,
+      `Returned goods value is ${formatRupees(details.baseAmount)}.`,
+      ...taxSteps,
+      "Sales Return A/c is debited because the earlier sale is reduced.",
+      details.taxLines?.length
+        ? `${outputTaxAccountLabel(details.taxLines)} ${
+            details.taxLines.length === 1 ? "is" : "are"
+          } debited because output tax liability is reduced.`
+        : "Output GST A/c is debited because output tax liability is reduced.",
+      `${displayAccountName(details.customerAccount)} is credited for the total value including GST, ${formatRupees(
+        details.invoiceTotal,
+      )}.`,
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "purchase_return_gst") {
+    const details = classification.compoundDetails;
+    const taxSteps = details.taxLines?.length
+      ? details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate))
+      : [`${gstAmountExplanation(details.gstAmount, details.gstRate)}.`];
+
+    return [
+      `Goods purchased earlier were returned to ${details.partyName ?? "supplier"}.`,
+      `Returned goods value is ${formatRupees(details.baseAmount)}.`,
+      ...taxSteps,
+      `${displayAccountName(details.supplierAccount)} is debited for the total supplier adjustment, ${formatRupees(
+        details.invoiceTotal,
+      )}.`,
+      "Purchase Return A/c is credited because the earlier purchase is reduced.",
+      details.taxLines?.length
+        ? `${inputTaxAccountLabel(details.taxLines)} ${
+            details.taxLines.length === 1 ? "is" : "are"
+          } credited because input tax credit is reduced.`
+        : "Input GST A/c is credited because input tax credit is reduced.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return [
@@ -1127,6 +1171,26 @@ function buildCommonMistakes(classification: TransactionClassification): string[
         classification.compoundDetails.baseAmount,
       )}; total receipt includes GST.`,
       "Do not split CGST/SGST/IGST in this MVP unless clearly supported later.",
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "sales_return_gst") {
+    return [
+      "Do not use Input GST on sales return.",
+      "Do not credit Sales Return A/c.",
+      "Do not ignore GST on the return.",
+      "Do not credit Cash or Bank unless the transaction clearly says refund was paid.",
+      `Do not credit ${displayAccountName(classification.creditAccount)} only for the base amount.`,
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "purchase_return_gst") {
+    return [
+      "Do not use Output GST on purchase return.",
+      "Do not debit Purchase Return A/c.",
+      "Do not ignore GST on the return.",
+      "Do not debit Cash or Bank unless the transaction clearly says refund was received.",
+      `Do not debit ${displayAccountName(classification.debitAccount)} only for the base amount.`,
     ];
   }
 
@@ -1591,6 +1655,30 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.compoundDetails?.kind === "sales_return_gst") {
+    const details = classification.compoundDetails;
+    return {
+      question: `Goods returned by ${details.partyName ?? "customer"} ${formatRupees(
+        details.baseAmount,
+      )} plus ${taxQuestionLabel(details.taxLines, details.gstRate, details.gstAmount)}`,
+      expectedPattern: `Sales Return A/c Dr., ${outputTaxPattern(details.taxLines)} Dr. To ${displayAccountName(
+        details.customerAccount,
+      )}`,
+    };
+  }
+
+  if (classification.compoundDetails?.kind === "purchase_return_gst") {
+    const details = classification.compoundDetails;
+    return {
+      question: `Goods returned to ${details.partyName ?? "supplier"} ${formatRupees(
+        details.baseAmount,
+      )} plus ${taxQuestionLabel(details.taxLines, details.gstRate, details.gstAmount)}`,
+      expectedPattern: `${displayAccountName(details.supplierAccount)} Dr. To Purchase Return A/c, ${inputTaxPattern(
+        details.taxLines,
+      )}`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return {
@@ -1935,6 +2023,16 @@ function buildNarration(classification: TransactionClassification): string {
       : `Being goods sold on credit${discountLabel} ${gstLabel}.`;
   }
 
+  if (classification.compoundDetails?.kind === "sales_return_gst") {
+    const details = classification.compoundDetails;
+    return `Being goods returned by ${details.partyName ?? "customer"} with GST.`;
+  }
+
+  if (classification.compoundDetails?.kind === "purchase_return_gst") {
+    const details = classification.compoundDetails;
+    return `Being goods returned to ${details.partyName ?? "supplier"} with GST.`;
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return `Being goods purchased, ${formatRupees(details.paidAmount)} paid ${
@@ -2146,6 +2244,14 @@ function describeTransactionAction(classification: TransactionClassification): s
       return "The business sold goods with trade discount deducted before GST.";
     }
     return "The business sold goods and collected GST payable to the government.";
+  }
+
+  if (classification.compoundDetails?.kind === "sales_return_gst") {
+    return "Goods sold earlier were returned with GST.";
+  }
+
+  if (classification.compoundDetails?.kind === "purchase_return_gst") {
+    return "Goods purchased earlier were returned with GST.";
   }
 
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {

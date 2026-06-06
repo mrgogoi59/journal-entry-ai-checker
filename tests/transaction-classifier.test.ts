@@ -1591,6 +1591,81 @@ describe("classifyTransaction supported beginner transactions", () => {
   });
 
   it.each([
+    ["Goods returned by Raju Rs.1000 plus GST 18%", "sales_return_gst_named", "Sales Return", "Raju"],
+    ["Goods returned by customer Rs.1000 plus GST 18%", "sales_return_gst_generic", "Sales Return", "Debtor"],
+    ["Goods returned to Amit Rs.1000 plus GST 18%", "purchase_return_gst_named", "Amit", "Purchase Return"],
+    ["Goods returned to supplier Rs.1000 plus GST 18%", "purchase_return_gst_generic", "Creditor", "Purchase Return"],
+    [
+      "Goods returned by Raju Rs.1000 plus CGST 9% and SGST 9%",
+      "sales_return_gst_cgst_sgst_named",
+      "Sales Return",
+      "Raju",
+    ],
+    [
+      "Goods returned to Amit Rs.1000 plus IGST 18%",
+      "purchase_return_gst_igst_named",
+      "Amit",
+      "Purchase Return",
+    ],
+  ])("classifies GST return transaction: %s", (transaction, transactionType, debitAccount, creditAccount) => {
+    const classification = classifyTransaction(transaction);
+
+    expect(classification).toMatchObject({
+      transaction_type: transactionType,
+      debitAccount,
+      creditAccount,
+      amount: 1180,
+      confidence: 0.95,
+    });
+  });
+
+  it("builds expected entries for GST sales return and purchase return", () => {
+    const salesReturn = classifyTransaction("Goods returned by Raju Rs.1000 plus GST Rs.180");
+    const purchaseReturn = classifyTransaction("Goods returned to Amit Rs.1000 plus GST Rs.180");
+    const splitSalesReturn = classifyTransaction("Goods returned by Raju Rs.1000 plus CGST Rs.90 and SGST Rs.90");
+    const splitPurchaseReturn = classifyTransaction("Goods returned to Amit Rs.1000 plus IGST Rs.180");
+
+    expect(generateExpectedEntry(salesReturn!)).toEqual({
+      debits: [
+        { account: "Sales Return", amount: 1000 },
+        { account: "Output GST", amount: 180 },
+      ],
+      credits: [{ account: "Raju", amount: 1180, acceptedAccounts: ["Debtor"], partyRole: "debtor" }],
+    });
+    expect(generateExpectedEntry(purchaseReturn!)).toEqual({
+      debits: [{ account: "Amit", amount: 1180, acceptedAccounts: ["Creditor"], partyRole: "creditor" }],
+      credits: [
+        { account: "Purchase Return", amount: 1000 },
+        { account: "Input GST", amount: 180 },
+      ],
+    });
+    expect(generateExpectedEntry(splitSalesReturn!)).toEqual({
+      debits: [
+        { account: "Sales Return", amount: 1000 },
+        { account: "Output CGST", amount: 90 },
+        { account: "Output SGST", amount: 90 },
+      ],
+      credits: [{ account: "Raju", amount: 1180, acceptedAccounts: ["Debtor"], partyRole: "debtor" }],
+    });
+    expect(generateExpectedEntry(splitPurchaseReturn!)).toEqual({
+      debits: [{ account: "Amit", amount: 1180, acceptedAccounts: ["Creditor"], partyRole: "creditor" }],
+      credits: [
+        { account: "Purchase Return", amount: 1000 },
+        { account: "Input IGST", amount: 180 },
+      ],
+    });
+  });
+
+  it.each([
+    "Goods returned by Raju Rs.1180 including GST 18%",
+    "Goods returned by Raju Rs.1000 plus GST 18% and cash refunded",
+    "Goods returned to Amit Rs.1000 plus GST",
+    "Goods returned to Amit Rs.1000 plus GST 18% less discount Rs.100",
+  ])("does not classify unsupported GST return transaction: %s", (transaction) => {
+    expect(classifyTransaction(transaction)).toBeNull();
+  });
+
+  it.each([
     [
       "Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
       "goods_gst_trade_discount_purchase_cash",

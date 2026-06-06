@@ -1151,6 +1151,138 @@ describe("POST /api/check-entry", () => {
 
   it.each([
     {
+      transactionText: "Goods returned by Raju Rs.1000 plus GST 18%",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nOutput GST A/c Dr. Rs.180\nTo Raju A/c Rs.1180",
+      expected: {
+        debits: [
+          { account: "Sales Return", amount: 1000 },
+          { account: "Output GST", amount: 180 },
+        ],
+        credits: [{ account: "Raju", amount: 1180 }],
+      },
+    },
+    {
+      transactionText: "Goods returned by Raju Rs.1000 plus GST 18%",
+      journalEntry: "Output GST A/c Dr. Rs.180\nSales Return A/c Dr. Rs.1000\nTo Raju A/c Rs.1180",
+      expected: {
+        debits: [
+          { account: "Sales Return", amount: 1000 },
+          { account: "Output GST", amount: 180 },
+        ],
+        credits: [{ account: "Raju", amount: 1180 }],
+      },
+    },
+    {
+      transactionText: "Goods returned by customer Rs.1000 plus GST 18%",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nOutput GST A/c Dr. Rs.180\nTo Debtor A/c Rs.1180",
+      expected: {
+        debits: [
+          { account: "Sales Return", amount: 1000 },
+          { account: "Output GST", amount: 180 },
+        ],
+        credits: [{ account: "Debtor", amount: 1180 }],
+      },
+    },
+    {
+      transactionText: "Goods returned to Amit Rs.1000 plus GST 18%",
+      journalEntry: "Amit A/c Dr. Rs.1180\nTo Purchase Return A/c Rs.1000\nTo Input GST A/c Rs.180",
+      expected: {
+        debits: [{ account: "Amit", amount: 1180 }],
+        credits: [
+          { account: "Purchase Return", amount: 1000 },
+          { account: "Input GST", amount: 180 },
+        ],
+      },
+    },
+    {
+      transactionText: "Goods returned to supplier Rs.1000 plus GST 18%",
+      journalEntry: "Creditor A/c Dr. Rs.1180\nTo Purchase Return A/c Rs.1000\nTo Input GST A/c Rs.180",
+      expected: {
+        debits: [{ account: "Creditor", amount: 1180 }],
+        credits: [
+          { account: "Purchase Return", amount: 1000 },
+          { account: "Input GST", amount: 180 },
+        ],
+      },
+    },
+    {
+      transactionText: "Goods returned by Raju Rs.1000 plus CGST 9% and SGST 9%",
+      journalEntry:
+        "Sales Return A/c Dr. Rs.1000\nOutput CGST A/c Dr. Rs.90\nOutput SGST A/c Dr. Rs.90\nTo Raju A/c Rs.1180",
+      expected: {
+        debits: [
+          { account: "Sales Return", amount: 1000 },
+          { account: "Output CGST", amount: 90 },
+          { account: "Output SGST", amount: 90 },
+        ],
+        credits: [{ account: "Raju", amount: 1180 }],
+      },
+    },
+    {
+      transactionText: "Goods returned to Amit Rs.1000 plus IGST 18%",
+      journalEntry: "Amit A/c Dr. Rs.1180\nTo Purchase Return A/c Rs.1000\nTo Input IGST A/c Rs.180",
+      expected: {
+        debits: [{ account: "Amit", amount: 1180 }],
+        credits: [
+          { account: "Purchase Return", amount: 1000 },
+          { account: "Input IGST", amount: 180 },
+        ],
+      },
+    },
+  ])("returns Correct for GST returns: $transactionText", async ({ transactionText, journalEntry, expected }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual(expected);
+  });
+
+  it.each([
+    {
+      name: "sales return uses Input GST",
+      transactionText: "Goods returned by Raju Rs.1000 plus GST 18%",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nInput GST A/c Dr. Rs.180\nTo Raju A/c Rs.1180",
+    },
+    {
+      name: "purchase return uses Output GST",
+      transactionText: "Goods returned to Amit Rs.1000 plus GST 18%",
+      journalEntry: "Amit A/c Dr. Rs.1180\nTo Purchase Return A/c Rs.1000\nTo Output GST A/c Rs.180",
+    },
+    {
+      name: "sales return ignores GST",
+      transactionText: "Goods returned by Raju Rs.1000 plus GST 18%",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nTo Raju A/c Rs.1000",
+    },
+    {
+      name: "party value excludes GST",
+      transactionText: "Goods returned by Raju Rs.1000 plus GST 18%",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nOutput GST A/c Dr. Rs.180\nTo Raju A/c Rs.1000",
+    },
+    {
+      name: "sales return credited",
+      transactionText: "Goods returned by Raju Rs.1000 plus GST 18%",
+      journalEntry: "Raju A/c Dr. Rs.1180\nTo Sales Return A/c Rs.1000\nTo Output GST A/c Rs.180",
+    },
+    {
+      name: "purchase return debited",
+      transactionText: "Goods returned to Amit Rs.1000 plus GST 18%",
+      journalEntry: "Purchase Return A/c Dr. Rs.1000\nInput GST A/c Dr. Rs.180\nTo Amit A/c Rs.1180",
+    },
+    {
+      name: "cash used without refund",
+      transactionText: "Goods returned by Raju Rs.1000 plus GST 18%",
+      journalEntry: "Sales Return A/c Dr. Rs.1000\nOutput GST A/c Dr. Rs.180\nTo Cash A/c Rs.1180",
+    },
+  ])("does not accept wrong GST return entry: $name", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it.each([
+    {
       transactionText: "Paid wages Rs.5000 in cash",
       journalEntry: "Wages A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
       debitAccount: "Wages Expense",

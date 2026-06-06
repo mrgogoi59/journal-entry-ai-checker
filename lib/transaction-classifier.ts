@@ -32,6 +32,10 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (goodsGstPurchase) return goodsGstPurchase;
   const goodsGstSale = classifyGoodsGstSale(transactionText);
   if (goodsGstSale) return goodsGstSale;
+  const salesReturnGst = classifySalesReturnGst(transactionText);
+  if (salesReturnGst) return salesReturnGst;
+  const purchaseReturnGst = classifyPurchaseReturnGst(transactionText);
+  if (purchaseReturnGst) return purchaseReturnGst;
   const expenseGstPayment = classifyExpenseGstPayment(transactionText);
   if (expenseGstPayment) return expenseGstPayment;
   const incomeGstReceipt = classifyIncomeGstReceipt(transactionText);
@@ -798,6 +802,104 @@ function classifyGoodsGstTradeDiscountSale(transactionText: string): Transaction
   };
 }
 
+function classifySalesReturnGst(transactionText: string): TransactionClassification | null {
+  if (!isSalesReturnWithGst(transactionText)) return null;
+  if (hasUnsupportedReturnGstContext(transactionText)) return null;
+
+  const gst = extractGstDetails(transactionText);
+  if (!gst || gst.gstInclusive) return null;
+  if (!gst.gstRate && !gst.taxLines?.length && extractAmounts(transactionText).length < 2) return null;
+
+  const partyName = extractSalesReturnGstCustomerName(transactionText);
+  const customerAccount = partyName ?? "Debtor";
+  const expectedEntry = buildSalesReturnGstEntry(
+    gst.baseAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    gst.taxLines,
+    customerAccount,
+    partyName,
+  );
+  const taxPrefix = returnGstTaxPrefix(gst.taxLines);
+
+  return {
+    transaction_type: `sales_return_gst_${taxPrefix}${partyName ? "named" : "generic"}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: "Sales Return",
+    creditAccount: customerAccount,
+    expectedDebitAccount: "Sales Return",
+    expectedCreditAccount: customerAccount,
+    genericDebitAccount: "Sales Return",
+    genericCreditAccount: "Debtor",
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "Goods sold earlier were returned with GST. Sales Return is debited, Output GST is debited because output tax liability is reduced, and the customer or debtor is credited for the total value including GST.",
+    partyName,
+    partyRole: partyName ? "debtor" : undefined,
+    partyAccountSide: partyName ? "credit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "sales_return_gst",
+      baseAmount: gst.baseAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
+      taxLines: gst.taxLines,
+      customerAccount,
+      partyName,
+    },
+  };
+}
+
+function classifyPurchaseReturnGst(transactionText: string): TransactionClassification | null {
+  if (!isPurchaseReturnWithGst(transactionText)) return null;
+  if (hasUnsupportedReturnGstContext(transactionText)) return null;
+
+  const gst = extractGstDetails(transactionText);
+  if (!gst || gst.gstInclusive) return null;
+  if (!gst.gstRate && !gst.taxLines?.length && extractAmounts(transactionText).length < 2) return null;
+
+  const partyName = extractPurchaseReturnGstSupplierName(transactionText);
+  const supplierAccount = partyName ?? "Creditor";
+  const expectedEntry = buildPurchaseReturnGstEntry(
+    gst.baseAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    gst.taxLines,
+    supplierAccount,
+    partyName,
+  );
+  const taxPrefix = returnGstTaxPrefix(gst.taxLines);
+
+  return {
+    transaction_type: `purchase_return_gst_${taxPrefix}${partyName ? "named" : "generic"}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: supplierAccount,
+    creditAccount: "Purchase Return",
+    expectedDebitAccount: supplierAccount,
+    expectedCreditAccount: "Purchase Return",
+    genericDebitAccount: "Creditor",
+    genericCreditAccount: "Purchase Return",
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "Goods purchased earlier were returned with GST. The supplier or creditor is debited for the total value including GST, Purchase Return is credited, and Input GST is credited because input tax credit is reduced.",
+    partyName,
+    partyRole: partyName ? "creditor" : undefined,
+    partyAccountSide: partyName ? "debit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "purchase_return_gst",
+      baseAmount: gst.baseAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
+      taxLines: gst.taxLines,
+      supplierAccount,
+      partyName,
+    },
+  };
+}
+
 function classifyExpenseGstPayment(transactionText: string): TransactionClassification | null {
   if (!isExpensePaymentWithGst(transactionText)) return null;
   if (hasUnsupportedGstContext(transactionText)) return null;
@@ -1425,6 +1527,29 @@ function isGoodsSaleWithGst(transactionText: string): boolean {
   return /\b(?:sold\s+goods|goods\s+sold|sale\s+of\s+goods)\b/i.test(transactionText) && hasGstMention(transactionText);
 }
 
+function isSalesReturnWithGst(transactionText: string): boolean {
+  return (
+    hasGstMention(transactionText) &&
+    (/\bsales?\s+returns?\b/i.test(transactionText) ||
+      /\bgoods\s+(?:worth\s+.*)?returned\s+(?:by|from)\b/i.test(transactionText) ||
+      /\b(?:customer|debtor)\s+returned\s+goods\b/i.test(transactionText) ||
+      /^[a-z][a-z.'-]*\s+returned\s+goods\b/i.test(transactionText)) &&
+    !isPurchaseReturnWithGst(transactionText)
+  );
+}
+
+function isPurchaseReturnWithGst(transactionText: string): boolean {
+  return (
+    hasGstMention(transactionText) &&
+    (/\bpurchase\s+returns?\b/i.test(transactionText) ||
+      /\bgoods\s+(?:worth\s+.*)?returned\s+to\b/i.test(transactionText) ||
+      /\breturned\s+goods(?:\s+worth\s+.*)?\s+to\b/i.test(transactionText) ||
+      /\bgoods\s+purchased\s+from\s+\w+\s+returned\b/i.test(transactionText) ||
+      /\bgoods\s+purchased\s+returned\b/i.test(transactionText) ||
+      /\bgoods\s+returned\s+from\s+purchase\b/i.test(transactionText))
+  );
+}
+
 function isExpensePaymentWithGst(transactionText: string): boolean {
   if (!hasGstMention(transactionText)) return false;
   if (/\b(?:received|earned|income)\b/i.test(transactionText)) return false;
@@ -1473,6 +1598,18 @@ function hasUnsupportedTradeDiscountGstContext(transactionText: string): boolean
     ) ||
     /\bcash\s+discount\b/i.test(transactionText) ||
     (transactionText.match(/\bdiscount\b/gi)?.length ?? 0) > 1
+  );
+}
+
+function hasUnsupportedReturnGstContext(transactionText: string): boolean {
+  return (
+    hasInclusiveGstWording(transactionText) ||
+    /\b(?:refund(?:ed)?|cash\s+refunded|bank\s+refund|refund\s+received|cash\s+refund\s+received)\b/i.test(
+      transactionText,
+    ) ||
+    /\b(?:discount|settlement|full\s+settlement|set-?off|paid\s+gst|gst\s+paid|gst\s+payment|stock|inventory)\b/i.test(
+      transactionText,
+    )
   );
 }
 
@@ -1558,6 +1695,11 @@ function extractTradeDiscount(
 }
 
 function tradeDiscountTaxPrefix(taxLines: GoodsGstTaxLine[] | undefined): string {
+  if (!taxLines?.length) return "";
+  return taxLines.length === 1 ? "igst_" : "cgst_sgst_";
+}
+
+function returnGstTaxPrefix(taxLines: GoodsGstTaxLine[] | undefined): string {
   if (!taxLines?.length) return "";
   return taxLines.length === 1 ? "igst_" : "cgst_sgst_";
 }
@@ -2104,6 +2246,64 @@ function buildGoodsGstSaleEntry(
   };
 }
 
+function buildSalesReturnGstEntry(
+  baseAmount: number,
+  gstAmount: number,
+  invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[] | undefined,
+  customerAccount: string,
+  partyName?: string,
+): CorrectJournalEntry {
+  const creditLine: CorrectJournalEntry["credits"][number] = {
+    account: customerAccount,
+    amount: invoiceTotal,
+  };
+
+  if (partyName) {
+    creditLine.acceptedAccounts = ["Debtor"];
+    creditLine.partyRole = "debtor";
+  }
+
+  return {
+    debits: [
+      { account: "Sales Return", amount: baseAmount },
+      ...(taxLines?.map((line) => ({ account: line.outputAccount, amount: line.amount })) ?? [
+        { account: "Output GST", amount: gstAmount },
+      ]),
+    ],
+    credits: [creditLine],
+  };
+}
+
+function buildPurchaseReturnGstEntry(
+  baseAmount: number,
+  gstAmount: number,
+  invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[] | undefined,
+  supplierAccount: string,
+  partyName?: string,
+): CorrectJournalEntry {
+  const debitLine: CorrectJournalEntry["debits"][number] = {
+    account: supplierAccount,
+    amount: invoiceTotal,
+  };
+
+  if (partyName) {
+    debitLine.acceptedAccounts = ["Creditor"];
+    debitLine.partyRole = "creditor";
+  }
+
+  return {
+    debits: [debitLine],
+    credits: [
+      { account: "Purchase Return", amount: baseAmount },
+      ...(taxLines?.map((line) => ({ account: line.inputAccount, amount: line.amount })) ?? [
+        { account: "Input GST", amount: gstAmount },
+      ]),
+    ],
+  };
+}
+
 function extractSupplierName(transactionText: string): string | undefined {
   const match = /\bgoods\s+from\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
   const rawName = match?.[1];
@@ -2202,6 +2402,30 @@ function extractGstCustomerName(transactionText: string): string | undefined {
     /\bto\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
 
   return normalizeSettlementParty(match?.[1], /^(customer|debtor|cash|bank|rs|inr)$/i);
+}
+
+function extractSalesReturnGstCustomerName(transactionText: string): string | undefined {
+  const match =
+    /\bgoods\s+(?:worth\s+.*)?returned\s+by\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bgoods\s+(?:worth\s+.*)?returned\s+from\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bsales?\s+returns?\s+(?:from|by)\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /^([a-z][a-z.'-]*)\s+returned\s+goods\b/i.exec(transactionText);
+
+  return normalizeSettlementParty(match?.[1], /^(customer|debtor|cash|bank|rs|inr)$/i);
+}
+
+function extractPurchaseReturnGstSupplierName(transactionText: string): string | undefined {
+  const match =
+    /\bgoods\s+(?:worth\s+.*)?returned\s+to\s+(?:supplier\s+)?([a-z][a-z.'-]*)\b/i.exec(
+      transactionText,
+    ) ??
+    /\breturned\s+goods(?:\s+worth\s+.*)?\s+to\s+(?:supplier\s+)?([a-z][a-z.'-]*)\b/i.exec(
+      transactionText,
+    ) ??
+    /\bpurchase\s+returns?\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bgoods\s+purchased\s+from\s+([a-z][a-z.'-]*)\s+returned\b/i.exec(transactionText);
+
+  return normalizeSettlementParty(match?.[1], /^(supplier|creditor|cash|bank|rs|inr)$/i);
 }
 
 function extractDiscountAllowedParty(transactionText: string): string | undefined {
