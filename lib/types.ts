@@ -93,6 +93,9 @@ export interface PartialGoodsSaleDetails {
 
 export interface GoodsGstPurchaseDetails {
   kind: "goods_gst_purchase";
+  grossAmount?: number;
+  tradeDiscountAmount?: number;
+  tradeDiscountRate?: number;
   baseAmount: number;
   gstAmount: number;
   invoiceTotal: number;
@@ -192,6 +195,9 @@ export interface AssetSaleDetails {
 
 export interface GoodsGstSaleDetails {
   kind: "goods_gst_sale";
+  grossAmount?: number;
+  tradeDiscountAmount?: number;
+  tradeDiscountRate?: number;
   baseAmount: number;
   gstAmount: number;
   invoiceTotal: number;

@@ -545,6 +545,30 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
+    if (details.tradeDiscountAmount !== undefined && details.grossAmount !== undefined) {
+      const taxSteps = details.taxLines?.length
+        ? details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate))
+        : [`${gstAmountExplanation(details.gstAmount, details.gstRate)}.`];
+
+      return [
+        `Gross goods value is ${formatRupees(details.grossAmount)}.`,
+        `Trade discount is ${formatRupees(details.tradeDiscountAmount)}.`,
+        `Taxable value = ${formatRupees(details.baseAmount)}.`,
+        `GST is calculated on ${formatRupees(details.baseAmount)}, not ${formatRupees(details.grossAmount)}.`,
+        ...taxSteps,
+        `Purchases A/c is debited for ${formatRupees(details.baseAmount)}.`,
+        details.taxLines?.length
+          ? `${inputTaxAccountLabel(details.taxLines)} ${
+              details.taxLines.length === 1 ? "is" : "are"
+            } debited for GST input tax credit.`
+          : `Input GST A/c is debited for ${formatRupees(details.gstAmount)}.`,
+        `${displayAccountName(details.creditorAccount)} is credited for total payment ${formatRupees(
+          details.invoiceTotal,
+        )}.`,
+        "Trade discount is not recorded separately.",
+      ];
+    }
+
     if (details.taxLines?.length) {
       if (details.gstInclusive) {
         return [
@@ -610,6 +634,30 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
     const details = classification.compoundDetails;
+    if (details.tradeDiscountAmount !== undefined && details.grossAmount !== undefined) {
+      const taxSteps = details.taxLines?.length
+        ? details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate))
+        : [`${gstAmountExplanation(details.gstAmount, details.gstRate)}.`];
+
+      return [
+        `Gross goods value is ${formatRupees(details.grossAmount)}.`,
+        `Trade discount is ${formatRupees(details.tradeDiscountAmount)}.`,
+        `Taxable value = ${formatRupees(details.baseAmount)}.`,
+        `GST is calculated on ${formatRupees(details.baseAmount)}, not ${formatRupees(details.grossAmount)}.`,
+        ...taxSteps,
+        `${displayAccountName(details.debtorAccount)} is debited for total amount ${
+          details.receiptAccount === "Debtor" ? "receivable" : "received"
+        }, ${formatRupees(details.invoiceTotal)}.`,
+        `Sales A/c is credited for ${formatRupees(details.baseAmount)}.`,
+        details.taxLines?.length
+          ? `${outputTaxAccountLabel(details.taxLines)} ${
+              details.taxLines.length === 1 ? "is" : "are"
+            } credited because GST collected is payable to the government.`
+          : `Output GST A/c is credited for ${formatRupees(details.gstAmount)}.`,
+        "Trade discount is not recorded separately.",
+      ];
+    }
+
     if (details.taxLines?.length) {
       if (details.gstInclusive) {
         return [
@@ -1001,6 +1049,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    if (classification.compoundDetails.tradeDiscountAmount !== undefined) {
+      return [
+        "Do not create Discount Received A/c for trade discount on purchase.",
+        "Do not calculate GST on the gross value before discount.",
+        "Do not debit Purchases A/c with the gross amount before trade discount.",
+        "Do not include GST inside Purchases A/c.",
+        "Do not treat trade discount as full-settlement discount.",
+      ];
+    }
+
     if (classification.compoundDetails.taxLines?.length) {
       return [
         "Do not use generic Input GST/Output GST when CGST/SGST/IGST is specifically mentioned.",
@@ -1033,6 +1091,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    if (classification.compoundDetails.tradeDiscountAmount !== undefined) {
+      return [
+        "Do not create Discount Allowed A/c for trade discount on sale.",
+        "Do not calculate GST on the gross value before discount.",
+        "Do not credit Sales A/c with the gross amount before trade discount.",
+        "Do not use Input GST on sale.",
+        "Do not treat trade discount as full-settlement discount.",
+      ];
+    }
+
     if (classification.compoundDetails.taxLines?.length) {
       return [
         "Do not use generic Input GST/Output GST when CGST/SGST/IGST is specifically mentioned.",
@@ -1443,6 +1511,23 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
         : details.paymentAccount === "Bank"
           ? "through bank"
           : "for cash";
+    if (details.tradeDiscountAmount !== undefined && details.grossAmount !== undefined) {
+      const discountLabel =
+        details.tradeDiscountRate !== undefined
+          ? `${formatPercent(details.tradeDiscountRate)}`
+          : formatRupees(details.tradeDiscountAmount);
+      return {
+        question: `Purchased goods ${formatRupees(details.grossAmount)} less trade discount ${discountLabel} plus ${taxQuestionLabel(
+          details.taxLines,
+          details.gstRate,
+          details.gstAmount,
+        )} ${mode}`,
+        expectedPattern: `Purchases A/c Dr., ${inputTaxPattern(details.taxLines)} To ${displayAccountName(
+          details.creditorAccount,
+        )}`,
+      };
+    }
+
     return {
       question: details.gstInclusive
         ? `Purchased goods ${formatRupees(details.invoiceTotal)} including ${taxQuestionLabel(
@@ -1471,6 +1556,23 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
         : details.receiptAccount === "Bank"
           ? "through bank"
           : "for cash";
+    if (details.tradeDiscountAmount !== undefined && details.grossAmount !== undefined) {
+      const discountLabel =
+        details.tradeDiscountRate !== undefined
+          ? `${formatPercent(details.tradeDiscountRate)}`
+          : formatRupees(details.tradeDiscountAmount);
+      return {
+        question: `Sold goods ${formatRupees(details.grossAmount)} less trade discount ${discountLabel} plus ${taxQuestionLabel(
+          details.taxLines,
+          details.gstRate,
+          details.gstAmount,
+        )} ${mode}`,
+        expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To Sales A/c, ${outputTaxPattern(
+          details.taxLines,
+        )}`,
+      };
+    }
+
     return {
       question: details.gstInclusive
         ? `Sold goods ${formatRupees(details.invoiceTotal)} including ${taxQuestionLabel(
@@ -1810,11 +1912,12 @@ function buildNarration(classification: TransactionClassification): string {
       : details.gstInclusive
         ? "including GST"
         : "plus GST";
-    if (details.paymentAccount === "Cash") return `Being goods purchased for cash ${gstLabel}.`;
-    if (details.paymentAccount === "Bank") return `Being goods purchased through bank ${gstLabel}.`;
+    const discountLabel = details.tradeDiscountAmount !== undefined ? " after trade discount" : "";
+    if (details.paymentAccount === "Cash") return `Being goods purchased for cash${discountLabel} ${gstLabel}.`;
+    if (details.paymentAccount === "Bank") return `Being goods purchased through bank${discountLabel} ${gstLabel}.`;
     return details.partyName
-      ? `Being goods purchased from ${details.partyName} on credit ${gstLabel}.`
-      : `Being goods purchased on credit ${gstLabel}.`;
+      ? `Being goods purchased from ${details.partyName} on credit${discountLabel} ${gstLabel}.`
+      : `Being goods purchased on credit${discountLabel} ${gstLabel}.`;
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
@@ -1824,11 +1927,12 @@ function buildNarration(classification: TransactionClassification): string {
       : details.gstInclusive
         ? "including GST"
         : "plus GST";
-    if (details.receiptAccount === "Cash") return `Being goods sold for cash ${gstLabel}.`;
-    if (details.receiptAccount === "Bank") return `Being goods sold through bank ${gstLabel}.`;
+    const discountLabel = details.tradeDiscountAmount !== undefined ? " after trade discount" : "";
+    if (details.receiptAccount === "Cash") return `Being goods sold for cash${discountLabel} ${gstLabel}.`;
+    if (details.receiptAccount === "Bank") return `Being goods sold through bank${discountLabel} ${gstLabel}.`;
     return details.partyName
-      ? `Being goods sold to ${details.partyName} on credit ${gstLabel}.`
-      : `Being goods sold on credit ${gstLabel}.`;
+      ? `Being goods sold to ${details.partyName} on credit${discountLabel} ${gstLabel}.`
+      : `Being goods sold on credit${discountLabel} ${gstLabel}.`;
   }
 
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
@@ -2031,10 +2135,16 @@ function describeTransactionAction(classification: TransactionClassification): s
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    if (classification.compoundDetails.tradeDiscountAmount !== undefined) {
+      return "The business purchased goods with trade discount deducted before GST.";
+    }
     return "The business purchased goods and paid or became liable for GST on the purchase.";
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    if (classification.compoundDetails.tradeDiscountAmount !== undefined) {
+      return "The business sold goods with trade discount deducted before GST.";
+    }
     return "The business sold goods and collected GST payable to the government.";
   }
 

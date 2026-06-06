@@ -24,6 +24,10 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (assetInstallationCharge) return assetInstallationCharge;
   const assetGstPurchase = classifyAssetGstPurchase(transactionText);
   if (assetGstPurchase) return assetGstPurchase;
+  const goodsGstTradeDiscountPurchase = classifyGoodsGstTradeDiscountPurchase(transactionText);
+  if (goodsGstTradeDiscountPurchase) return goodsGstTradeDiscountPurchase;
+  const goodsGstTradeDiscountSale = classifyGoodsGstTradeDiscountSale(transactionText);
+  if (goodsGstTradeDiscountSale) return goodsGstTradeDiscountSale;
   const goodsGstPurchase = classifyGoodsGstPurchase(transactionText);
   if (goodsGstPurchase) return goodsGstPurchase;
   const goodsGstSale = classifyGoodsGstSale(transactionText);
@@ -238,6 +242,69 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
       invoiceTotal: gst.invoiceTotal,
       gstRate: gst.gstRate,
       gstInclusive: gst.gstInclusive,
+      taxLines: gst.taxLines,
+      paymentAccount,
+      creditorAccount,
+      partyName,
+    },
+  };
+}
+
+function classifyGoodsGstTradeDiscountPurchase(transactionText: string): TransactionClassification | null {
+  if (!isGoodsPurchaseWithGst(transactionText) || !hasTradeDiscountContext(transactionText)) return null;
+  if (hasUnsupportedTradeDiscountGstContext(transactionText)) return null;
+
+  const gst = extractTradeDiscountGstDetails(transactionText);
+  if (!gst) return null;
+
+  const paymentAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+      ? "Creditor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!paymentAccount) return null;
+
+  const partyName = paymentAccount === "Creditor" ? extractGstSupplierName(transactionText) : undefined;
+  const creditorAccount = partyName ?? paymentAccount;
+  const expectedEntry = buildGoodsGstPurchaseEntry(
+    gst.netAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    gst.taxLines,
+    paymentAccount,
+    creditorAccount,
+    partyName,
+  );
+  const taxPrefix = tradeDiscountTaxPrefix(gst.taxLines);
+  const paymentSuffix = paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit";
+
+  return {
+    transaction_type: `goods_gst_trade_discount_${taxPrefix}purchase_${paymentSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: "Purchases",
+    creditAccount: creditorAccount,
+    expectedDebitAccount: "Purchases",
+    expectedCreditAccount: creditorAccount,
+    genericDebitAccount: "Purchases",
+    genericCreditAccount: paymentAccount,
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "Goods were purchased with trade discount and GST. Trade discount is deducted before GST, Purchases is debited for the net taxable value, Input GST is debited, and Cash, Bank, Creditor, or the named supplier is credited for the invoice total.",
+    partyName,
+    partyRole: partyName ? "creditor" : undefined,
+    partyAccountSide: partyName ? "credit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "goods_gst_purchase",
+      grossAmount: gst.grossAmount,
+      tradeDiscountAmount: gst.discountAmount,
+      tradeDiscountRate: gst.discountRate,
+      baseAmount: gst.netAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
       taxLines: gst.taxLines,
       paymentAccount,
       creditorAccount,
@@ -660,6 +727,69 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
       invoiceTotal: gst.invoiceTotal,
       gstRate: gst.gstRate,
       gstInclusive: gst.gstInclusive,
+      taxLines: gst.taxLines,
+      receiptAccount,
+      debtorAccount,
+      partyName,
+    },
+  };
+}
+
+function classifyGoodsGstTradeDiscountSale(transactionText: string): TransactionClassification | null {
+  if (!isGoodsSaleWithGst(transactionText) || !hasTradeDiscountContext(transactionText)) return null;
+  if (hasUnsupportedTradeDiscountGstContext(transactionText)) return null;
+
+  const gst = extractTradeDiscountGstDetails(transactionText);
+  if (!gst) return null;
+
+  const receiptAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+      ? "Debtor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!receiptAccount) return null;
+
+  const partyName = receiptAccount === "Debtor" ? extractGstCustomerName(transactionText) : undefined;
+  const debtorAccount = partyName ?? receiptAccount;
+  const expectedEntry = buildGoodsGstSaleEntry(
+    gst.netAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    gst.taxLines,
+    receiptAccount,
+    debtorAccount,
+    partyName,
+  );
+  const taxPrefix = tradeDiscountTaxPrefix(gst.taxLines);
+  const receiptSuffix = receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit";
+
+  return {
+    transaction_type: `goods_gst_trade_discount_${taxPrefix}sale_${receiptSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: debtorAccount,
+    creditAccount: "Sales",
+    expectedDebitAccount: debtorAccount,
+    expectedCreditAccount: "Sales",
+    genericDebitAccount: receiptAccount,
+    genericCreditAccount: "Sales",
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "Goods were sold with trade discount and GST. Trade discount is deducted before GST, Cash, Bank, Debtor, or the named customer is debited for the invoice total, Sales is credited for the net taxable value, and Output GST is credited.",
+    partyName,
+    partyRole: partyName ? "debtor" : undefined,
+    partyAccountSide: partyName ? "debit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "goods_gst_sale",
+      grossAmount: gst.grossAmount,
+      tradeDiscountAmount: gst.discountAmount,
+      tradeDiscountRate: gst.discountRate,
+      baseAmount: gst.netAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
       taxLines: gst.taxLines,
       receiptAccount,
       debtorAccount,
@@ -1331,11 +1461,105 @@ function hasUnsupportedGstContext(transactionText: string): boolean {
   );
 }
 
+function hasTradeDiscountContext(transactionText: string): boolean {
+  return /\b(?:less|after)\s+(?:trade\s+)?discount\b/i.test(transactionText);
+}
+
+function hasUnsupportedTradeDiscountGstContext(transactionText: string): boolean {
+  return (
+    hasInclusiveGstWording(transactionText) ||
+    /\b(?:return|returned|set-?off|paid\s+gst|gst\s+paid|gst\s+payment|full\s+settlement|settlement)\b/i.test(
+      transactionText,
+    ) ||
+    /\bcash\s+discount\b/i.test(transactionText) ||
+    (transactionText.match(/\bdiscount\b/gi)?.length ?? 0) > 1
+  );
+}
+
 function hasUnsupportedGoodsTaxAmbiguity(transactionText: string): boolean {
   const isGoodsTrade =
     /\b(?:bought|purchased|purchase)\s+goods\b/i.test(transactionText) ||
     /\b(?:sold\s+goods|goods\s+sold|sale\s+of\s+goods)\b/i.test(transactionText);
   return isGoodsTrade && /\b(?:including|inclusive\s+of|tax\s+inclusive|plus|with)\s+tax(?:es)?\b/i.test(transactionText);
+}
+
+function extractTradeDiscountGstDetails(transactionText: string): {
+  grossAmount: number;
+  discountAmount: number;
+  discountRate?: number;
+  netAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  gstRate?: number;
+  taxLines?: GoodsGstTaxLine[];
+} | null {
+  const grossAmount = extractAmounts(transactionText)[0];
+  if (!grossAmount) return null;
+
+  const discount = extractTradeDiscount(transactionText, grossAmount);
+  if (!discount || discount.amount <= 0 || discount.amount >= grossAmount) return null;
+
+  const netAmount = roundCurrency(grossAmount - discount.amount);
+  const taxLines = extractSplitGstTaxLines(transactionText, netAmount);
+  if (taxLines) {
+    const gstAmount = roundCurrency(taxLines.reduce((total, line) => total + line.amount, 0));
+    return {
+      grossAmount,
+      discountAmount: discount.amount,
+      discountRate: discount.rate,
+      netAmount,
+      gstAmount,
+      invoiceTotal: roundCurrency(netAmount + gstAmount),
+      taxLines,
+    };
+  }
+
+  const rateMatch = /\b(?:gst|goods\s+and\s+services\s+tax)\b\s*(?:(?:@|at)\s*)?([0-9]+(?:\.\d+)?)\s*%/i.exec(
+    transactionText,
+  );
+  if (rateMatch?.[1]) {
+    const gstRate = Number(rateMatch[1]);
+    if (!Number.isFinite(gstRate) || gstRate <= 0) return null;
+    const gstAmount = roundCurrency((netAmount * gstRate) / 100);
+    return {
+      grossAmount,
+      discountAmount: discount.amount,
+      discountRate: discount.rate,
+      netAmount,
+      gstAmount,
+      invoiceTotal: roundCurrency(netAmount + gstAmount),
+      gstRate,
+    };
+  }
+
+  return null;
+}
+
+function extractTradeDiscount(
+  transactionText: string,
+  grossAmount: number,
+): { amount: number; rate?: number } | null {
+  const discountTerm = String.raw`(?:less|after)\s+(?:trade\s+)?discount`;
+  const percentMatch = new RegExp(String.raw`\b${discountTerm}\s+([0-9]+(?:\.\d+)?)\s*%`, "i").exec(
+    transactionText,
+  );
+  if (percentMatch?.[1]) {
+    const rate = Number(percentMatch[1]);
+    if (!Number.isFinite(rate) || rate <= 0) return null;
+    return { amount: roundCurrency((grossAmount * rate) / 100), rate };
+  }
+
+  const amountMatch = new RegExp(
+    String.raw`\b${discountTerm}\s*(?:of\s*)?(?:₹|rs\.?|inr)?\s*${AMOUNT_TOKEN_PATTERN}`,
+    "i",
+  ).exec(transactionText);
+  const amount = parseAmountToken(amountMatch?.[1]);
+  return amount ? { amount } : null;
+}
+
+function tradeDiscountTaxPrefix(taxLines: GoodsGstTaxLine[] | undefined): string {
+  if (!taxLines?.length) return "";
+  return taxLines.length === 1 ? "igst_" : "cgst_sgst_";
 }
 
 function extractGstDetails(

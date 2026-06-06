@@ -147,6 +147,12 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Received tuition fees ${formatRupees(amount)} plus CGST 9% and SGST 9% by UPI`,
   income_gst_igst_royalty_income_cash: (amount) =>
     `Received royalty ${formatRupees(amount)} plus IGST 18% in cash`,
+  goods_gst_trade_discount_purchase_cash: (amount) =>
+    `Purchased goods ${formatRupees(amount)} less trade discount ${formatRupees(Math.round(amount * 0.1))} plus GST 18% for cash`,
+  goods_gst_trade_discount_sale_cash: (amount) =>
+    `Sold goods ${formatRupees(amount)} less trade discount ${formatRupees(Math.round(amount * 0.1))} plus GST 18% for cash`,
+  goods_gst_trade_discount_cgst_sgst_sale_cash: (amount) =>
+    `Sold goods ${formatRupees(amount)} less trade discount 10% plus CGST 9% and SGST 9% for cash`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -242,6 +248,9 @@ const explicitPracticeTransactionTypes = [
   "income_gst_service_income_cash",
   "income_gst_cgst_sgst_tuition_income_bank",
   "income_gst_igst_royalty_income_cash",
+  "goods_gst_trade_discount_purchase_cash",
+  "goods_gst_trade_discount_sale_cash",
+  "goods_gst_trade_discount_cgst_sgst_sale_cash",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

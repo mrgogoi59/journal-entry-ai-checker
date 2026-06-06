@@ -1592,6 +1592,93 @@ describe("classifyTransaction supported beginner transactions", () => {
 
   it.each([
     [
+      "Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      "goods_gst_trade_discount_purchase_cash",
+      "Purchases",
+      "Cash",
+      10620,
+    ],
+    [
+      "Purchased goods Rs.10000 less trade discount 10% plus GST 18% for cash",
+      "goods_gst_trade_discount_purchase_cash",
+      "Purchases",
+      "Cash",
+      10620,
+    ],
+    [
+      "Sold goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      "goods_gst_trade_discount_sale_cash",
+      "Cash",
+      "Sales",
+      10620,
+    ],
+    [
+      "Sold goods Rs.10000 less trade discount Rs.1000 plus CGST 9% and SGST 9% for cash",
+      "goods_gst_trade_discount_cgst_sgst_sale_cash",
+      "Cash",
+      "Sales",
+      10620,
+    ],
+    [
+      "Purchased goods from Amit Rs.10000 less trade discount Rs.1000 plus GST 18% on credit",
+      "goods_gst_trade_discount_purchase_credit",
+      "Purchases",
+      "Amit",
+      10620,
+    ],
+  ])("classifies GST goods trade discount transaction: %s", (transaction, transactionType, debitAccount, creditAccount, amount) => {
+    const classification = classifyTransaction(transaction);
+
+    expect(classification).toMatchObject({
+      transaction_type: transactionType,
+      debitAccount,
+      creditAccount,
+      amount,
+      confidence: 0.95,
+    });
+  });
+
+  it("builds expected entries for GST goods trade discount purchase and sale", () => {
+    const purchase = classifyTransaction("Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash");
+    const sale = classifyTransaction("Sold goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash");
+    const splitSale = classifyTransaction("Sold goods Rs.10000 less trade discount Rs.1000 plus CGST 9% and SGST 9% for cash");
+    const namedPurchase = classifyTransaction(
+      "Purchased goods from Amit Rs.10000 less trade discount Rs.1000 plus GST 18% on credit",
+    );
+
+    expect(generateExpectedEntry(purchase!)).toEqual({
+      debits: [
+        { account: "Purchases", amount: 9000 },
+        { account: "Input GST", amount: 1620 },
+      ],
+      credits: [{ account: "Cash", amount: 10620 }],
+    });
+    expect(generateExpectedEntry(sale!)).toEqual({
+      debits: [{ account: "Cash", amount: 10620 }],
+      credits: [
+        { account: "Sales", amount: 9000 },
+        { account: "Output GST", amount: 1620 },
+      ],
+    });
+    expect(generateExpectedEntry(splitSale!)).toEqual({
+      debits: [{ account: "Cash", amount: 10620 }],
+      credits: [
+        { account: "Sales", amount: 9000 },
+        { account: "Output CGST", amount: 810 },
+        { account: "Output SGST", amount: 810 },
+      ],
+    });
+    expect(generateExpectedEntry(namedPurchase!)).toEqual({
+      debits: [
+        { account: "Purchases", amount: 9000 },
+        { account: "Input GST", amount: 1620 },
+      ],
+      credits: [{ account: "Amit", amount: 10620, acceptedAccounts: ["Creditor"], partyRole: "creditor" }],
+    });
+  });
+
+  it.each([
+    [
       "Purchased machinery Rs.50000 plus GST 18% for cash",
       "asset_gst_purchase_machinery_cash",
       "Machinery",
@@ -2309,6 +2396,10 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Received interest Rs.10000 plus GST 18% through bank")).toBeNull();
     expect(classifyTransaction("Discount received Rs.500 plus GST 18% in cash")).toBeNull();
     expect(classifyTransaction("Received consultancy fees Rs.11800 including CGST 9% and SGST 9% through bank")).toBeNull();
+    expect(classifyTransaction("Sold goods Rs.10620 including GST 18% after discount Rs.1000")).toBeNull();
+    expect(classifyTransaction("Received Rs.9500 from Mohan in full settlement of Rs.10000 plus GST")).toBeNull();
+    expect(classifyTransaction("Sold goods Rs.10000 less discount plus GST 18%")).toBeNull();
+    expect(classifyTransaction("Sold goods Rs.10000 less trade discount 10% and cash discount 5% plus GST 18%")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();

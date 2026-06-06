@@ -750,8 +750,46 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves GST goods purchase with trade discount for cash", async () => {
+    const body = await solve("Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Purchases A/c", debit: 9000, credit: 0 },
+      { account: "Input GST A/c", debit: 1620, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 10620 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("GST is calculated on ₹9,000, not ₹10,000.");
+    expect(body.stepByStepExplanation).toContain("Trade discount is not recorded separately.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves GST goods sale with trade discount for cash", async () => {
+    const body = await solve("Sold goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 10620, credit: 0 },
+      { account: "Sales A/c", debit: 0, credit: 9000 },
+      { account: "Output GST A/c", debit: 0, credit: 1620 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("GST is calculated on ₹9,000, not ₹10,000.");
+    expect(body.stepByStepExplanation).toContain("Trade discount is not recorded separately.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("does not solve GST with discount", async () => {
     const body = await solve("Sold goods Rs.10000 plus GST and allowed discount Rs.500");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it.each([
+    "Sold goods Rs.10620 including GST 18% after discount Rs.1000",
+    "Received Rs.9500 from Mohan in full settlement of Rs.10000 plus GST",
+  ])("does not solve unsupported GST trade discount case: %s", async (transaction) => {
+    const body = await solve(transaction);
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

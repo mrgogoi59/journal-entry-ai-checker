@@ -2979,6 +2979,90 @@ describe("POST /api/check-entry", () => {
 
   it.each([
     {
+      transactionText: "Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.9000\nInput GST A/c Dr. Rs.1620\nTo Cash A/c Rs.10620",
+      debits: [
+        { account: "Purchases", amount: 9000 },
+        { account: "Input GST", amount: 1620 },
+      ],
+      credits: [{ account: "Cash", amount: 10620 }],
+    },
+    {
+      transactionText: "Sold goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      journalEntry: "Cash A/c Dr. Rs.10620\nTo Sales A/c Rs.9000\nTo Output GST A/c Rs.1620",
+      debits: [{ account: "Cash", amount: 10620 }],
+      credits: [
+        { account: "Sales", amount: 9000 },
+        { account: "Output GST", amount: 1620 },
+      ],
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 less trade discount 10% plus GST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.9000\nInput GST A/c Dr. Rs.1620\nTo Cash A/c Rs.10620",
+      debits: [
+        { account: "Purchases", amount: 9000 },
+        { account: "Input GST", amount: 1620 },
+      ],
+      credits: [{ account: "Cash", amount: 10620 }],
+    },
+    {
+      transactionText: "Sold goods Rs.10000 less trade discount Rs.1000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Cash A/c Dr. Rs.10620\nTo Sales A/c Rs.9000\nTo Output CGST A/c Rs.810\nTo Output SGST A/c Rs.810",
+      debits: [{ account: "Cash", amount: 10620 }],
+      credits: [
+        { account: "Sales", amount: 9000 },
+        { account: "Output CGST", amount: 810 },
+        { account: "Output SGST", amount: 810 },
+      ],
+    },
+    {
+      transactionText: "Purchased goods from Amit Rs.10000 less trade discount Rs.1000 plus GST 18% on credit",
+      journalEntry: "Purchases A/c Dr. Rs.9000\nInput GST A/c Dr. Rs.1620\nTo Amit A/c Rs.10620",
+      debits: [
+        { account: "Purchases", amount: 9000 },
+        { account: "Input GST", amount: 1620 },
+      ],
+      credits: [{ account: "Amit", amount: 10620 }],
+    },
+  ])("returns Correct for GST goods with trade discount: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      transactionText: "Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.9000\nInput GST A/c Dr. Rs.1800\nTo Cash A/c Rs.10800",
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nInput GST A/c Dr. Rs.1620\nTo Discount Received A/c Rs.1000\nTo Cash A/c Rs.10620",
+    },
+    {
+      transactionText: "Sold goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      journalEntry: "Cash A/c Dr. Rs.10620\nTo Sales A/c Rs.9000\nTo Input GST A/c Rs.1620",
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nInput GST A/c Dr. Rs.1620\nTo Cash A/c Rs.11620",
+    },
+    {
+      transactionText: "Sold goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
+      journalEntry: "Cash A/c Dr. Rs.9000\nTo Sales A/c Rs.9000",
+    },
+  ])("does not accept wrong GST trade discount goods entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it.each([
+    {
       transactionText: "Purchased goods Rs.10000 plus GST 18% for cash",
       journalEntry: "Purchases A/c Dr. Rs.11800\nTo Cash A/c Rs.11800",
     },
