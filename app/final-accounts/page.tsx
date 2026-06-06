@@ -33,10 +33,12 @@ Rent received in advance Rs.4000
 Depreciation on machinery Rs.5000`;
 
 const limitations = [
-  "No adjustment processing yet",
+  "Only selected adjustments are supported",
+  "No provision for doubtful debts yet",
+  "No manager's commission yet",
+  "No goods withdrawn/lost/free sample adjustments yet",
   "No detailed schedules",
   "No company/partnership balance sheet formats",
-  "No closing stock adjustment unless directly provided",
   "No opening balances workflow",
   "No database/history",
   "No AI",
@@ -64,8 +66,9 @@ export default function FinalAccountsPage() {
             Enter trial balance balances and prepare Trading A/c, Profit & Loss A/c, and Balance Sheet.
           </p>
           <p className="mt-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
-            This version prepares a simple sole proprietorship Balance Sheet. Adjustments and detailed schedules will
-            come later.
+            This version prepares Trading A/c, Profit & Loss A/c, and a simple sole proprietorship Balance Sheet. It
+            also supports selected adjustments such as closing stock, outstanding expenses, prepaid expenses, accrued
+            income, income received in advance, and depreciation.
           </p>
         </header>
 

@@ -465,7 +465,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
     const key = cleanAccountName(balance.account);
 
     if (["closing stock", "stock", "inventory"].includes(key)) {
-      balanceSheetItems.push(balance);
+      balanceSheetItems.push(cloneBalance(balance));
       return;
     }
 
@@ -490,7 +490,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
     }
 
     if (category === "balance-sheet") {
-      balanceSheetItems.push(balance);
+      balanceSheetItems.push(cloneBalance(balance));
       return;
     }
 
@@ -901,7 +901,7 @@ function findRelatedWord(
 }
 
 function addAmount(lines: FinalAccountLine[], account: string, amount: number): void {
-  const existing = lines.find((line) => cleanAccountName(line.account) === cleanAccountName(account));
+  const existing = lines.find((line) => accountMatches(line.account, account));
   if (existing) {
     existing.amount += amount;
     return;
@@ -911,7 +911,7 @@ function addAmount(lines: FinalAccountLine[], account: string, amount: number): 
 }
 
 function addAmountIfExists(lines: FinalAccountLine[], account: string, amount: number): boolean {
-  const existing = lines.find((line) => cleanAccountName(line.account) === cleanAccountName(account));
+  const existing = lines.find((line) => accountMatches(line.account, account));
   if (!existing) return false;
 
   existing.amount += amount;
@@ -919,7 +919,7 @@ function addAmountIfExists(lines: FinalAccountLine[], account: string, amount: n
 }
 
 function reduceAmountIfExists(lines: FinalAccountLine[], account: string, amount: number): boolean {
-  const existing = lines.find((line) => cleanAccountName(line.account) === cleanAccountName(account));
+  const existing = lines.find((line) => accountMatches(line.account, account));
   if (!existing) return false;
 
   existing.amount = Math.max(existing.amount - amount, 0);
@@ -927,11 +927,37 @@ function reduceAmountIfExists(lines: FinalAccountLine[], account: string, amount
 }
 
 function reduceBalanceSheetAsset(items: TrialBalanceBalance[], account: string, amount: number): boolean {
-  const existing = items.find((item) => item.side === "debit" && cleanAccountName(item.account) === cleanAccountName(account));
+  const existing = items.find((item) => item.side === "debit" && accountMatches(item.account, account));
   if (!existing) return false;
 
   existing.amount = Math.max(existing.amount - amount, 0);
   return true;
+}
+
+function accountMatches(left: string, right: string): boolean {
+  return accountMatchKey(left) === accountMatchKey(right);
+}
+
+function accountMatchKey(account: string): string {
+  const key = cleanAccountName(account);
+
+  if (["commission", "commission income", "commission received", "commission earned"].includes(key)) {
+    return "commission income";
+  }
+
+  if (["interest", "interest income", "interest received", "interest earned"].includes(key)) {
+    return "interest income";
+  }
+
+  if (["rent income", "rent received"].includes(key)) {
+    return "rent income";
+  }
+
+  return key;
+}
+
+function cloneBalance(balance: TrialBalanceBalance): TrialBalanceBalance {
+  return { ...balance };
 }
 
 function trialBalanceTotalsAgree(parsedBalances: TrialBalanceBalance[]): boolean {

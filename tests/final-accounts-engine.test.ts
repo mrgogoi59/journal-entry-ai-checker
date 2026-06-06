@@ -387,6 +387,94 @@ Cash Dr 50000`,
     expect(result.adjustmentWarnings).toContain("Some adjustments could not be classified.");
   });
 
+  it("reduces Commission Received for commission received in advance", () => {
+    const result = generateFinalAccounts(
+      `Commission Received A/c Cr Rs.4000
+Capital A/c Cr Rs.4000
+Cash A/c Dr Rs.8000`,
+      "Commission received in advance Rs.1500",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.creditLines, "Commission Received")).toEqual({
+      account: "Commission Received",
+      amount: 2500,
+    });
+    expect(line(result.balanceSheet.liabilities, "Commission Received In Advance")).toEqual({
+      account: "Commission Received In Advance",
+      amount: 1500,
+    });
+    expect(result.adjustmentWarnings).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("Related income not found")]),
+    );
+  });
+
+  it("prepares full tallied final accounts with commission received in advance", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Drawings A/c Dr Rs.10000
+Cash A/c Dr Rs.20000
+Bank A/c Dr Rs.40000
+Debtors A/c Dr Rs.30000
+Creditors A/c Cr Rs.25000
+Loan A/c Cr Rs.60000
+Machinery A/c Dr Rs.80000
+Furniture A/c Dr Rs.25000
+Purchases A/c Dr Rs.60000
+Sales A/c Cr Rs.120000
+Purchase Return A/c Cr Rs.5000
+Sales Return A/c Dr Rs.4000
+Wages A/c Dr Rs.15000
+Carriage Inward A/c Dr Rs.3000
+Salary A/c Dr Rs.12000
+Rent A/c Dr Rs.8000
+Insurance A/c Dr Rs.6000
+Advertisement A/c Dr Rs.5000
+Commission Received A/c Cr Rs.4000
+Interest Income A/c Cr Rs.3000
+Output GST A/c Cr Rs.7000
+Input GST A/c Dr Rs.6000`,
+      `Closing stock Rs.25000
+Salary outstanding Rs.3000
+Prepaid insurance Rs.2000
+Interest accrued Rs.1000
+Commission received in advance Rs.1500
+Depreciation on machinery Rs.8000
+Depreciation on furniture Rs.2500`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.creditLines, "Commission Received")).toEqual({
+      account: "Commission Received",
+      amount: 2500,
+    });
+    expect(result.adjustmentWarnings).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("Related income not found")]),
+    );
+    expect(result.tradingAccount.grossProfit).toBe(68000);
+    expect(result.profitAndLossAccount.netProfit).toBe(32000);
+    expect(result.balanceSheet.capitalWorking?.adjustedCapital).toBe(122000);
+    expect(result.balanceSheet.assetTotal).toBe(218500);
+    expect(result.balanceSheet.liabilityTotal).toBe(218500);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("keeps parsed trial balance unadjusted after depreciation", () => {
+    const result = generateFinalAccounts(
+      `Machinery A/c Dr Rs.80000
+Furniture A/c Dr Rs.25000
+Capital A/c Cr Rs.105000`,
+      `Depreciation on machinery Rs.8000
+Depreciation on furniture Rs.2500`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(balance(result.parsedBalances, "Machinery")).toMatchObject({ account: "Machinery", amount: 80000 });
+    expect(balance(result.parsedBalances, "Furniture")).toMatchObject({ account: "Furniture", amount: 25000 });
+    expect(line(result.balanceSheet.assets, "Machinery")).toEqual({ account: "Machinery", amount: 72000 });
+    expect(line(result.balanceSheet.assets, "Furniture")).toEqual({ account: "Furniture", amount: 22500 });
+  });
+
   it("returns invalid when Dr or Cr is missing", () => {
     const result = generateFinalAccounts("Purchases Rs.20000");
 
