@@ -124,6 +124,14 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Sold laptop costing ${formatRupees(amount)} for ${formatRupees(Math.round(amount * 0.8))} through bank`,
   asset_sale_loss_vehicle_credit: (amount) =>
     `Sold car costing ${formatRupees(amount)} to Raju for ${formatRupees(Math.round(amount * 0.8))} on credit`,
+  asset_sale_disposal_loss_machinery_cash: (amount) =>
+    `Sold machinery costing ${formatRupees(amount)} with accumulated depreciation ${formatRupees(
+      Math.round(amount * 0.2),
+    )} for ${formatRupees(Math.round(amount * 0.7))} cash`,
+  asset_sale_disposal_profit_machinery_cash: (amount) =>
+    `Sold machinery costing ${formatRupees(amount)} with accumulated depreciation ${formatRupees(
+      Math.round(amount * 0.2),
+    )} for ${formatRupees(Math.round(amount * 0.9))} cash`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -209,6 +217,8 @@ const explicitPracticeTransactionTypes = [
   "asset_sale_profit_machinery_cash",
   "asset_sale_loss_laptop_bank",
   "asset_sale_loss_vehicle_credit",
+  "asset_sale_disposal_loss_machinery_cash",
+  "asset_sale_disposal_profit_machinery_cash",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

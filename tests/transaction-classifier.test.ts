@@ -1944,6 +1944,110 @@ describe("classifyTransaction supported beginner transactions", () => {
     });
   });
 
+  it.each([
+    [
+      "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+      "asset_sale_disposal_loss_machinery_cash",
+      "Asset Disposal",
+      "Machinery",
+      50000,
+    ],
+    [
+      "Sold machinery costing Rs.50000, accumulated depreciation Rs.10000, for Rs.45000 cash",
+      "asset_sale_disposal_profit_machinery_cash",
+      "Asset Disposal",
+      "Machinery",
+      50000,
+    ],
+    [
+      "Machinery costing Rs.50000 with accumulated depreciation Rs.10000 sold for Rs.40000 cash",
+      "asset_sale_disposal_machinery_cash",
+      "Asset Disposal",
+      "Machinery",
+      50000,
+    ],
+    [
+      "Sold laptop costing Rs.30000 with accumulated depreciation Rs.5000 for Rs.20000 through bank",
+      "asset_sale_disposal_loss_laptop_bank",
+      "Asset Disposal",
+      "Computer",
+      30000,
+    ],
+    [
+      "Sold car costing Rs.300000 with accumulated depreciation Rs.50000 to Raju for Rs.260000 on credit",
+      "asset_sale_disposal_profit_vehicle_credit",
+      "Asset Disposal",
+      "Vehicle",
+      300000,
+    ],
+  ])(
+    "classifies asset sale with accumulated depreciation disposal: %s",
+    (transaction, transactionType, debitAccount, creditAccount, amount) => {
+      const classification = classifyTransaction(transaction);
+
+      expect(classification).toMatchObject({
+        transaction_type: transactionType,
+        debitAccount,
+        creditAccount,
+        amount,
+        confidence: 0.95,
+      });
+    },
+  );
+
+  it("builds expected entries for asset sale disposal with loss, profit, and no result", () => {
+    const lossCash = classifyTransaction(
+      "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+    );
+    const profitCash = classifyTransaction(
+      "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.45000 cash",
+    );
+    const noProfitLoss = classifyTransaction(
+      "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.40000 cash",
+    );
+
+    expect(generateExpectedEntry(lossCash!)).toEqual({
+      debits: [
+        { account: "Asset Disposal", amount: 50000 },
+        { account: "Accumulated Depreciation", amount: 10000 },
+        { account: "Cash", amount: 35000 },
+        { account: "Loss on Sale of Asset", amount: 5000 },
+      ],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Asset Disposal", amount: 10000 },
+        { account: "Asset Disposal", amount: 35000 },
+        { account: "Asset Disposal", amount: 5000 },
+      ],
+    });
+    expect(generateExpectedEntry(profitCash!)).toEqual({
+      debits: [
+        { account: "Asset Disposal", amount: 50000 },
+        { account: "Accumulated Depreciation", amount: 10000 },
+        { account: "Cash", amount: 45000 },
+        { account: "Asset Disposal", amount: 5000 },
+      ],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Asset Disposal", amount: 10000 },
+        { account: "Asset Disposal", amount: 45000 },
+        { account: "Profit on Sale of Asset", amount: 5000 },
+      ],
+    });
+    expect(generateExpectedEntry(noProfitLoss!)).toEqual({
+      debits: [
+        { account: "Asset Disposal", amount: 50000 },
+        { account: "Accumulated Depreciation", amount: 10000 },
+        { account: "Cash", amount: 40000 },
+      ],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Asset Disposal", amount: 10000 },
+        { account: "Asset Disposal", amount: 40000 },
+      ],
+    });
+  });
+
   it("does not classify unsupported transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
     expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
@@ -1972,6 +2076,17 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Sold machinery Rs.40000 and received Rs.10000 cash, balance on credit")).toBeNull();
     expect(classifyTransaction("Sold machinery for Rs.40000 after depreciation Rs.10000")).toBeNull();
     expect(classifyTransaction("Sold machinery with accumulated depreciation Rs.10000")).toBeNull();
+    expect(
+      classifyTransaction("Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 plus GST 18%"),
+    ).toBeNull();
+    expect(
+      classifyTransaction("Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000"),
+    ).toBeNull();
+    expect(
+      classifyTransaction(
+        "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 and insurance claim Rs.35000",
+      ),
+    ).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();

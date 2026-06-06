@@ -285,6 +285,31 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     const details = classification.compoundDetails;
     const receipt = displayAccountName(details.debtorAccount);
     const asset = displayAccountName(details.assetAccount);
+    if (details.usesDisposalAccount && details.originalCost !== undefined && details.accumulatedDepreciation !== undefined) {
+      const resultStep = details.lossAmount
+        ? `Since sale value is less than book value, loss = ${formatRupees(details.lossAmount)}.`
+        : details.profitAmount
+          ? `Since sale value is more than book value, profit = ${formatRupees(details.profitAmount)}.`
+          : "Since sale value equals book value, there is no profit or loss.";
+
+      return [
+        `Original ${details.assetLabel} cost is ${formatRupees(details.originalCost)}.`,
+        `Accumulated depreciation is ${formatRupees(details.accumulatedDepreciation)}.`,
+        `Book value = ${formatRupees(details.bookValue ?? details.saleValue)}.`,
+        `Sale value = ${formatRupees(details.saleValue)}.`,
+        resultStep,
+        "Asset Disposal A/c is used to close the asset.",
+        `${asset} is credited to remove the original asset cost.`,
+        "Accumulated Depreciation A/c is debited to remove depreciation from the books.",
+        `${receipt} is debited for the sale proceeds.`,
+        details.lossAmount
+          ? "Loss on Sale of Asset A/c is debited to close the disposal account."
+          : details.profitAmount
+            ? "Asset Disposal A/c is debited and Profit on Sale of Asset A/c is credited to close the disposal account."
+            : "No profit/loss line is needed because sale value equals book value.",
+      ];
+    }
+
     if (details.bookValue !== undefined && details.lossAmount) {
       return [
         `${titleCase(details.assetLabel)} has book value/cost of ${formatRupees(details.bookValue)}.`,
@@ -809,6 +834,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
   const mistakes: string[] = [];
 
   if (classification.compoundDetails?.kind === "asset_sale") {
+    if (classification.compoundDetails.usesDisposalAccount) {
+      return [
+        "Do not compare sale value with original cost; compare it with book value.",
+        "Do not ignore accumulated depreciation.",
+        "Do not credit Sales A/c because this is sale of an asset, not sale of goods.",
+        "Do not debit Purchases A/c.",
+        "Do not add GST in this beginner disposal case.",
+      ];
+    }
+
     return [
       "Do not credit Sales A/c because this is sale of an asset, not sale of goods.",
       "Do not ignore profit/loss when book value and sale value are both given.",
@@ -1131,6 +1166,21 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
         : details.receiptAccount === "Bank"
           ? "through bank"
           : "for cash";
+    if (
+      details.usesDisposalAccount &&
+      details.originalCost !== undefined &&
+      details.accumulatedDepreciation !== undefined
+    ) {
+      return {
+        question: `Sold ${details.assetLabel} costing ${formatRupees(
+          details.originalCost,
+        )} with accumulated depreciation ${formatRupees(details.accumulatedDepreciation)} for ${formatRupees(
+          details.saleValue,
+        )} ${mode}`,
+        expectedPattern: `Asset Disposal A/c Dr. To ${displayAccountName(details.assetAccount)}`,
+      };
+    }
+
     return {
       question:
         details.bookValue === undefined
@@ -1494,6 +1544,19 @@ function buildNarration(classification: TransactionClassification): string {
 
   if (classification.compoundDetails?.kind === "asset_sale") {
     const details = classification.compoundDetails;
+    if (details.usesDisposalAccount) {
+      const resultLabel = details.lossAmount ? " at a loss" : details.profitAmount ? " at a profit" : "";
+      if (details.receiptAccount === "Cash") {
+        return `Being ${details.assetLabel} sold for cash using Asset Disposal A/c${resultLabel}.`;
+      }
+      if (details.receiptAccount === "Bank") {
+        return `Being ${details.assetLabel} sold through bank using Asset Disposal A/c${resultLabel}.`;
+      }
+      return details.partyName
+        ? `Being ${details.assetLabel} sold to ${details.partyName} on credit using Asset Disposal A/c${resultLabel}.`
+        : `Being ${details.assetLabel} sold on credit using Asset Disposal A/c${resultLabel}.`;
+    }
+
     const resultLabel = details.lossAmount ? " at a loss" : details.profitAmount ? " at a profit" : "";
     if (details.receiptAccount === "Cash") return `Being ${details.assetLabel} sold for cash${resultLabel}.`;
     if (details.receiptAccount === "Bank") return `Being ${details.assetLabel} sold through bank${resultLabel}.`;
@@ -1738,6 +1801,12 @@ function buildNarration(classification: TransactionClassification): string {
 
 function describeTransactionAction(classification: TransactionClassification): string {
   if (classification.compoundDetails?.kind === "asset_sale") {
+    if (classification.compoundDetails.usesDisposalAccount) {
+      return "The business sold a fixed asset with accumulated depreciation using Asset Disposal A/c.";
+    }
+    if (classification.compoundDetails.bookValue !== undefined) {
+      return "The business sold a fixed asset and calculated profit or loss using book value.";
+    }
     return "The business sold a fixed asset without calculating profit or loss on sale.";
   }
 

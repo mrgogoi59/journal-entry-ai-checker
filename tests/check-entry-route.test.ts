@@ -3452,6 +3452,113 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+      journalEntry:
+        "Asset Disposal A/c Dr. Rs.50000\nTo Machinery A/c Rs.50000\nAccumulated Depreciation A/c Dr. Rs.10000\nTo Asset Disposal A/c Rs.10000\nCash A/c Dr. Rs.35000\nTo Asset Disposal A/c Rs.35000\nLoss on Sale of Asset A/c Dr. Rs.5000\nTo Asset Disposal A/c Rs.5000",
+      debits: [
+        { account: "Asset Disposal", amount: 50000 },
+        { account: "Accumulated Depreciation", amount: 10000 },
+        { account: "Cash", amount: 35000 },
+        { account: "Loss on Sale of Asset", amount: 5000 },
+      ],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Asset Disposal", amount: 10000 },
+        { account: "Asset Disposal", amount: 35000 },
+        { account: "Asset Disposal", amount: 5000 },
+      ],
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.45000 cash",
+      journalEntry:
+        "Asset Disposal A/c Dr. Rs.50000\nTo Machinery A/c Rs.50000\nAccumulated Depreciation A/c Dr. Rs.10000\nTo Asset Disposal A/c Rs.10000\nCash A/c Dr. Rs.45000\nTo Asset Disposal A/c Rs.45000\nAsset Disposal A/c Dr. Rs.5000\nTo Profit on Sale of Asset A/c Rs.5000",
+      debits: [
+        { account: "Asset Disposal", amount: 50000 },
+        { account: "Accumulated Depreciation", amount: 10000 },
+        { account: "Cash", amount: 45000 },
+        { account: "Asset Disposal", amount: 5000 },
+      ],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Asset Disposal", amount: 10000 },
+        { account: "Asset Disposal", amount: 45000 },
+        { account: "Profit on Sale of Asset", amount: 5000 },
+      ],
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.40000 cash",
+      journalEntry:
+        "Asset Disposal A/c Dr. Rs.50000\nTo Machinery A/c Rs.50000\nAccumulated Depreciation A/c Dr. Rs.10000\nTo Asset Disposal A/c Rs.10000\nCash A/c Dr. Rs.40000\nTo Asset Disposal A/c Rs.40000",
+      debits: [
+        { account: "Asset Disposal", amount: 50000 },
+        { account: "Accumulated Depreciation", amount: 10000 },
+        { account: "Cash", amount: 40000 },
+      ],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Asset Disposal", amount: 10000 },
+        { account: "Asset Disposal", amount: 40000 },
+      ],
+    },
+    {
+      transactionText: "Sold laptop costing Rs.30000 with accumulated depreciation Rs.5000 for Rs.20000 through bank",
+      journalEntry:
+        "Asset Disposal A/c Dr. Rs.30000\nTo Computer A/c Rs.30000\nAccumulated Depreciation A/c Dr. Rs.5000\nTo Asset Disposal A/c Rs.5000\nBank A/c Dr. Rs.20000\nTo Asset Disposal A/c Rs.20000\nLoss on Sale of Asset A/c Dr. Rs.5000\nTo Asset Disposal A/c Rs.5000",
+      debits: [
+        { account: "Asset Disposal", amount: 30000 },
+        { account: "Accumulated Depreciation", amount: 5000 },
+        { account: "Bank", amount: 20000 },
+        { account: "Loss on Sale of Asset", amount: 5000 },
+      ],
+      credits: [
+        { account: "Computer", amount: 30000 },
+        { account: "Asset Disposal", amount: 5000 },
+        { account: "Asset Disposal", amount: 20000 },
+        { account: "Asset Disposal", amount: 5000 },
+      ],
+    },
+  ])("returns Correct for asset sale disposal entry: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+      journalEntry: "Cash A/c Dr. Rs.35000\nLoss on Sale of Asset A/c Dr. Rs.15000\nTo Machinery A/c Rs.50000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+      journalEntry:
+        "Asset Disposal A/c Dr. Rs.50000\nTo Machinery A/c Rs.50000\nCash A/c Dr. Rs.35000\nLoss on Sale of Asset A/c Dr. Rs.15000\nTo Asset Disposal A/c Rs.50000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.45000 cash",
+      journalEntry: "Cash A/c Dr. Rs.45000\nLoss on Sale of Asset A/c Dr. Rs.5000\nTo Machinery A/c Rs.50000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+      journalEntry:
+        "Asset Disposal A/c Dr. Rs.50000\nTo Sales A/c Rs.50000\nAccumulated Depreciation A/c Dr. Rs.10000\nTo Asset Disposal A/c Rs.10000\nCash A/c Dr. Rs.35000\nTo Asset Disposal A/c Rs.35000\nLoss on Sale of Asset A/c Dr. Rs.5000\nTo Asset Disposal A/c Rs.5000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+      journalEntry:
+        "Purchases A/c Dr. Rs.50000\nTo Machinery A/c Rs.50000\nAccumulated Depreciation A/c Dr. Rs.10000\nTo Asset Disposal A/c Rs.10000\nCash A/c Dr. Rs.35000\nTo Asset Disposal A/c Rs.35000\nLoss on Sale of Asset A/c Dr. Rs.5000\nTo Asset Disposal A/c Rs.5000",
+    },
+  ])("does not accept wrong asset sale disposal entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for partial goods sale with cash received and balance on credit", async () => {
     const body = await checkEntry(
       "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",

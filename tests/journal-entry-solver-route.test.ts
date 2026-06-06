@@ -1221,6 +1221,58 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
+  it("solves asset sale disposal at loss", async () => {
+    const body = await solve("Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual(
+      expect.arrayContaining([
+        { account: "Asset Disposal A/c", debit: 50000, credit: 0 },
+        { account: "Accumulated Depreciation A/c", debit: 10000, credit: 0 },
+        { account: "Cash A/c", debit: 35000, credit: 0 },
+        { account: "Loss on Sale of Asset A/c", debit: 5000, credit: 0 },
+        { account: "Machinery A/c", debit: 0, credit: 50000 },
+        { account: "Asset Disposal A/c", debit: 0, credit: 10000 },
+        { account: "Asset Disposal A/c", debit: 0, credit: 35000 },
+        { account: "Asset Disposal A/c", debit: 0, credit: 5000 },
+      ]),
+    );
+    expect(body.stepByStepExplanation).toContain("Book value = ₹40,000.");
+    expect(body.stepByStepExplanation).toContain("Since sale value is less than book value, loss = ₹5,000.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves asset sale disposal at profit", async () => {
+    const body = await solve("Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.45000 cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual(
+      expect.arrayContaining([
+        { account: "Asset Disposal A/c", debit: 50000, credit: 0 },
+        { account: "Accumulated Depreciation A/c", debit: 10000, credit: 0 },
+        { account: "Cash A/c", debit: 45000, credit: 0 },
+        { account: "Asset Disposal A/c", debit: 5000, credit: 0 },
+        { account: "Machinery A/c", debit: 0, credit: 50000 },
+        { account: "Asset Disposal A/c", debit: 0, credit: 10000 },
+        { account: "Asset Disposal A/c", debit: 0, credit: 45000 },
+        { account: "Profit on Sale of Asset A/c", debit: 0, credit: 5000 },
+      ]),
+    );
+    expect(body.stepByStepExplanation).toContain("Book value = ₹40,000.");
+    expect(body.stepByStepExplanation).toContain("Since sale value is more than book value, profit = ₹5,000.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it.each([
+    "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 plus GST 18%",
+    "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000",
+  ])("does not solve unsupported asset sale disposal case: %s", async (transaction) => {
+    const body = await solve(transaction);
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
   it("does not solve GST yet", async () => {
     const body = await solve("GST paid Rs.1000");
 

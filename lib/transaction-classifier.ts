@@ -441,6 +441,10 @@ function classifyAssetPurchaseInstallationCharge(transactionText: string): Trans
 
 function classifyAssetSale(transactionText: string): TransactionClassification | null {
   if (!hasAssetSaleContext(transactionText)) return null;
+
+  const disposalSale = classifyAssetSaleWithAccumulatedDepreciation(transactionText);
+  if (disposalSale) return disposalSale;
+
   if (hasUnsupportedAssetSaleContext(transactionText)) return null;
 
   const asset = extractAssetPurchaseItem(transactionText);
@@ -465,8 +469,11 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
   const debtorAccount = receiptAccount === "Debtor" ? (partyName ?? "Debtor") : receiptAccount;
   const expectedEntry = buildAssetSaleEntry(asset.account, saleValue, bookValue, debtorAccount);
   if (partyName && receiptAccount === "Debtor") {
-    expectedEntry.debits[0].acceptedAccounts = ["Debtor"];
-    expectedEntry.debits[0].partyRole = "debtor";
+    const receiptLine = expectedEntry.debits.find((line) => line.account === debtorAccount && line.amount === saleValue);
+    if (receiptLine) {
+      receiptLine.acceptedAccounts = ["Debtor"];
+      receiptLine.partyRole = "debtor";
+    }
   }
 
   const receiptSuffix = receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit";
@@ -500,6 +507,95 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
       saleValue,
       profitAmount: bookValue !== undefined && saleValue > bookValue ? roundCurrency(saleValue - bookValue) : undefined,
       lossAmount: bookValue !== undefined && saleValue < bookValue ? roundCurrency(bookValue - saleValue) : undefined,
+      receiptAccount,
+      debtorAccount,
+      partyName,
+    },
+  };
+}
+
+function classifyAssetSaleWithAccumulatedDepreciation(
+  transactionText: string,
+): TransactionClassification | null {
+  if (!hasAssetSaleAccumulatedDepreciationContext(transactionText)) return null;
+  if (hasGstMention(transactionText)) return null;
+  if (/\b(?:balance\s+on\s+credit|partly|partial|received\s+rs\.?\s*|received\s+₹)\b/i.test(transactionText)) {
+    return null;
+  }
+  if (/\b(?:revaluation\s+reserve|insurance\s+claim|claim\s+admitted)\b/i.test(transactionText)) return null;
+
+  const asset = extractAssetPurchaseItem(transactionText);
+  if (!asset || !isDepreciableDisposalAsset(asset)) return null;
+
+  const saleAmounts = extractAssetSaleDisposalAmounts(transactionText);
+  if (!saleAmounts) return null;
+  const { originalCost, accumulatedDepreciation, saleValue } = saleAmounts;
+  const bookValue = roundCurrency(originalCost - accumulatedDepreciation);
+  if (bookValue < 0) return null;
+
+  const partyName = extractAssetSaleBuyerName(transactionText);
+  const receiptAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CASH_PAYMENT_PATTERN.test(transactionText)
+      ? "Cash"
+      : partyName
+        ? "Debtor"
+        : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+          ? "Debtor"
+          : null;
+  if (!receiptAccount) return null;
+
+  const debtorAccount = receiptAccount === "Debtor" ? (partyName ?? "Debtor") : receiptAccount;
+  const profitAmount = saleValue > bookValue ? roundCurrency(saleValue - bookValue) : undefined;
+  const lossAmount = saleValue < bookValue ? roundCurrency(bookValue - saleValue) : undefined;
+  const expectedEntry = buildAssetSaleDisposalEntry(
+    asset.account,
+    originalCost,
+    accumulatedDepreciation,
+    saleValue,
+    debtorAccount,
+    profitAmount,
+    lossAmount,
+  );
+  if (partyName && receiptAccount === "Debtor") {
+    const receiptLine = expectedEntry.debits.find((line) => line.account === debtorAccount && line.amount === saleValue);
+    if (receiptLine) {
+      receiptLine.acceptedAccounts = ["Debtor"];
+      receiptLine.partyRole = "debtor";
+    }
+  }
+
+  const receiptSuffix = receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit";
+  const resultPrefix = lossAmount ? "disposal_loss_" : profitAmount ? "disposal_profit_" : "disposal_";
+
+  return {
+    transaction_type: `asset_sale_${resultPrefix}${asset.key}_${receiptSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: "Asset Disposal",
+    creditAccount: asset.account,
+    expectedDebitAccount: "Asset Disposal",
+    expectedCreditAccount: asset.account,
+    genericDebitAccount: "Asset Disposal",
+    genericCreditAccount: asset.account,
+    amount: originalCost,
+    explanationLogic:
+      "A fixed asset was sold with accumulated depreciation. Asset Disposal A/c is used to transfer asset cost, remove accumulated depreciation, record sale proceeds, and close profit or loss.",
+    partyName,
+    partyRole: partyName ? "debtor" : undefined,
+    partyAccountSide: partyName ? "debit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "asset_sale",
+      assetAccount: asset.account,
+      assetLabel: asset.label,
+      amount: saleValue,
+      originalCost,
+      accumulatedDepreciation,
+      bookValue,
+      saleValue,
+      profitAmount,
+      lossAmount,
+      usesDisposalAccount: true,
       receiptAccount,
       debtorAccount,
       partyName,
@@ -871,6 +967,16 @@ function hasUnsupportedAssetSaleContext(transactionText: string): boolean {
   );
 }
 
+function hasAssetSaleAccumulatedDepreciationContext(transactionText: string): boolean {
+  return /\b(?:accumulated\s+depreciation|provision\s+for\s+depreciation|depreciation\s+reserve)\b/i.test(
+    transactionText,
+  );
+}
+
+function isDepreciableDisposalAsset(asset: AssetPurchaseItem): boolean {
+  return asset.account !== "Land" && asset.account !== "Building";
+}
+
 function extractAssetSaleAmounts(transactionText: string): { saleValue: number; bookValue?: number } | null {
   const amounts = extractAmounts(transactionText);
   const hasBookValue =
@@ -884,6 +990,19 @@ function extractAssetSaleAmounts(transactionText: string): { saleValue: number; 
 
   const saleValue = parseAmount(transactionText);
   return saleValue ? { saleValue } : null;
+}
+
+function extractAssetSaleDisposalAmounts(
+  transactionText: string,
+): { originalCost: number; accumulatedDepreciation: number; saleValue: number } | null {
+  const amounts = extractAmounts(transactionText);
+  const hasCost = /\b(?:costing|cost\s+of|original\s+cost|cost)\b/i.test(transactionText);
+  if (!hasCost || !hasAssetSaleAccumulatedDepreciationContext(transactionText) || amounts.length < 3) return null;
+
+  const [originalCost, accumulatedDepreciation, saleValue] = amounts;
+  if (!originalCost || !accumulatedDepreciation || !saleValue) return null;
+
+  return { originalCost, accumulatedDepreciation, saleValue };
 }
 
 function hasUnsupportedAssetGstContext(transactionText: string): boolean {
@@ -1344,6 +1463,33 @@ function buildAssetSaleEntry(
   };
 }
 
+function buildAssetSaleDisposalEntry(
+  assetAccount: string,
+  originalCost: number,
+  accumulatedDepreciation: number,
+  saleValue: number,
+  debtorAccount: string,
+  profitAmount: number | undefined,
+  lossAmount: number | undefined,
+): CorrectJournalEntry {
+  return {
+    debits: [
+      { account: "Asset Disposal", amount: originalCost },
+      { account: "Accumulated Depreciation", amount: accumulatedDepreciation },
+      { account: debtorAccount, amount: saleValue },
+      ...(profitAmount ? [{ account: "Asset Disposal", amount: profitAmount }] : []),
+      ...(lossAmount ? [{ account: "Loss on Sale of Asset", amount: lossAmount }] : []),
+    ],
+    credits: [
+      { account: assetAccount, amount: originalCost },
+      { account: "Asset Disposal", amount: accumulatedDepreciation },
+      { account: "Asset Disposal", amount: saleValue },
+      ...(profitAmount ? [{ account: "Profit on Sale of Asset", amount: profitAmount }] : []),
+      ...(lossAmount ? [{ account: "Asset Disposal", amount: lossAmount }] : []),
+    ],
+  };
+}
+
 function buildGoodsGstSaleEntry(
   baseAmount: number,
   gstAmount: number,
@@ -1399,6 +1545,7 @@ function extractAssetGstSupplierName(transactionText: string): string | undefine
 function extractAssetSaleBuyerName(transactionText: string): string | undefined {
   const match =
     /\bsold\s+\w+(?:\s+\w+)?\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bsold\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
     /\b\w+(?:\s+\w+)?\s+sold\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
     /\bto\s+([a-z][a-z.'-]*)\s+for\b/i.exec(transactionText) ??
     /\bto\s+([a-z][a-z.'-]*)\s+on\s+credit\b/i.exec(transactionText);
