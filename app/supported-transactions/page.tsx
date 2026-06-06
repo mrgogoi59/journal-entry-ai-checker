@@ -44,13 +44,18 @@ const supportedTransactions = [
   "Sales Return / goods returned by customer",
   "Purchase Return / goods returned to supplier",
   "GST with simple sales return and purchase return without refund",
+  "Simple direct GST set-off and GST payment through bank",
 ];
 
 const unsupportedTransactions = [
   "GST inclusive amount without GST rate",
   "CGST/SGST/IGST inclusive amount without tax rate",
   "GST-inclusive CGST/SGST/IGST split for fixed assets",
-  "GST set-off or GST payment",
+  "GST refund from government",
+  "Cross-utilisation beyond direct matching",
+  "GST interest or penalty",
+  "GSTR filing",
+  "Complex GST ledger adjustment",
   "GST on salary, wages, rent, interest, or commission",
   "GST on interest, dividend, discount received, miscellaneous income, bad debts recovered, capital receipts, or loan receipts",
   "GST with full-settlement discount allowed or received",
@@ -223,6 +228,12 @@ const exampleTransactions = [
   "Goods returned to Amit Rs.1000 plus GST 18%",
   "Goods returned by customer Rs.1000 plus CGST 9% and SGST 9%",
   "Goods returned to supplier Rs.1000 plus IGST 18%",
+  "Set off Input GST Rs.5000 against Output GST Rs.8000",
+  "Paid GST liability Rs.3000 through bank",
+  "Set off Input CGST Rs.2500 and Input SGST Rs.2500 against Output CGST Rs.4000 and Output SGST Rs.4000",
+  "Paid CGST Rs.1500 and SGST Rs.1500 through bank",
+  "Set off Input IGST Rs.5000 against Output IGST Rs.8000",
+  "Paid IGST Rs.3000 through bank",
 ];
 
 export default function SupportedTransactionsPage() {

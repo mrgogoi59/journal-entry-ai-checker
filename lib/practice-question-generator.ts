@@ -92,6 +92,13 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   sales_return_gst_cgst_sgst_generic: (amount) =>
     `Goods returned by customer ${formatRupees(amount)} plus CGST 9% and SGST 9%`,
   purchase_return_gst_igst_generic: (amount) => `Goods returned to supplier ${formatRupees(amount)} plus IGST 18%`,
+  gst_setoff_generic: (amount) =>
+    `Set off Input GST ${formatRupees(amount)} against Output GST ${formatRupees(Math.round(amount * 1.6))}`,
+  gst_payment_generic: (amount) => `Paid GST liability ${formatRupees(amount)} through bank`,
+  gst_payment_cgst_sgst: (amount) =>
+    `Paid CGST ${formatRupees(amount)} and SGST ${formatRupees(amount)} through bank`,
+  gst_setoff_igst: (amount) =>
+    `Set off Input IGST ${formatRupees(amount)} against Output IGST ${formatRupees(Math.round(amount * 1.6))}`,
   asset_gst_purchase_machinery_cash: (amount) => `Purchased machinery ${formatRupees(amount)} plus GST 18% for cash`,
   asset_gst_inclusive_purchase_laptop_bank: (amount) =>
     `Bought laptop ${formatRupees(amount)} including GST 18% by UPI`,
@@ -227,6 +234,10 @@ const explicitPracticeTransactionTypes = [
   "purchase_return_gst_named",
   "sales_return_gst_cgst_sgst_generic",
   "purchase_return_gst_igst_generic",
+  "gst_setoff_generic",
+  "gst_payment_generic",
+  "gst_payment_cgst_sgst",
+  "gst_setoff_igst",
   "asset_gst_purchase_machinery_cash",
   "asset_gst_inclusive_purchase_laptop_bank",
   "asset_gst_cgst_sgst_purchase_machinery_cash",

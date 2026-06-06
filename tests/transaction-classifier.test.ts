@@ -1666,6 +1666,108 @@ describe("classifyTransaction supported beginner transactions", () => {
   });
 
   it.each([
+    ["Set off Input GST Rs.5000 against Output GST Rs.8000", "gst_setoff_generic", "Output GST", "Input GST", 5000],
+    ["Adjust Input GST Rs.5000 against Output GST Rs.8000", "gst_setoff_generic", "Output GST", "Input GST", 5000],
+    [
+      "GST input Rs.5000 adjusted against GST output Rs.8000",
+      "gst_setoff_generic",
+      "Output GST",
+      "Input GST",
+      5000,
+    ],
+    [
+      "Set off Input GST Rs.5000 against Output GST Rs.8000 and paid balance through bank",
+      "gst_setoff_generic_with_payment",
+      "Output GST",
+      "Input GST",
+      8000,
+    ],
+    [
+      "Set off Input CGST Rs.2500 and Input SGST Rs.2500 against Output CGST Rs.4000 and Output SGST Rs.4000",
+      "gst_setoff_cgst_sgst",
+      "Output CGST",
+      "Input CGST",
+      5000,
+    ],
+    [
+      "Set off Input IGST Rs.5000 against Output IGST Rs.8000",
+      "gst_setoff_igst",
+      "Output IGST",
+      "Input IGST",
+      5000,
+    ],
+    ["Paid GST liability Rs.3000 through bank", "gst_payment_generic", "Output GST", "Bank", 3000],
+    ["GST liability paid Rs.3000 through bank", "gst_payment_generic", "Output GST", "Bank", 3000],
+    ["Paid CGST Rs.1500 and SGST Rs.1500 through bank", "gst_payment_cgst_sgst", "Output CGST", "Bank", 3000],
+    ["Paid Output IGST Rs.3000 through bank", "gst_payment_igst", "Output IGST", "Bank", 3000],
+  ])("classifies GST set-off/payment transaction: %s", (transaction, transactionType, debitAccount, creditAccount, amount) => {
+    const classification = classifyTransaction(transaction);
+
+    expect(classification).toMatchObject({
+      transaction_type: transactionType,
+      debitAccount,
+      creditAccount,
+      amount,
+      confidence: 0.95,
+    });
+  });
+
+  it("builds expected entries for GST set-off and payment", () => {
+    const setOff = classifyTransaction("Set off Input GST Rs.5000 against Output GST Rs.8000");
+    const setOffPayment = classifyTransaction(
+      "Set off Input GST Rs.5000 against Output GST Rs.8000 and paid balance through bank",
+    );
+    const splitSetOff = classifyTransaction(
+      "Set off Input CGST Rs.2500 and Input SGST Rs.2500 against Output CGST Rs.4000 and Output SGST Rs.4000",
+    );
+    const splitPayment = classifyTransaction("Paid CGST Rs.1500 and SGST Rs.1500 through bank");
+
+    expect(generateExpectedEntry(setOff!)).toEqual({
+      debits: [{ account: "Output GST", amount: 5000 }],
+      credits: [{ account: "Input GST", amount: 5000 }],
+    });
+    expect(generateExpectedEntry(setOffPayment!)).toEqual({
+      debits: [
+        { account: "Output GST", amount: 5000 },
+        { account: "Output GST", amount: 3000 },
+      ],
+      credits: [
+        { account: "Input GST", amount: 5000 },
+        { account: "Bank", amount: 3000 },
+      ],
+    });
+    expect(generateExpectedEntry(splitSetOff!)).toEqual({
+      debits: [
+        { account: "Output CGST", amount: 2500 },
+        { account: "Output SGST", amount: 2500 },
+      ],
+      credits: [
+        { account: "Input CGST", amount: 2500 },
+        { account: "Input SGST", amount: 2500 },
+      ],
+    });
+    expect(generateExpectedEntry(splitPayment!)).toEqual({
+      debits: [
+        { account: "Output CGST", amount: 1500 },
+        { account: "Output SGST", amount: 1500 },
+      ],
+      credits: [{ account: "Bank", amount: 3000 }],
+    });
+  });
+
+  it.each([
+    "Input GST Rs.8000 and Output GST Rs.5000 refund due",
+    "Set off IGST against CGST and SGST",
+    "Paid GST penalty Rs.500 through bank",
+    "Set off input GST against output GST",
+    "Paid GST Rs.3000 in cash",
+    "Filed GSTR-3B",
+    "Set off Input GST Rs.5000 against Output GST Rs.8000 and remaining Rs.2000 paid through bank",
+  ])("does not classify unsupported GST set-off/payment transaction: %s", (transaction) => {
+    expect(classifyTransaction(transaction)).toBeNull();
+  });
+
+  it.each([
     [
       "Purchased goods Rs.10000 less trade discount Rs.1000 plus GST 18% for cash",
       "goods_gst_trade_discount_purchase_cash",

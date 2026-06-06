@@ -1,6 +1,6 @@
 import { transactionRules } from "./accounting-rules";
 import { extractAmount as parseAmount, extractAmounts } from "./amount-parser";
-import type { CorrectJournalEntry, GoodsGstTaxLine, TransactionClassification } from "./types";
+import type { CorrectJournalEntry, GoodsGstTaxLine, GstSetOffLine, TransactionClassification } from "./types";
 
 const MIN_CONFIDENCE = 0.7;
 const DIRECT_MATCH_CONFIDENCE = 0.95;
@@ -36,6 +36,10 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (salesReturnGst) return salesReturnGst;
   const purchaseReturnGst = classifyPurchaseReturnGst(transactionText);
   if (purchaseReturnGst) return purchaseReturnGst;
+  const gstSetOff = classifyGstSetOff(transactionText);
+  if (gstSetOff) return gstSetOff;
+  const gstPayment = classifyGstPayment(transactionText);
+  if (gstPayment) return gstPayment;
   const expenseGstPayment = classifyExpenseGstPayment(transactionText);
   if (expenseGstPayment) return expenseGstPayment;
   const incomeGstReceipt = classifyIncomeGstReceipt(transactionText);
@@ -900,6 +904,84 @@ function classifyPurchaseReturnGst(transactionText: string): TransactionClassifi
   };
 }
 
+function classifyGstSetOff(transactionText: string): TransactionClassification | null {
+  if (!isGstSetOff(transactionText)) return null;
+  if (hasUnsupportedGstSetOffPaymentContext(transactionText)) return null;
+
+  const lines = extractGstSetOffLines(transactionText);
+  if (!lines.length) return null;
+
+  const hasPayment = hasGstBalancePaymentClue(transactionText);
+  const remainingPayable = roundCurrency(lines.reduce((total, line) => total + line.remainingAmount, 0));
+  const paymentAmount = hasPayment ? extractExplicitRemainingPaymentAmount(transactionText) ?? remainingPayable : undefined;
+  if (hasPayment && (!paymentAmount || paymentAmount !== remainingPayable || !DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText))) {
+    return null;
+  }
+
+  const variant = gstSetOffVariant(lines);
+  const expectedEntry = buildGstSetOffEntry(lines, paymentAmount);
+  const inputLabel = lines.map((line) => line.inputAccount).join(" and ");
+  const outputLabel = lines.map((line) => line.outputAccount).join(" and ");
+
+  return {
+    transaction_type: paymentAmount ? `gst_setoff_${variant}_with_payment` : `gst_setoff_${variant}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: lines[0].outputAccount,
+    creditAccount: lines[0].inputAccount,
+    expectedDebitAccount: lines[0].outputAccount,
+    expectedCreditAccount: lines[0].inputAccount,
+    amount: paymentAmount
+      ? roundCurrency(lines.reduce((total, line) => total + line.setOffAmount, 0) + paymentAmount)
+      : roundCurrency(lines.reduce((total, line) => total + line.setOffAmount, 0)),
+    explanationLogic:
+      "Input GST credit is set off against Output GST liability. Output GST is debited because liability decreases, and Input GST is credited because input tax credit is used.",
+    expectedEntry,
+    compoundDetails: {
+      kind: "gst_setoff",
+      variant,
+      lines,
+      remainingPayable,
+      paymentAmount,
+    },
+    genericDebitAccount: outputLabel,
+    genericCreditAccount: inputLabel,
+  };
+}
+
+function classifyGstPayment(transactionText: string): TransactionClassification | null {
+  if (!isGstPayment(transactionText)) return null;
+  if (hasUnsupportedGstSetOffPaymentContext(transactionText)) return null;
+  if (!DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)) return null;
+
+  const lines = extractGstPaymentLines(transactionText);
+  if (!lines.length) return null;
+
+  const variant = gstPaymentVariant(lines.map((line) => line.outputAccount));
+  const paymentAmount = roundCurrency(lines.reduce((total, line) => total + line.amount, 0));
+  const expectedEntry = buildGstPaymentEntry(lines);
+
+  return {
+    transaction_type: `gst_payment_${variant}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: lines[0].outputAccount,
+    creditAccount: "Bank",
+    expectedDebitAccount: lines[0].outputAccount,
+    expectedCreditAccount: "Bank",
+    genericDebitAccount: lines.map((line) => line.outputAccount).join(" and "),
+    genericCreditAccount: "Bank",
+    amount: paymentAmount,
+    explanationLogic:
+      "GST liability is paid through bank. Output GST is debited because the liability decreases, and Bank is credited because bank balance decreases.",
+    expectedEntry,
+    compoundDetails: {
+      kind: "gst_payment",
+      variant,
+      lines,
+      paymentAmount,
+    },
+  };
+}
+
 function classifyExpenseGstPayment(transactionText: string): TransactionClassification | null {
   if (!isExpensePaymentWithGst(transactionText)) return null;
   if (hasUnsupportedGstContext(transactionText)) return null;
@@ -1613,6 +1695,47 @@ function hasUnsupportedReturnGstContext(transactionText: string): boolean {
   );
 }
 
+function isGstSetOff(transactionText: string): boolean {
+  return (
+    hasGstMention(transactionText) &&
+    /\b(?:set\s*-?\s*off|adjust(?:ed|ment)?|adjusted\s+against|set\s*-?\s*off\s+against)\b/i.test(
+      transactionText,
+    ) &&
+    /\binput\b|\bgst\s+input\b|\bitc\b/i.test(transactionText) &&
+    /\boutput\b|\bgst\s+output\b|\bgst\s+(?:payable|liability)\b/i.test(transactionText)
+  );
+}
+
+function isGstPayment(transactionText: string): boolean {
+  if (!hasGstMention(transactionText)) return false;
+  if (isGstSetOff(transactionText)) return false;
+
+  return (
+    /\bpaid\b/i.test(transactionText) &&
+    (/\bpaid\s+(?:output\s+)?(?:gst|cgst|sgst|igst)\b/i.test(transactionText) ||
+      /\bpaid\s+gst\s+(?:liability|payable)\b/i.test(transactionText) ||
+      /\b(?:gst\s+(?:liability|payable)|output\s+(?:gst|cgst|sgst|igst)|(?:cgst|sgst|igst))\b.*\bpaid\b/i.test(
+        transactionText,
+      ))
+  );
+}
+
+function hasUnsupportedGstSetOffPaymentContext(transactionText: string): boolean {
+  return (
+    /\b(?:refund|refunded|refund\s+due|due\s+refund)\b/i.test(transactionText) ||
+    /\b(?:interest|penalty|fine)\b/i.test(transactionText) ||
+    /\b(?:gstr|gstr-?3b|return\s+filing|filed\s+gst|filed\s+gstr|gst\s+return)\b/i.test(transactionText) ||
+    /\b(?:cross\s*-?\s*utili[sz]ation|utili[sz]e|utili[sz]ed)\b/i.test(transactionText) ||
+    (/\bigst\b/i.test(transactionText) && /\b(?:cgst|sgst)\b/i.test(transactionText))
+  );
+}
+
+function hasGstBalancePaymentClue(transactionText: string): boolean {
+  return /\b(?:paid\s+(?:balance|remaining)|(?:balance|remaining)(?:\s+gst|\s+amount)?(?:\s*(?:₹|rs\.?|inr)?\s*[0-9][0-9,]*(?:\.\d+)?)?\s+paid)\b/i.test(
+    transactionText,
+  );
+}
+
 function hasUnsupportedGoodsTaxAmbiguity(transactionText: string): boolean {
   const isGoodsTrade =
     /\b(?:bought|purchased|purchase)\s+goods\b/i.test(transactionText) ||
@@ -1702,6 +1825,143 @@ function tradeDiscountTaxPrefix(taxLines: GoodsGstTaxLine[] | undefined): string
 function returnGstTaxPrefix(taxLines: GoodsGstTaxLine[] | undefined): string {
   if (!taxLines?.length) return "";
   return taxLines.length === 1 ? "igst_" : "cgst_sgst_";
+}
+
+function extractGstSetOffLines(transactionText: string): GstSetOffLine[] {
+  const inputIgst = extractTaxLedgerAmount(transactionText, ["input igst", "igst input"]);
+  const outputIgst = extractTaxLedgerAmount(transactionText, ["output igst", "igst output"]);
+  if (inputIgst && outputIgst) {
+    return buildSetOffLines([
+      { inputAccount: "Input IGST", outputAccount: "Output IGST", inputAmount: inputIgst, outputAmount: outputIgst },
+    ]);
+  }
+
+  const inputCgst = extractTaxLedgerAmount(transactionText, ["input cgst", "cgst input"]);
+  const inputSgst = extractTaxLedgerAmount(transactionText, ["input sgst", "sgst input"]);
+  const outputCgst = extractTaxLedgerAmount(transactionText, ["output cgst", "cgst output"]);
+  const outputSgst = extractTaxLedgerAmount(transactionText, ["output sgst", "sgst output"]);
+  if (inputCgst && inputSgst && outputCgst && outputSgst) {
+    return buildSetOffLines([
+      { inputAccount: "Input CGST", outputAccount: "Output CGST", inputAmount: inputCgst, outputAmount: outputCgst },
+      { inputAccount: "Input SGST", outputAccount: "Output SGST", inputAmount: inputSgst, outputAmount: outputSgst },
+    ]);
+  }
+
+  const inputGst = extractTaxLedgerAmount(transactionText, [
+    "input gst",
+    "gst input",
+    "input tax credit",
+    "input tax",
+    "itc",
+  ]);
+  const outputGst = extractTaxLedgerAmount(transactionText, [
+    "output gst",
+    "gst output",
+    "gst payable",
+    "gst liability",
+  ]);
+  if (inputGst && outputGst) {
+    return buildSetOffLines([
+      { inputAccount: "Input GST", outputAccount: "Output GST", inputAmount: inputGst, outputAmount: outputGst },
+    ]);
+  }
+
+  return [];
+}
+
+function buildSetOffLines(
+  rawLines: Array<{ inputAccount: string; outputAccount: string; inputAmount: number; outputAmount: number }>,
+): GstSetOffLine[] {
+  if (rawLines.some((line) => line.inputAmount > line.outputAmount)) return [];
+
+  return rawLines.map((line) => ({
+    ...line,
+    setOffAmount: line.inputAmount,
+    remainingAmount: roundCurrency(line.outputAmount - line.inputAmount),
+  }));
+}
+
+function extractGstPaymentLines(transactionText: string): Array<{ outputAccount: string; amount: number }> {
+  const igst = extractTaxLedgerAmount(transactionText, ["output igst", "igst output", "igst"]);
+  if (igst) return [{ outputAccount: "Output IGST", amount: igst }];
+
+  const cgst = extractTaxLedgerAmount(transactionText, ["output cgst", "cgst output", "cgst"]);
+  const sgst = extractTaxLedgerAmount(transactionText, ["output sgst", "sgst output", "sgst"]);
+  if (cgst && sgst) {
+    return [
+      { outputAccount: "Output CGST", amount: cgst },
+      { outputAccount: "Output SGST", amount: sgst },
+    ];
+  }
+
+  if (/\b(?:cgst|sgst|igst)\b/i.test(transactionText)) return [];
+
+  const gst = extractTaxLedgerAmount(transactionText, [
+    "output gst",
+    "gst output",
+    "gst liability",
+    "gst payable",
+    "gst",
+  ]);
+  return gst ? [{ outputAccount: "Output GST", amount: gst }] : [];
+}
+
+function extractTaxLedgerAmount(transactionText: string, terms: string[]): number | null {
+  for (const term of terms) {
+    const pattern = new RegExp(
+      `\\b${term.replace(/\s+/g, "\\s+")}\\b\\s*(?:a\\/c\\s*)?(?:paid\\s*)?(?:₹|rs\\.?|inr)?\\s*${AMOUNT_TOKEN_PATTERN}`,
+      "i",
+    );
+    const amount = parseAmountToken(pattern.exec(transactionText)?.[1]);
+    if (amount) return amount;
+  }
+
+  return null;
+}
+
+function extractExplicitRemainingPaymentAmount(transactionText: string): number | null {
+  const match = /\b(?:remaining|balance)(?:\s+gst|\s+amount)?\s*(?:of\s*)?(?:₹|rs\.?|inr)?\s*([0-9]+(?:\.\d+)?\s*k|[0-9][0-9,]*(?:\.\d+)?)/i.exec(
+    transactionText,
+  );
+  return parseAmountToken(match?.[1]);
+}
+
+function gstSetOffVariant(lines: GstSetOffLine[]): "generic" | "cgst_sgst" | "igst" {
+  if (lines.some((line) => line.outputAccount === "Output IGST")) return "igst";
+  if (lines.some((line) => line.outputAccount === "Output CGST" || line.outputAccount === "Output SGST")) {
+    return "cgst_sgst";
+  }
+  return "generic";
+}
+
+function gstPaymentVariant(outputAccounts: string[]): "generic" | "cgst_sgst" | "igst" {
+  if (outputAccounts.includes("Output IGST")) return "igst";
+  if (outputAccounts.includes("Output CGST") || outputAccounts.includes("Output SGST")) return "cgst_sgst";
+  return "generic";
+}
+
+function buildGstSetOffEntry(lines: GstSetOffLine[], paymentAmount?: number): CorrectJournalEntry {
+  return {
+    debits: [
+      ...lines.map((line) => ({ account: line.outputAccount, amount: line.setOffAmount })),
+      ...(paymentAmount
+        ? lines
+            .filter((line) => line.remainingAmount > 0)
+            .map((line) => ({ account: line.outputAccount, amount: line.remainingAmount }))
+        : []),
+    ],
+    credits: [
+      ...lines.map((line) => ({ account: line.inputAccount, amount: line.setOffAmount })),
+      ...(paymentAmount ? [{ account: "Bank", amount: paymentAmount }] : []),
+    ],
+  };
+}
+
+function buildGstPaymentEntry(lines: Array<{ outputAccount: string; amount: number }>): CorrectJournalEntry {
+  return {
+    debits: lines.map((line) => ({ account: line.outputAccount, amount: line.amount })),
+    credits: [{ account: "Bank", amount: roundCurrency(lines.reduce((total, line) => total + line.amount, 0)) }],
+  };
 }
 
 function extractGstDetails(

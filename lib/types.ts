@@ -64,6 +64,8 @@ export interface TransactionClassification {
     | GoodsGstSaleDetails
     | SalesReturnGstDetails
     | PurchaseReturnGstDetails
+    | GstSetOffDetails
+    | GstPaymentDetails
     | DiscountAllowedSettlementDetails
     | DiscountReceivedSettlementDetails;
 }
@@ -239,6 +241,35 @@ export interface GoodsGstTaxLine {
   outputAccount: string;
   amount: number;
   rate?: number;
+}
+
+export interface GstSetOffDetails {
+  kind: "gst_setoff";
+  variant: "generic" | "cgst_sgst" | "igst";
+  lines: GstSetOffLine[];
+  remainingPayable: number;
+  paymentAmount?: number;
+}
+
+export interface GstSetOffLine {
+  inputAccount: string;
+  outputAccount: string;
+  inputAmount: number;
+  outputAmount: number;
+  setOffAmount: number;
+  remainingAmount: number;
+}
+
+export interface GstPaymentDetails {
+  kind: "gst_payment";
+  variant: "generic" | "cgst_sgst" | "igst";
+  lines: GstPaymentLine[];
+  paymentAmount: number;
+}
+
+export interface GstPaymentLine {
+  outputAccount: string;
+  amount: number;
 }
 
 export interface DiscountAllowedSettlementDetails {

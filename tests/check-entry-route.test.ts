@@ -4241,4 +4241,119 @@ describe("POST /api/check-entry", () => {
     expect(body.result_status).toBe("Unsupported Transaction");
     expect(body.mistake_type).toBe("unsupported_transaction");
   });
+
+  it.each([
+    {
+      transactionText: "Set off Input GST Rs.5000 against Output GST Rs.8000",
+      journalEntry: "Output GST A/c Dr. Rs.5000\nTo Input GST A/c Rs.5000",
+      expected: {
+        debits: [{ account: "Output GST", amount: 5000 }],
+        credits: [{ account: "Input GST", amount: 5000 }],
+      },
+    },
+    {
+      transactionText: "Paid GST liability Rs.3000 through bank",
+      journalEntry: "Output GST A/c Dr. Rs.3000\nTo Bank A/c Rs.3000",
+      expected: {
+        debits: [{ account: "Output GST", amount: 3000 }],
+        credits: [{ account: "Bank", amount: 3000 }],
+      },
+    },
+    {
+      transactionText: "Set off Input GST Rs.5000 against Output GST Rs.8000 and paid balance through bank",
+      journalEntry: "Output GST A/c Dr. Rs.5000\nTo Input GST A/c Rs.5000\nOutput GST A/c Dr. Rs.3000\nTo Bank A/c Rs.3000",
+      expected: {
+        debits: [
+          { account: "Output GST", amount: 5000 },
+          { account: "Output GST", amount: 3000 },
+        ],
+        credits: [
+          { account: "Input GST", amount: 5000 },
+          { account: "Bank", amount: 3000 },
+        ],
+      },
+    },
+    {
+      transactionText:
+        "Set off Input CGST Rs.2500 and Input SGST Rs.2500 against Output CGST Rs.4000 and Output SGST Rs.4000",
+      journalEntry:
+        "Output CGST A/c Dr. Rs.2500\nOutput SGST A/c Dr. Rs.2500\nTo Input CGST A/c Rs.2500\nTo Input SGST A/c Rs.2500",
+      expected: {
+        debits: [
+          { account: "Output CGST", amount: 2500 },
+          { account: "Output SGST", amount: 2500 },
+        ],
+        credits: [
+          { account: "Input CGST", amount: 2500 },
+          { account: "Input SGST", amount: 2500 },
+        ],
+      },
+    },
+    {
+      transactionText: "Paid CGST Rs.1500 and SGST Rs.1500 through bank",
+      journalEntry: "Output CGST A/c Dr. Rs.1500\nOutput SGST A/c Dr. Rs.1500\nTo Bank A/c Rs.3000",
+      expected: {
+        debits: [
+          { account: "Output CGST", amount: 1500 },
+          { account: "Output SGST", amount: 1500 },
+        ],
+        credits: [{ account: "Bank", amount: 3000 }],
+      },
+    },
+    {
+      transactionText: "Set off Input IGST Rs.5000 against Output IGST Rs.8000",
+      journalEntry: "Output IGST A/c Dr. Rs.5000\nTo Input IGST A/c Rs.5000",
+      expected: {
+        debits: [{ account: "Output IGST", amount: 5000 }],
+        credits: [{ account: "Input IGST", amount: 5000 }],
+      },
+    },
+    {
+      transactionText: "Paid IGST Rs.3000 through bank",
+      journalEntry: "Output IGST A/c Dr. Rs.3000\nTo Bank A/c Rs.3000",
+      expected: {
+        debits: [{ account: "Output IGST", amount: 3000 }],
+        credits: [{ account: "Bank", amount: 3000 }],
+      },
+    },
+  ])("returns Correct for GST set-off/payment: $transactionText", async ({ transactionText, journalEntry, expected }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual(expected);
+  });
+
+  it.each([
+    {
+      transactionText: "Set off Input GST Rs.5000 against Output GST Rs.8000",
+      journalEntry: "Input GST A/c Dr. Rs.5000\nTo Output GST A/c Rs.5000",
+    },
+    {
+      transactionText: "Paid GST liability Rs.3000 through bank",
+      journalEntry: "Bank A/c Dr. Rs.3000\nTo Output GST A/c Rs.3000",
+    },
+    {
+      transactionText: "Set off Input GST Rs.5000 against Output GST Rs.8000",
+      journalEntry: "Output GST A/c Dr. Rs.8000\nTo Input GST A/c Rs.8000",
+    },
+    {
+      transactionText: "Set off Input GST Rs.5000 against Output GST Rs.8000",
+      journalEntry: "Sales A/c Dr. Rs.5000\nTo Purchases A/c Rs.5000",
+    },
+    {
+      transactionText: "Set off Input GST Rs.5000 against Output GST Rs.8000 and paid balance through bank",
+      journalEntry: "Output GST A/c Dr. Rs.5000\nTo Input GST A/c Rs.5000\nOutput GST A/c Dr. Rs.2000\nTo Bank A/c Rs.2000",
+    },
+    {
+      transactionText: "Set off Input IGST Rs.5000 against Output IGST Rs.8000",
+      journalEntry: "Output IGST A/c Dr. Rs.5000\nTo Input GST A/c Rs.5000",
+    },
+  ])("does not accept wrong GST set-off/payment entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
 });

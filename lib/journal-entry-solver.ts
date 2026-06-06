@@ -108,6 +108,14 @@ function isAmbiguousPersonPayment(transaction: string): boolean {
     "creditor",
     "fuel",
     "freight",
+    "cgst",
+    "gst",
+    "igst",
+    "input",
+    "liability",
+    "output",
+    "payable",
+    "sgst",
     "supplier",
     "rent",
     "salary",
@@ -765,6 +773,47 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     ];
   }
 
+  if (classification.compoundDetails?.kind === "gst_setoff") {
+    const details = classification.compoundDetails;
+    const setOffLines = details.lines.flatMap((line) => [
+      `${displayAccountName(line.outputAccount)} is a liability of ${formatRupees(line.outputAmount)}.`,
+      `${displayAccountName(line.inputAccount)} is available as credit of ${formatRupees(line.inputAmount)}.`,
+      `${displayAccountName(line.inputAccount)} is set off against ${displayAccountName(line.outputAccount)}.`,
+    ]);
+    const remainingLines = details.lines.map(
+      (line) => `Remaining ${displayAccountName(line.outputAccount)} payable is ${formatRupees(line.remainingAmount)}.`,
+    );
+
+    return [
+      ...setOffLines,
+      `${details.lines.map((line) => displayAccountName(line.outputAccount)).join(" and ")} ${
+        details.lines.length === 1 ? "is" : "are"
+      } debited because GST liability decreases.`,
+      `${details.lines.map((line) => displayAccountName(line.inputAccount)).join(" and ")} ${
+        details.lines.length === 1 ? "is" : "are"
+      } credited because input tax credit is used.`,
+      ...remainingLines,
+      `Remaining GST payable is ${formatRupees(details.remainingPayable)}.`,
+      ...(details.paymentAmount
+        ? [
+            `The remaining ${formatRupees(details.paymentAmount)} is paid through bank.`,
+            "Bank A/c is credited because bank balance decreases.",
+          ]
+        : []),
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "gst_payment") {
+    const details = classification.compoundDetails;
+    return [
+      "GST payable is a liability.",
+      `${details.lines.map((line) => displayAccountName(line.outputAccount)).join(" and ")} ${
+        details.lines.length === 1 ? "is" : "are"
+      } debited because paying GST reduces the liability.`,
+      `Bank A/c is credited for ${formatRupees(details.paymentAmount)} because bank balance decreases.`,
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return [
@@ -1191,6 +1240,26 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       "Do not ignore GST on the return.",
       "Do not debit Cash or Bank unless the transaction clearly says refund was received.",
       `Do not debit ${displayAccountName(classification.debitAccount)} only for the base amount.`,
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "gst_setoff") {
+    return [
+      "Do not debit Input GST during set-off; it is credited because input credit is used.",
+      "Do not credit Output GST during set-off; liability decreases, so it is debited.",
+      "Do not use Sales or Purchases in GST set-off/payment.",
+      "Do not set off more than the available input tax credit.",
+      "Do not calculate refund unless refund logic is supported.",
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "gst_payment") {
+    return [
+      "Do not credit Output GST during payment; liability decreases, so it is debited.",
+      "Do not debit Bank when GST is paid; Bank A/c is credited.",
+      "Do not use Sales or Purchases in GST set-off/payment.",
+      "Use Bank A/c for cheque, UPI, NEFT, RTGS, IMPS, online transfer, net banking, or card payment.",
+      "Do not record GST penalty or interest in this beginner rule.",
     ];
   }
 
@@ -1679,6 +1748,48 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
     };
   }
 
+  if (classification.compoundDetails?.kind === "gst_setoff") {
+    const details = classification.compoundDetails;
+    if (details.variant === "cgst_sgst") {
+      return {
+        question: `Set off Input CGST ${formatRupees(details.lines[0].inputAmount)} and Input SGST ${formatRupees(
+          details.lines[1].inputAmount,
+        )} against Output CGST ${formatRupees(details.lines[0].outputAmount)} and Output SGST ${formatRupees(
+          details.lines[1].outputAmount,
+        )}`,
+        expectedPattern: "Output CGST A/c Dr., Output SGST A/c Dr. To Input CGST A/c, To Input SGST A/c",
+      };
+    }
+
+    const line = details.lines[0];
+    return {
+      question: `Set off ${displayAccountName(line.inputAccount).replace(" A/c", "")} ${formatRupees(
+        line.inputAmount,
+      )} against ${displayAccountName(line.outputAccount).replace(" A/c", "")} ${formatRupees(line.outputAmount)}`,
+      expectedPattern: `${displayAccountName(line.outputAccount)} Dr. To ${displayAccountName(line.inputAccount)}`,
+    };
+  }
+
+  if (classification.compoundDetails?.kind === "gst_payment") {
+    const details = classification.compoundDetails;
+    if (details.variant === "cgst_sgst") {
+      return {
+        question: `Paid CGST ${formatRupees(details.lines[0].amount)} and SGST ${formatRupees(
+          details.lines[1].amount,
+        )} through bank`,
+        expectedPattern: "Output CGST A/c Dr., Output SGST A/c Dr. To Bank A/c",
+      };
+    }
+
+    const line = details.lines[0];
+    return {
+      question: `Paid ${displayAccountName(line.outputAccount).replace("Output ", "").replace(" A/c", "")} liability ${formatRupees(
+        line.amount,
+      )} through bank`,
+      expectedPattern: `${displayAccountName(line.outputAccount)} Dr. To Bank A/c`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return {
@@ -2033,6 +2144,26 @@ function buildNarration(classification: TransactionClassification): string {
     return `Being goods returned to ${details.partyName ?? "supplier"} with GST.`;
   }
 
+  if (classification.compoundDetails?.kind === "gst_setoff") {
+    if (classification.compoundDetails.variant === "cgst_sgst") {
+      return "Being Input CGST and Input SGST set off against Output CGST and Output SGST.";
+    }
+    if (classification.compoundDetails.variant === "igst") {
+      return "Being Input IGST set off against Output IGST.";
+    }
+    return "Being Input GST set off against Output GST.";
+  }
+
+  if (classification.compoundDetails?.kind === "gst_payment") {
+    if (classification.compoundDetails.variant === "cgst_sgst") {
+      return "Being CGST and SGST liability paid through bank.";
+    }
+    if (classification.compoundDetails.variant === "igst") {
+      return "Being IGST liability paid through bank.";
+    }
+    return "Being GST liability paid through bank.";
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return `Being goods purchased, ${formatRupees(details.paidAmount)} paid ${
@@ -2252,6 +2383,14 @@ function describeTransactionAction(classification: TransactionClassification): s
 
   if (classification.compoundDetails?.kind === "purchase_return_gst") {
     return "Goods purchased earlier were returned with GST.";
+  }
+
+  if (classification.compoundDetails?.kind === "gst_setoff") {
+    return "Input GST credit was set off against Output GST liability.";
+  }
+
+  if (classification.compoundDetails?.kind === "gst_payment") {
+    return "GST liability was paid through bank.";
   }
 
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {

@@ -1836,6 +1836,105 @@ describe("POST /api/journal-entry-solver", () => {
       { account: "Bank A/c", debit: 0, credit: 7000 },
     ]);
   });
+
+  it("solves GST set-off and mentions remaining payable", async () => {
+    const body = await solve("Set off Input GST Rs.5000 against Output GST Rs.8000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Output GST A/c", debit: 5000, credit: 0 },
+      { account: "Input GST A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Remaining GST payable is ₹3,000.");
+    expect(body.commonMistakes).toContain(
+      "Do not debit Input GST during set-off; it is credited because input credit is used.",
+    );
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves GST payment through bank", async () => {
+    const body = await solve("Paid GST liability Rs.3000 through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Output GST A/c", debit: 3000, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("GST payable is a liability.");
+    expect(body.narration).toBe("Being GST liability paid through bank.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves GST set-off with remaining payment through bank", async () => {
+    const body = await solve("Set off Input GST Rs.5000 against Output GST Rs.8000 and paid balance through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Output GST A/c", debit: 5000, credit: 0 },
+      { account: "Output GST A/c", debit: 3000, credit: 0 },
+      { account: "Input GST A/c", debit: 0, credit: 5000 },
+      { account: "Bank A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Remaining GST payable is ₹3,000.");
+    expect(body.stepByStepExplanation).toContain("The remaining ₹3,000 is paid through bank.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves CGST/SGST set-off and payment", async () => {
+    const setOff = await solve(
+      "Set off Input CGST Rs.2500 and Input SGST Rs.2500 against Output CGST Rs.4000 and Output SGST Rs.4000",
+    );
+    const payment = await solve("Paid CGST Rs.1500 and SGST Rs.1500 through bank");
+
+    expect(setOff.status).toBe("solved");
+    expect(setOff.journalEntry).toEqual([
+      { account: "Output CGST A/c", debit: 2500, credit: 0 },
+      { account: "Output SGST A/c", debit: 2500, credit: 0 },
+      { account: "Input CGST A/c", debit: 0, credit: 2500 },
+      { account: "Input SGST A/c", debit: 0, credit: 2500 },
+    ]);
+    expect(setOff.stepByStepExplanation).toContain("Remaining GST payable is ₹3,000.");
+    expect(payment.journalEntry).toEqual([
+      { account: "Output CGST A/c", debit: 1500, credit: 0 },
+      { account: "Output SGST A/c", debit: 1500, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(totalDebits(setOff)).toBe(totalCredits(setOff));
+    expect(totalDebits(payment)).toBe(totalCredits(payment));
+  });
+
+  it("solves IGST set-off and payment", async () => {
+    const setOff = await solve("Set off Input IGST Rs.5000 against Output IGST Rs.8000");
+    const payment = await solve("Paid IGST Rs.3000 through bank");
+
+    expect(setOff.status).toBe("solved");
+    expect(setOff.journalEntry).toEqual([
+      { account: "Output IGST A/c", debit: 5000, credit: 0 },
+      { account: "Input IGST A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(payment.journalEntry).toEqual([
+      { account: "Output IGST A/c", debit: 3000, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(totalDebits(setOff)).toBe(totalCredits(setOff));
+    expect(totalDebits(payment)).toBe(totalCredits(payment));
+  });
+
+  it("does not solve unsupported GST set-off/payment variations", async () => {
+    const cases = [
+      "Input GST Rs.8000 and Output GST Rs.5000 refund due",
+      "Set off IGST against CGST and SGST",
+      "Paid GST penalty Rs.500",
+      "Paid GST Rs.3000 in cash",
+      "Filed GSTR-3B",
+    ];
+
+    for (const transaction of cases) {
+      const body = await solve(transaction);
+      expect(["unsupported", "ambiguous"]).toContain(body.status);
+      expect(body.journalEntry).toEqual([]);
+    }
+  });
 });
 
 function totalDebits(response: JournalEntrySolverResponse): number {

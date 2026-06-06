@@ -139,9 +139,9 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     debitRule: "Debit what comes in / Asset increases are debited",
     creditRule: "Credit what goes out / Asset decreases are credited",
     debitEffect: "Input GST credit increased",
-    creditEffect: "Input GST credit decreased",
+    creditEffect: "Input tax credit reduced",
     debitReason: "GST paid on purchase can be claimed as input tax credit, so Input GST A/c is debited.",
-    creditReason: "Input GST credit is being reduced or adjusted.",
+    creditReason: "Input tax credit is used to reduce GST liability.",
   },
   "Output GST": {
     displayName: "Output GST A/c",
@@ -149,9 +149,9 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     modernType: "Liability / Tax Payable",
     debitRule: "Debit the receiver / Liability decreases are debited",
     creditRule: "Credit the giver / Liability increases are credited",
-    debitEffect: "Output GST liability decreased",
+    debitEffect: "GST liability reduced",
     creditEffect: "Output GST liability increased",
-    debitReason: "Output GST liability is being reduced or adjusted.",
+    debitReason: "Output GST liability is reduced by set-off/payment.",
     creditReason: "GST collected on sale is payable to the government, so Output GST A/c is credited.",
   },
   "Input CGST": inputGstMetadata("Input CGST", "CGST"),
@@ -465,9 +465,9 @@ function inputGstMetadata(account: string, taxLabel: string): AccountMetadata {
     debitRule: "Debit what comes in / Asset increases are debited",
     creditRule: "Credit what goes out / Asset decreases are credited",
     debitEffect: `${account} credit increased`,
-    creditEffect: `${account} credit decreased`,
+    creditEffect: "Input tax credit reduced",
     debitReason: `${taxLabel} paid on purchase can be claimed as input tax credit.`,
-    creditReason: `${account} credit is being reduced or adjusted.`,
+    creditReason: "Input tax credit is used to reduce GST liability.",
   };
 }
 
@@ -478,9 +478,9 @@ function outputGstMetadata(account: string, taxLabel: string): AccountMetadata {
     modernType: "Liability / Tax Payable",
     debitRule: "Debit the receiver / Liability decreases are debited",
     creditRule: "Credit the giver / Liability increases are credited",
-    debitEffect: `${account} liability decreased`,
+    debitEffect: "GST liability reduced",
     creditEffect: `${account} liability increased`,
-    debitReason: `${account} liability is being reduced or adjusted.`,
+    debitReason: "Output GST liability is reduced by set-off/payment.",
     creditReason: `${taxLabel} collected on sale is payable to the government.`,
   };
 }
