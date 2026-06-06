@@ -285,6 +285,40 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
     const details = classification.compoundDetails;
     const receipt = displayAccountName(details.debtorAccount);
     const asset = displayAccountName(details.assetAccount);
+    if (details.bookValue !== undefined && details.lossAmount) {
+      return [
+        `${titleCase(details.assetLabel)} has book value/cost of ${formatRupees(details.bookValue)}.`,
+        `It was sold for ${formatRupees(details.saleValue)}.`,
+        `Sale value is less than book value, so there is a loss of ${formatRupees(details.lossAmount)}.`,
+        `${receipt} is debited because ${
+          details.receiptAccount === "Bank"
+            ? "the amount is received through bank/digital mode"
+            : details.receiptAccount === "Cash"
+              ? "cash is received"
+              : `${details.debtorAccount} is treated as a buyer/debtor for the credit sale`
+        }.`,
+        "Loss on Sale of Asset A/c is debited because losses are debited.",
+        `${asset} is credited because the asset goes out of the business.`,
+      ];
+    }
+
+    if (details.bookValue !== undefined && details.profitAmount) {
+      return [
+        `${titleCase(details.assetLabel)} has book value/cost of ${formatRupees(details.bookValue)}.`,
+        `It was sold for ${formatRupees(details.saleValue)}.`,
+        `Sale value is more than book value, so there is profit of ${formatRupees(details.profitAmount)}.`,
+        `${receipt} is debited because ${
+          details.receiptAccount === "Bank"
+            ? "the amount is received through bank/digital mode"
+            : details.receiptAccount === "Cash"
+              ? "cash is received"
+              : `${details.debtorAccount} is treated as a buyer/debtor for the credit sale`
+        }.`,
+        `${asset} is credited because the asset goes out of the business.`,
+        "Profit on Sale of Asset A/c is credited because gains are credited.",
+      ];
+    }
+
     return [
       `${titleCase(details.assetLabel)} is a fixed asset of the business.`,
       `The business sold the ${details.assetLabel} for ${formatRupees(details.amount)}.`,
@@ -777,6 +811,7 @@ function buildCommonMistakes(classification: TransactionClassification): string[
   if (classification.compoundDetails?.kind === "asset_sale") {
     return [
       "Do not credit Sales A/c because this is sale of an asset, not sale of goods.",
+      "Do not ignore profit/loss when book value and sale value are both given.",
       "Do not debit Purchases A/c.",
       "Do not calculate profit/loss unless book value is given.",
       "Do not use Asset Disposal A/c in this beginner case.",
@@ -1097,7 +1132,12 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
           ? "through bank"
           : "for cash";
     return {
-      question: `Sold ${details.assetLabel} ${formatRupees(details.amount)} ${mode}`,
+      question:
+        details.bookValue === undefined
+          ? `Sold ${details.assetLabel} ${formatRupees(details.amount)} ${mode}`
+          : `Sold ${details.assetLabel} costing ${formatRupees(details.bookValue)} for ${formatRupees(
+              details.saleValue,
+            )} ${mode}`,
       expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To ${displayAccountName(
         details.assetAccount,
       )}`,
@@ -1454,11 +1494,12 @@ function buildNarration(classification: TransactionClassification): string {
 
   if (classification.compoundDetails?.kind === "asset_sale") {
     const details = classification.compoundDetails;
-    if (details.receiptAccount === "Cash") return `Being ${details.assetLabel} sold for cash.`;
-    if (details.receiptAccount === "Bank") return `Being ${details.assetLabel} sold through bank.`;
+    const resultLabel = details.lossAmount ? " at a loss" : details.profitAmount ? " at a profit" : "";
+    if (details.receiptAccount === "Cash") return `Being ${details.assetLabel} sold for cash${resultLabel}.`;
+    if (details.receiptAccount === "Bank") return `Being ${details.assetLabel} sold through bank${resultLabel}.`;
     return details.partyName
-      ? `Being ${details.assetLabel} sold to ${details.partyName} on credit.`
-      : `Being ${details.assetLabel} sold on credit.`;
+      ? `Being ${details.assetLabel} sold to ${details.partyName} on credit${resultLabel}.`
+      : `Being ${details.assetLabel} sold on credit${resultLabel}.`;
   }
 
   if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {

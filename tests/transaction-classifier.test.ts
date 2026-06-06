@@ -1889,6 +1889,61 @@ describe("classifyTransaction supported beginner transactions", () => {
     });
   });
 
+  it.each([
+    ["Sold machinery costing Rs.50000 for Rs.40000 cash", "asset_sale_loss_machinery_cash", "Cash", "Machinery", 40000],
+    ["Sold machinery costing Rs.50000 for Rs.60000 cash", "asset_sale_profit_machinery_cash", "Cash", "Machinery", 60000],
+    ["Sold laptop costing Rs.30000 for Rs.20000 through bank", "asset_sale_loss_laptop_bank", "Bank", "Computer", 20000],
+    ["Sold car costing Rs.300000 to Raju for Rs.250000 on credit", "asset_sale_loss_vehicle_credit", "Raju", "Vehicle", 250000],
+    ["Machinery book value Rs.50000 sold for Rs.60000 cash", "asset_sale_profit_machinery_cash", "Cash", "Machinery", 60000],
+    ["Sold machinery having book value Rs.50000 for Rs.40000 cash", "asset_sale_loss_machinery_cash", "Cash", "Machinery", 40000],
+  ])("classifies asset sale with profit/loss: %s", (transaction, transactionType, debitAccount, creditAccount, amount) => {
+    const classification = classifyTransaction(transaction);
+
+    expect(classification).toMatchObject({
+      transaction_type: transactionType,
+      debitAccount,
+      creditAccount,
+      amount,
+      confidence: 0.95,
+    });
+  });
+
+  it("builds expected entries for asset sales with profit or loss", () => {
+    const lossCash = classifyTransaction("Sold machinery costing Rs.50000 for Rs.40000 cash");
+    const profitCash = classifyTransaction("Sold machinery costing Rs.50000 for Rs.60000 cash");
+    const lossBank = classifyTransaction("Sold laptop costing Rs.30000 for Rs.20000 through bank");
+    const lossCredit = classifyTransaction("Sold car costing Rs.300000 to Raju for Rs.250000 on credit");
+
+    expect(generateExpectedEntry(lossCash!)).toEqual({
+      debits: [
+        { account: "Cash", amount: 40000 },
+        { account: "Loss on Sale of Asset", amount: 10000 },
+      ],
+      credits: [{ account: "Machinery", amount: 50000 }],
+    });
+    expect(generateExpectedEntry(profitCash!)).toEqual({
+      debits: [{ account: "Cash", amount: 60000 }],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Profit on Sale of Asset", amount: 10000 },
+      ],
+    });
+    expect(generateExpectedEntry(lossBank!)).toEqual({
+      debits: [
+        { account: "Bank", amount: 20000 },
+        { account: "Loss on Sale of Asset", amount: 10000 },
+      ],
+      credits: [{ account: "Computer", amount: 30000 }],
+    });
+    expect(generateExpectedEntry(lossCredit!)).toEqual({
+      debits: [
+        { account: "Raju", amount: 250000, acceptedAccounts: ["Debtor"], partyRole: "debtor" },
+        { account: "Loss on Sale of Asset", amount: 50000 },
+      ],
+      credits: [{ account: "Vehicle", amount: 300000 }],
+    });
+  });
+
   it("does not classify unsupported transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
     expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
@@ -1915,6 +1970,8 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Sold machinery costing Rs.50000 for Rs.40000")).toBeNull();
     expect(classifyTransaction("Sold machinery Rs.40000 plus GST 18%")).toBeNull();
     expect(classifyTransaction("Sold machinery Rs.40000 and received Rs.10000 cash, balance on credit")).toBeNull();
+    expect(classifyTransaction("Sold machinery for Rs.40000 after depreciation Rs.10000")).toBeNull();
+    expect(classifyTransaction("Sold machinery with accumulated depreciation Rs.10000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();

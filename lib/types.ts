@@ -146,6 +146,10 @@ export interface AssetSaleDetails {
   assetAccount: string;
   assetLabel: string;
   amount: number;
+  bookValue?: number;
+  saleValue: number;
+  profitAmount?: number;
+  lossAmount?: number;
   receiptAccount: "Cash" | "Bank" | "Debtor";
   debtorAccount: string;
   partyName?: string;

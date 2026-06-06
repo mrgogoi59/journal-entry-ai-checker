@@ -1177,6 +1177,50 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
+  it("solves asset sale at loss", async () => {
+    const body = await solve("Sold machinery costing Rs.50000 for Rs.40000 cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toHaveLength(3);
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 40000, credit: 0 },
+      { account: "Loss on Sale of Asset A/c", debit: 10000, credit: 0 },
+      { account: "Machinery A/c", debit: 0, credit: 50000 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Sale value is less than book value, so there is a loss of ₹10,000.");
+    expect(body.narration).toBe("Being machinery sold for cash at a loss.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves asset sale at profit", async () => {
+    const body = await solve("Sold machinery costing Rs.50000 for Rs.60000 cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toHaveLength(3);
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 60000, credit: 0 },
+      { account: "Machinery A/c", debit: 0, credit: 50000 },
+      { account: "Profit on Sale of Asset A/c", debit: 0, credit: 10000 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Sale value is more than book value, so there is profit of ₹10,000.");
+    expect(body.narration).toBe("Being machinery sold for cash at a profit.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve asset sale with costing but no mode or buyer", async () => {
+    const body = await solve("Sold machinery costing Rs.50000 for Rs.40000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve asset sale with accumulated depreciation", async () => {
+    const body = await solve("Sold machinery with accumulated depreciation Rs.10000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
   it("does not solve GST yet", async () => {
     const body = await solve("GST paid Rs.1000");
 

@@ -446,8 +446,9 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
   const asset = extractAssetPurchaseItem(transactionText);
   if (!asset) return null;
 
-  const amount = parseAmount(transactionText);
-  if (!amount) return null;
+  const saleAmounts = extractAssetSaleAmounts(transactionText);
+  if (!saleAmounts) return null;
+  const { bookValue, saleValue } = saleAmounts;
 
   const partyName = extractAssetSaleBuyerName(transactionText);
   const receiptAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
@@ -462,19 +463,18 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
   if (!receiptAccount) return null;
 
   const debtorAccount = receiptAccount === "Debtor" ? (partyName ?? "Debtor") : receiptAccount;
-  const expectedEntry: CorrectJournalEntry = {
-    debits: [{ account: debtorAccount, amount }],
-    credits: [{ account: asset.account, amount }],
-  };
+  const expectedEntry = buildAssetSaleEntry(asset.account, saleValue, bookValue, debtorAccount);
   if (partyName && receiptAccount === "Debtor") {
     expectedEntry.debits[0].acceptedAccounts = ["Debtor"];
     expectedEntry.debits[0].partyRole = "debtor";
   }
 
   const receiptSuffix = receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit";
+  const resultPrefix =
+    bookValue === undefined || saleValue === bookValue ? "" : saleValue < bookValue ? "loss_" : "profit_";
 
   return {
-    transaction_type: `asset_sale_${asset.key}_${receiptSuffix}`,
+    transaction_type: `asset_sale_${resultPrefix}${asset.key}_${receiptSuffix}`,
     confidence: DIRECT_MATCH_CONFIDENCE,
     debitAccount: debtorAccount,
     creditAccount: asset.account,
@@ -482,9 +482,11 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
     expectedCreditAccount: asset.account,
     genericDebitAccount: receiptAccount,
     genericCreditAccount: asset.account,
-    amount,
+    amount: saleValue,
     explanationLogic:
-      "A fixed asset was sold without profit/loss calculation. Cash, Bank, Debtor, or the named buyer is debited, and the fixed asset account is credited because the asset goes out of the business.",
+      bookValue === undefined
+        ? "A fixed asset was sold without profit/loss calculation. Cash, Bank, Debtor, or the named buyer is debited, and the fixed asset account is credited because the asset goes out of the business."
+        : "A fixed asset was sold with book value and sale value given. Cash, Bank, Debtor, or the named buyer is debited for sale value, the asset is credited for book value, and profit or loss is recorded.",
     partyName,
     partyRole: partyName ? "debtor" : undefined,
     partyAccountSide: partyName ? "debit" : undefined,
@@ -493,7 +495,11 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
       kind: "asset_sale",
       assetAccount: asset.account,
       assetLabel: asset.label,
-      amount,
+      amount: saleValue,
+      bookValue,
+      saleValue,
+      profitAmount: bookValue !== undefined && saleValue > bookValue ? roundCurrency(saleValue - bookValue) : undefined,
+      lossAmount: bookValue !== undefined && saleValue < bookValue ? roundCurrency(bookValue - saleValue) : undefined,
       receiptAccount,
       debtorAccount,
       partyName,
@@ -860,9 +866,24 @@ function hasAssetSaleContext(transactionText: string): boolean {
 function hasUnsupportedAssetSaleContext(transactionText: string): boolean {
   return (
     hasGstMention(transactionText) ||
-    /\b(?:costing|book\s+value|profit|loss|accumulated\s+depreciation|depreciation|disposal)\b/i.test(transactionText) ||
+    /\b(?:profit|loss|accumulated\s+depreciation|depreciation|disposal)\b/i.test(transactionText) ||
     /\b(?:balance\s+on\s+credit|partly|partial|received\s+rs\.?\s*|received\s+₹)\b/i.test(transactionText)
   );
+}
+
+function extractAssetSaleAmounts(transactionText: string): { saleValue: number; bookValue?: number } | null {
+  const amounts = extractAmounts(transactionText);
+  const hasBookValue =
+    /\b(?:costing|cost\s+of|book\s+value|having\s+book\s+value)\b/i.test(transactionText) && amounts.length >= 2;
+
+  if (hasBookValue) {
+    const [bookValue, saleValue] = amounts;
+    if (!bookValue || !saleValue) return null;
+    return { bookValue, saleValue };
+  }
+
+  const saleValue = parseAmount(transactionText);
+  return saleValue ? { saleValue } : null;
 }
 
 function hasUnsupportedAssetGstContext(transactionText: string): boolean {
@@ -1291,6 +1312,38 @@ function buildAssetGstPurchaseEntry(
   };
 }
 
+function buildAssetSaleEntry(
+  assetAccount: string,
+  saleValue: number,
+  bookValue: number | undefined,
+  debtorAccount: string,
+): CorrectJournalEntry {
+  if (bookValue === undefined || saleValue === bookValue) {
+    return {
+      debits: [{ account: debtorAccount, amount: saleValue }],
+      credits: [{ account: assetAccount, amount: saleValue }],
+    };
+  }
+
+  if (saleValue < bookValue) {
+    return {
+      debits: [
+        { account: debtorAccount, amount: saleValue },
+        { account: "Loss on Sale of Asset", amount: roundCurrency(bookValue - saleValue) },
+      ],
+      credits: [{ account: assetAccount, amount: bookValue }],
+    };
+  }
+
+  return {
+    debits: [{ account: debtorAccount, amount: saleValue }],
+    credits: [
+      { account: assetAccount, amount: bookValue },
+      { account: "Profit on Sale of Asset", amount: roundCurrency(saleValue - bookValue) },
+    ],
+  };
+}
+
 function buildGoodsGstSaleEntry(
   baseAmount: number,
   gstAmount: number,
@@ -1346,7 +1399,9 @@ function extractAssetGstSupplierName(transactionText: string): string | undefine
 function extractAssetSaleBuyerName(transactionText: string): string | undefined {
   const match =
     /\bsold\s+\w+(?:\s+\w+)?\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
-    /\b\w+(?:\s+\w+)?\s+sold\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
+    /\b\w+(?:\s+\w+)?\s+sold\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bto\s+([a-z][a-z.'-]*)\s+for\b/i.exec(transactionText) ??
+    /\bto\s+([a-z][a-z.'-]*)\s+on\s+credit\b/i.exec(transactionText);
   const rawName = match?.[1];
   if (!rawName) return undefined;
 

@@ -116,6 +116,14 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   asset_sale_laptop_bank: (amount) => `Sold laptop ${formatRupees(amount)} through bank`,
   asset_sale_vehicle_credit: (amount) => `Sold car to Raju ${formatRupees(amount)} on credit`,
   asset_sale_land_bank: (amount) => `Sold land through bank ${formatRupees(amount)}`,
+  asset_sale_loss_machinery_cash: (amount) =>
+    `Sold machinery costing ${formatRupees(amount)} for ${formatRupees(Math.round(amount * 0.8))} cash`,
+  asset_sale_profit_machinery_cash: (amount) =>
+    `Sold machinery costing ${formatRupees(amount)} for ${formatRupees(Math.round(amount * 1.2))} cash`,
+  asset_sale_loss_laptop_bank: (amount) =>
+    `Sold laptop costing ${formatRupees(amount)} for ${formatRupees(Math.round(amount * 0.8))} through bank`,
+  asset_sale_loss_vehicle_credit: (amount) =>
+    `Sold car costing ${formatRupees(amount)} to Raju for ${formatRupees(Math.round(amount * 0.8))} on credit`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -197,6 +205,10 @@ const explicitPracticeTransactionTypes = [
   "asset_sale_laptop_bank",
   "asset_sale_vehicle_credit",
   "asset_sale_land_bank",
+  "asset_sale_loss_machinery_cash",
+  "asset_sale_profit_machinery_cash",
+  "asset_sale_loss_laptop_bank",
+  "asset_sale_loss_vehicle_credit",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

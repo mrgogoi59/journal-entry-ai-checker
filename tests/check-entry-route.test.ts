@@ -3360,6 +3360,98 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.40000 cash",
+      journalEntry: "Cash A/c Dr. Rs.40000\nLoss on Sale of Asset A/c Dr. Rs.10000\nTo Machinery A/c Rs.50000",
+      debits: [
+        { account: "Cash", amount: 40000 },
+        { account: "Loss on Sale of Asset", amount: 10000 },
+      ],
+      credits: [{ account: "Machinery", amount: 50000 }],
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.40000 cash",
+      journalEntry: "Loss on Sale of Asset A/c Dr. Rs.10000\nCash A/c Dr. Rs.40000\nTo Machinery A/c Rs.50000",
+      debits: [
+        { account: "Cash", amount: 40000 },
+        { account: "Loss on Sale of Asset", amount: 10000 },
+      ],
+      credits: [{ account: "Machinery", amount: 50000 }],
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.60000 cash",
+      journalEntry: "Cash A/c Dr. Rs.60000\nTo Profit on Sale of Asset A/c Rs.10000\nTo Machinery A/c Rs.50000",
+      debits: [{ account: "Cash", amount: 60000 }],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Profit on Sale of Asset", amount: 10000 },
+      ],
+    },
+    {
+      transactionText: "Sold laptop costing Rs.30000 for Rs.20000 through bank",
+      journalEntry: "Bank A/c Dr. Rs.20000\nLoss on Sale of Asset A/c Dr. Rs.10000\nTo Computer A/c Rs.30000",
+      debits: [
+        { account: "Bank", amount: 20000 },
+        { account: "Loss on Sale of Asset", amount: 10000 },
+      ],
+      credits: [{ account: "Computer", amount: 30000 }],
+    },
+    {
+      transactionText: "Sold car costing Rs.300000 to Raju for Rs.250000 on credit",
+      journalEntry: "Raju A/c Dr. Rs.250000\nLoss on Sale of Asset A/c Dr. Rs.50000\nTo Vehicle A/c Rs.300000",
+      debits: [
+        { account: "Raju", amount: 250000 },
+        { account: "Loss on Sale of Asset", amount: 50000 },
+      ],
+      credits: [{ account: "Vehicle", amount: 300000 }],
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 to Raju for Rs.60000 on credit",
+      journalEntry: "Raju A/c Dr. Rs.60000\nTo Machinery A/c Rs.50000\nTo Profit on Sale of Asset A/c Rs.10000",
+      debits: [{ account: "Raju", amount: 60000 }],
+      credits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Profit on Sale of Asset", amount: 10000 },
+      ],
+    },
+  ])("returns Correct for asset sale with profit/loss: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.40000 cash",
+      journalEntry: "Cash A/c Dr. Rs.40000\nTo Machinery A/c Rs.40000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.60000 cash",
+      journalEntry: "Cash A/c Dr. Rs.60000\nTo Machinery A/c Rs.60000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.40000 cash",
+      journalEntry: "Cash A/c Dr. Rs.40000\nLoss on Sale of Asset A/c Dr. Rs.10000\nTo Sales A/c Rs.50000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.40000 cash",
+      journalEntry: "Cash A/c Dr. Rs.40000\nProfit on Sale of Asset A/c Dr. Rs.10000\nTo Machinery A/c Rs.50000",
+    },
+    {
+      transactionText: "Sold machinery costing Rs.50000 for Rs.60000 cash",
+      journalEntry: "Cash A/c Dr. Rs.60000\nTo Machinery A/c Rs.50000\nTo Loss on Sale of Asset A/c Rs.10000",
+    },
+  ])("does not accept wrong asset sale profit/loss entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for partial goods sale with cash received and balance on credit", async () => {
     const body = await checkEntry(
       "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
