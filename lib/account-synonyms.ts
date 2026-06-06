@@ -148,6 +148,8 @@ const ACCOUNT_SYNONYMS: Record<string, string> = {
   "phone bill": "Telephone Expense",
   "telephone expense": "Telephone Expense",
   "telephone account": "Telephone Expense",
+  "telefone bill": "Telephone Expense",
+  "telefone expense": "Telephone Expense",
   internet: "Internet Expense",
   "internet bill": "Internet Expense",
   "broadband bill": "Internet Expense",
@@ -502,7 +504,6 @@ const SPELLING_CORRECTIONS: Record<string, string> = {
   expnse: "expense",
   expnses: "expenses",
   chargs: "charges",
-  telefone: "telephone",
 };
 
 export function cleanAccountName(value: string): string {

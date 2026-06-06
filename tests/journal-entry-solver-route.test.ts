@@ -58,6 +58,19 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves misspelled telefone expense through bank as telephone expense", async () => {
+    const body = await solve("Paid telefone expense Rs.1200 through bank");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Telephone Expense A/c", debit: 1200, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 1200 },
+    ]);
+    expect(body.journalEntry.map((line) => line.account)).not.toContain("Telefone A/c");
+    expect(body.stepByStepExplanation.join(" ")).toContain("Telephone Expense A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves paid for travel tickets as travel expense, not party name", async () => {
     const body = await solve("Paid for travel tickets Rs.5000 by cash");
 
@@ -102,6 +115,17 @@ describe("POST /api/journal-entry-solver", () => {
     );
     expect(body.commonMistakes).toContain("If received by UPI/bank/cheque, use Bank A/c instead of Cash A/c.");
     expect(body.narration).toBe("Being consultancy income received through bank/digital mode.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves misspelled received commission in cash", async () => {
+    const body = await solve("Recieved commission Rs.2500 in cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 2500, credit: 0 },
+      { account: "Commission Income A/c", debit: 0, credit: 2500 },
+    ]);
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 

@@ -11,66 +11,77 @@ const DIGITAL_OR_BANK_PAYMENT_PATTERN =
 const UNSUPPORTED_COMPOUND_CONTEXT_PATTERN = /\b(?:gst|discount|depreciation|bad debts?|outstanding|prepaid|accrued)\b/i;
 const AMOUNT_TOKEN_PATTERN = "([0-9]+(?:\\.\\d+)?\\s*k|[0-9][0-9,]*(?:\\.\\d+)?)";
 
+const TRANSACTION_SPELLING_CORRECTIONS: Array<[RegExp, string]> = [
+  [/\btelefone\b/gi, "telephone"],
+  [/\brecieved\b/gi, "received"],
+  [/\brecived\b/gi, "received"],
+  [/\bcommision\b/gi, "commission"],
+  [/\bexpnse\b/gi, "expense"],
+  [/\bchargs\b/gi, "charges"],
+];
+
 export function classifyTransaction(transactionText: string): TransactionClassification | null {
-  const discountAllowedSettlement = classifyDiscountAllowedSettlement(transactionText);
+  const normalizedTransactionText = normalizeTransactionText(transactionText);
+
+  const discountAllowedSettlement = classifyDiscountAllowedSettlement(normalizedTransactionText);
   if (discountAllowedSettlement) return discountAllowedSettlement;
-  const discountReceivedSettlement = classifyDiscountReceivedSettlement(transactionText);
+  const discountReceivedSettlement = classifyDiscountReceivedSettlement(normalizedTransactionText);
   if (discountReceivedSettlement) return discountReceivedSettlement;
-  const assetSale = classifyAssetSale(transactionText);
+  const assetSale = classifyAssetSale(normalizedTransactionText);
   if (assetSale) return assetSale;
-  const assetPurchaseInstallationCharge = classifyAssetPurchaseInstallationCharge(transactionText);
+  const assetPurchaseInstallationCharge = classifyAssetPurchaseInstallationCharge(normalizedTransactionText);
   if (assetPurchaseInstallationCharge) return assetPurchaseInstallationCharge;
-  const assetInstallationCharge = classifyAssetInstallationCharge(transactionText);
+  const assetInstallationCharge = classifyAssetInstallationCharge(normalizedTransactionText);
   if (assetInstallationCharge) return assetInstallationCharge;
-  const assetGstPurchase = classifyAssetGstPurchase(transactionText);
+  const assetGstPurchase = classifyAssetGstPurchase(normalizedTransactionText);
   if (assetGstPurchase) return assetGstPurchase;
-  const goodsGstTradeDiscountPurchase = classifyGoodsGstTradeDiscountPurchase(transactionText);
+  const goodsGstTradeDiscountPurchase = classifyGoodsGstTradeDiscountPurchase(normalizedTransactionText);
   if (goodsGstTradeDiscountPurchase) return goodsGstTradeDiscountPurchase;
-  const goodsGstTradeDiscountSale = classifyGoodsGstTradeDiscountSale(transactionText);
+  const goodsGstTradeDiscountSale = classifyGoodsGstTradeDiscountSale(normalizedTransactionText);
   if (goodsGstTradeDiscountSale) return goodsGstTradeDiscountSale;
-  const goodsGstPurchase = classifyGoodsGstPurchase(transactionText);
+  const goodsGstPurchase = classifyGoodsGstPurchase(normalizedTransactionText);
   if (goodsGstPurchase) return goodsGstPurchase;
-  const goodsGstSale = classifyGoodsGstSale(transactionText);
+  const goodsGstSale = classifyGoodsGstSale(normalizedTransactionText);
   if (goodsGstSale) return goodsGstSale;
-  const salesReturnGst = classifySalesReturnGst(transactionText);
+  const salesReturnGst = classifySalesReturnGst(normalizedTransactionText);
   if (salesReturnGst) return salesReturnGst;
-  const purchaseReturnGst = classifyPurchaseReturnGst(transactionText);
+  const purchaseReturnGst = classifyPurchaseReturnGst(normalizedTransactionText);
   if (purchaseReturnGst) return purchaseReturnGst;
-  const gstSetOff = classifyGstSetOff(transactionText);
+  const gstSetOff = classifyGstSetOff(normalizedTransactionText);
   if (gstSetOff) return gstSetOff;
-  const gstPayment = classifyGstPayment(transactionText);
+  const gstPayment = classifyGstPayment(normalizedTransactionText);
   if (gstPayment) return gstPayment;
-  const expenseGstPayment = classifyExpenseGstPayment(transactionText);
+  const expenseGstPayment = classifyExpenseGstPayment(normalizedTransactionText);
   if (expenseGstPayment) return expenseGstPayment;
-  const incomeGstReceipt = classifyIncomeGstReceipt(transactionText);
+  const incomeGstReceipt = classifyIncomeGstReceipt(normalizedTransactionText);
   if (incomeGstReceipt) return incomeGstReceipt;
-  if (hasGstMention(transactionText)) return null;
-  if (hasUnsupportedGoodsTaxAmbiguity(transactionText)) return null;
-  const partialGoodsPurchase = classifyPartialGoodsPurchase(transactionText);
+  if (hasGstMention(normalizedTransactionText)) return null;
+  if (hasUnsupportedGoodsTaxAmbiguity(normalizedTransactionText)) return null;
+  const partialGoodsPurchase = classifyPartialGoodsPurchase(normalizedTransactionText);
   if (partialGoodsPurchase) return partialGoodsPurchase;
-  const partialGoodsSale = classifyPartialGoodsSale(transactionText);
+  const partialGoodsSale = classifyPartialGoodsSale(normalizedTransactionText);
   if (partialGoodsSale) return partialGoodsSale;
-  if (isPartialBalanceCreditCompound(transactionText)) return null;
-  if (hasUnsupportedGoodsLossInsuranceContext(transactionText)) return null;
-  if (hasUnsupportedSalesReturnContext(transactionText)) return null;
-  if (hasUnsupportedPurchaseReturnContext(transactionText)) return null;
-  if (hasAssetPurchasePlusInstallationContext(transactionText)) return null;
-  if (hasAssetPurchaseRepairContext(transactionText)) return null;
-  if (hasAssetSaleContext(transactionText)) return null;
+  if (isPartialBalanceCreditCompound(normalizedTransactionText)) return null;
+  if (hasUnsupportedGoodsLossInsuranceContext(normalizedTransactionText)) return null;
+  if (hasUnsupportedSalesReturnContext(normalizedTransactionText)) return null;
+  if (hasUnsupportedPurchaseReturnContext(normalizedTransactionText)) return null;
+  if (hasAssetPurchasePlusInstallationContext(normalizedTransactionText)) return null;
+  if (hasAssetPurchaseRepairContext(normalizedTransactionText)) return null;
+  if (hasAssetSaleContext(normalizedTransactionText)) return null;
 
   const rule = transactionRules.find((candidate) =>
-    candidate.patterns.some((pattern) => pattern.test(transactionText)),
+    candidate.patterns.some((pattern) => pattern.test(normalizedTransactionText)),
   );
 
   if (!rule) return null;
 
-  const amount = rule.amountExtractor?.(transactionText) ?? parseAmount(transactionText);
+  const amount = rule.amountExtractor?.(normalizedTransactionText) ?? parseAmount(normalizedTransactionText);
   if (!amount) return null;
 
   const confidence = DIRECT_MATCH_CONFIDENCE;
   if (confidence < MIN_CONFIDENCE) return null;
 
-  const partyDetails = rule.partyExtractor?.(transactionText) ?? null;
+  const partyDetails = rule.partyExtractor?.(normalizedTransactionText) ?? null;
   const debitAccount =
     partyDetails?.partyAccountSide === "debit" ? partyDetails.partyName : rule.debitAccount;
   const creditAccount =
@@ -91,6 +102,13 @@ export function classifyTransaction(transactionText: string): TransactionClassif
     partyRole: partyDetails?.partyRole,
     partyAccountSide: partyDetails?.partyAccountSide,
   };
+}
+
+function normalizeTransactionText(value: string): string {
+  return TRANSACTION_SPELLING_CORRECTIONS.reduce(
+    (normalized, [pattern, replacement]) => normalized.replace(pattern, replacement),
+    value,
+  );
 }
 
 export function extractAmount(value: string): number | null {

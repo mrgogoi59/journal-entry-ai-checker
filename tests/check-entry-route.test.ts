@@ -1317,6 +1317,13 @@ describe("POST /api/check-entry", () => {
       creditAccount: "Bank",
       amount: 2500,
     },
+    {
+      transactionText: "Paid telefone expense Rs.1200 through bank",
+      journalEntry: "Telephone Expense A/c Dr. Rs.1200\nTo Bank A/c Rs.1200",
+      debitAccount: "Telephone Expense",
+      creditAccount: "Bank",
+      amount: 1200,
+    },
   ])("returns Correct for common expense payment: $transactionText", async ({ transactionText, journalEntry, debitAccount, creditAccount, amount }) => {
     const body = await checkEntry(transactionText, journalEntry);
 
@@ -1389,6 +1396,16 @@ describe("POST /api/check-entry", () => {
     const body = await checkEntry(
       "Paid for travel tickets Rs.5000 by cash",
       "For A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+    );
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
+  it("does not accept bare Telefone as a party/account for telephone expense", async () => {
+    const body = await checkEntry(
+      "Paid telefone expense Rs.1200 through bank",
+      "Telefone A/c Dr. Rs.1200\nTo Bank A/c Rs.1200",
     );
 
     expect(body.result_status).not.toBe("Correct");
@@ -1921,6 +1938,24 @@ describe("POST /api/check-entry", () => {
     });
   });
 
+  it.each([
+    "Recieved commission Rs.2500 in cash",
+    "Recieved commision Rs.2500 in cash",
+  ])("returns Correct for misspelled commission receipt: %s", async (transactionText) => {
+    const body = await checkEntry(
+      transactionText,
+      "Cash A/c Dr. Rs.2500\nTo Commission Income A/c Rs.2500",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Cash", amount: 2500 }],
+      credits: [{ account: "Commission Income", amount: 2500 }],
+    });
+  });
+
   it("does not accept Commission debit for commission received in cash", async () => {
     const body = await checkEntry(
       "Received commission Rs.3000 in cash",
@@ -1998,6 +2033,13 @@ describe("POST /api/check-entry", () => {
     {
       name: "cash received from named debtor",
       transactionText: "Received cash Rs.10000 from Raju",
+      journalEntry: "Cash A/c Dr. Rs.10000\nTo Raju A/c Rs.10000",
+      debits: [{ account: "Cash", amount: 10000 }],
+      credits: [{ account: "Raju", amount: 10000 }],
+    },
+    {
+      name: "amount received from named debtor in cash",
+      transactionText: "Received Rs.10000 from Raju in cash",
       journalEntry: "Cash A/c Dr. Rs.10000\nTo Raju A/c Rs.10000",
       debits: [{ account: "Cash", amount: 10000 }],
       credits: [{ account: "Raju", amount: 10000 }],
