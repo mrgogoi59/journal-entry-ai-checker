@@ -594,11 +594,29 @@ describe("POST /api/journal-entry-solver", () => {
 
   it("returns ambiguous for paying a named person without context", async () => {
     const body = await solve("Paid Ram ₹5,000");
+    const text = solverText(body);
 
     expect(body.status).toBe("ambiguous");
     expect(body.ambiguityQuestions.length).toBeGreaterThan(0);
     expect(body.possibleInterpretations.length).toBeGreaterThan(0);
     expect(body.journalEntry).toEqual([]);
+    expect(text).toContain("Ram could be a creditor, employee, landlord, supplier, or loan provider");
+    expect(text).toContain("Paid Ram, a creditor");
+    expect(text).toContain("Paid salary to Ram");
+    expect(text).toContain("Paid rent to Ram");
+    expect(text).toContain("Repaid loan to Ram");
+  });
+
+  it("returns ambiguous for receiving from a named person without context", async () => {
+    const body = await solve("Received from Mohan Rs.4000");
+    const text = solverText(body);
+
+    expect(body.status).toBe("ambiguous");
+    expect(body.journalEntry).toEqual([]);
+    expect(text).toContain("It is not clear why the amount was received");
+    expect(text).toContain("Received cash from debtor Mohan");
+    expect(text).toContain("Received commission from Mohan");
+    expect(text).toContain("Received loan from Mohan");
   });
 
   it("solves full-settlement discount entry", async () => {
@@ -1986,6 +2004,70 @@ describe("POST /api/journal-entry-solver", () => {
       expect(body.journalEntry).toEqual([]);
     }
   });
+
+  it.each([
+    {
+      transaction: "Purchased goods Rs.11800 including GST for cash",
+      expectedText: ["GST rate is missing", "including GST 18%"],
+    },
+    {
+      transaction: "Purchased goods Rs.10000 plus GST for cash",
+      expectedText: ["GST rate or GST amount is missing"],
+    },
+    {
+      transaction: "Purchased goods Rs.11800 including CGST and SGST for cash",
+      expectedText: ["CGST/SGST/IGST rates are missing", "including CGST 9% and SGST 9%"],
+    },
+    {
+      transaction: "Sold machinery costing Rs.50000 for Rs.40000",
+      expectedText: ["payment mode or buyer is missing", "Sold machinery costing Rs.50000 for Rs.40000 cash"],
+    },
+    {
+      transaction: "Goods returned by Raju Rs.1000 and cash refunded",
+      expectedText: ["Return with cash/bank refund is not supported yet", "Goods returned by Raju Rs.1000"],
+    },
+    {
+      transaction: "Paid GST penalty Rs.500",
+      expectedText: ["GST penalty/interest is not supported yet", "Paid GST liability Rs.3000 through bank"],
+    },
+  ])("explains unsupported reason for $transaction", async ({ transaction, expectedText }) => {
+    const body = await solve(transaction);
+    const text = solverText(body);
+
+    expect(["unsupported", "ambiguous"]).toContain(body.status);
+    expect(body.journalEntry).toEqual([]);
+    for (const expected of expectedText) {
+      expect(text).toContain(expected);
+    }
+  });
+
+  it("keeps GST-inclusive goods purchase with rate solved", async () => {
+    const body = await solve("Purchased goods Rs.11800 including GST 18% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("keeps simple asset sale with GST solved", async () => {
+    const body = await solve("Sold machinery Rs.40000 plus GST 18%");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 47200, credit: 0 },
+      { account: "Machinery A/c", debit: 0, credit: 40000 },
+      { account: "Output GST A/c", debit: 0, credit: 7200 },
+    ]);
+  });
+
+  it("keeps GST set-off solved", async () => {
+    const body = await solve("Set off Input GST Rs.5000 against Output GST Rs.8000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Output GST A/c", debit: 5000, credit: 0 },
+      { account: "Input GST A/c", debit: 0, credit: 5000 },
+    ]);
+  });
 });
 
 function totalDebits(response: JournalEntrySolverResponse): number {
@@ -1994,4 +2076,20 @@ function totalDebits(response: JournalEntrySolverResponse): number {
 
 function totalCredits(response: JournalEntrySolverResponse): number {
   return response.journalEntry.reduce((total, line) => total + line.credit, 0);
+}
+
+function solverText(response: JournalEntrySolverResponse): string {
+  return [
+    response.message,
+    ...response.ambiguityQuestions,
+    ...response.stepByStepExplanation,
+    ...response.commonMistakes,
+    ...response.possibleInterpretations.flatMap((interpretation) => [
+      interpretation.context,
+      interpretation.note,
+      ...interpretation.journalEntry,
+    ]),
+  ]
+    .filter(Boolean)
+    .join("\n");
 }

@@ -20,6 +20,13 @@ const unsupportedMessage =
   "I cannot safely solve this transaction yet. Please rewrite with amount, payment mode, and account context.";
 const cashDefaultAssumptionNote =
   "Since no payment mode or buyer is mentioned, this beginner convention assumes a cash transaction.";
+const DIGITAL_OR_BANK_WORD_PATTERN =
+  /\b(?:bank|cheque|check|upi|google\s+pay|gpay|phonepe|paytm|neft|rtgs|imps|online\s+transfer|bank\s+transfer|debit\s+card|card\s+payment|net\s+banking)\b/i;
+const CASH_WORD_PATTERN = /\bcash\b/i;
+const CREDIT_WORD_PATTERN = /\b(?:credit|on account|debtor|creditor|customer|supplier)\b/i;
+const ASSET_SALE_WORD_PATTERN =
+  /\b(?:sold|sale\s+of)\b.*\b(?:machinery|furniture|laptop|computer|car|vehicle|equipment|printer|generator|land|building)\b|\b(?:machinery|furniture|laptop|computer|car|vehicle|equipment|printer|generator|land|building)\b.*\b(?:sold|sale)\b/i;
+const GST_WORD_PATTERN = /\b(?:gst|cgst|sgst|igst|central\s+gst|state\s+gst|integrated\s+gst)\b/i;
 
 const commonExpenseAccounts = new Set([
   "Wages Expense",
@@ -63,6 +70,10 @@ export function solveJournalEntry(transaction: string, mode: SolverMode = "begin
 
   if (isAmbiguousPersonPayment(transactionSummary)) {
     return ambiguousPersonPaymentResponse(transactionSummary);
+  }
+
+  if (isAmbiguousPersonReceipt(transactionSummary)) {
+    return ambiguousPersonReceiptResponse(transactionSummary);
   }
 
   const classification = classifyTransaction(transactionSummary);
@@ -155,6 +166,7 @@ function ambiguousPersonPaymentResponse(transactionSummary: string): JournalEntr
   const amount = extractAmount(transactionSummary) ?? 0;
   const formattedAmount = formatRupees(amount);
   const personName = getAmbiguousPaymentName(transactionSummary) ?? "the person";
+  const amountText = amount ? `Rs.${amount}` : "Rs.5000";
 
   return {
     transactionSummary,
@@ -181,18 +193,31 @@ function ambiguousPersonPaymentResponse(transactionSummary: string): JournalEntr
         journalEntry: [`Rent A/c Dr. ${formattedAmount}`, `To Cash/Bank A/c ${formattedAmount}`],
         note: "Rent is an expense for the business.",
       },
+      {
+        context: `If ${personName} is a loan provider`,
+        journalEntry: [`Loan A/c Dr. ${formattedAmount}`, `To Bank A/c ${formattedAmount}`],
+        note: "Loan repayment reduces the loan liability.",
+      },
     ],
     journalEntry: [],
     narration: "",
     affectedAccounts: [],
     stepByStepExplanation: [
       "Accountancy depends on the business context.",
-      "The transaction says Ram was paid, but it does not say why Ram was paid.",
+      `The transaction says ${personName} was paid, but it does not say why ${personName} was paid.`,
       "It also does not clearly say whether the payment was made by cash or bank.",
     ],
     commonMistakes: ["Do not guess the account name from a person's name alone."],
     practiceQuestion: emptyPracticeQuestion(),
-    message: "More information is needed before a correct journal entry can be made.",
+    message: formatGuidanceMessage(
+      `${personName} could be a creditor, employee, landlord, supplier, or loan provider.`,
+      [
+        `Paid ${personName}, a creditor, ${amountText} in cash`,
+        `Paid salary to ${personName} ${amountText} in cash`,
+        `Paid rent to ${personName} ${amountText} in cash`,
+        `Repaid loan to ${personName} ${amountText} through bank`,
+      ],
+    ),
   };
 }
 
@@ -201,7 +226,100 @@ function getAmbiguousPaymentName(transaction: string): string | null {
   return match?.[1] ?? null;
 }
 
+function isAmbiguousPersonReceipt(transaction: string): boolean {
+  const amount = extractAmount(transaction);
+  if (!amount) return false;
+  if (hasExplicitModeOrContext(transaction)) return false;
+
+  return Boolean(getAmbiguousReceiptName(transaction));
+}
+
+function ambiguousPersonReceiptResponse(transactionSummary: string): JournalEntrySolverResponse {
+  const amount = extractAmount(transactionSummary) ?? 0;
+  const formattedAmount = formatRupees(amount);
+  const amountText = amount ? `Rs.${amount}` : "Rs.4000";
+  const personName = getAmbiguousReceiptName(transactionSummary) ?? "the person";
+
+  return {
+    transactionSummary,
+    status: "ambiguous",
+    confidence: "low",
+    ambiguityQuestions: [
+      `Why was the amount received from ${personName}?`,
+      `Was ${personName} a debtor, customer, loan giver, income payer, or someone else?`,
+      "Was the receipt in cash or through bank?",
+    ],
+    possibleInterpretations: [
+      {
+        context: `If ${personName} is a debtor`,
+        journalEntry: [`Cash/Bank A/c Dr. ${formattedAmount}`, `To ${personName} A/c ${formattedAmount}`],
+        note: "A debtor receipt reduces the amount receivable.",
+      },
+      {
+        context: `If ${personName} paid commission`,
+        journalEntry: [`Cash A/c Dr. ${formattedAmount}`, `To Commission Income A/c ${formattedAmount}`],
+        note: "Commission received is income.",
+      },
+      {
+        context: `If ${personName} gave a loan`,
+        journalEntry: [`Bank A/c Dr. ${formattedAmount}`, `To Loan A/c ${formattedAmount}`],
+        note: "Loan taken creates a liability.",
+      },
+    ],
+    journalEntry: [],
+    narration: "",
+    affectedAccounts: [],
+    stepByStepExplanation: [
+      "Accountancy depends on the business context.",
+      `The transaction says money was received from ${personName}, but it does not say why it was received.`,
+      "It also does not clearly say whether the receipt was in cash or through bank.",
+    ],
+    commonMistakes: ["Do not guess the account name from a person's name alone."],
+    practiceQuestion: emptyPracticeQuestion(),
+    message: formatGuidanceMessage(
+      "It is not clear why the amount was received. The person could be a debtor, customer, loan giver, income payer, or someone else.",
+      [
+        `Received cash from debtor ${personName} ${amountText}`,
+        `Received commission from ${personName} ${amountText} in cash`,
+        `Received loan from ${personName} ${amountText} through bank`,
+        `Sold goods to ${personName} ${amountText}`,
+      ],
+    ),
+  };
+}
+
+function getAmbiguousReceiptName(transaction: string): string | null {
+  const trimmed = transaction.trim();
+  const patterns = [
+    /^received\s+from\s+([a-z][a-z.'-]*)\s+(?:rs\.?|inr|₹|\d)/i,
+    /^received\s+(?:rs\.?|inr|₹)?\s*[0-9][0-9,]*(?:\.\d+)?(?:\s*k)?\s+from\s+([a-z][a-z.'-]*)/i,
+    /^amount\s+received\s+from\s+([a-z][a-z.'-]*)\s+(?:rs\.?|inr|₹|\d)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = pattern.exec(trimmed);
+    if (match?.[1]) return titleCase(match[1]);
+  }
+
+  return null;
+}
+
+function hasExplicitModeOrContext(transaction: string): boolean {
+  return (
+    CASH_WORD_PATTERN.test(transaction) ||
+    DIGITAL_OR_BANK_WORD_PATTERN.test(transaction) ||
+    CREDIT_WORD_PATTERN.test(transaction) ||
+    /\b(?:goods|sales?|purchase|rent|salary|commission|interest|loan|capital|income|fees?|expense|bill)\b/i.test(
+      transaction,
+    ) ||
+    /\b(?:full\s+settlement|settlement|settled|discount|against|gst|cgst|sgst|igst)\b/i.test(transaction)
+  );
+}
+
 function unsupportedResponse(transactionSummary: string): JournalEntrySolverResponse {
+  const guidance = unsupportedGuidance(transactionSummary);
+  const message = guidance ? formatGuidanceMessage(guidance.reason, guidance.examples) : unsupportedMessage;
+
   return {
     transactionSummary,
     status: "unsupported",
@@ -211,11 +329,180 @@ function unsupportedResponse(transactionSummary: string): JournalEntrySolverResp
     journalEntry: [],
     narration: "",
     affectedAccounts: [],
-    stepByStepExplanation: [unsupportedMessage],
-    commonMistakes: ["Do not create compound or adjustment entries unless the app clearly supports them."],
+    stepByStepExplanation: [message],
+    commonMistakes: guidance
+      ? [guidance.reason]
+      : ["Do not create compound or adjustment entries unless the app clearly supports them."],
     practiceQuestion: emptyPracticeQuestion(),
-    message: unsupportedMessage,
+    message,
   };
+}
+
+function unsupportedGuidance(transaction: string): { reason: string; examples: string[] } | null {
+  if (!extractAmount(transaction)) {
+    return {
+      reason: "Amount is missing.",
+      examples: ["Paid rent Rs.5000 in cash", "Bought goods for cash Rs.10000", "Sold goods to Raju Rs.5000"],
+    };
+  }
+
+  if (isReturnWithRefund(transaction)) {
+    return {
+      reason: "Return with cash/bank refund is not supported yet.",
+      examples: [
+        "Goods returned by Raju Rs.1000",
+        "Goods returned to Amit Rs.1000",
+        "Goods returned by Raju Rs.1000 plus GST 18%",
+        "Goods returned to Amit Rs.1000 plus GST 18%",
+      ],
+    };
+  }
+
+  if (isGstPenaltyOrInterest(transaction)) {
+    return {
+      reason: "GST penalty/interest is not supported yet.",
+      examples: [
+        "Set off Input GST Rs.5000 against Output GST Rs.8000",
+        "Paid GST liability Rs.3000 through bank",
+        "Paid CGST Rs.1500 and SGST Rs.1500 through bank",
+      ],
+    };
+  }
+
+  if (isGstRefund(transaction)) {
+    return {
+      reason: "GST refund from government is not supported yet.",
+      examples: [
+        "Set off Input GST Rs.5000 against Output GST Rs.8000",
+        "Paid GST liability Rs.3000 through bank",
+      ],
+    };
+  }
+
+  if (isGstCrossUtilisation(transaction)) {
+    return {
+      reason: "Cross-utilisation of GST is not supported yet.",
+      examples: [
+        "Set off Input GST Rs.5000 against Output GST Rs.8000",
+        "Paid CGST Rs.1500 and SGST Rs.1500 through bank",
+      ],
+    };
+  }
+
+  if (isAssetSaleWithGstAndAdvancedContext(transaction)) {
+    return {
+      reason: "GST on asset sale with profit/loss or accumulated depreciation is not supported yet.",
+      examples: [
+        "Sold machinery Rs.40000 plus GST 18%",
+        "Sold machinery costing Rs.50000 for Rs.40000 cash",
+        "Sold machinery costing Rs.50000 with accumulated depreciation Rs.10000 for Rs.35000 cash",
+      ],
+    };
+  }
+
+  if (isAssetSaleWithBookValueMissingModeOrBuyer(transaction)) {
+    return {
+      reason: "The app can calculate profit/loss, but payment mode or buyer is missing.",
+      examples: [
+        "Sold machinery costing Rs.50000 for Rs.40000 cash",
+        "Sold machinery costing Rs.50000 for Rs.40000 through bank",
+        "Sold machinery costing Rs.50000 to Raju for Rs.40000 on credit",
+      ],
+    };
+  }
+
+  if (isInclusiveSplitGstWithoutRate(transaction)) {
+    return {
+      reason: "CGST/SGST/IGST rates are missing.",
+      examples: [
+        "Purchased goods Rs.11800 including CGST 9% and SGST 9% for cash",
+        "Sold goods Rs.11800 including IGST 18% for cash",
+      ],
+    };
+  }
+
+  if (isInclusiveGstWithoutRate(transaction)) {
+    return {
+      reason:
+        "GST rate is missing. For GST-inclusive amounts, the app needs the GST rate to split the base value and GST amount.",
+      examples: [
+        "Purchased goods Rs.11800 including GST 18% for cash",
+        "Sold goods Rs.11800 including GST 18% for cash",
+      ],
+    };
+  }
+
+  if (isGstWithoutRateOrAmount(transaction)) {
+    return {
+      reason: "GST rate or GST amount is missing.",
+      examples: [
+        "Purchased goods Rs.10000 plus GST 18% for cash",
+        "Sold goods Rs.10000 plus GST Rs.1800 for cash",
+        "Paid legal charges Rs.10000 plus GST 18% through bank",
+      ],
+    };
+  }
+
+  return null;
+}
+
+function formatGuidanceMessage(reason: string, examples: string[]): string {
+  return [`Reason: ${reason}`, "Try writing it like:", ...examples.map((example) => `- ${example}`)].join("\n");
+}
+
+function isInclusiveGstWithoutRate(transaction: string): boolean {
+  return (
+    GST_WORD_PATTERN.test(transaction) &&
+    /\b(?:including|inclusive\s+of|inclusive|included)\b/i.test(transaction) &&
+    !/\d+(?:\.\d+)?\s*%/.test(transaction)
+  );
+}
+
+function isInclusiveSplitGstWithoutRate(transaction: string): boolean {
+  return isInclusiveGstWithoutRate(transaction) && /\b(?:cgst|sgst|igst|central\s+gst|state\s+gst|integrated\s+gst)\b/i.test(transaction);
+}
+
+function isGstWithoutRateOrAmount(transaction: string): boolean {
+  if (!GST_WORD_PATTERN.test(transaction) || /\b(?:including|inclusive|included)\b/i.test(transaction)) return false;
+  if (/\d+(?:\.\d+)?\s*%/.test(transaction)) return false;
+  return !/\b(?:gst|cgst|sgst|igst)\s*(?:amount\s*)?(?:of\s*)?(?:rs\.?|inr|₹)\s*[0-9]/i.test(transaction);
+}
+
+function isAssetSaleWithGstAndAdvancedContext(transaction: string): boolean {
+  return (
+    ASSET_SALE_WORD_PATTERN.test(transaction) &&
+    GST_WORD_PATTERN.test(transaction) &&
+    /\b(?:costing|cost\s+of|book\s+value|having\s+book\s+value|profit|loss|accumulated\s+depreciation|depreciation)\b/i.test(
+      transaction,
+    )
+  );
+}
+
+function isAssetSaleWithBookValueMissingModeOrBuyer(transaction: string): boolean {
+  return (
+    ASSET_SALE_WORD_PATTERN.test(transaction) &&
+    /\b(?:costing|cost\s+of|book\s+value|having\s+book\s+value)\b/i.test(transaction) &&
+    !CASH_WORD_PATTERN.test(transaction) &&
+    !DIGITAL_OR_BANK_WORD_PATTERN.test(transaction) &&
+    !CREDIT_WORD_PATTERN.test(transaction) &&
+    !/\bto\s+[a-z][a-z.'-]*\b/i.test(transaction)
+  );
+}
+
+function isReturnWithRefund(transaction: string): boolean {
+  return /\b(?:returned|returns?)\b/i.test(transaction) && /\b(?:refund|refunded)\b/i.test(transaction);
+}
+
+function isGstPenaltyOrInterest(transaction: string): boolean {
+  return GST_WORD_PATTERN.test(transaction) && /\b(?:penalty|interest)\b/i.test(transaction);
+}
+
+function isGstRefund(transaction: string): boolean {
+  return GST_WORD_PATTERN.test(transaction) && /\brefund\b/i.test(transaction);
+}
+
+function isGstCrossUtilisation(transaction: string): boolean {
+  return /\bset\s*off\b/i.test(transaction) && /\bigst\b/i.test(transaction) && /\b(?:cgst|sgst)\b/i.test(transaction);
 }
 
 function buildJournalEntry(entry: CorrectJournalEntry): SolverJournalEntryLine[] {

@@ -223,8 +223,8 @@ function EmptyPreview() {
 function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
   return (
     <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
-      <h2 className="text-lg font-bold">More information needed</h2>
-      <p className="mt-2 text-sm leading-6">{result.message}</p>
+      <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
+      <p className="mt-2 whitespace-pre-line text-sm leading-6">{result.message}</p>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
@@ -254,12 +254,9 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
 function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
   return (
     <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
-      <h2 className="text-lg font-bold">I cannot safely solve this transaction yet.</h2>
-      <p className="mt-2 text-sm leading-6">
+      <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
+      <p className="mt-2 whitespace-pre-line text-sm leading-6">
         {result.message ?? "Please rewrite with amount, payment mode, and account context."}
-      </p>
-      <p className="mt-3 rounded-md bg-white px-3 py-2 text-sm leading-6">
-        Please add amount, payment mode, and account context.
       </p>
     </section>
   );
