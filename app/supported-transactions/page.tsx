@@ -16,6 +16,7 @@ const supportedTransactions = [
   "Commission received",
   "More common incomes received in cash, bank, or digital mode",
   "Digital payments like UPI, GPay, PhonePe, and NEFT as Bank",
+  "Basic GST on goods purchases and sales using Input GST and Output GST",
   "Partial goods purchase: part cash or bank, balance credit",
   "Partial goods sale: part cash or bank received, balance credit",
   "Depreciation on machinery, furniture, computer, equipment, or vehicle",
@@ -35,7 +36,11 @@ const supportedTransactions = [
 ];
 
 const unsupportedTransactions = [
-  "GST",
+  "GST inclusive amounts",
+  "CGST/SGST/IGST split",
+  "GST set-off or GST payment",
+  "GST on fixed assets",
+  "GST on expenses or incomes",
   "GST with discount",
   "Compound expense payments",
   "Compound income receipts",
@@ -86,6 +91,10 @@ const exampleTransactions = [
   "Bought camera from Amit on credit Rs.20000",
   "Purchased land through bank Rs.100000",
   "Bought vehicle on credit Rs.300000",
+  "Purchased goods Rs.10000 plus GST 18% for cash",
+  "Purchased goods from Amit Rs.10000 plus GST 18% on credit",
+  "Sold goods Rs.10000 plus GST 18% for cash",
+  "Sold goods to Raju Rs.10000 plus GST 18% on credit",
   "Purchased goods Rs.10000, paid Rs.4000 cash and balance on credit",
   "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
   "Depreciation charged on machinery Rs.5000",

@@ -54,6 +54,8 @@ export interface TransactionClassification {
   compoundDetails?:
     | PartialGoodsPurchaseDetails
     | PartialGoodsSaleDetails
+    | GoodsGstPurchaseDetails
+    | GoodsGstSaleDetails
     | DiscountAllowedSettlementDetails
     | DiscountReceivedSettlementDetails;
 }
@@ -79,6 +81,28 @@ export interface PartialGoodsSaleDetails {
   receivedAmount: number;
   balanceAmount: number;
   receiptAccount: "Cash" | "Bank";
+  debtorAccount: string;
+  partyName?: string;
+}
+
+export interface GoodsGstPurchaseDetails {
+  kind: "goods_gst_purchase";
+  baseAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  gstRate?: number;
+  paymentAccount: "Cash" | "Bank" | "Creditor";
+  creditorAccount: string;
+  partyName?: string;
+}
+
+export interface GoodsGstSaleDetails {
+  kind: "goods_gst_sale";
+  baseAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  gstRate?: number;
+  receiptAccount: "Cash" | "Bank" | "Debtor";
   debtorAccount: string;
   partyName?: string;
 }

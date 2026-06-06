@@ -710,8 +710,62 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
+  it("solves GST goods purchase for cash", async () => {
+    const body = await solve("Purchased goods Rs.10000 plus GST 18% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toHaveLength(3);
+    expect(body.journalEntry).toEqual([
+      { account: "Purchases A/c", debit: 10000, credit: 0 },
+      { account: "Input GST A/c", debit: 1800, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 11800 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Input GST A/c",
+      modernType: "Asset / Input Tax Credit",
+      debitOrCredit: "Debit",
+    });
+    expect(body.stepByStepExplanation).toContain("GST at 18% is ₹1,800.");
+    expect(body.narration).toEqual(expect.any(String));
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves GST goods sale for cash", async () => {
+    const body = await solve("Sold goods Rs.10000 plus GST 18% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toHaveLength(3);
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 11800, credit: 0 },
+      { account: "Sales A/c", debit: 0, credit: 10000 },
+      { account: "Output GST A/c", debit: 0, credit: 1800 },
+    ]);
+    expect(body.affectedAccounts[2]).toMatchObject({
+      account: "Output GST A/c",
+      modernType: "Liability / Tax Payable",
+      debitOrCredit: "Credit",
+    });
+    expect(body.stepByStepExplanation).toContain("Output GST A/c is credited because GST collected is payable to the government.");
+    expect(body.narration).toEqual(expect.any(String));
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("does not solve GST with discount", async () => {
     const body = await solve("Sold goods Rs.10000 plus GST and allowed discount Rs.500");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve GST inclusive amount", async () => {
+    const body = await solve("Purchased goods Rs.11800 including GST 18% for cash");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve CGST and SGST split yet", async () => {
+    const body = await solve("Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

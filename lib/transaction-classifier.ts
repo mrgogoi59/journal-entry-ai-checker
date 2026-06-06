@@ -5,15 +5,22 @@ import type { CorrectJournalEntry, TransactionClassification } from "./types";
 const MIN_CONFIDENCE = 0.7;
 const DIRECT_MATCH_CONFIDENCE = 0.95;
 const CASH_PAYMENT_PATTERN = /\bcash\b/i;
+const CREDIT_PAYMENT_PATTERN_REGEX = /\b(?:on credit|credit|on account)\b/i;
 const DIGITAL_OR_BANK_PAYMENT_PATTERN =
   /\b(?:bank|cheque|check|upi|google\s+pay|gpay|phonepe|paytm|neft|rtgs|imps|online\s+transfer|bank\s+transfer|debit\s+card|card\s+payment|net\s+banking)\b/i;
 const UNSUPPORTED_COMPOUND_CONTEXT_PATTERN = /\b(?:gst|discount|depreciation|bad debts?|outstanding|prepaid|accrued)\b/i;
+const AMOUNT_TOKEN_PATTERN = "([0-9]+(?:\\.\\d+)?\\s*k|[0-9][0-9,]*(?:\\.\\d+)?)";
 
 export function classifyTransaction(transactionText: string): TransactionClassification | null {
   const discountAllowedSettlement = classifyDiscountAllowedSettlement(transactionText);
   if (discountAllowedSettlement) return discountAllowedSettlement;
   const discountReceivedSettlement = classifyDiscountReceivedSettlement(transactionText);
   if (discountReceivedSettlement) return discountReceivedSettlement;
+  const goodsGstPurchase = classifyGoodsGstPurchase(transactionText);
+  if (goodsGstPurchase) return goodsGstPurchase;
+  const goodsGstSale = classifyGoodsGstSale(transactionText);
+  if (goodsGstSale) return goodsGstSale;
+  if (hasGstMention(transactionText)) return null;
   const partialGoodsPurchase = classifyPartialGoodsPurchase(transactionText);
   if (partialGoodsPurchase) return partialGoodsPurchase;
   const partialGoodsSale = classifyPartialGoodsSale(transactionText);
@@ -157,6 +164,118 @@ function classifyDiscountReceivedSettlement(transactionText: string): Transactio
       discountAmount,
       paymentAccount,
       creditorAccount,
+      partyName,
+    },
+  };
+}
+
+function classifyGoodsGstPurchase(transactionText: string): TransactionClassification | null {
+  if (!isGoodsPurchaseWithGst(transactionText)) return null;
+  if (hasUnsupportedGstContext(transactionText)) return null;
+
+  const gst = extractGstDetails(transactionText);
+  if (!gst) return null;
+
+  const paymentAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+      ? "Creditor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!paymentAccount) return null;
+
+  const partyName = paymentAccount === "Creditor" ? extractGstSupplierName(transactionText) : undefined;
+  const creditorAccount = partyName ?? paymentAccount;
+  const expectedEntry = buildGoodsGstPurchaseEntry(
+    gst.baseAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    paymentAccount,
+    creditorAccount,
+    partyName,
+  );
+
+  return {
+    transaction_type: `goods_gst_purchase_${paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit"}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: "Purchases",
+    creditAccount: creditorAccount,
+    expectedDebitAccount: "Purchases",
+    expectedCreditAccount: creditorAccount,
+    genericDebitAccount: "Purchases",
+    genericCreditAccount: paymentAccount,
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "Goods were purchased with GST. Purchases is debited for the goods value, Input GST is debited for input tax credit, and Cash, Bank, Creditor, or the named supplier is credited for the invoice total.",
+    partyName,
+    partyRole: partyName ? "creditor" : undefined,
+    partyAccountSide: partyName ? "credit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "goods_gst_purchase",
+      baseAmount: gst.baseAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
+      paymentAccount,
+      creditorAccount,
+      partyName,
+    },
+  };
+}
+
+function classifyGoodsGstSale(transactionText: string): TransactionClassification | null {
+  if (!isGoodsSaleWithGst(transactionText)) return null;
+  if (hasUnsupportedGstContext(transactionText)) return null;
+
+  const gst = extractGstDetails(transactionText);
+  if (!gst) return null;
+
+  const receiptAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+      ? "Debtor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!receiptAccount) return null;
+
+  const partyName = receiptAccount === "Debtor" ? extractGstCustomerName(transactionText) : undefined;
+  const debtorAccount = partyName ?? receiptAccount;
+  const expectedEntry = buildGoodsGstSaleEntry(
+    gst.baseAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    receiptAccount,
+    debtorAccount,
+    partyName,
+  );
+
+  return {
+    transaction_type: `goods_gst_sale_${receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit"}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: debtorAccount,
+    creditAccount: "Sales",
+    expectedDebitAccount: debtorAccount,
+    expectedCreditAccount: "Sales",
+    genericDebitAccount: receiptAccount,
+    genericCreditAccount: "Sales",
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "Goods were sold with GST. Cash, Bank, Debtor, or the named customer is debited for the invoice total, Sales is credited for the goods value, and Output GST is credited for GST payable.",
+    partyName,
+    partyRole: partyName ? "debtor" : undefined,
+    partyAccountSide: partyName ? "debit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "goods_gst_sale",
+      baseAmount: gst.baseAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
+      receiptAccount,
+      debtorAccount,
       partyName,
     },
   };
@@ -343,6 +462,68 @@ function hasUnsupportedPurchaseReturnContext(transactionText: string): boolean {
   );
 }
 
+function isGoodsPurchaseWithGst(transactionText: string): boolean {
+  return /\b(?:bought|purchased|purchase)\s+goods\b/i.test(transactionText) && hasGstMention(transactionText);
+}
+
+function isGoodsSaleWithGst(transactionText: string): boolean {
+  return /\b(?:sold\s+goods|goods\s+sold|sale\s+of\s+goods)\b/i.test(transactionText) && hasGstMention(transactionText);
+}
+
+function hasGstMention(transactionText: string): boolean {
+  return /\b(?:gst|cgst|sgst|igst)\b/i.test(transactionText);
+}
+
+function hasUnsupportedGstContext(transactionText: string): boolean {
+  return (
+    /\b(?:including|inclusive)\s+gst\b/i.test(transactionText) ||
+    /\bgst\s+inclusive\b/i.test(transactionText) ||
+    /\b(?:cgst|sgst|igst)\b/i.test(transactionText) ||
+    /\bdiscount\b/i.test(transactionText) ||
+    /\b(?:return|returned|set-?off|paid\s+gst|gst\s+paid|gst\s+payment)\b/i.test(transactionText)
+  );
+}
+
+function extractGstDetails(
+  transactionText: string,
+): { baseAmount: number; gstAmount: number; invoiceTotal: number; gstRate?: number } | null {
+  const amounts = extractAmounts(transactionText);
+  const baseAmount = amounts[0];
+  if (!baseAmount) return null;
+
+  const rateMatch = /\bgst\s*(?:@|at)?\s*([0-9]+(?:\.\d+)?)\s*%/i.exec(transactionText);
+  if (rateMatch?.[1]) {
+    const gstRate = Number(rateMatch[1]);
+    if (!Number.isFinite(gstRate) || gstRate <= 0) return null;
+    const gstAmount = roundCurrency((baseAmount * gstRate) / 100);
+    return { baseAmount, gstAmount, invoiceTotal: roundCurrency(baseAmount + gstAmount), gstRate };
+  }
+
+  const gstAmountMatch = new RegExp(
+    `\\bgst\\s*(?:amount\\s*)?(?:of\\s*)?(?:₹|rs\\.?|inr)\\s*${AMOUNT_TOKEN_PATTERN}`,
+    "i",
+  ).exec(transactionText);
+  const gstAmount = parseAmountToken(gstAmountMatch?.[1]);
+  if (!gstAmount) return null;
+
+  return { baseAmount, gstAmount, invoiceTotal: roundCurrency(baseAmount + gstAmount) };
+}
+
+function parseAmountToken(value: string | undefined): number | null {
+  if (!value) return null;
+
+  const rawAmount = value.replace(/\s+/g, "").toLowerCase();
+  const amount = rawAmount.endsWith("k")
+    ? Number(rawAmount.slice(0, -1).replace(/,/g, "")) * 1000
+    : Number(rawAmount.replace(/,/g, ""));
+
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
+}
+
+function roundCurrency(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
 function settlementAmounts(
   transactionText: string,
   kind: "allowed" | "received",
@@ -477,6 +658,60 @@ function buildPartialGoodsSaleEntry(
   };
 }
 
+function buildGoodsGstPurchaseEntry(
+  baseAmount: number,
+  gstAmount: number,
+  invoiceTotal: number,
+  paymentAccount: "Cash" | "Bank" | "Creditor",
+  creditorAccount: string,
+  partyName?: string,
+): CorrectJournalEntry {
+  const creditLine: CorrectJournalEntry["credits"][number] = {
+    account: creditorAccount,
+    amount: invoiceTotal,
+  };
+
+  if (partyName && paymentAccount === "Creditor") {
+    creditLine.acceptedAccounts = ["Creditor"];
+    creditLine.partyRole = "creditor";
+  }
+
+  return {
+    debits: [
+      { account: "Purchases", amount: baseAmount },
+      { account: "Input GST", amount: gstAmount },
+    ],
+    credits: [creditLine],
+  };
+}
+
+function buildGoodsGstSaleEntry(
+  baseAmount: number,
+  gstAmount: number,
+  invoiceTotal: number,
+  receiptAccount: "Cash" | "Bank" | "Debtor",
+  debtorAccount: string,
+  partyName?: string,
+): CorrectJournalEntry {
+  const debitLine: CorrectJournalEntry["debits"][number] = {
+    account: debtorAccount,
+    amount: invoiceTotal,
+  };
+
+  if (partyName && receiptAccount === "Debtor") {
+    debitLine.acceptedAccounts = ["Debtor"];
+    debitLine.partyRole = "debtor";
+  }
+
+  return {
+    debits: [debitLine],
+    credits: [
+      { account: "Sales", amount: baseAmount },
+      { account: "Output GST", amount: gstAmount },
+    ],
+  };
+}
+
 function extractSupplierName(transactionText: string): string | undefined {
   const match = /\bgoods\s+from\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
   const rawName = match?.[1];
@@ -486,6 +721,14 @@ function extractSupplierName(transactionText: string): string | undefined {
   if (!normalizedName || /^(supplier|seller|creditor|cash|bank)$/i.test(normalizedName)) return undefined;
 
   return normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase();
+}
+
+function extractGstSupplierName(transactionText: string): string | undefined {
+  const match =
+    /\bgoods\s+from\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bfrom\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
+
+  return normalizeSettlementParty(match?.[1], /^(supplier|seller|creditor|cash|bank|rs|inr)$/i);
 }
 
 function extractCustomerName(transactionText: string): string | undefined {
@@ -500,6 +743,15 @@ function extractCustomerName(transactionText: string): string | undefined {
   if (!normalizedName || /^(customer|debtor|cash|bank)$/i.test(normalizedName)) return undefined;
 
   return normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase();
+}
+
+function extractGstCustomerName(transactionText: string): string | undefined {
+  const match =
+    /\bsold\s+goods\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bgoods\s+sold\s+to\s+([a-z][a-z.'-]*)\b/i.exec(transactionText) ??
+    /\bto\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
+
+  return normalizeSettlementParty(match?.[1], /^(customer|debtor|cash|bank|rs|inr)$/i);
 }
 
 function extractDiscountAllowedParty(transactionText: string): string | undefined {

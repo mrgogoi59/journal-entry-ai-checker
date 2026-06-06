@@ -64,6 +64,10 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   asset_purchase_camera_credit: (amount) => `Bought camera from Amit on credit ${formatRupees(amount)}`,
   asset_purchase_land_bank: (amount) => `Purchased land through bank ${formatRupees(amount)}`,
   asset_purchase_vehicle_credit: (amount) => `Bought vehicle on credit ${formatRupees(amount)}`,
+  goods_gst_purchase_cash: (amount) => `Purchased goods ${formatRupees(amount)} plus GST 18% for cash`,
+  goods_gst_purchase_credit: (amount) => `Purchased goods from Amit ${formatRupees(amount)} plus GST 18% on credit`,
+  goods_gst_sale_cash: (amount) => `Sold goods ${formatRupees(amount)} plus GST 18% for cash`,
+  goods_gst_sale_credit: (amount) => `Sold goods to Raju ${formatRupees(amount)} plus GST 18% on credit`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -112,9 +116,17 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
   depreciation_vehicle: (amount) => `Depreciation charged on vehicle ${formatRupees(amount)}`,
 };
 
-export const supportedPracticeTransactionTypes = transactionRules
-  .map((rule) => rule.transaction_type)
-  .filter((transactionType) => transactionType in PRACTICE_TEXT);
+const explicitPracticeTransactionTypes = [
+  "goods_gst_purchase_cash",
+  "goods_gst_purchase_credit",
+  "goods_gst_sale_cash",
+  "goods_gst_sale_credit",
+] as const;
+
+export const supportedPracticeTransactionTypes = [
+  ...transactionRules.map((rule) => rule.transaction_type),
+  ...explicitPracticeTransactionTypes,
+].filter((transactionType) => transactionType in PRACTICE_TEXT);
 
 export function generatePracticeQuestion(random = Math.random): PracticeQuestion {
   const transactionType = pick(supportedPracticeTransactionTypes, random);

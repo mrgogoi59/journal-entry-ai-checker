@@ -277,6 +277,32 @@ function buildAffectedAccount(
 }
 
 function buildStepByStepExplanation(classification: TransactionClassification): string[] {
+  if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    const details = classification.compoundDetails;
+    return [
+      `Goods worth ${formatRupees(details.baseAmount)} were purchased.`,
+      `${gstAmountExplanation(details.gstAmount, details.gstRate)}.`,
+      "Purchases A/c is debited for the value of goods.",
+      "Input GST A/c is debited because GST paid on purchase is input tax credit.",
+      `${displayAccountName(details.creditorAccount)} is credited for the total amount ${
+        details.paymentAccount === "Creditor" ? "payable" : "paid"
+      }, ${formatRupees(details.invoiceTotal)}.`,
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    const details = classification.compoundDetails;
+    return [
+      `Goods worth ${formatRupees(details.baseAmount)} were sold.`,
+      `${gstAmountExplanation(details.gstAmount, details.gstRate)}.`,
+      `${displayAccountName(details.debtorAccount)} is debited for total amount ${
+        details.receiptAccount === "Debtor" ? "receivable" : "received"
+      }, ${formatRupees(details.invoiceTotal)}.`,
+      "Sales A/c is credited for the value of goods.",
+      "Output GST A/c is credited because GST collected is payable to the government.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return [
@@ -533,6 +559,28 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 function buildCommonMistakes(classification: TransactionClassification): string[] {
   const mistakes: string[] = [];
 
+  if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    return [
+      "Do not add GST amount to Purchases A/c.",
+      "Do not credit Input GST.",
+      `Do not credit ${displayAccountName(classification.creditAccount)} only for ${formatRupees(
+        classification.compoundDetails.baseAmount,
+      )}; total payment includes GST.`,
+      "Do not split CGST/SGST/IGST in this MVP unless clearly supported later.",
+    ];
+  }
+
+  if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    return [
+      "Do not include GST inside Sales A/c.",
+      "Do not debit Output GST.",
+      `Do not debit ${displayAccountName(classification.debitAccount)} only for ${formatRupees(
+        classification.compoundDetails.baseAmount,
+      )}; total receipt includes GST.`,
+      "Do not split CGST/SGST/IGST in this MVP unless clearly supported later.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return [
@@ -743,6 +791,42 @@ function buildCommonMistakes(classification: TransactionClassification): string[
 }
 
 function buildPracticeQuestion(classification: TransactionClassification): SolverPracticeQuestion {
+  if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.paymentAccount === "Creditor"
+        ? details.partyName
+          ? `from ${details.partyName} on credit`
+          : "on credit"
+        : details.paymentAccount === "Bank"
+          ? "through bank"
+          : "for cash";
+    return {
+      question: `Purchased goods ${formatRupees(details.baseAmount)} plus GST ${
+        details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
+      } ${mode}`,
+      expectedPattern: `Purchases A/c Dr., Input GST A/c Dr. To ${displayAccountName(details.creditorAccount)}`,
+    };
+  }
+
+  if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.receiptAccount === "Debtor"
+        ? details.partyName
+          ? `to ${details.partyName} on credit`
+          : "on credit"
+        : details.receiptAccount === "Bank"
+          ? "through bank"
+          : "for cash";
+    return {
+      question: `Sold goods ${formatRupees(details.baseAmount)} plus GST ${
+        details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
+      } ${mode}`,
+      expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To Sales A/c, To Output GST A/c`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return {
@@ -968,6 +1052,24 @@ function buildNarration(classification: TransactionClassification): string {
   const credit = classification.creditAccount;
   const partyName = classification.partyName;
 
+  if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    const details = classification.compoundDetails;
+    if (details.paymentAccount === "Cash") return "Being goods purchased for cash plus GST.";
+    if (details.paymentAccount === "Bank") return "Being goods purchased through bank plus GST.";
+    return details.partyName
+      ? `Being goods purchased from ${details.partyName} on credit plus GST.`
+      : "Being goods purchased on credit plus GST.";
+  }
+
+  if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    const details = classification.compoundDetails;
+    if (details.receiptAccount === "Cash") return "Being goods sold for cash plus GST.";
+    if (details.receiptAccount === "Bank") return "Being goods sold through bank plus GST.";
+    return details.partyName
+      ? `Being goods sold to ${details.partyName} on credit plus GST.`
+      : "Being goods sold on credit plus GST.";
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     const details = classification.compoundDetails;
     return `Being goods purchased, ${formatRupees(details.paidAmount)} paid ${
@@ -1137,6 +1239,14 @@ function buildNarration(classification: TransactionClassification): string {
 }
 
 function describeTransactionAction(classification: TransactionClassification): string {
+  if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    return "The business purchased goods and paid or became liable for GST on the purchase.";
+  }
+
+  if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    return "The business sold goods and collected GST payable to the government.";
+  }
+
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
     return "The business bought goods, paid part immediately, and kept the balance payable on credit.";
   }
@@ -1278,6 +1388,10 @@ function assetItemLabel(classification: TransactionClassification): string {
 
 function titleCase(value: string): string {
   return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function gstAmountExplanation(gstAmount: number, gstRate?: number): string {
+  return gstRate ? `GST at ${gstRate}% is ${formatRupees(gstAmount)}` : `GST amount is ${formatRupees(gstAmount)}`;
 }
 
 function emptyPracticeQuestion(): SolverPracticeQuestion {
