@@ -1590,6 +1590,113 @@ describe("classifyTransaction supported beginner transactions", () => {
     });
   });
 
+  it.each([
+    [
+      "Purchased machinery Rs.50000 plus GST 18% for cash",
+      "asset_gst_purchase_machinery_cash",
+      "Machinery",
+      "Cash",
+      59000,
+    ],
+    [
+      "Bought laptop Rs.30000 plus GST 18% by UPI",
+      "asset_gst_purchase_laptop_bank",
+      "Computer",
+      "Bank",
+      35400,
+    ],
+    [
+      "Purchased furniture from Rahul Rs.20000 plus GST 18% on credit",
+      "asset_gst_purchase_furniture_credit",
+      "Furniture",
+      "Rahul",
+      23600,
+    ],
+    [
+      "Purchased machinery Rs.59000 including GST 18% for cash",
+      "asset_gst_inclusive_purchase_machinery_cash",
+      "Machinery",
+      "Cash",
+      59000,
+    ],
+    [
+      "Bought laptop Rs.35400 including GST 18% by UPI",
+      "asset_gst_inclusive_purchase_laptop_bank",
+      "Computer",
+      "Bank",
+      35400,
+    ],
+    [
+      "Purchased machinery Rs.50000 plus CGST 9% and SGST 9% for cash",
+      "asset_gst_cgst_sgst_purchase_machinery_cash",
+      "Machinery",
+      "Cash",
+      59000,
+    ],
+    [
+      "Purchased machinery Rs.50000 plus IGST 18% through bank",
+      "asset_gst_igst_purchase_machinery_bank",
+      "Machinery",
+      "Bank",
+      59000,
+    ],
+  ])("classifies asset GST purchase: %s", (transaction, transactionType, debitAccount, creditAccount, amount) => {
+    const classification = classifyTransaction(transaction);
+
+    expect(classification).toMatchObject({
+      transaction_type: transactionType,
+      debitAccount,
+      creditAccount,
+      amount,
+      confidence: 0.95,
+    });
+  });
+
+  it("builds expected entries for asset GST purchases", () => {
+    const machinery = classifyTransaction("Purchased machinery Rs.50000 plus GST 18% for cash");
+    const laptop = classifyTransaction("Bought laptop Rs.35400 including GST 18% by UPI");
+    const split = classifyTransaction("Purchased machinery Rs.50000 plus CGST 9% and SGST 9% for cash");
+    const igst = classifyTransaction("Purchased machinery Rs.50000 plus IGST 18% for cash");
+    const namedSupplier = classifyTransaction("Bought laptop Rs.30000 plus GST 18% from Amit on credit");
+
+    expect(generateExpectedEntry(machinery!)).toEqual({
+      debits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Input GST", amount: 9000 },
+      ],
+      credits: [{ account: "Cash", amount: 59000 }],
+    });
+    expect(generateExpectedEntry(laptop!)).toEqual({
+      debits: [
+        { account: "Computer", amount: 30000 },
+        { account: "Input GST", amount: 5400 },
+      ],
+      credits: [{ account: "Bank", amount: 35400 }],
+    });
+    expect(generateExpectedEntry(split!)).toEqual({
+      debits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Input CGST", amount: 4500 },
+        { account: "Input SGST", amount: 4500 },
+      ],
+      credits: [{ account: "Cash", amount: 59000 }],
+    });
+    expect(generateExpectedEntry(igst!)).toEqual({
+      debits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Input IGST", amount: 9000 },
+      ],
+      credits: [{ account: "Cash", amount: 59000 }],
+    });
+    expect(generateExpectedEntry(namedSupplier!)).toEqual({
+      debits: [
+        { account: "Computer", amount: 30000 },
+        { account: "Input GST", amount: 5400 },
+      ],
+      credits: [{ account: "Amit", amount: 35400, acceptedAccounts: ["Creditor"], partyRole: "creditor" }],
+    });
+  });
+
   it("does not classify unsupported transactions", () => {
     expect(classifyTransaction("Paid insurance premium ₹5,000")).toBeNull();
     expect(classifyTransaction("Depreciation charged Rs.5000")).toBeNull();
@@ -1604,6 +1711,9 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Sold goods Rs.10000 plus CGST and SGST for cash")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 less trade discount 10%")).toBeNull();
     expect(classifyTransaction("Sold goods Rs.10000 plus GST and allowed discount Rs.500")).toBeNull();
+    expect(classifyTransaction("Purchased machinery Rs.59000 including CGST 9% and SGST 9% for cash")).toBeNull();
+    expect(classifyTransaction("Purchased machinery Rs.50000 plus installation Rs.5000 plus GST 18%")).toBeNull();
+    expect(classifyTransaction("Sold machinery Rs.40000 plus GST 18%")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000, insurance claim admitted Rs.2000")).toBeNull();
     expect(classifyTransaction("Goods lost by fire Rs.3000 and insurance company accepted claim Rs.2000")).toBeNull();
     expect(classifyTransaction("Insurance claim received for goods lost by fire Rs.2000")).toBeNull();

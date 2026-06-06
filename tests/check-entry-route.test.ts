@@ -3069,6 +3069,100 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
+  it.each([
+    {
+      transactionText: "Purchased machinery Rs.50000 plus GST 18% for cash",
+      journalEntry: "Machinery A/c Dr. Rs.50000\nInput GST A/c Dr. Rs.9000\nTo Cash A/c Rs.59000",
+      debits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Input GST", amount: 9000 },
+      ],
+      credits: [{ account: "Cash", amount: 59000 }],
+    },
+    {
+      transactionText: "Bought laptop Rs.35400 including GST 18% by UPI",
+      journalEntry: "Computer A/c Dr. Rs.30000\nInput GST A/c Dr. Rs.5400\nTo Bank A/c Rs.35400",
+      debits: [
+        { account: "Computer", amount: 30000 },
+        { account: "Input GST", amount: 5400 },
+      ],
+      credits: [{ account: "Bank", amount: 35400 }],
+    },
+    {
+      transactionText: "Purchased machinery Rs.50000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Machinery A/c Dr. Rs.50000\nInput CGST A/c Dr. Rs.4500\nInput SGST A/c Dr. Rs.4500\nTo Cash A/c Rs.59000",
+      debits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Input CGST", amount: 4500 },
+        { account: "Input SGST", amount: 4500 },
+      ],
+      credits: [{ account: "Cash", amount: 59000 }],
+    },
+    {
+      transactionText: "Purchased machinery Rs.50000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Input SGST A/c Dr. Rs.4500\nMachinery A/c Dr. Rs.50000\nInput CGST A/c Dr. Rs.4500\nTo Cash A/c Rs.59000",
+      debits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Input CGST", amount: 4500 },
+        { account: "Input SGST", amount: 4500 },
+      ],
+      credits: [{ account: "Cash", amount: 59000 }],
+    },
+    {
+      transactionText: "Purchased machinery Rs.50000 plus IGST 18% for cash",
+      journalEntry: "Machinery A/c Dr. Rs.50000\nInput IGST A/c Dr. Rs.9000\nTo Cash A/c Rs.59000",
+      debits: [
+        { account: "Machinery", amount: 50000 },
+        { account: "Input IGST", amount: 9000 },
+      ],
+      credits: [{ account: "Cash", amount: 59000 }],
+    },
+    {
+      transactionText: "Bought laptop Rs.30000 plus GST 18% from Amit on credit",
+      journalEntry: "Computer A/c Dr. Rs.30000\nInput GST A/c Dr. Rs.5400\nTo Amit A/c Rs.35400",
+      debits: [
+        { account: "Computer", amount: 30000 },
+        { account: "Input GST", amount: 5400 },
+      ],
+      credits: [{ account: "Amit", amount: 35400 }],
+    },
+  ])("returns Correct for asset GST purchase: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it.each([
+    {
+      transactionText: "Purchased machinery Rs.50000 plus GST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.50000\nInput GST A/c Dr. Rs.9000\nTo Cash A/c Rs.59000",
+    },
+    {
+      transactionText: "Purchased machinery Rs.50000 plus GST 18% for cash",
+      journalEntry: "Machinery A/c Dr. Rs.59000\nTo Cash A/c Rs.59000",
+    },
+    {
+      transactionText: "Purchased machinery Rs.50000 plus GST 18% for cash",
+      journalEntry: "Machinery A/c Dr. Rs.50000\nOutput GST A/c Dr. Rs.9000\nTo Cash A/c Rs.59000",
+    },
+    {
+      transactionText: "Purchased machinery Rs.50000 plus GST 18% for cash",
+      journalEntry: "Machinery A/c Dr. Rs.50000\nTo Cash A/c Rs.50000",
+    },
+    {
+      transactionText: "Bought laptop Rs.35400 including GST 18% by UPI",
+      journalEntry: "Computer A/c Dr. Rs.35400\nTo Bank A/c Rs.35400",
+    },
+  ])("does not accept wrong asset GST purchase entry", async ({ transactionText, journalEntry }) => {
+    const body = await checkEntry(transactionText, journalEntry);
+
+    expect(body.result_status).not.toBe("Correct");
+    expect(body.score).not.toBe(100);
+  });
+
   it("returns Correct for partial goods sale with cash received and balance on credit", async () => {
     const body = await checkEntry(
       "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",

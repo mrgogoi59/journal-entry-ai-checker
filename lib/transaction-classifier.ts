@@ -16,6 +16,8 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (discountAllowedSettlement) return discountAllowedSettlement;
   const discountReceivedSettlement = classifyDiscountReceivedSettlement(transactionText);
   if (discountReceivedSettlement) return discountReceivedSettlement;
+  const assetGstPurchase = classifyAssetGstPurchase(transactionText);
+  if (assetGstPurchase) return assetGstPurchase;
   const goodsGstPurchase = classifyGoodsGstPurchase(transactionText);
   if (goodsGstPurchase) return goodsGstPurchase;
   const goodsGstSale = classifyGoodsGstSale(transactionText);
@@ -218,6 +220,80 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
     expectedEntry,
     compoundDetails: {
       kind: "goods_gst_purchase",
+      baseAmount: gst.baseAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
+      gstInclusive: gst.gstInclusive,
+      taxLines: gst.taxLines,
+      paymentAccount,
+      creditorAccount,
+      partyName,
+    },
+  };
+}
+
+function classifyAssetGstPurchase(transactionText: string): TransactionClassification | null {
+  if (!isAssetPurchaseWithGst(transactionText)) return null;
+  if (hasUnsupportedAssetGstContext(transactionText)) return null;
+
+  const asset = extractAssetPurchaseItem(transactionText);
+  if (!asset) return null;
+
+  const gst = extractGstDetails(transactionText);
+  if (!gst || (gst.gstInclusive && gst.taxLines?.length)) return null;
+
+  const paymentAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+      ? "Creditor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!paymentAccount) return null;
+
+  const partyName = paymentAccount === "Creditor" ? extractAssetGstSupplierName(transactionText) : undefined;
+  const creditorAccount = partyName ?? paymentAccount;
+  const expectedEntry = buildAssetGstPurchaseEntry(
+    asset.account,
+    gst.baseAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    gst.taxLines,
+    paymentAccount,
+    creditorAccount,
+    partyName,
+  );
+
+  const gstPrefix = gst.taxLines?.length
+    ? gst.taxLines.length === 1
+      ? "igst_"
+      : "cgst_sgst_"
+    : gst.gstInclusive
+      ? "inclusive_"
+      : "";
+  const paymentSuffix = paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit";
+
+  return {
+    transaction_type: `asset_gst_${gstPrefix}purchase_${asset.key}_${paymentSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: asset.account,
+    creditAccount: creditorAccount,
+    expectedDebitAccount: asset.account,
+    expectedCreditAccount: creditorAccount,
+    genericDebitAccount: asset.account,
+    genericCreditAccount: paymentAccount,
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "A fixed asset was purchased with GST. The asset is debited for the base value, Input GST is debited for input tax credit, and Cash, Bank, Creditor, or the named supplier is credited for the invoice total.",
+    partyName,
+    partyRole: partyName ? "creditor" : undefined,
+    partyAccountSide: partyName ? "credit" : undefined,
+    expectedEntry,
+    compoundDetails: {
+      kind: "asset_gst_purchase",
+      assetAccount: asset.account,
+      assetLabel: asset.label,
       baseAmount: gst.baseAmount,
       gstAmount: gst.gstAmount,
       invoiceTotal: gst.invoiceTotal,
@@ -470,6 +546,60 @@ function hasUnsupportedPurchaseReturnContext(transactionText: string): boolean {
     /\b(?:cash\s+refund(?:ed)?|refund\s+received|cash\s+refunded|gst|discount|settlement|full\s+settlement|partial\s+settlement)\b/i.test(
       transactionText,
     )
+  );
+}
+
+interface AssetPurchaseItem {
+  key: string;
+  label: string;
+  account: string;
+  pattern: RegExp;
+}
+
+const assetPurchaseItems: AssetPurchaseItem[] = [
+  { key: "machinery", label: "machinery", account: "Machinery", pattern: /\bmachinery\b/i },
+  {
+    key: "furniture",
+    label: "furniture",
+    account: "Furniture",
+    pattern: /\b(?:furniture|tables?|chairs?|desks?|almirah|cupboard|bookshelf|office\s+tables?|office\s+chairs?)\b/i,
+  },
+  { key: "laptop", label: "laptop", account: "Computer", pattern: /\b(?:laptops?|desktops?)\b/i },
+  { key: "computer", label: "computer", account: "Computer", pattern: /\b(?:computers?|computer\s+equipment)\b/i },
+  { key: "printer", label: "printer", account: "Equipment", pattern: /\b(?:printers?|scanners?)\b/i },
+  { key: "mobile_phone", label: "mobile phone", account: "Equipment", pattern: /\b(?:mobile\s+phones?|mobiles?|phones?)\b/i },
+  {
+    key: "air_conditioner",
+    label: "air conditioner",
+    account: "Equipment",
+    pattern: /\b(?:air\s+conditioners?|ac|a\.c\.)\b/i,
+  },
+  { key: "fan", label: "fan", account: "Equipment", pattern: /\bfans?\b/i },
+  { key: "camera", label: "camera", account: "Equipment", pattern: /\bcameras?\b/i },
+  { key: "generator", label: "generator", account: "Equipment", pattern: /\bgenerators?\b/i },
+  { key: "tools", label: "tools", account: "Equipment", pattern: /\btools?\b/i },
+  { key: "office_equipment", label: "office equipment", account: "Equipment", pattern: /\b(?:office\s+equipment|equipment)\b/i },
+  { key: "land", label: "land", account: "Land", pattern: /\bland\b/i },
+  { key: "building", label: "building", account: "Building", pattern: /\bbuildings?\b/i },
+  { key: "vehicle", label: "vehicle", account: "Vehicle", pattern: /\b(?:vehicles?|cars?|vans?|bikes?|scooters?)\b/i },
+];
+
+function isAssetPurchaseWithGst(transactionText: string): boolean {
+  return (
+    /\b(?:bought|purchased|purchase)\b/i.test(transactionText) &&
+    hasGstMention(transactionText) &&
+    Boolean(extractAssetPurchaseItem(transactionText))
+  );
+}
+
+function extractAssetPurchaseItem(transactionText: string): AssetPurchaseItem | null {
+  return assetPurchaseItems.find((asset) => asset.pattern.test(transactionText)) ?? null;
+}
+
+function hasUnsupportedAssetGstContext(transactionText: string): boolean {
+  return (
+    hasUnsupportedGstContext(transactionText) ||
+    /\b(?:installation|installing|installed|installation\s+charges?)\b/i.test(transactionText)
   );
 }
 
@@ -861,6 +991,37 @@ function buildGoodsGstPurchaseEntry(
   };
 }
 
+function buildAssetGstPurchaseEntry(
+  assetAccount: string,
+  baseAmount: number,
+  gstAmount: number,
+  invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[] | undefined,
+  paymentAccount: "Cash" | "Bank" | "Creditor",
+  creditorAccount: string,
+  partyName?: string,
+): CorrectJournalEntry {
+  const creditLine: CorrectJournalEntry["credits"][number] = {
+    account: creditorAccount,
+    amount: invoiceTotal,
+  };
+
+  if (partyName && paymentAccount === "Creditor") {
+    creditLine.acceptedAccounts = ["Creditor"];
+    creditLine.partyRole = "creditor";
+  }
+
+  return {
+    debits: [
+      { account: assetAccount, amount: baseAmount },
+      ...(taxLines?.map((line) => ({ account: line.inputAccount, amount: line.amount })) ?? [
+        { account: "Input GST", amount: gstAmount },
+      ]),
+    ],
+    credits: [creditLine],
+  };
+}
+
 function buildGoodsGstSaleEntry(
   baseAmount: number,
   gstAmount: number,
@@ -893,6 +1054,17 @@ function buildGoodsGstSaleEntry(
 
 function extractSupplierName(transactionText: string): string | undefined {
   const match = /\bgoods\s+from\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
+  const rawName = match?.[1];
+  if (!rawName) return undefined;
+
+  const normalizedName = rawName.replace(/[.,]/g, "").trim();
+  if (!normalizedName || /^(supplier|seller|creditor|cash|bank)$/i.test(normalizedName)) return undefined;
+
+  return normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase();
+}
+
+function extractAssetGstSupplierName(transactionText: string): string | undefined {
+  const match = /\bfrom\s+([a-z][a-z.'-]*)\b/i.exec(transactionText);
   const rawName = match?.[1];
   if (!rawName) return undefined;
 
