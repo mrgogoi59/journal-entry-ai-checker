@@ -27,6 +27,8 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (discountAllowedSettlement) return discountAllowedSettlement;
   const discountReceivedSettlement = classifyDiscountReceivedSettlement(normalizedTransactionText);
   if (discountReceivedSettlement) return discountReceivedSettlement;
+  const assetGstSale = classifyAssetGstSale(normalizedTransactionText);
+  if (assetGstSale) return assetGstSale;
   const assetSale = classifyAssetSale(normalizedTransactionText);
   if (assetSale) return assetSale;
   const assetPurchaseInstallationCharge = classifyAssetPurchaseInstallationCharge(normalizedTransactionText);
@@ -101,6 +103,7 @@ export function classifyTransaction(transactionText: string): TransactionClassif
     partyName: partyDetails?.partyName,
     partyRole: partyDetails?.partyRole,
     partyAccountSide: partyDetails?.partyAccountSide,
+    cashDefault: isCashDefaultTransactionType(rule.transaction_type),
   };
 }
 
@@ -109,6 +112,10 @@ function normalizeTransactionText(value: string): string {
     (normalized, [pattern, replacement]) => normalized.replace(pattern, replacement),
     value,
   );
+}
+
+function isCashDefaultTransactionType(transactionType: string): boolean {
+  return transactionType.includes("assumed_cash");
 }
 
 export function extractAmount(value: string): number | null {
@@ -222,17 +229,23 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
   const gst = extractGstDetails(transactionText);
   if (!gst) return null;
 
+  const partyName = extractGstSupplierName(transactionText);
+  const cashDefault =
+    !DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText) &&
+    !CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText) &&
+    !CASH_PAYMENT_PATTERN.test(transactionText) &&
+    !partyName;
   const paymentAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
     ? "Bank"
     : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
       ? "Creditor"
       : CASH_PAYMENT_PATTERN.test(transactionText)
         ? "Cash"
-        : null;
-  if (!paymentAccount) return null;
+        : partyName
+          ? "Creditor"
+          : "Cash";
 
-  const partyName = paymentAccount === "Creditor" ? extractGstSupplierName(transactionText) : undefined;
-  const creditorAccount = partyName ?? paymentAccount;
+  const creditorAccount = paymentAccount === "Creditor" ? (partyName ?? "Creditor") : paymentAccount;
   const expectedEntry = buildGoodsGstPurchaseEntry(
     gst.baseAmount,
     gst.gstAmount,
@@ -245,7 +258,7 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
 
   return {
     transaction_type: `goods_gst_${gst.transactionTypePrefix ?? ""}${gst.gstInclusive ? "inclusive_" : ""}purchase_${
-      paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit"
+      cashDefault ? "assumed_cash" : paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit"
     }`,
     confidence: DIRECT_MATCH_CONFIDENCE,
     debitAccount: "Purchases",
@@ -260,6 +273,7 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
     partyName,
     partyRole: partyName ? "creditor" : undefined,
     partyAccountSide: partyName ? "credit" : undefined,
+    cashDefault,
     expectedEntry,
     compoundDetails: {
       kind: "goods_gst_purchase",
@@ -552,15 +566,21 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
   const { bookValue, saleValue } = saleAmounts;
 
   const partyName = extractAssetSaleBuyerName(transactionText);
-  const receiptAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+  const hasBankMode = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText);
+  const hasCashMode = CASH_PAYMENT_PATTERN.test(transactionText);
+  const hasCreditMode = CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText);
+  const cashDefault = !hasBankMode && !hasCashMode && !hasCreditMode && !partyName && bookValue === undefined;
+  const receiptAccount = hasBankMode
     ? "Bank"
-    : CASH_PAYMENT_PATTERN.test(transactionText)
+    : hasCashMode
       ? "Cash"
       : partyName
         ? "Debtor"
-        : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+        : hasCreditMode
           ? "Debtor"
-          : null;
+          : cashDefault
+            ? "Cash"
+            : null;
   if (!receiptAccount) return null;
 
   const debtorAccount = receiptAccount === "Debtor" ? (partyName ?? "Debtor") : receiptAccount;
@@ -573,7 +593,7 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
     }
   }
 
-  const receiptSuffix = receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit";
+  const receiptSuffix = cashDefault ? "assumed_cash" : receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit";
   const resultPrefix =
     bookValue === undefined || saleValue === bookValue ? "" : saleValue < bookValue ? "loss_" : "profit_";
 
@@ -594,6 +614,7 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
     partyName,
     partyRole: partyName ? "debtor" : undefined,
     partyAccountSide: partyName ? "debit" : undefined,
+    cashDefault,
     expectedEntry,
     compoundDetails: {
       kind: "asset_sale",
@@ -607,6 +628,62 @@ function classifyAssetSale(transactionText: string): TransactionClassification |
       receiptAccount,
       debtorAccount,
       partyName,
+    },
+  };
+}
+
+function classifyAssetGstSale(transactionText: string): TransactionClassification | null {
+  if (!hasAssetSaleContext(transactionText) || !hasGstMention(transactionText)) return null;
+  if (!isSimpleCashDefaultAssetGstSale(transactionText)) return null;
+
+  const asset = extractAssetPurchaseItem(transactionText);
+  if (!asset) return null;
+
+  const gst = extractGstDetails(transactionText);
+  if (!gst || (gst.gstInclusive && gst.taxLines?.length)) return null;
+
+  const expectedEntry = buildAssetGstSaleEntry(
+    asset.account,
+    gst.baseAmount,
+    gst.gstAmount,
+    gst.invoiceTotal,
+    gst.taxLines,
+  );
+
+  const gstPrefix = gst.taxLines?.length
+    ? gst.taxLines.length === 1
+      ? "igst_"
+      : "cgst_sgst_"
+    : gst.gstInclusive
+      ? "inclusive_"
+      : "";
+
+  return {
+    transaction_type: `asset_gst_${gstPrefix}sale_${asset.key}_assumed_cash`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: "Cash",
+    creditAccount: asset.account,
+    expectedDebitAccount: "Cash",
+    expectedCreditAccount: asset.account,
+    genericDebitAccount: "Cash",
+    genericCreditAccount: asset.account,
+    amount: gst.invoiceTotal,
+    explanationLogic:
+      "Assumption used: Since no payment mode or buyer is mentioned, this beginner convention assumes a cash transaction. The fixed asset is credited for its sale value, Output GST is credited for GST collected, and Cash is debited for the invoice total.",
+    cashDefault: true,
+    expectedEntry,
+    compoundDetails: {
+      kind: "asset_sale",
+      assetAccount: asset.account,
+      assetLabel: asset.label,
+      amount: gst.invoiceTotal,
+      saleValue: gst.baseAmount,
+      gstAmount: gst.gstAmount,
+      invoiceTotal: gst.invoiceTotal,
+      gstRate: gst.gstRate,
+      taxLines: gst.taxLines,
+      receiptAccount: "Cash",
+      debtorAccount: "Cash",
     },
   };
 }
@@ -707,17 +784,23 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
   const gst = extractGstDetails(transactionText);
   if (!gst) return null;
 
+  const partyName = extractGstCustomerName(transactionText);
+  const cashDefault =
+    !DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText) &&
+    !CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText) &&
+    !CASH_PAYMENT_PATTERN.test(transactionText) &&
+    !partyName;
   const receiptAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
     ? "Bank"
     : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
       ? "Debtor"
       : CASH_PAYMENT_PATTERN.test(transactionText)
         ? "Cash"
-        : null;
-  if (!receiptAccount) return null;
+        : partyName
+          ? "Debtor"
+          : "Cash";
 
-  const partyName = receiptAccount === "Debtor" ? extractGstCustomerName(transactionText) : undefined;
-  const debtorAccount = partyName ?? receiptAccount;
+  const debtorAccount = receiptAccount === "Debtor" ? (partyName ?? "Debtor") : receiptAccount;
   const expectedEntry = buildGoodsGstSaleEntry(
     gst.baseAmount,
     gst.gstAmount,
@@ -730,7 +813,7 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
 
   return {
     transaction_type: `goods_gst_${gst.transactionTypePrefix ?? ""}${gst.gstInclusive ? "inclusive_" : ""}sale_${
-      receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit"
+      cashDefault ? "assumed_cash" : receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit"
     }`,
     confidence: DIRECT_MATCH_CONFIDENCE,
     debitAccount: debtorAccount,
@@ -745,6 +828,7 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
     partyName,
     partyRole: partyName ? "debtor" : undefined,
     partyAccountSide: partyName ? "debit" : undefined,
+    cashDefault,
     expectedEntry,
     compoundDetails: {
       kind: "goods_gst_sale",
@@ -1571,6 +1655,18 @@ function hasUnsupportedAssetSaleContext(transactionText: string): boolean {
     hasGstMention(transactionText) ||
     /\b(?:profit|loss|accumulated\s+depreciation|depreciation|disposal)\b/i.test(transactionText) ||
     /\b(?:balance\s+on\s+credit|partly|partial|received\s+rs\.?\s*|received\s+₹)\b/i.test(transactionText)
+  );
+}
+
+function isSimpleCashDefaultAssetGstSale(transactionText: string): boolean {
+  return (
+    !DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText) &&
+    !CASH_PAYMENT_PATTERN.test(transactionText) &&
+    !CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText) &&
+    !extractAssetSaleBuyerName(transactionText) &&
+    !/\b(?:profit|loss|costing|cost\s+of|book\s+value|having\s+book\s+value)\b/i.test(transactionText) &&
+    !/\b(?:accumulated\s+depreciation|depreciation|disposal)\b/i.test(transactionText) &&
+    !/\b(?:balance\s+on\s+credit|partly|partial|received\s+rs\.?\s*|received\s+₹)\b/i.test(transactionText)
   );
 }
 
@@ -2463,6 +2559,24 @@ function buildAssetSaleEntry(
     credits: [
       { account: assetAccount, amount: bookValue },
       { account: "Profit on Sale of Asset", amount: roundCurrency(saleValue - bookValue) },
+    ],
+  };
+}
+
+function buildAssetGstSaleEntry(
+  assetAccount: string,
+  baseAmount: number,
+  gstAmount: number,
+  invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[] | undefined,
+): CorrectJournalEntry {
+  return {
+    debits: [{ account: "Cash", amount: invoiceTotal }],
+    credits: [
+      { account: assetAccount, amount: baseAmount },
+      ...(taxLines?.map((line) => ({ account: line.outputAccount, amount: line.amount })) ?? [
+        { account: "Output GST", amount: gstAmount },
+      ]),
     ],
   };
 }

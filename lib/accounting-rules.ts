@@ -28,6 +28,8 @@ const GOODS_ITEM_PATTERN = "(?:goods|mango(?:es)?|apples?|rice|wheat|books?|stat
 const NO_EXPLICIT_SALE_MODE_PREFIX = `^(?!.*${PAYMENT_MODE_CLUE_PATTERN})(?!.*\\bto\\b)`;
 const NO_EXPLICIT_PURCHASE_MODE_PREFIX = `^(?!.*${PAYMENT_MODE_CLUE_PATTERN})(?!.*\\bfrom\\b)`;
 const NO_PAYMENT_MODE_PREFIX = `^(?!.*(?:\\b(?:cash|bank|cheque|check|credit)\\b|${DIGITAL_PAYMENT_PATTERN}))`;
+const NO_ADJUSTMENT_CONTEXT_PREFIX =
+  "(?!.*\\b(?:due|outstanding|prepaid|advance|beforehand|not\\s+paid|not\\s+received|earned\\s+but\\s+not\\s+received|received\\s+but\\s+not\\s+earned|paid\\s+in\\s+advance|paid\\s+beforehand|received\\s+in\\s+advance|received\\s+beforehand)\\b)";
 const TRADE_DISCOUNT_PATTERN = "after\\s+discount";
 const PARTY_PATTERN = "([a-z][a-z.'-]*)";
 const RESERVED_PARTY_WORD_PATTERN =
@@ -228,6 +230,7 @@ const assetItems = [
     term: "(?:furniture|tables?|chairs?|desks?|almirah|cupboard|bookshelf|office\\s+tables?|office\\s+chairs?)",
     account: "Furniture",
   },
+  { term: "(?:laptops?|desktops?)", account: "Computer" },
   { term: "computers?", account: "Computer" },
   { term: "vehicles?", account: "Vehicle" },
   { term: "equipment", account: "Equipment" },
@@ -598,10 +601,17 @@ interface ExpensePaymentConfig {
   account: string;
   label: string;
   terms: string;
+  cashDefault?: boolean;
 }
 
 const commonExpensePaymentConfigs: ExpensePaymentConfig[] = [
-  { transactionType: "paid_wages", account: "Wages Expense", label: "wages", terms: "wages?|wages\\s+expense" },
+  {
+    transactionType: "paid_wages",
+    account: "Wages Expense",
+    label: "wages",
+    terms: "wages?|wages\\s+expense",
+    cashDefault: true,
+  },
   {
     transactionType: "paid_carriage",
     account: "Carriage Expense",
@@ -637,12 +647,14 @@ const commonExpensePaymentConfigs: ExpensePaymentConfig[] = [
     account: "Telephone Expense",
     label: "telephone bill",
     terms: "telephone(?:\\s+bill|\\s+expense)?|phone\\s+bill",
+    cashDefault: true,
   },
   {
     transactionType: "paid_internet",
     account: "Internet Expense",
     label: "internet bill",
     terms: "internet(?:\\s+bill|\\s+expense)?|broadband\\s+bill",
+    cashDefault: true,
   },
   {
     transactionType: "paid_travelling",
@@ -650,6 +662,7 @@ const commonExpensePaymentConfigs: ExpensePaymentConfig[] = [
     label: "travelling expenses",
     terms:
       "travelling(?:\\s+expenses?|\\s+expense|\\s+tickets?|\\s+ticket\\s+expenses?)?|travel(?:\\s+expenses?|\\s+expense|\\s+tickets?|\\s+ticket\\s+expenses?|\\s+fare)|bus\\s+fare|train\\s+fare|flight\\s+tickets?|ticket\\s+expense",
+    cashDefault: true,
   },
   {
     transactionType: "paid_petrol_fuel",
@@ -662,18 +675,21 @@ const commonExpensePaymentConfigs: ExpensePaymentConfig[] = [
     account: "Legal Charges",
     label: "legal charges",
     terms: "legal\\s+charges|legal\\s+fees|lawyer\\s+fees|legal\\s+expense",
+    cashDefault: true,
   },
   {
     transactionType: "paid_office_expenses",
     account: "Office Expenses",
     label: "office expenses",
     terms: "(?:general\\s+)?office\\s+expenses?",
+    cashDefault: true,
   },
 ];
 
 const commonExpensePaymentRules: TransactionRule[] = commonExpensePaymentConfigs.flatMap((config) => [
   expensePaymentRule(config, "Bank"),
   expensePaymentRule(config, "Cash"),
+  ...(config.cashDefault ? [expensePaymentCashDefaultRule(config)] : []),
 ]);
 
 function expensePaymentRule(config: ExpensePaymentConfig, paymentAccount: "Cash" | "Bank"): TransactionRule {
@@ -701,11 +717,26 @@ function expensePaymentRule(config: ExpensePaymentConfig, paymentAccount: "Cash"
   };
 }
 
+function expensePaymentCashDefaultRule(config: ExpensePaymentConfig): TransactionRule {
+  return {
+    transaction_type: `${config.transactionType}_assumed_cash`,
+    patterns: [
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}${NO_ADJUSTMENT_CONTEXT_PREFIX}paid\\s+.*(?:${config.terms})\\b`, "i"),
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}${NO_ADJUSTMENT_CONTEXT_PREFIX}(?:${config.terms}).*paid\\b`, "i"),
+    ],
+    debitAccount: config.account,
+    creditAccount: "Cash",
+    explanationLogic: `Assumption used: Since no payment mode was mentioned, this beginner convention assumes ${config.label} was paid in cash. ${config.account} is debited and Cash is credited.`,
+    practiceTemplate: (amount) => `Paid ${config.label} ₹${amount}.`,
+  };
+}
+
 interface IncomeReceiptConfig {
   transactionType: string;
   account: string;
   label: string;
   terms: string;
+  cashDefault?: boolean;
 }
 
 const commonIncomeReceiptConfigs: IncomeReceiptConfig[] = [
@@ -714,24 +745,28 @@ const commonIncomeReceiptConfigs: IncomeReceiptConfig[] = [
     account: "Rent Income",
     label: "rent",
     terms: "rent(?:\\s+income)?",
+    cashDefault: true,
   },
   {
     transactionType: "service_income_received",
     account: "Service Income",
     label: "service income",
     terms: "service\\s+income|service\\s+fees|service\\s+revenue",
+    cashDefault: true,
   },
   {
     transactionType: "consultancy_income_received",
     account: "Consultancy Income",
     label: "consultancy fees",
     terms: "consultancy\\s+fees|consultancy\\s+income|consulting\\s+income|consulting\\s+fees",
+    cashDefault: true,
   },
   {
     transactionType: "tuition_income_received",
     account: "Tuition Income",
     label: "tuition fees",
     terms: "tuition\\s+fees|tuition\\s+income|coaching\\s+fees|class\\s+fees",
+    cashDefault: true,
   },
   {
     transactionType: "dividend_income_received",
@@ -744,6 +779,7 @@ const commonIncomeReceiptConfigs: IncomeReceiptConfig[] = [
     account: "Royalty Income",
     label: "royalty",
     terms: "royalty(?:\\s+income)?",
+    cashDefault: true,
   },
   {
     transactionType: "interest_received",
@@ -756,6 +792,7 @@ const commonIncomeReceiptConfigs: IncomeReceiptConfig[] = [
     account: "Commission Income",
     label: "commission",
     terms: "commission(?:\\s+income)?",
+    cashDefault: true,
   },
   {
     transactionType: "discount_received",
@@ -774,6 +811,7 @@ const commonIncomeReceiptConfigs: IncomeReceiptConfig[] = [
 const commonIncomeReceiptRules: TransactionRule[] = commonIncomeReceiptConfigs.flatMap((config) => [
   incomeReceiptRule(config, "Bank"),
   incomeReceiptRule(config, "Cash"),
+  ...(config.cashDefault ? [incomeReceiptCashDefaultRule(config)] : []),
 ]);
 
 function incomeReceiptRule(config: IncomeReceiptConfig, receiptAccount: "Cash" | "Bank"): TransactionRule {
@@ -798,6 +836,20 @@ function incomeReceiptRule(config: IncomeReceiptConfig, receiptAccount: "Cash" |
     explanationLogic: `${receiptAccount} increases because income is received. ${config.account} is credited because income has increased.`,
     practiceTemplate: (amount) =>
       `Received ${config.label} ₹${amount} ${isBank ? "through bank" : "in cash"}.`,
+  };
+}
+
+function incomeReceiptCashDefaultRule(config: IncomeReceiptConfig): TransactionRule {
+  return {
+    transaction_type: `${config.transactionType}_assumed_cash`,
+    patterns: [
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}${NO_ADJUSTMENT_CONTEXT_PREFIX}received\\s+.*(?:${config.terms})\\b`, "i"),
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}${NO_ADJUSTMENT_CONTEXT_PREFIX}(?:${config.terms}).*received\\b`, "i"),
+    ],
+    debitAccount: "Cash",
+    creditAccount: config.account,
+    explanationLogic: `Assumption used: Since no receipt mode was mentioned, this beginner convention assumes ${config.label} was received in cash. Cash is debited and ${config.account} is credited.`,
+    practiceTemplate: (amount) => `Received ${config.label} ₹${amount}.`,
   };
 }
 
@@ -925,6 +977,17 @@ const namedAssetPurchaseRules: TransactionRule[] = assetItems.flatMap(({ term, a
     practiceTemplate: (amount) => `Bought ${account.toLowerCase()} from seller on credit ₹${amount}.`,
     partyExtractor: namedAssetCreditor,
   },
+  {
+    transaction_type: `asset_purchase_${account.toLowerCase()}_assumed_credit`,
+    patterns: [
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}(?:purchase|purchased|bought)\\s+${term}\\s+from\\s+\\w+`, "i"),
+    ],
+    debitAccount: account,
+    creditAccount: "Creditor",
+    explanationLogic: `${account} is an asset and it is increasing, so ${account} is debited. A named seller is mentioned without an immediate payment mode, so the seller is credited as creditor.`,
+    practiceTemplate: (amount) => `Bought ${account.toLowerCase()} from seller ₹${amount}.`,
+    partyExtractor: namedAssetCreditor,
+  },
 ]);
 
 interface CommonAssetPurchaseConfig {
@@ -935,6 +998,12 @@ interface CommonAssetPurchaseConfig {
 }
 
 const commonAssetPurchaseConfigs: CommonAssetPurchaseConfig[] = [
+  {
+    transactionType: "asset_purchase_furniture",
+    account: "Furniture",
+    label: "furniture",
+    terms: "furniture",
+  },
   {
     transactionType: "asset_purchase_laptop",
     account: "Computer",
@@ -1019,6 +1088,7 @@ const commonAssetPurchaseRules: TransactionRule[] = commonAssetPurchaseConfigs.f
   assetPurchaseRule(config, "Cash"),
   assetPurchaseRule(config, "Bank"),
   assetPurchaseRule(config, "Creditor"),
+  assetPurchaseCashDefaultRule(config),
 ]);
 
 function assetPurchaseRule(
@@ -1043,6 +1113,19 @@ function assetPurchaseRule(
       : `${config.account} is an asset and it is increasing, so ${config.account} is debited. ${paymentAccount} decreases because payment is made, so ${paymentAccount} is credited.`,
     practiceTemplate: (amount) => `Bought ${config.label} ${paymentLabel} ₹${amount}.`,
     partyExtractor: isCredit ? namedAssetCreditor : namedAssetSupplier,
+  };
+}
+
+function assetPurchaseCashDefaultRule(config: CommonAssetPurchaseConfig): TransactionRule {
+  return {
+    transaction_type: `${config.transactionType}_assumed_cash`,
+    patterns: [
+      new RegExp(`${NO_EXPLICIT_PURCHASE_MODE_PREFIX}(?:purchase|purchased|bought)\\s+.*(?:${config.terms})\\b`, "i"),
+    ],
+    debitAccount: config.account,
+    creditAccount: "Cash",
+    explanationLogic: `Assumption used: Since no payment mode or supplier is mentioned, this beginner convention assumes ${config.label} was purchased for cash. ${config.account} is debited and Cash is credited.`,
+    practiceTemplate: (amount) => `Bought ${config.label} ₹${amount}.`,
   };
 }
 
@@ -1471,6 +1554,18 @@ export const transactionRules: TransactionRule[] = [
     explanationLogic:
       "Rent is an expense and expenses are debited. Cash decreases because it is paid out, so Cash is credited.",
     practiceTemplate: (amount) => `Paid rent ₹${amount} in cash.`,
+  },
+  {
+    transaction_type: "paid_rent_assumed_cash",
+    patterns: [
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}${NO_ADJUSTMENT_CONTEXT_PREFIX}paid\\s+.*rent\\b`, "i"),
+      new RegExp(`${NO_PAYMENT_MODE_PREFIX}${NO_ADJUSTMENT_CONTEXT_PREFIX}rent\\s+.*paid\\b`, "i"),
+    ],
+    debitAccount: "Rent Expense",
+    creditAccount: "Cash",
+    explanationLogic:
+      "Assumption used: Since no payment mode was mentioned, this beginner convention assumes rent was paid in cash. Rent Expense is debited and Cash is credited.",
+    practiceTemplate: (amount) => `Paid rent ₹${amount}.`,
   },
   {
     transaction_type: "paid_salary_bank",

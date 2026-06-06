@@ -50,6 +50,7 @@ export interface TransactionClassification {
   partyName?: string;
   partyRole?: PartyRole;
   partyAccountSide?: EntryLineSide;
+  cashDefault?: boolean;
   expectedEntry?: CorrectJournalEntry;
   compoundDetails?:
     | PartialGoodsPurchaseDetails
@@ -191,6 +192,10 @@ export interface AssetSaleDetails {
   saleValue: number;
   profitAmount?: number;
   lossAmount?: number;
+  gstAmount?: number;
+  invoiceTotal?: number;
+  gstRate?: number;
+  taxLines?: GoodsGstTaxLine[];
   usesDisposalAccount?: boolean;
   receiptAccount: "Cash" | "Bank" | "Debtor";
   debtorAccount: string;

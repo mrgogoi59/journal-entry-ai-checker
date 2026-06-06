@@ -128,6 +128,9 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Purchase vehicle from Amit for cash Rs. 2000", "asset_purchase_vehicle_cash", "Vehicle", "Cash", 2000],
     ["Purchase equipment from Amit for cash Rs. 2000", "asset_purchase_equipment_cash", "Equipment", "Cash", 2000],
     ["Bought laptop for cash Rs.30000", "asset_purchase_laptop_cash", "Computer", "Cash", 30000],
+    ["Bought laptop Rs.30000", "asset_purchase_laptop_assumed_cash", "Computer", "Cash", 30000],
+    ["Bought furniture Rs.20000", "asset_purchase_furniture_assumed_cash", "Furniture", "Cash", 20000],
+    ["Bought laptop from Amit Rs.30000", "asset_purchase_computer_assumed_credit", "Computer", "Amit", 30000],
     ["Purchased printer through bank Rs.8000", "asset_purchase_printer_bank", "Equipment", "Bank", 8000],
     ["Bought mobile phone for office Rs.15000 in cash", "asset_purchase_mobile_phone_cash", "Equipment", "Cash", 15000],
     ["Bought office equipment from Rahul on credit Rs.10000", "asset_purchase_office_equipment_credit", "Equipment", "Rahul", 10000],
@@ -1443,11 +1446,13 @@ describe("classifyTransaction supported beginner transactions", () => {
 
   it.each([
     ["Purchased goods Rs.10000 plus GST 18% for cash", "goods_gst_purchase_cash", "Purchases", "Cash"],
+    ["Purchased goods Rs.10000 plus GST 18%", "goods_gst_purchase_assumed_cash", "Purchases", "Cash"],
     ["Purchased goods Rs.10000 plus GST 18% through bank", "goods_gst_purchase_bank", "Purchases", "Bank"],
     ["Bought goods Rs.10000 plus GST 18% by UPI", "goods_gst_purchase_bank", "Purchases", "Bank"],
     ["Purchased goods Rs.10000 plus GST 18% on credit", "goods_gst_purchase_credit", "Purchases", "Creditor"],
     ["Purchased goods from Amit Rs.10000 plus GST 18% on credit", "goods_gst_purchase_credit", "Purchases", "Amit"],
     ["Purchased goods Rs.11800 including GST 18% for cash", "goods_gst_inclusive_purchase_cash", "Purchases", "Cash"],
+    ["Purchased goods Rs.11800 including GST 18%", "goods_gst_inclusive_purchase_assumed_cash", "Purchases", "Cash"],
     ["Purchased goods Rs.11800 GST inclusive 18% by GPay", "goods_gst_inclusive_purchase_bank", "Purchases", "Bank"],
     [
       "Purchased goods from Amit Rs.11800 including GST 18% on credit",
@@ -1456,10 +1461,12 @@ describe("classifyTransaction supported beginner transactions", () => {
       "Amit",
     ],
     ["Sold goods Rs.10000 plus GST 18% for cash", "goods_gst_sale_cash", "Cash", "Sales"],
+    ["Sold goods Rs.10000 plus GST 18%", "goods_gst_sale_assumed_cash", "Cash", "Sales"],
     ["Sold goods Rs.10000 plus GST 18% through bank", "goods_gst_sale_bank", "Bank", "Sales"],
     ["Sold goods Rs.10000 plus GST 18% on credit", "goods_gst_sale_credit", "Debtor", "Sales"],
     ["Sold goods to Raju Rs.10000 plus GST 18% on credit", "goods_gst_sale_credit", "Raju", "Sales"],
     ["Sold goods Rs.11800 including GST 18% for cash", "goods_gst_inclusive_sale_cash", "Cash", "Sales"],
+    ["Sold goods Rs.11800 including GST 18%", "goods_gst_inclusive_sale_assumed_cash", "Cash", "Sales"],
     ["Sold goods Rs.11800 GST inclusive 18% by GPay", "goods_gst_inclusive_sale_bank", "Bank", "Sales"],
     ["Sold goods to Raju Rs.11800 including GST 18% on credit", "goods_gst_inclusive_sale_credit", "Raju", "Sales"],
     ["Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash", "goods_gst_cgst_sgst_purchase_cash", "Purchases", "Cash"],
@@ -2137,6 +2144,7 @@ describe("classifyTransaction supported beginner transactions", () => {
     ["Machinery sold to Raju Rs.40000 on credit", "asset_sale_machinery_credit", "Raju", "Machinery", 40000],
     ["Sold printer Rs.5000 for cash", "asset_sale_printer_cash", "Cash", "Equipment", 5000],
     ["Sold generator Rs.25000 by UPI", "asset_sale_generator_bank", "Bank", "Equipment", 25000],
+    ["Sold machinery Rs.40000", "asset_sale_machinery_assumed_cash", "Cash", "Machinery", 40000],
   ])("classifies asset sale: %s", (transaction, transactionType, debitAccount, creditAccount, amount) => {
     const classification = classifyTransaction(transaction);
 
@@ -2146,6 +2154,32 @@ describe("classifyTransaction supported beginner transactions", () => {
       creditAccount,
       amount,
       confidence: 0.95,
+    });
+  });
+
+  it("classifies simple fixed asset sale with GST as assumed cash", () => {
+    const classification = classifyTransaction("Sold machinery Rs.40000 plus GST 18%");
+
+    expect(classification).toMatchObject({
+      transaction_type: "asset_gst_sale_machinery_assumed_cash",
+      debitAccount: "Cash",
+      creditAccount: "Machinery",
+      amount: 47200,
+      cashDefault: true,
+      compoundDetails: {
+        kind: "asset_sale",
+        saleValue: 40000,
+        gstAmount: 7200,
+        invoiceTotal: 47200,
+        receiptAccount: "Cash",
+      },
+    });
+    expect(generateExpectedEntry(classification!)).toEqual({
+      debits: [{ account: "Cash", amount: 47200 }],
+      credits: [
+        { account: "Machinery", amount: 40000 },
+        { account: "Output GST", amount: 7200 },
+      ],
     });
   });
 
@@ -2560,15 +2594,12 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Sold goods Rs.10000 plus GST and allowed discount Rs.500")).toBeNull();
     expect(classifyTransaction("Purchased machinery Rs.59000 including CGST 9% and SGST 9% for cash")).toBeNull();
     expect(classifyTransaction("Purchased machinery Rs.50000 plus installation Rs.5000 plus GST 18%")).toBeNull();
-    expect(classifyTransaction("Sold machinery Rs.40000 plus GST 18%")).toBeNull();
     expect(classifyTransaction("Paid installation charges on machinery Rs.5000 plus GST 18%")).toBeNull();
     expect(classifyTransaction("Purchased machinery Rs.50000 and paid installation charges Rs.5000")).toBeNull();
     expect(classifyTransaction("Purchased machinery Rs.50000 plus installation Rs.5000 plus GST 18%")).toBeNull();
     expect(classifyTransaction("Purchased machinery Rs.50000 through bank and paid installation Rs.5000 in cash")).toBeNull();
     expect(classifyTransaction("Purchased machinery Rs.50000 and paid repair charges Rs.5000")).toBeNull();
-    expect(classifyTransaction("Sold machinery Rs.40000")).toBeNull();
     expect(classifyTransaction("Sold machinery costing Rs.50000 for Rs.40000")).toBeNull();
-    expect(classifyTransaction("Sold machinery Rs.40000 plus GST 18%")).toBeNull();
     expect(classifyTransaction("Sold machinery Rs.40000 and received Rs.10000 cash, balance on credit")).toBeNull();
     expect(classifyTransaction("Sold machinery for Rs.40000 after depreciation Rs.10000")).toBeNull();
     expect(classifyTransaction("Sold machinery with accumulated depreciation Rs.10000")).toBeNull();
@@ -2624,8 +2655,17 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Purchased goods after discount Rs.100")).toBeNull();
   });
 
-  it("does not guess ambiguous rent or salary payment wording", () => {
-    expect(classifyTransaction("Paid rent Rs.5000")).toBeNull();
+  it("assumes cash for safe simple rent payment wording", () => {
+    expect(classifyTransaction("Paid rent Rs.5000")).toMatchObject({
+      transaction_type: "paid_rent_assumed_cash",
+      debitAccount: "Rent Expense",
+      creditAccount: "Cash",
+      amount: 5000,
+      cashDefault: true,
+    });
+  });
+
+  it("does not guess ambiguous salary payment wording", () => {
     expect(classifyTransaction("Salary paid Rs.6000")).toBeNull();
   });
 
@@ -2649,8 +2689,14 @@ describe("classifyTransaction supported beginner transactions", () => {
     expect(classifyTransaction("Received interest Rs.1500")).toBeNull();
   });
 
-  it("does not guess ambiguous commission wording", () => {
-    expect(classifyTransaction("Received commission Rs.3000")).toBeNull();
+  it("assumes cash for safe simple commission received wording", () => {
+    expect(classifyTransaction("Received commission Rs.3000")).toMatchObject({
+      transaction_type: "commission_received_assumed_cash",
+      debitAccount: "Cash",
+      creditAccount: "Commission Income",
+      amount: 3000,
+      cashDefault: true,
+    });
   });
 
   it("returns 0.95 confidence for a direct natural capital-introduced cash match", () => {

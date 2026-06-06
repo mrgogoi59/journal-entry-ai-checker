@@ -1976,15 +1976,16 @@ describe("POST /api/check-entry", () => {
     expect(body.score).not.toBe(100);
   });
 
-  it("returns Unsupported Transaction for ambiguous commission received wording", async () => {
+  it("returns Correct for safe simple commission received assumed as cash", async () => {
     const body = await checkEntry(
       "Received commission Rs.3000",
-      "Cash A/c Dr. Rs.3000\nTo Commission A/c Rs.3000",
+      "Cash A/c Dr. Rs.3000\nTo Commission Income A/c Rs.3000",
     );
 
-    expect(body.result_status).toBe("Unsupported Transaction");
-    expect(body.mistake_type).toBe("unsupported_transaction");
-    expect(body.score).toBe(0);
+    expect(body.result_status).toBe("Correct");
+    expect(body.mistake_type).toBe("correct");
+    expect(body.score).toBe(100);
+    expect(body.simple_explanation).toContain("Assumption used");
   });
 
   it.each([
@@ -3811,6 +3812,12 @@ describe("POST /api/check-entry", () => {
       debits: [{ account: "Bank", amount: 300000 }],
       credits: [{ account: "Land", amount: 300000 }],
     },
+    {
+      transactionText: "Sold machinery Rs.40000",
+      journalEntry: "Cash A/c Dr. Rs.40000\nTo Machinery A/c Rs.40000",
+      debits: [{ account: "Cash", amount: 40000 }],
+      credits: [{ account: "Machinery", amount: 40000 }],
+    },
   ])("returns Correct for asset sale: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
     const body = await checkEntry(transactionText, journalEntry);
 
@@ -3818,6 +3825,24 @@ describe("POST /api/check-entry", () => {
     expect(body.score).toBe(100);
     expect(body.mistake_type).toBe("correct");
     expect(body.correct_journal_entry).toEqual({ debits, credits });
+  });
+
+  it("returns Correct for simple asset sale with GST assumed as cash", async () => {
+    const body = await checkEntry(
+      "Sold machinery Rs.40000 plus GST 18%",
+      "Cash A/c Dr. Rs.47200\nTo Machinery A/c Rs.40000\nTo Output GST A/c Rs.7200",
+    );
+
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.correct_journal_entry).toEqual({
+      debits: [{ account: "Cash", amount: 47200 }],
+      credits: [
+        { account: "Machinery", amount: 40000 },
+        { account: "Output GST", amount: 7200 },
+      ],
+    });
   });
 
   it.each([
@@ -4282,14 +4307,16 @@ describe("POST /api/check-entry", () => {
     expect(body.simple_explanation).toContain("Assumption used");
   });
 
-  it("keeps non-goods ambiguous rent unsupported", async () => {
+  it("returns Correct for safe simple rent payment assumed as cash", async () => {
     const body = await checkEntry(
       "Paid rent Rs.5000",
-      "Rent A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
+      "Rent Expense A/c Dr. Rs.5000\nTo Cash A/c Rs.5000",
     );
 
-    expect(body.result_status).toBe("Unsupported Transaction");
-    expect(body.mistake_type).toBe("unsupported_transaction");
+    expect(body.result_status).toBe("Correct");
+    expect(body.score).toBe(100);
+    expect(body.mistake_type).toBe("correct");
+    expect(body.simple_explanation).toContain("Assumption used");
   });
 
   it("keeps non-goods ambiguous loan unsupported", async () => {

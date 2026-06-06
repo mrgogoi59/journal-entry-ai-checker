@@ -18,6 +18,8 @@ import type {
 
 const unsupportedMessage =
   "I cannot safely solve this transaction yet. Please rewrite with amount, payment mode, and account context.";
+const cashDefaultAssumptionNote =
+  "Since no payment mode or buyer is mentioned, this beginner convention assumes a cash transaction.";
 
 const commonExpenseAccounts = new Set([
   "Wages Expense",
@@ -74,7 +76,7 @@ export function solveJournalEntry(transaction: string, mode: SolverMode = "begin
   }
 
   const journalEntry = buildJournalEntry(expectedEntry);
-  const fullSteps = buildStepByStepExplanation(classification);
+  const fullSteps = withCashDefaultAssumption(classification, buildStepByStepExplanation(classification));
 
   return {
     transactionSummary,
@@ -89,6 +91,11 @@ export function solveJournalEntry(transaction: string, mode: SolverMode = "begin
     commonMistakes: buildCommonMistakes(classification),
     practiceQuestion: buildPracticeQuestion(classification),
   };
+}
+
+function withCashDefaultAssumption(classification: TransactionClassification, steps: string[]): string[] {
+  if (!classification.cashDefault || steps.includes(cashDefaultAssumptionNote)) return steps;
+  return [cashDefaultAssumptionNote, ...steps];
 }
 
 function isAmbiguousPersonPayment(transaction: string): boolean {
@@ -355,6 +362,28 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
         }.`,
         `${asset} is credited because the asset goes out of the business.`,
         "Profit on Sale of Asset A/c is credited because gains are credited.",
+      ];
+    }
+
+    if (details.gstAmount !== undefined && details.invoiceTotal !== undefined) {
+      const taxSteps = details.taxLines?.length
+        ? details.taxLines.map((line) => taxLineExplanation(line.taxType, line.amount, line.rate))
+        : [`${gstAmountExplanation(details.gstAmount, details.gstRate)}.`];
+
+      return [
+        `${titleCase(details.assetLabel)} is a fixed asset of the business.`,
+        `The business sold the ${details.assetLabel} for ${formatRupees(details.saleValue)} plus GST.`,
+        ...taxSteps,
+        `${receipt} is debited for the total invoice amount received, ${formatRupees(details.invoiceTotal)}.`,
+        `${asset} is credited because the asset goes out of the business.`,
+        details.taxLines?.length
+          ? `${outputTaxAccountLabel(details.taxLines)} ${
+              details.taxLines.length === 1 ? "is" : "are"
+            } credited because GST collected is payable to the government.`
+          : `Output GST A/c is credited for ${formatRupees(
+              details.gstAmount,
+            )} because GST collected is payable to the government.`,
+        "In this beginner MVP, profit/loss on sale is not calculated because book value is not given.",
       ];
     }
 
@@ -1081,6 +1110,16 @@ function buildCommonMistakes(classification: TransactionClassification): string[
       ];
     }
 
+    if (classification.compoundDetails.gstAmount !== undefined) {
+      return [
+        "Do not credit Sales A/c because this is sale of an asset, not sale of goods.",
+        "Do not ignore Output GST when GST is clearly mentioned.",
+        "Do not debit Cash only for the asset sale value; the total receipt includes GST.",
+        "Do not calculate profit/loss unless book value is given.",
+        "If the transaction actually happened through bank or on credit, mention through bank or the buyer name.",
+      ];
+    }
+
     return [
       "Do not credit Sales A/c because this is sale of an asset, not sale of goods.",
       "Do not ignore profit/loss when book value and sale value are both given.",
@@ -1453,8 +1492,12 @@ function buildCommonMistakes(classification: TransactionClassification): string[
     mistakes.push("Do not credit Goods A/c for a sale. Use Sales A/c for goods sold.");
   }
 
-  if (classification.debitAccount === "Cash" || classification.creditAccount === "Cash") {
+  if (!classification.cashDefault && (classification.debitAccount === "Cash" || classification.creditAccount === "Cash")) {
     mistakes.push("Do not use Bank A/c when the transaction clearly says cash.");
+  }
+
+  if (classification.cashDefault) {
+    mistakes.push("If the transaction actually happened through bank or on credit, mention through bank or the buyer name.");
   }
 
   if (classification.debitAccount === "Bank" || classification.creditAccount === "Bank") {
@@ -1495,6 +1538,15 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
           details.saleValue,
         )} ${mode}`,
         expectedPattern: `Asset Disposal A/c Dr. To ${displayAccountName(details.assetAccount)}`,
+      };
+    }
+
+    if (details.gstAmount !== undefined) {
+      return {
+        question: `Sold ${details.assetLabel} ${formatRupees(details.saleValue)} plus GST`,
+        expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To ${displayAccountName(
+          details.assetAccount,
+        )}, To Output GST A/c`,
       };
     }
 
@@ -2031,6 +2083,7 @@ function buildNarration(classification: TransactionClassification): string {
     }
 
     const resultLabel = details.lossAmount ? " at a loss" : details.profitAmount ? " at a profit" : "";
+    if (details.gstAmount !== undefined) return `Being ${details.assetLabel} sold for cash plus GST.`;
     if (details.receiptAccount === "Cash") return `Being ${details.assetLabel} sold for cash${resultLabel}.`;
     if (details.receiptAccount === "Bank") return `Being ${details.assetLabel} sold through bank${resultLabel}.`;
     return details.partyName
