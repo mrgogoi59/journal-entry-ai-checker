@@ -5,6 +5,7 @@ import { useState } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
 import {
   generateFinalAccounts,
+  type CapitalWorking,
   type FinalAccountLine,
   type FinalAccountsResult,
   type TrialBalanceBalance,
@@ -16,14 +17,19 @@ Purchases A/c Dr Rs.20000
 Sales A/c Cr Rs.40000
 Wages A/c Dr Rs.5000
 Rent A/c Dr Rs.3000
-Commission Received A/c Cr Rs.2000`;
+Commission Received A/c Cr Rs.2000
+Debtors A/c Dr Rs.8000
+Creditors A/c Cr Rs.6000
+Furniture A/c Dr Rs.15000
+Drawings A/c Dr Rs.5000
+Bank A/c Dr Rs.32000`;
 
 const limitations = [
-  "No Balance Sheet yet",
-  "No adjustments yet",
+  "No adjustment processing yet",
+  "No detailed schedules",
+  "No company/partnership balance sheet formats",
   "No closing stock adjustment unless directly provided",
   "No opening balances workflow",
-  "No schedules",
   "No database/history",
   "No AI",
 ];
@@ -46,11 +52,11 @@ export default function FinalAccountsPage() {
           <p className="mt-4 text-sm font-semibold text-accent">Final Accounts Engine MVP</p>
           <h1 className="mt-2 text-3xl font-bold tracking-normal text-ink sm:text-4xl">Final Accounts MVP</h1>
           <p className="mt-3 text-base leading-7 text-slate-600">
-            Enter trial balance balances and prepare Trading A/c and Profit & Loss A/c.
+            Enter trial balance balances and prepare Trading A/c, Profit & Loss A/c, and Balance Sheet.
           </p>
           <p className="mt-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
-            This first version prepares Trading A/c and Profit & Loss A/c only. Balance Sheet and adjustments will come
-            later.
+            This version prepares a simple sole proprietorship Balance Sheet. Adjustments and detailed schedules will
+            come later.
           </p>
         </header>
 
@@ -173,7 +179,26 @@ function FinalAccountsResultView({ result, input }: { result: FinalAccountsResul
         />
       </ResultSection>
 
-      <BalanceSheetItems items={result.balanceSheetItems} />
+      {result.balanceSheet.capitalWorking ? <CapitalWorkingView working={result.balanceSheet.capitalWorking} /> : null}
+
+      <ResultSection title="Balance Sheet">
+        <BalanceSheetTable
+          liabilities={result.balanceSheet.liabilities}
+          assets={result.balanceSheet.assets}
+          liabilityTotal={result.balanceSheet.liabilityTotal}
+          assetTotal={result.balanceSheet.assetTotal}
+        />
+      </ResultSection>
+
+      <ResultSection title="Balance Sheet Result">
+        <BalanceSheetResult
+          agrees={result.balanceSheet.agrees}
+          difference={result.balanceSheet.difference}
+          liabilityTotal={result.balanceSheet.liabilityTotal}
+          assetTotal={result.balanceSheet.assetTotal}
+        />
+      </ResultSection>
+
       <UnclassifiedItems items={result.unclassifiedItems} />
 
       <ResultSection title="Final Accounts Logic">
@@ -189,7 +214,9 @@ function FinalAccountsResultView({ result, input }: { result: FinalAccountsResul
         details={{
           module: "Final Accounts",
           transaction: input,
-          appResult: `Status: ${result.status}\nGross profit: Rs.${result.tradingAccount.grossProfit}\nGross loss: Rs.${result.tradingAccount.grossLoss}\nNet profit: Rs.${result.profitAndLossAccount.netProfit}\nNet loss: Rs.${result.profitAndLossAccount.netLoss}`,
+          appResult: `Status: ${result.status}\nGross profit: Rs.${result.tradingAccount.grossProfit}\nGross loss: Rs.${result.tradingAccount.grossLoss}\nNet profit: Rs.${result.profitAndLossAccount.netProfit}\nNet loss: Rs.${result.profitAndLossAccount.netLoss}\nBalance Sheet agrees: ${
+            result.balanceSheet.agrees ? "Yes" : "No"
+          }`,
           appCorrectEntry: formatFinalAccountsReport(result),
         }}
       />
@@ -314,14 +341,114 @@ function ProfitLossResult({
   return <p className="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-semibold text-ink">{text}</p>;
 }
 
-function BalanceSheetItems({ items }: { items: TrialBalanceBalance[] }) {
+function CapitalWorkingView({ working }: { working: CapitalWorking }) {
   return (
-    <ResultSection title="Balance Sheet items not processed in this MVP">
-      <p className="mb-3 text-sm leading-6 text-slate-700">
-        These accounts are not used in this MVP because Balance Sheet is not added yet.
-      </p>
-      <BalanceList items={items} emptyText="No Balance Sheet items found." keyPrefix="balance-sheet-item" />
+    <ResultSection title="Capital Working">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[420px] border-collapse text-sm">
+          <tbody>
+            <CapitalWorkingRow label="Capital A/c" amount={working.openingCapital} />
+            {working.netProfit > 0 ? <CapitalWorkingRow label="Add: Net Profit" amount={working.netProfit} /> : null}
+            {working.netLoss > 0 ? <CapitalWorkingRow label="Less: Net Loss" amount={working.netLoss} /> : null}
+            {working.drawings > 0 ? <CapitalWorkingRow label="Less: Drawings" amount={working.drawings} /> : null}
+            <tr className="border-t border-line bg-paper font-bold text-ink">
+              <td className="px-3 py-2">Adjusted Capital</td>
+              <td className="px-3 py-2 text-right">Rs.{working.adjustedCapital.toLocaleString("en-IN")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </ResultSection>
+  );
+}
+
+function CapitalWorkingRow({ label, amount }: { label: string; amount: number }) {
+  return (
+    <tr className="border-b border-line">
+      <td className="px-3 py-2 font-medium text-ink">{label}</td>
+      <td className="px-3 py-2 text-right text-ink">Rs.{amount.toLocaleString("en-IN")}</td>
+    </tr>
+  );
+}
+
+function BalanceSheetTable({
+  liabilities,
+  assets,
+  liabilityTotal,
+  assetTotal,
+}: {
+  liabilities: FinalAccountLine[];
+  assets: FinalAccountLine[];
+  liabilityTotal: number;
+  assetTotal: number;
+}) {
+  const rowCount = Math.max(liabilities.length, assets.length, 1);
+  const rows = Array.from({ length: rowCount }, (_, index) => ({
+    liability: liabilities[index],
+    asset: assets[index],
+  }));
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px] border-collapse text-sm">
+        <thead>
+          <tr className="border-b border-line bg-paper text-left text-slate-700">
+            <th className="px-3 py-2 font-semibold">Liabilities</th>
+            <th className="px-3 py-2 text-right font-semibold">Amount</th>
+            <th className="px-3 py-2 font-semibold">Assets</th>
+            <th className="px-3 py-2 text-right font-semibold">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={`balance-sheet-row-${row.liability?.account ?? "blank"}-${row.asset?.account ?? "blank"}-${index}`} className="border-b border-line">
+              <td className="px-3 py-2 font-medium text-ink">{row.liability?.account ?? "-"}</td>
+              <td className="px-3 py-2 text-right text-ink">
+                {row.liability ? `Rs.${row.liability.amount.toLocaleString("en-IN")}` : "-"}
+              </td>
+              <td className="px-3 py-2 font-medium text-ink">{row.asset?.account ?? "-"}</td>
+              <td className="px-3 py-2 text-right text-ink">
+                {row.asset ? `Rs.${row.asset.amount.toLocaleString("en-IN")}` : "-"}
+              </td>
+            </tr>
+          ))}
+          <tr className="bg-paper font-bold text-ink">
+            <td className="px-3 py-2">Total Liabilities</td>
+            <td className="px-3 py-2 text-right">Rs.{liabilityTotal.toLocaleString("en-IN")}</td>
+            <td className="px-3 py-2">Total Assets</td>
+            <td className="px-3 py-2 text-right">Rs.{assetTotal.toLocaleString("en-IN")}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function BalanceSheetResult({
+  agrees,
+  difference,
+  liabilityTotal,
+  assetTotal,
+}: {
+  agrees: boolean;
+  difference: number;
+  liabilityTotal: number;
+  assetTotal: number;
+}) {
+  return (
+    <div
+      className={`rounded-lg border px-4 py-3 text-sm font-semibold leading-6 ${
+        agrees ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-900"
+      }`}
+    >
+      {agrees
+        ? "Balance Sheet agrees."
+        : `Balance Sheet does not agree. Difference: Rs.${difference.toLocaleString("en-IN")}.`}
+      <div className="mt-1 text-xs font-medium">
+        Total liabilities Rs.{liabilityTotal.toLocaleString("en-IN")} | Total assets Rs.
+        {assetTotal.toLocaleString("en-IN")}
+      </div>
+    </div>
   );
 }
 
@@ -413,5 +540,14 @@ function formatFinalAccountsReport(result: FinalAccountsResult): string {
     ...result.profitAndLossAccount.creditLines.map((line) => `- ${line.account} Rs.${line.amount}`),
     `Net Profit: Rs.${result.profitAndLossAccount.netProfit}`,
     `Net Loss: Rs.${result.profitAndLossAccount.netLoss}`,
+    "",
+    "Balance Sheet",
+    "Liabilities:",
+    ...result.balanceSheet.liabilities.map((line) => `- ${line.account} Rs.${line.amount}`),
+    "Assets:",
+    ...result.balanceSheet.assets.map((line) => `- ${line.account} Rs.${line.amount}`),
+    `Total Liabilities: Rs.${result.balanceSheet.liabilityTotal}`,
+    `Total Assets: Rs.${result.balanceSheet.assetTotal}`,
+    `Agrees: ${result.balanceSheet.agrees ? "Yes" : "No"}`,
   ].join("\n");
 }

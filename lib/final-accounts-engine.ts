@@ -14,6 +14,14 @@ export type FinalAccountLine = {
   amount: number;
 };
 
+export type CapitalWorking = {
+  openingCapital: number;
+  netProfit: number;
+  netLoss: number;
+  drawings: number;
+  adjustedCapital: number;
+};
+
 export type FinalAccountsResult = {
   status: "success" | "invalid";
   parsedBalances: TrialBalanceBalance[];
@@ -33,10 +41,20 @@ export type FinalAccountsResult = {
     netProfit: number;
     netLoss: number;
   };
+  balanceSheet: {
+    assets: FinalAccountLine[];
+    liabilities: FinalAccountLine[];
+    assetTotal: number;
+    liabilityTotal: number;
+    agrees: boolean;
+    difference: number;
+    capitalWorking?: CapitalWorking;
+  };
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
   errors: string[];
   warnings: string[];
+  balanceSheetWarnings: string[];
   logic: string[];
   commonMistakes: string[];
 };
@@ -60,7 +78,7 @@ const tradingDebitAccounts = new Set([
   "sales return",
 ]);
 
-const tradingCreditAccounts = new Set(["sales", "purchase returns", "purchase return", "closing stock"]);
+const tradingCreditAccounts = new Set(["sales", "purchase returns", "purchase return", "closing stock", "stock", "inventory"]);
 
 const profitAndLossDebitAccounts = new Set([
   "rent",
@@ -105,11 +123,22 @@ const balanceSheetAccounts = new Set([
   "cash",
   "bank",
   "capital",
+  "owner capital",
+  "proprietor capital",
+  "drawing",
   "drawings",
   "debtor",
   "debtors",
+  "sundry debtor",
+  "sundry debtors",
+  "customer",
+  "customers",
   "creditor",
   "creditors",
+  "sundry creditor",
+  "sundry creditors",
+  "supplier",
+  "suppliers",
   "machinery",
   "furniture",
   "computer",
@@ -117,17 +146,125 @@ const balanceSheetAccounts = new Set([
   "vehicle",
   "land",
   "building",
+  "prepaid rent",
+  "prepaid insurance",
+  "prepaid salary",
+  "prepaid wages",
+  "prepaid electricity",
+  "outstanding salary",
+  "outstanding rent",
+  "outstanding wages",
+  "outstanding electricity",
+  "outstanding insurance",
   "outstanding expenses",
+  "expense payable",
+  "salary payable",
+  "rent payable",
   "prepaid expenses",
+  "accrued interest",
+  "accrued commission",
+  "accrued rent",
   "accrued income",
+  "income receivable",
+  "rent received in advance",
+  "commission received in advance",
+  "interest received in advance",
+  "unearned income",
   "income received in advance",
   "loan",
   "loans",
+  "bank loan",
+  "loan from bank",
+  "borrowings",
   "gst",
   "input gst",
+  "input cgst",
+  "input sgst",
+  "input igst",
+  "input tax credit",
+  "itc",
   "output gst",
+  "output cgst",
+  "output sgst",
+  "output igst",
+  "gst payable",
+  "closing stock",
+  "stock",
+  "inventory",
   "asset disposal",
   "accumulated depreciation",
+]);
+
+const capitalAccounts = new Set(["capital", "owner capital", "proprietor capital"]);
+const drawingAccounts = new Set(["drawing", "drawings"]);
+const liabilityAccounts = new Set([
+  "creditor",
+  "creditors",
+  "sundry creditor",
+  "sundry creditors",
+  "supplier",
+  "suppliers",
+  "loan",
+  "loans",
+  "bank loan",
+  "loan from bank",
+  "borrowings",
+  "outstanding expenses",
+  "outstanding salary",
+  "outstanding rent",
+  "outstanding wages",
+  "outstanding electricity",
+  "outstanding insurance",
+  "expense payable",
+  "salary payable",
+  "rent payable",
+  "income received in advance",
+  "rent received in advance",
+  "commission received in advance",
+  "interest received in advance",
+  "unearned income",
+  "output gst",
+  "output cgst",
+  "output sgst",
+  "output igst",
+  "gst payable",
+]);
+const assetAccounts = new Set([
+  "cash",
+  "bank",
+  "debtor",
+  "debtors",
+  "sundry debtor",
+  "sundry debtors",
+  "customer",
+  "customers",
+  "machinery",
+  "furniture",
+  "computer",
+  "equipment",
+  "vehicle",
+  "land",
+  "building",
+  "prepaid expenses",
+  "prepaid rent",
+  "prepaid insurance",
+  "prepaid salary",
+  "prepaid wages",
+  "prepaid electricity",
+  "accrued income",
+  "accrued interest",
+  "accrued commission",
+  "accrued rent",
+  "income receivable",
+  "input gst",
+  "input cgst",
+  "input sgst",
+  "input igst",
+  "input tax credit",
+  "itc",
+  "closing stock",
+  "stock",
+  "inventory",
 ]);
 
 const commonMistakes = [
@@ -136,7 +273,7 @@ const commonMistakes = [
   "Purchases and Sales go to Trading Account.",
   "Rent and Salary usually go to Profit & Loss Account.",
   "Gross Profit is transferred to Profit & Loss Account.",
-  "Balance Sheet will be added later; this MVP only prepares Trading and P&L.",
+  "Capital, drawings, assets, and liabilities go to the Balance Sheet.",
 ];
 
 const logic = [
@@ -145,7 +282,8 @@ const logic = [
   "Gross Profit is transferred to the credit side of Profit & Loss Account.",
   "Indirect expenses such as rent, salary, advertisement, and depreciation go to the debit side of Profit & Loss Account.",
   "Indirect incomes such as commission received and interest received go to the credit side of Profit & Loss Account.",
-  "Balance Sheet items like Cash, Capital, Debtors, Creditors, and Fixed Assets are not processed in this MVP.",
+  "Net Profit is added to Capital, while Net Loss and Drawings are deducted from Capital.",
+  "Balance Sheet uses asset, liability, and adjusted capital balances only.",
 ];
 
 export function generateFinalAccounts(input: string): FinalAccountsResult {
@@ -205,16 +343,24 @@ export function generateFinalAccounts(input: string): FinalAccountsResult {
     tradingAccount.grossProfit,
     tradingAccount.grossLoss,
   );
+  const balanceSheet = buildBalanceSheet(
+    classified.balanceSheetItems,
+    profitAndLossAccount.netProfit,
+    profitAndLossAccount.netLoss,
+  );
+  const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
 
   return {
     status: "success",
     parsedBalances,
     tradingAccount,
     profitAndLossAccount,
+    balanceSheet,
     balanceSheetItems: classified.balanceSheetItems,
     unclassifiedItems: classified.unclassifiedItems,
     errors: [],
-    warnings,
+    warnings: [...warnings, ...balanceSheetWarnings],
+    balanceSheetWarnings,
     logic,
     commonMistakes,
   };
@@ -234,7 +380,19 @@ function parseAccountName(line: string): string {
     .replace(/\s+/g, " ")
     .trim();
 
-  return titleCaseAccount(cleanAccountName(withoutAmount));
+  return titleCaseAccount(cleanDisplayAccountName(withoutAmount));
+}
+
+function cleanDisplayAccountName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\ba\s*\/\s*c\b/g, " ")
+    .replace(/\s+ac\b/g, " ")
+    .replace(/&/g, " and ")
+    .replace(/[-_/]/g, " ")
+    .replace(/[.:,()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
@@ -254,6 +412,13 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
 
   parsedBalances.forEach((balance) => {
     const category = classifyAccount(balance.account);
+    const key = cleanAccountName(balance.account);
+
+    if (["closing stock", "stock", "inventory"].includes(key)) {
+      tradingCreditLines.push(toFinalAccountLine(balance));
+      balanceSheetItems.push(balance);
+      return;
+    }
 
     if (category === "trading-debit") {
       tradingDebitLines.push(toFinalAccountLine(balance));
@@ -374,6 +539,93 @@ function buildProfitAndLossAccount(
   };
 }
 
+function buildBalanceSheet(
+  balanceSheetItems: TrialBalanceBalance[],
+  netProfit: number,
+  netLoss: number,
+): FinalAccountsResult["balanceSheet"] {
+  const assets: FinalAccountLine[] = [];
+  const liabilities: FinalAccountLine[] = [];
+  let openingCapital = 0;
+  let drawings = 0;
+
+  balanceSheetItems.forEach((item) => {
+    const key = cleanAccountName(item.account);
+
+    if (capitalAccounts.has(key)) {
+      openingCapital += item.amount;
+      return;
+    }
+
+    if (drawingAccounts.has(key)) {
+      drawings += item.amount;
+      return;
+    }
+
+    if (liabilityAccounts.has(key)) {
+      liabilities.push(toFinalAccountLine(item));
+      return;
+    }
+
+    if (assetAccounts.has(key)) {
+      assets.push(toFinalAccountLine(item));
+    }
+  });
+
+  const adjustedCapital = openingCapital + netProfit - netLoss - drawings;
+  const capitalWorking =
+    openingCapital > 0
+      ? {
+          openingCapital,
+          netProfit,
+          netLoss,
+          drawings,
+          adjustedCapital,
+        }
+      : undefined;
+
+  if (capitalWorking) {
+    liabilities.unshift({ account: "Adjusted Capital", amount: adjustedCapital });
+  }
+
+  const assetTotal = sumLines(assets);
+  const liabilityTotal = sumLines(liabilities);
+  const difference = Math.abs(assetTotal - liabilityTotal);
+
+  return {
+    assets,
+    liabilities,
+    assetTotal,
+    liabilityTotal,
+    agrees: difference === 0,
+    difference,
+    capitalWorking,
+  };
+}
+
+function buildBalanceSheetWarnings(
+  balanceSheet: FinalAccountsResult["balanceSheet"],
+  balanceSheetItems: TrialBalanceBalance[],
+  unclassifiedItems: TrialBalanceBalance[],
+): string[] {
+  const warnings: string[] = [];
+  const hasCapital = balanceSheetItems.some((item) => capitalAccounts.has(cleanAccountName(item.account)));
+
+  if (!hasCapital) {
+    warnings.push("Capital balance is missing, so Balance Sheet may not agree.");
+  }
+
+  if (!balanceSheet.agrees) {
+    warnings.push(`Balance Sheet does not agree. Difference: Rs.${balanceSheet.difference}.`);
+  }
+
+  if (unclassifiedItems.length > 0) {
+    warnings.push("Some accounts could not be classified.");
+  }
+
+  return warnings;
+}
+
 function trialBalanceTotalsAgree(parsedBalances: TrialBalanceBalance[]): boolean {
   const debitTotal = parsedBalances
     .filter((balance) => balance.side === "debit")
@@ -412,7 +664,12 @@ function titleCaseAccount(value: string): string {
 
 function emptyAccounts(): Pick<
   FinalAccountsResult,
-  "tradingAccount" | "profitAndLossAccount" | "parsedBalances" | "balanceSheetItems" | "unclassifiedItems"
+  | "tradingAccount"
+  | "profitAndLossAccount"
+  | "balanceSheet"
+  | "parsedBalances"
+  | "balanceSheetItems"
+  | "unclassifiedItems"
 > {
   return {
     parsedBalances: [],
@@ -432,6 +689,14 @@ function emptyAccounts(): Pick<
       netProfit: 0,
       netLoss: 0,
     },
+    balanceSheet: {
+      assets: [],
+      liabilities: [],
+      assetTotal: 0,
+      liabilityTotal: 0,
+      agrees: true,
+      difference: 0,
+    },
     balanceSheetItems: [],
     unclassifiedItems: [],
   };
@@ -443,6 +708,7 @@ function invalidResult(errors: string[]): FinalAccountsResult {
     ...emptyAccounts(),
     errors,
     warnings: [],
+    balanceSheetWarnings: [],
     logic: [],
     commonMistakes,
   };
