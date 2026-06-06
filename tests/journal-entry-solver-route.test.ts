@@ -787,6 +787,80 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves CGST and SGST goods purchase for cash", async () => {
+    const body = await solve("Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toHaveLength(4);
+    expect(body.journalEntry).toEqual([
+      { account: "Purchases A/c", debit: 10000, credit: 0 },
+      { account: "Input CGST A/c", debit: 900, credit: 0 },
+      { account: "Input SGST A/c", debit: 900, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 11800 },
+    ]);
+    expect(body.affectedAccounts[1]).toMatchObject({
+      account: "Input CGST A/c",
+      modernType: "Asset / Input Tax Credit",
+      debitOrCredit: "Debit",
+    });
+    expect(body.affectedAccounts[2]).toMatchObject({
+      account: "Input SGST A/c",
+      modernType: "Asset / Input Tax Credit",
+      debitOrCredit: "Debit",
+    });
+    expect(body.narration).toBe("Being goods purchased for cash plus CGST and SGST.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves CGST and SGST goods sale for cash", async () => {
+    const body = await solve("Sold goods Rs.10000 plus CGST 9% and SGST 9% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toHaveLength(4);
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 11800, credit: 0 },
+      { account: "Sales A/c", debit: 0, credit: 10000 },
+      { account: "Output CGST A/c", debit: 0, credit: 900 },
+      { account: "Output SGST A/c", debit: 0, credit: 900 },
+    ]);
+    expect(body.affectedAccounts[2]).toMatchObject({
+      account: "Output CGST A/c",
+      modernType: "Liability / Tax Payable",
+      debitOrCredit: "Credit",
+    });
+    expect(body.affectedAccounts[3]).toMatchObject({
+      account: "Output SGST A/c",
+      modernType: "Liability / Tax Payable",
+      debitOrCredit: "Credit",
+    });
+    expect(body.narration).toBe("Being goods sold for cash plus CGST and SGST.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves IGST goods purchase for cash", async () => {
+    const body = await solve("Purchased goods Rs.10000 plus IGST 18% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Purchases A/c", debit: 10000, credit: 0 },
+      { account: "Input IGST A/c", debit: 1800, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 11800 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves IGST goods sale for cash", async () => {
+    const body = await solve("Sold goods Rs.10000 plus IGST 18% for cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 11800, credit: 0 },
+      { account: "Sales A/c", debit: 0, credit: 10000 },
+      { account: "Output IGST A/c", debit: 0, credit: 1800 },
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("does not solve GST-inclusive amount without rate", async () => {
     const body = await solve("Purchased goods Rs.11800 including GST for cash");
 
@@ -794,8 +868,15 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
-  it("does not solve CGST and SGST split yet", async () => {
-    const body = await solve("Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash");
+  it("does not solve GST-inclusive CGST and SGST split", async () => {
+    const body = await solve("Purchased goods Rs.11800 including CGST 9% and SGST 9% for cash");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve split GST without rates or amounts", async () => {
+    const body = await solve("Sold goods Rs.10000 plus CGST and SGST for cash");
 
     expect(body.status).toBe("unsupported");
     expect(body.journalEntry).toEqual([]);

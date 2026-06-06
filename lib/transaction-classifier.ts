@@ -1,6 +1,6 @@
 import { transactionRules } from "./accounting-rules";
 import { extractAmount as parseAmount, extractAmounts } from "./amount-parser";
-import type { CorrectJournalEntry, TransactionClassification } from "./types";
+import type { CorrectJournalEntry, GoodsGstTaxLine, TransactionClassification } from "./types";
 
 const MIN_CONFIDENCE = 0.7;
 const DIRECT_MATCH_CONFIDENCE = 0.95;
@@ -191,13 +191,14 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
     gst.baseAmount,
     gst.gstAmount,
     gst.invoiceTotal,
+    gst.taxLines,
     paymentAccount,
     creditorAccount,
     partyName,
   );
 
   return {
-    transaction_type: `goods_gst_${gst.gstInclusive ? "inclusive_" : ""}purchase_${
+    transaction_type: `goods_gst_${gst.transactionTypePrefix ?? ""}${gst.gstInclusive ? "inclusive_" : ""}purchase_${
       paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit"
     }`,
     confidence: DIRECT_MATCH_CONFIDENCE,
@@ -221,6 +222,7 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
       invoiceTotal: gst.invoiceTotal,
       gstRate: gst.gstRate,
       gstInclusive: gst.gstInclusive,
+      taxLines: gst.taxLines,
       paymentAccount,
       creditorAccount,
       partyName,
@@ -250,13 +252,14 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
     gst.baseAmount,
     gst.gstAmount,
     gst.invoiceTotal,
+    gst.taxLines,
     receiptAccount,
     debtorAccount,
     partyName,
   );
 
   return {
-    transaction_type: `goods_gst_${gst.gstInclusive ? "inclusive_" : ""}sale_${
+    transaction_type: `goods_gst_${gst.transactionTypePrefix ?? ""}${gst.gstInclusive ? "inclusive_" : ""}sale_${
       receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit"
     }`,
     confidence: DIRECT_MATCH_CONFIDENCE,
@@ -280,6 +283,7 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
       invoiceTotal: gst.invoiceTotal,
       gstRate: gst.gstRate,
       gstInclusive: gst.gstInclusive,
+      taxLines: gst.taxLines,
       receiptAccount,
       debtorAccount,
       partyName,
@@ -482,7 +486,7 @@ function hasGstMention(transactionText: string): boolean {
 
 function hasUnsupportedGstContext(transactionText: string): boolean {
   return (
-    /\b(?:cgst|sgst|igst)\b/i.test(transactionText) ||
+    (hasInclusiveGstWording(transactionText) && hasSplitGstMention(transactionText)) ||
     /\bdiscount\b/i.test(transactionText) ||
     /\b(?:return|returned|set-?off|paid\s+gst|gst\s+paid|gst\s+payment)\b/i.test(transactionText)
   );
@@ -490,12 +494,32 @@ function hasUnsupportedGstContext(transactionText: string): boolean {
 
 function extractGstDetails(
   transactionText: string,
-): { baseAmount: number; gstAmount: number; invoiceTotal: number; gstRate?: number; gstInclusive?: boolean } | null {
+): {
+  baseAmount: number;
+  gstAmount: number;
+  invoiceTotal: number;
+  gstRate?: number;
+  gstInclusive?: boolean;
+  taxLines?: GoodsGstTaxLine[];
+  transactionTypePrefix?: string;
+} | null {
   const amounts = extractAmounts(transactionText);
   const firstAmount = amounts[0];
   if (!firstAmount) return null;
 
   const gstInclusive = hasInclusiveGstWording(transactionText);
+  const splitTaxLines = extractSplitGstTaxLines(transactionText, firstAmount);
+  if (splitTaxLines) {
+    const gstAmount = roundCurrency(splitTaxLines.reduce((total, line) => total + line.amount, 0));
+    return {
+      baseAmount: firstAmount,
+      gstAmount,
+      invoiceTotal: roundCurrency(firstAmount + gstAmount),
+      taxLines: splitTaxLines,
+      transactionTypePrefix: splitTaxLines.length === 1 ? "igst_" : "cgst_sgst_",
+    };
+  }
+
   const rateMatch = /\b(?:gst|goods\s+and\s+services\s+tax)\b\s*(?:(?:@|at|inclusive|included)\s*)?([0-9]+(?:\.\d+)?)\s*%/i.exec(transactionText);
   if (rateMatch?.[1]) {
     const gstRate = Number(rateMatch[1]);
@@ -527,12 +551,81 @@ function extractGstDetails(
 }
 
 function hasInclusiveGstWording(transactionText: string): boolean {
+  const gstTerm = "(?:gst|cgst|sgst|igst|goods\\s+and\\s+services\\s+tax)";
   return (
-    /\bincluding\s+(?:gst|goods\s+and\s+services\s+tax)\b/i.test(transactionText) ||
-    /\binclusive\s+of\s+(?:gst|goods\s+and\s+services\s+tax)\b/i.test(transactionText) ||
-    /\b(?:gst|goods\s+and\s+services\s+tax)\s+inclusive\b/i.test(transactionText) ||
-    /\b(?:gst|goods\s+and\s+services\s+tax)\s+included\b/i.test(transactionText)
+    new RegExp(`\\bincluding\\s+${gstTerm}\\b`, "i").test(transactionText) ||
+    new RegExp(`\\binclusive\\s+of\\s+${gstTerm}\\b`, "i").test(transactionText) ||
+    new RegExp(`\\b${gstTerm}\\s+inclusive\\b`, "i").test(transactionText) ||
+    new RegExp(`\\b${gstTerm}\\s+included\\b`, "i").test(transactionText)
   );
+}
+
+function hasSplitGstMention(transactionText: string): boolean {
+  return /\b(?:cgst|sgst|igst)\b/i.test(transactionText);
+}
+
+function extractSplitGstTaxLines(transactionText: string, baseAmount: number): GoodsGstTaxLine[] | null {
+  if (/\bigst\b/i.test(transactionText)) {
+    const igstAmount = extractTaxAmount(transactionText, "igst", baseAmount);
+    if (!igstAmount) return null;
+
+    return [
+      {
+        taxType: "IGST",
+        inputAccount: "Input IGST",
+        outputAccount: "Output IGST",
+        amount: igstAmount.amount,
+        rate: igstAmount.rate,
+      },
+    ];
+  }
+
+  if (/\bcgst\b/i.test(transactionText) || /\bsgst\b/i.test(transactionText)) {
+    const cgstAmount = extractTaxAmount(transactionText, "cgst", baseAmount);
+    const sgstAmount = extractTaxAmount(transactionText, "sgst", baseAmount);
+    if (!cgstAmount || !sgstAmount) return null;
+
+    return [
+      {
+        taxType: "CGST",
+        inputAccount: "Input CGST",
+        outputAccount: "Output CGST",
+        amount: cgstAmount.amount,
+        rate: cgstAmount.rate,
+      },
+      {
+        taxType: "SGST",
+        inputAccount: "Input SGST",
+        outputAccount: "Output SGST",
+        amount: sgstAmount.amount,
+        rate: sgstAmount.rate,
+      },
+    ];
+  }
+
+  return null;
+}
+
+function extractTaxAmount(
+  transactionText: string,
+  taxType: "cgst" | "sgst" | "igst",
+  baseAmount: number,
+): { amount: number; rate?: number } | null {
+  const rateMatch = new RegExp(`\\b${taxType}\\s*(?:@|at)?\\s*([0-9]+(?:\\.\\d+)?)\\s*%`, "i").exec(
+    transactionText,
+  );
+  if (rateMatch?.[1]) {
+    const rate = Number(rateMatch[1]);
+    if (!Number.isFinite(rate) || rate <= 0) return null;
+    return { amount: roundCurrency((baseAmount * rate) / 100), rate };
+  }
+
+  const amountMatch = new RegExp(
+    `\\b${taxType}\\s*(?:amount\\s*)?(?:of\\s*)?(?:₹|rs\\.?|inr)\\s*${AMOUNT_TOKEN_PATTERN}`,
+    "i",
+  ).exec(transactionText);
+  const amount = parseAmountToken(amountMatch?.[1]);
+  return amount ? { amount } : null;
 }
 
 function parseAmountToken(value: string | undefined): number | null {
@@ -688,6 +781,7 @@ function buildGoodsGstPurchaseEntry(
   baseAmount: number,
   gstAmount: number,
   invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[] | undefined,
   paymentAccount: "Cash" | "Bank" | "Creditor",
   creditorAccount: string,
   partyName?: string,
@@ -705,7 +799,9 @@ function buildGoodsGstPurchaseEntry(
   return {
     debits: [
       { account: "Purchases", amount: baseAmount },
-      { account: "Input GST", amount: gstAmount },
+      ...(taxLines?.map((line) => ({ account: line.inputAccount, amount: line.amount })) ?? [
+        { account: "Input GST", amount: gstAmount },
+      ]),
     ],
     credits: [creditLine],
   };
@@ -715,6 +811,7 @@ function buildGoodsGstSaleEntry(
   baseAmount: number,
   gstAmount: number,
   invoiceTotal: number,
+  taxLines: GoodsGstTaxLine[] | undefined,
   receiptAccount: "Cash" | "Bank" | "Debtor",
   debtorAccount: string,
   partyName?: string,
@@ -733,7 +830,9 @@ function buildGoodsGstSaleEntry(
     debits: [debitLine],
     credits: [
       { account: "Sales", amount: baseAmount },
-      { account: "Output GST", amount: gstAmount },
+      ...(taxLines?.map((line) => ({ account: line.outputAccount, amount: line.amount })) ?? [
+        { account: "Output GST", amount: gstAmount },
+      ]),
     ],
   };
 }

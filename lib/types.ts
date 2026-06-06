@@ -92,6 +92,7 @@ export interface GoodsGstPurchaseDetails {
   invoiceTotal: number;
   gstRate?: number;
   gstInclusive?: boolean;
+  taxLines?: GoodsGstTaxLine[];
   paymentAccount: "Cash" | "Bank" | "Creditor";
   creditorAccount: string;
   partyName?: string;
@@ -104,9 +105,18 @@ export interface GoodsGstSaleDetails {
   invoiceTotal: number;
   gstRate?: number;
   gstInclusive?: boolean;
+  taxLines?: GoodsGstTaxLine[];
   receiptAccount: "Cash" | "Bank" | "Debtor";
   debtorAccount: string;
   partyName?: string;
+}
+
+export interface GoodsGstTaxLine {
+  taxType: "GST" | "CGST" | "SGST" | "IGST";
+  inputAccount: string;
+  outputAccount: string;
+  amount: number;
+  rate?: number;
 }
 
 export interface DiscountAllowedSettlementDetails {

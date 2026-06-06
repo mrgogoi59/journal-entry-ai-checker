@@ -2812,6 +2812,84 @@ describe("POST /api/check-entry", () => {
         { account: "Output GST", amount: 1800 },
       ],
     },
+    {
+      transactionText: "Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nInput CGST A/c Dr. Rs.900\nInput SGST A/c Dr. Rs.900\nTo Cash A/c Rs.11800",
+      debits: [
+        { account: "Purchases", amount: 10000 },
+        { account: "Input CGST", amount: 900 },
+        { account: "Input SGST", amount: 900 },
+      ],
+      credits: [{ account: "Cash", amount: 11800 }],
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Input SGST A/c Dr. Rs.900\nPurchases A/c Dr. Rs.10000\nInput CGST A/c Dr. Rs.900\nTo Cash A/c Rs.11800",
+      debits: [
+        { account: "Purchases", amount: 10000 },
+        { account: "Input CGST", amount: 900 },
+        { account: "Input SGST", amount: 900 },
+      ],
+      credits: [{ account: "Cash", amount: 11800 }],
+    },
+    {
+      transactionText: "Purchased goods from Amit Rs.10000 plus CGST 9% and SGST 9% on credit",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nInput CGST A/c Dr. Rs.900\nInput SGST A/c Dr. Rs.900\nTo Amit A/c Rs.11800",
+      debits: [
+        { account: "Purchases", amount: 10000 },
+        { account: "Input CGST", amount: 900 },
+        { account: "Input SGST", amount: 900 },
+      ],
+      credits: [{ account: "Amit", amount: 11800 }],
+    },
+    {
+      transactionText: "Sold goods Rs.10000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Sales A/c Rs.10000\nTo Output CGST A/c Rs.900\nTo Output SGST A/c Rs.900",
+      debits: [{ account: "Cash", amount: 11800 }],
+      credits: [
+        { account: "Sales", amount: 10000 },
+        { account: "Output CGST", amount: 900 },
+        { account: "Output SGST", amount: 900 },
+      ],
+    },
+    {
+      transactionText: "Sold goods Rs.10000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Output SGST A/c Rs.900\nTo Sales A/c Rs.10000\nTo Output CGST A/c Rs.900",
+      debits: [{ account: "Cash", amount: 11800 }],
+      credits: [
+        { account: "Sales", amount: 10000 },
+        { account: "Output CGST", amount: 900 },
+        { account: "Output SGST", amount: 900 },
+      ],
+    },
+    {
+      transactionText: "Sold goods to Raju Rs.10000 plus CGST 9% and SGST 9% on credit",
+      journalEntry: "Raju A/c Dr. Rs.11800\nTo Sales A/c Rs.10000\nTo Output CGST A/c Rs.900\nTo Output SGST A/c Rs.900",
+      debits: [{ account: "Raju", amount: 11800 }],
+      credits: [
+        { account: "Sales", amount: 10000 },
+        { account: "Output CGST", amount: 900 },
+        { account: "Output SGST", amount: 900 },
+      ],
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 plus IGST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nInput IGST A/c Dr. Rs.1800\nTo Cash A/c Rs.11800",
+      debits: [
+        { account: "Purchases", amount: 10000 },
+        { account: "Input IGST", amount: 1800 },
+      ],
+      credits: [{ account: "Cash", amount: 11800 }],
+    },
+    {
+      transactionText: "Sold goods Rs.10000 plus IGST 18% for cash",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Sales A/c Rs.10000\nTo Output IGST A/c Rs.1800",
+      debits: [{ account: "Cash", amount: 11800 }],
+      credits: [
+        { account: "Sales", amount: 10000 },
+        { account: "Output IGST", amount: 1800 },
+      ],
+    },
   ])("returns Correct for GST goods transaction: $transactionText", async ({ transactionText, journalEntry, debits, credits }) => {
     const body = await checkEntry(transactionText, journalEntry);
 
@@ -2869,6 +2947,26 @@ describe("POST /api/check-entry", () => {
     {
       transactionText: "Sold goods Rs.11800 including GST 18% for cash",
       journalEntry: "Cash A/c Dr. Rs.10000\nTo Sales A/c Rs.10000\nTo Output GST A/c Rs.1800",
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nInput GST A/c Dr. Rs.1800\nTo Cash A/c Rs.11800",
+    },
+    {
+      transactionText: "Sold goods Rs.10000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Sales A/c Rs.10000\nTo Output GST A/c Rs.1800",
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 plus IGST 18% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nOutput IGST A/c Dr. Rs.1800\nTo Cash A/c Rs.11800",
+    },
+    {
+      transactionText: "Sold goods Rs.10000 plus IGST 18% for cash",
+      journalEntry: "Cash A/c Dr. Rs.11800\nTo Sales A/c Rs.10000\nTo Input IGST A/c Rs.1800",
+    },
+    {
+      transactionText: "Purchased goods Rs.10000 plus CGST 9% and SGST 9% for cash",
+      journalEntry: "Purchases A/c Dr. Rs.10000\nInput CGST A/c Dr. Rs.900\nTo Cash A/c Rs.10900",
     },
   ])("does not accept wrong GST goods entry", async ({ transactionText, journalEntry }) => {
     const body = await checkEntry(transactionText, journalEntry);

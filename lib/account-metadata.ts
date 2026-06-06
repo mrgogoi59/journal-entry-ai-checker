@@ -109,6 +109,12 @@ export const accountMetadata: Record<string, AccountMetadata> = {
     debitReason: "Output GST liability is being reduced or adjusted.",
     creditReason: "GST collected on sale is payable to the government, so Output GST A/c is credited.",
   },
+  "Input CGST": inputGstMetadata("Input CGST", "CGST"),
+  "Input SGST": inputGstMetadata("Input SGST", "SGST"),
+  "Input IGST": inputGstMetadata("Input IGST", "IGST"),
+  "Output CGST": outputGstMetadata("Output CGST", "CGST"),
+  "Output SGST": outputGstMetadata("Output SGST", "SGST"),
+  "Output IGST": outputGstMetadata("Output IGST", "IGST"),
   "Sales Return": {
     displayName: "Sales Return A/c",
     traditionalType: "Nominal Account",
@@ -392,6 +398,34 @@ function assetMetadata(account: string, debitEffect: string, creditEffect: strin
     creditEffect,
     debitReason: assetDebitReason,
     creditReason: assetCreditReason,
+  };
+}
+
+function inputGstMetadata(account: string, taxLabel: string): AccountMetadata {
+  return {
+    displayName: `${account} A/c`,
+    traditionalType: "Real Account",
+    modernType: "Asset / Input Tax Credit",
+    debitRule: "Debit what comes in / Asset increases are debited",
+    creditRule: "Credit what goes out / Asset decreases are credited",
+    debitEffect: `${account} credit increased`,
+    creditEffect: `${account} credit decreased`,
+    debitReason: `${taxLabel} paid on purchase can be claimed as input tax credit.`,
+    creditReason: `${account} credit is being reduced or adjusted.`,
+  };
+}
+
+function outputGstMetadata(account: string, taxLabel: string): AccountMetadata {
+  return {
+    displayName: `${account} A/c`,
+    traditionalType: "Personal Account / Liability Account",
+    modernType: "Liability / Tax Payable",
+    debitRule: "Debit the receiver / Liability decreases are debited",
+    creditRule: "Credit the giver / Liability increases are credited",
+    debitEffect: `${account} liability decreased`,
+    creditEffect: `${account} liability increased`,
+    debitReason: `${account} liability is being reduced or adjusted.`,
+    creditReason: `${taxLabel} collected on sale is payable to the government.`,
   };
 }
 
