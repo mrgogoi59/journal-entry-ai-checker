@@ -91,6 +91,7 @@ export interface GoodsGstPurchaseDetails {
   gstAmount: number;
   invoiceTotal: number;
   gstRate?: number;
+  gstInclusive?: boolean;
   paymentAccount: "Cash" | "Bank" | "Creditor";
   creditorAccount: string;
   partyName?: string;
@@ -102,6 +103,7 @@ export interface GoodsGstSaleDetails {
   gstAmount: number;
   invoiceTotal: number;
   gstRate?: number;
+  gstInclusive?: boolean;
   receiptAccount: "Cash" | "Bank" | "Debtor";
   debtorAccount: string;
   partyName?: string;

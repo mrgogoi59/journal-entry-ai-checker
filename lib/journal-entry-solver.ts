@@ -279,6 +279,24 @@ function buildAffectedAccount(
 function buildStepByStepExplanation(classification: TransactionClassification): string[] {
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
+    if (details.gstInclusive) {
+      return [
+        `The total invoice amount is ${formatRupees(details.invoiceTotal)} including GST.`,
+        `GST rate is ${formatPercent(details.gstRate)}.`,
+        `Base value = ${formatRupees(details.invoiceTotal)} × 100 / ${formatPercentDenominator(
+          details.gstRate,
+        )} = ${formatRupees(details.baseAmount)}.`,
+        `GST amount = ${formatRupees(details.invoiceTotal)} - ${formatRupees(details.baseAmount)} = ${formatRupees(
+          details.gstAmount,
+        )}.`,
+        "Purchases A/c is debited for the base value of goods.",
+        "Input GST A/c is debited because GST paid on purchase is input tax credit.",
+        `${displayAccountName(details.creditorAccount)} is credited for the total invoice amount ${
+          details.paymentAccount === "Creditor" ? "payable" : "paid"
+        }.`,
+      ];
+    }
+
     return [
       `Goods worth ${formatRupees(details.baseAmount)} were purchased.`,
       `${gstAmountExplanation(details.gstAmount, details.gstRate)}.`,
@@ -292,6 +310,24 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
     const details = classification.compoundDetails;
+    if (details.gstInclusive) {
+      return [
+        `The total invoice amount is ${formatRupees(details.invoiceTotal)} including GST.`,
+        `GST rate is ${formatPercent(details.gstRate)}.`,
+        `Base value = ${formatRupees(details.invoiceTotal)} × 100 / ${formatPercentDenominator(
+          details.gstRate,
+        )} = ${formatRupees(details.baseAmount)}.`,
+        `GST amount = ${formatRupees(details.invoiceTotal)} - ${formatRupees(details.baseAmount)} = ${formatRupees(
+          details.gstAmount,
+        )}.`,
+        `${displayAccountName(details.debtorAccount)} is debited for the total amount ${
+          details.receiptAccount === "Debtor" ? "receivable" : "received"
+        }.`,
+        "Sales A/c is credited for the base value of goods.",
+        "Output GST A/c is credited because GST collected is payable to the government.",
+      ];
+    }
+
     return [
       `Goods worth ${formatRupees(details.baseAmount)} were sold.`,
       `${gstAmountExplanation(details.gstAmount, details.gstRate)}.`,
@@ -560,6 +596,17 @@ function buildCommonMistakes(classification: TransactionClassification): string[
   const mistakes: string[] = [];
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
+    if (classification.compoundDetails.gstInclusive) {
+      return [
+        `Do not debit Purchases A/c with the full ${formatRupees(
+          classification.compoundDetails.invoiceTotal,
+        )} when GST is included.`,
+        'Do not treat "including GST" the same as "plus GST".',
+        "Do not credit Cash only for the base amount.",
+        "Do not split CGST/SGST/IGST in this MVP.",
+      ];
+    }
+
     return [
       "Do not add GST amount to Purchases A/c.",
       "Do not credit Input GST.",
@@ -571,6 +618,15 @@ function buildCommonMistakes(classification: TransactionClassification): string[
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
+    if (classification.compoundDetails.gstInclusive) {
+      return [
+        `Do not credit Sales A/c with the full ${formatRupees(classification.compoundDetails.invoiceTotal)}.`,
+        'Do not treat "including GST" the same as "plus GST".',
+        "Do not debit Cash only for the base amount.",
+        "Do not split CGST/SGST/IGST in this MVP.",
+      ];
+    }
+
     return [
       "Do not include GST inside Sales A/c.",
       "Do not debit Output GST.",
@@ -802,9 +858,11 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
           ? "through bank"
           : "for cash";
     return {
-      question: `Purchased goods ${formatRupees(details.baseAmount)} plus GST ${
-        details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
-      } ${mode}`,
+      question: details.gstInclusive
+        ? `Purchased goods ${formatRupees(details.invoiceTotal)} including GST ${formatPercent(details.gstRate)} ${mode}`
+        : `Purchased goods ${formatRupees(details.baseAmount)} plus GST ${
+            details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
+          } ${mode}`,
       expectedPattern: `Purchases A/c Dr., Input GST A/c Dr. To ${displayAccountName(details.creditorAccount)}`,
     };
   }
@@ -820,9 +878,11 @@ function buildPracticeQuestion(classification: TransactionClassification): Solve
           ? "through bank"
           : "for cash";
     return {
-      question: `Sold goods ${formatRupees(details.baseAmount)} plus GST ${
-        details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
-      } ${mode}`,
+      question: details.gstInclusive
+        ? `Sold goods ${formatRupees(details.invoiceTotal)} including GST ${formatPercent(details.gstRate)} ${mode}`
+        : `Sold goods ${formatRupees(details.baseAmount)} plus GST ${
+            details.gstRate ? `${details.gstRate}%` : formatRupees(details.gstAmount)
+          } ${mode}`,
       expectedPattern: `${displayAccountName(details.debtorAccount)} Dr. To Sales A/c, To Output GST A/c`,
     };
   }
@@ -1054,20 +1114,22 @@ function buildNarration(classification: TransactionClassification): string {
 
   if (classification.compoundDetails?.kind === "goods_gst_purchase") {
     const details = classification.compoundDetails;
-    if (details.paymentAccount === "Cash") return "Being goods purchased for cash plus GST.";
-    if (details.paymentAccount === "Bank") return "Being goods purchased through bank plus GST.";
+    const gstLabel = details.gstInclusive ? "including GST" : "plus GST";
+    if (details.paymentAccount === "Cash") return `Being goods purchased for cash ${gstLabel}.`;
+    if (details.paymentAccount === "Bank") return `Being goods purchased through bank ${gstLabel}.`;
     return details.partyName
-      ? `Being goods purchased from ${details.partyName} on credit plus GST.`
-      : "Being goods purchased on credit plus GST.";
+      ? `Being goods purchased from ${details.partyName} on credit ${gstLabel}.`
+      : `Being goods purchased on credit ${gstLabel}.`;
   }
 
   if (classification.compoundDetails?.kind === "goods_gst_sale") {
     const details = classification.compoundDetails;
-    if (details.receiptAccount === "Cash") return "Being goods sold for cash plus GST.";
-    if (details.receiptAccount === "Bank") return "Being goods sold through bank plus GST.";
+    const gstLabel = details.gstInclusive ? "including GST" : "plus GST";
+    if (details.receiptAccount === "Cash") return `Being goods sold for cash ${gstLabel}.`;
+    if (details.receiptAccount === "Bank") return `Being goods sold through bank ${gstLabel}.`;
     return details.partyName
-      ? `Being goods sold to ${details.partyName} on credit plus GST.`
-      : "Being goods sold on credit plus GST.";
+      ? `Being goods sold to ${details.partyName} on credit ${gstLabel}.`
+      : `Being goods sold on credit ${gstLabel}.`;
   }
 
   if (classification.compoundDetails?.kind === "partial_goods_purchase") {
@@ -1392,6 +1454,18 @@ function titleCase(value: string): string {
 
 function gstAmountExplanation(gstAmount: number, gstRate?: number): string {
   return gstRate ? `GST at ${gstRate}% is ${formatRupees(gstAmount)}` : `GST amount is ${formatRupees(gstAmount)}`;
+}
+
+function formatPercent(value: number | undefined): string {
+  return value === undefined ? "the given rate" : `${formatNumber(value)}%`;
+}
+
+function formatPercentDenominator(value: number | undefined): string {
+  return value === undefined ? "100 + GST rate" : formatNumber(100 + value);
+}
+
+function formatNumber(value: number): string {
+  return Number.isInteger(value) ? String(value) : String(value);
 }
 
 function emptyPracticeQuestion(): SolverPracticeQuestion {

@@ -36,7 +36,7 @@ const supportedTransactions = [
 ];
 
 const unsupportedTransactions = [
-  "GST inclusive amounts",
+  "GST inclusive amount without GST rate",
   "CGST/SGST/IGST split",
   "GST set-off or GST payment",
   "GST on fixed assets",
@@ -95,6 +95,10 @@ const exampleTransactions = [
   "Purchased goods from Amit Rs.10000 plus GST 18% on credit",
   "Sold goods Rs.10000 plus GST 18% for cash",
   "Sold goods to Raju Rs.10000 plus GST 18% on credit",
+  "Purchased goods Rs.11800 including GST 18% for cash",
+  "Purchased goods from Amit Rs.11800 including GST 18% on credit",
+  "Sold goods Rs.11800 including GST 18% for cash",
+  "Sold goods to Raju Rs.11800 including GST 18% on credit",
   "Purchased goods Rs.10000, paid Rs.4000 cash and balance on credit",
   "Sold goods Rs.10000, received Rs.4000 cash and balance on credit",
   "Depreciation charged on machinery Rs.5000",

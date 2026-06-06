@@ -197,7 +197,9 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
   );
 
   return {
-    transaction_type: `goods_gst_purchase_${paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit"}`,
+    transaction_type: `goods_gst_${gst.gstInclusive ? "inclusive_" : ""}purchase_${
+      paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit"
+    }`,
     confidence: DIRECT_MATCH_CONFIDENCE,
     debitAccount: "Purchases",
     creditAccount: creditorAccount,
@@ -218,6 +220,7 @@ function classifyGoodsGstPurchase(transactionText: string): TransactionClassific
       gstAmount: gst.gstAmount,
       invoiceTotal: gst.invoiceTotal,
       gstRate: gst.gstRate,
+      gstInclusive: gst.gstInclusive,
       paymentAccount,
       creditorAccount,
       partyName,
@@ -253,7 +256,9 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
   );
 
   return {
-    transaction_type: `goods_gst_sale_${receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit"}`,
+    transaction_type: `goods_gst_${gst.gstInclusive ? "inclusive_" : ""}sale_${
+      receiptAccount === "Bank" ? "bank" : receiptAccount === "Cash" ? "cash" : "credit"
+    }`,
     confidence: DIRECT_MATCH_CONFIDENCE,
     debitAccount: debtorAccount,
     creditAccount: "Sales",
@@ -274,6 +279,7 @@ function classifyGoodsGstSale(transactionText: string): TransactionClassificatio
       gstAmount: gst.gstAmount,
       invoiceTotal: gst.invoiceTotal,
       gstRate: gst.gstRate,
+      gstInclusive: gst.gstInclusive,
       receiptAccount,
       debtorAccount,
       partyName,
@@ -471,13 +477,11 @@ function isGoodsSaleWithGst(transactionText: string): boolean {
 }
 
 function hasGstMention(transactionText: string): boolean {
-  return /\b(?:gst|cgst|sgst|igst)\b/i.test(transactionText);
+  return /\b(?:gst|cgst|sgst|igst|goods\s+and\s+services\s+tax)\b/i.test(transactionText);
 }
 
 function hasUnsupportedGstContext(transactionText: string): boolean {
   return (
-    /\b(?:including|inclusive)\s+gst\b/i.test(transactionText) ||
-    /\bgst\s+inclusive\b/i.test(transactionText) ||
     /\b(?:cgst|sgst|igst)\b/i.test(transactionText) ||
     /\bdiscount\b/i.test(transactionText) ||
     /\b(?:return|returned|set-?off|paid\s+gst|gst\s+paid|gst\s+payment)\b/i.test(transactionText)
@@ -486,18 +490,30 @@ function hasUnsupportedGstContext(transactionText: string): boolean {
 
 function extractGstDetails(
   transactionText: string,
-): { baseAmount: number; gstAmount: number; invoiceTotal: number; gstRate?: number } | null {
+): { baseAmount: number; gstAmount: number; invoiceTotal: number; gstRate?: number; gstInclusive?: boolean } | null {
   const amounts = extractAmounts(transactionText);
-  const baseAmount = amounts[0];
-  if (!baseAmount) return null;
+  const firstAmount = amounts[0];
+  if (!firstAmount) return null;
 
-  const rateMatch = /\bgst\s*(?:@|at)?\s*([0-9]+(?:\.\d+)?)\s*%/i.exec(transactionText);
+  const gstInclusive = hasInclusiveGstWording(transactionText);
+  const rateMatch = /\b(?:gst|goods\s+and\s+services\s+tax)\b\s*(?:(?:@|at|inclusive|included)\s*)?([0-9]+(?:\.\d+)?)\s*%/i.exec(transactionText);
   if (rateMatch?.[1]) {
     const gstRate = Number(rateMatch[1]);
     if (!Number.isFinite(gstRate) || gstRate <= 0) return null;
+
+    if (gstInclusive) {
+      const invoiceTotal = firstAmount;
+      const baseAmount = roundCurrency((invoiceTotal * 100) / (100 + gstRate));
+      const gstAmount = roundCurrency(invoiceTotal - baseAmount);
+      return { baseAmount, gstAmount, invoiceTotal, gstRate, gstInclusive };
+    }
+
+    const baseAmount = firstAmount;
     const gstAmount = roundCurrency((baseAmount * gstRate) / 100);
     return { baseAmount, gstAmount, invoiceTotal: roundCurrency(baseAmount + gstAmount), gstRate };
   }
+
+  if (gstInclusive) return null;
 
   const gstAmountMatch = new RegExp(
     `\\bgst\\s*(?:amount\\s*)?(?:of\\s*)?(?:₹|rs\\.?|inr)\\s*${AMOUNT_TOKEN_PATTERN}`,
@@ -506,7 +522,17 @@ function extractGstDetails(
   const gstAmount = parseAmountToken(gstAmountMatch?.[1]);
   if (!gstAmount) return null;
 
+  const baseAmount = firstAmount;
   return { baseAmount, gstAmount, invoiceTotal: roundCurrency(baseAmount + gstAmount) };
+}
+
+function hasInclusiveGstWording(transactionText: string): boolean {
+  return (
+    /\bincluding\s+(?:gst|goods\s+and\s+services\s+tax)\b/i.test(transactionText) ||
+    /\binclusive\s+of\s+(?:gst|goods\s+and\s+services\s+tax)\b/i.test(transactionText) ||
+    /\b(?:gst|goods\s+and\s+services\s+tax)\s+inclusive\b/i.test(transactionText) ||
+    /\b(?:gst|goods\s+and\s+services\s+tax)\s+included\b/i.test(transactionText)
+  );
 }
 
 function parseAmountToken(value: string | undefined): number | null {
