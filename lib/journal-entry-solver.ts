@@ -230,6 +230,7 @@ function buildAffectedAccount(
   const compoundAccount =
     buildPartialGoodsPurchaseAffectedAccount(line, side, classification) ??
     buildPartialGoodsSaleAffectedAccount(line, side, classification) ??
+    buildAssetPurchaseInstallationChargeAffectedAccount(line, side, classification) ??
     buildAssetInstallationChargeAffectedAccount(line, side, classification) ??
     buildDiscountSettlementAffectedAccount(line, side, classification);
   if (compoundAccount) return compoundAccount;
@@ -279,12 +280,36 @@ function buildAffectedAccount(
 }
 
 function buildStepByStepExplanation(classification: TransactionClassification): string[] {
+  if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
+    const details = classification.compoundDetails;
+    const asset = displayAccountName(details.assetAccount);
+    const payment = displayAccountName(details.creditorAccount);
+    return [
+      `${titleCase(details.assetLabel)} was purchased for ${formatRupees(details.assetAmount)}.`,
+      `${sentenceCase(details.chargeLabel)} of ${formatRupees(
+        details.chargeAmount,
+      )} were paid to make the ${details.assetLabel} usable.`,
+      `${sentenceCase(details.chargeLabel)} are capitalized into ${asset}.`,
+      `Total ${details.assetLabel} cost = ${formatRupees(details.assetAmount)} + ${formatRupees(
+        details.chargeAmount,
+      )} = ${formatRupees(details.totalAmount)}.`,
+      `${asset} is debited because asset cost increases.`,
+      `${payment} is credited because ${
+        details.paymentAccount === "Bank"
+          ? "payment was made through bank/digital mode"
+          : details.paymentAccount === "Cash"
+            ? "cash was paid"
+            : "the amount is payable"
+      }.`,
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "asset_installation_charge") {
     const details = classification.compoundDetails;
     const asset = displayAccountName(details.assetAccount);
     const payment = displayAccountName(details.creditorAccount);
     return [
-      `${titleCase(details.chargeLabel)} are directly related to ${details.assetLabel}.`,
+      `${sentenceCase(details.chargeLabel)} are directly related to ${details.assetLabel}.`,
       `These charges help bring the ${details.assetLabel} into usable condition.`,
       `Therefore, they are capitalized into ${asset}, not treated as a normal expense.`,
       `${asset} is debited because asset cost increases.`,
@@ -729,6 +754,16 @@ function buildStepByStepExplanation(classification: TransactionClassification): 
 function buildCommonMistakes(classification: TransactionClassification): string[] {
   const mistakes: string[] = [];
 
+  if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
+    return [
+      "Do not debit Installation Expense A/c.",
+      "Do not debit Purchases A/c.",
+      "Do not record installation separately in this beginner case.",
+      "Do not ignore installation charges.",
+      "Do not add GST unless GST is clearly supported for this combined case.",
+    ];
+  }
+
   if (classification.compoundDetails?.kind === "asset_installation_charge") {
     return [
       "Do not debit Installation Expense A/c when charges are directly related to installing an asset.",
@@ -1021,6 +1056,27 @@ function buildCommonMistakes(classification: TransactionClassification): string[
 }
 
 function buildPracticeQuestion(classification: TransactionClassification): SolverPracticeQuestion {
+  if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
+    const details = classification.compoundDetails;
+    const mode =
+      details.paymentAccount === "Creditor"
+        ? details.partyName
+          ? `from ${details.partyName} on credit`
+          : "on credit"
+        : details.paymentAccount === "Bank"
+          ? "through bank"
+          : "in cash";
+    const verb = details.assetLabel === "laptop" ? "Bought" : "Purchased";
+    return {
+      question: `${verb} ${details.assetLabel} ${formatRupees(details.assetAmount)} and paid ${
+        details.chargeLabel
+      } ${formatRupees(details.chargeAmount)} ${mode}`,
+      expectedPattern: `${displayAccountName(details.assetAccount)} Dr. To ${displayAccountName(
+        details.creditorAccount,
+      )}`,
+    };
+  }
+
   if (classification.compoundDetails?.kind === "asset_installation_charge") {
     const details = classification.compoundDetails;
     const mode =
@@ -1348,6 +1404,19 @@ function buildNarration(classification: TransactionClassification): string {
   const credit = classification.creditAccount;
   const partyName = classification.partyName;
 
+  if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
+    const details = classification.compoundDetails;
+    if (details.paymentAccount === "Cash") {
+      return `Being ${details.assetLabel} purchased and ${details.chargeLabel} paid in cash.`;
+    }
+    if (details.paymentAccount === "Bank") {
+      return `Being ${details.assetLabel} purchased and ${details.chargeLabel} paid through bank/digital mode.`;
+    }
+    return details.partyName
+      ? `Being ${details.assetLabel} purchased from ${details.partyName} on credit including ${details.chargeLabel}.`
+      : `Being ${details.assetLabel} purchased on credit including ${details.chargeLabel}.`;
+  }
+
   if (classification.compoundDetails?.kind === "asset_installation_charge") {
     const details = classification.compoundDetails;
     const mode =
@@ -1570,6 +1639,10 @@ function buildNarration(classification: TransactionClassification): string {
 }
 
 function describeTransactionAction(classification: TransactionClassification): string {
+  if (classification.compoundDetails?.kind === "asset_purchase_installation_charge") {
+    return "The business purchased a fixed asset and included installation-related charges in the asset cost.";
+  }
+
   if (classification.compoundDetails?.kind === "asset_installation_charge") {
     return "The business paid a charge directly related to bringing a fixed asset into usable condition.";
   }
@@ -1727,6 +1800,10 @@ function assetItemLabel(classification: TransactionClassification): string {
 
 function titleCase(value: string): string {
   return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function sentenceCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function gstAmountExplanation(gstAmount: number, gstRate?: number): string {
@@ -2021,6 +2098,54 @@ function buildPartialGoodsPurchaseAffectedAccount(
       debitOrCredit: side,
       ruleApplied: "Credit the giver",
       reason: "Balance amount remains payable on credit.",
+    };
+  }
+
+  return null;
+}
+
+function buildAssetPurchaseInstallationChargeAffectedAccount(
+  line: JournalLine,
+  side: SolverSide,
+  classification: TransactionClassification,
+): SolverAffectedAccount | null {
+  const details = classification.compoundDetails;
+  if (details?.kind !== "asset_purchase_installation_charge") return null;
+
+  if (line.account === details.assetAccount) {
+    const metadata = getAccountMetadata(details.assetAccount);
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType,
+      effect: `Asset cost increased by ${formatRupees(details.totalAmount)}`,
+      debitOrCredit: side,
+      ruleApplied: "Debit what comes in / Asset increases are debited",
+      reason: `Purchase price and ${details.chargeLabel} are capitalized into the asset account.`,
+    };
+  }
+
+  if (line.account === details.creditorAccount) {
+    const metadata = getAccountMetadata(details.creditorAccount, {
+      partyName: details.partyName,
+      partyRole: line.partyRole ?? "creditor",
+    });
+    return {
+      account: metadata.displayName,
+      traditionalType: metadata.traditionalType,
+      modernType: metadata.modernType === "Account" ? "Liability / Creditor" : metadata.modernType,
+      effect:
+        details.paymentAccount === "Creditor"
+          ? `Amount payable increased by ${formatRupees(details.totalAmount)}`
+          : `${details.paymentAccount} decreased by ${formatRupees(details.totalAmount)}`,
+      debitOrCredit: side,
+      ruleApplied: metadata.creditRule,
+      reason:
+        details.paymentAccount === "Bank"
+          ? "Payment was made through bank/digital mode."
+          : details.paymentAccount === "Cash"
+            ? "Cash was paid."
+            : "The supplier gave the asset and installation-related value on credit.",
     };
   }
 

@@ -54,6 +54,7 @@ export interface TransactionClassification {
   compoundDetails?:
     | PartialGoodsPurchaseDetails
     | PartialGoodsSaleDetails
+    | AssetPurchaseInstallationChargeDetails
     | AssetInstallationChargeDetails
     | AssetGstPurchaseDetails
     | GoodsGstPurchaseDetails
@@ -121,6 +122,19 @@ export interface AssetInstallationChargeDetails {
   assetLabel: string;
   chargeLabel: string;
   amount: number;
+  paymentAccount: "Cash" | "Bank" | "Creditor";
+  creditorAccount: string;
+  partyName?: string;
+}
+
+export interface AssetPurchaseInstallationChargeDetails {
+  kind: "asset_purchase_installation_charge";
+  assetAccount: string;
+  assetLabel: string;
+  chargeLabel: string;
+  assetAmount: number;
+  chargeAmount: number;
+  totalAmount: number;
   paymentAccount: "Cash" | "Bank" | "Creditor";
   creditorAccount: string;
   partyName?: string;

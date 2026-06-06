@@ -102,6 +102,16 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Paid setup charges on laptop ${formatRupees(amount)} by UPI`,
   asset_installation_fitting_printer_cash: (amount) =>
     `Paid fitting charges on printer ${formatRupees(amount)} in cash`,
+  asset_purchase_installation_installation_machinery_cash: (amount) =>
+    `Purchased machinery ${formatRupees(amount)} and paid installation charges ${formatRupees(Math.round(amount * 0.1))} in cash`,
+  asset_purchase_installation_setup_laptop_bank: (amount) =>
+    `Bought laptop ${formatRupees(amount)} and paid setup charges ${formatRupees(Math.round(amount * 0.05))} by UPI`,
+  asset_purchase_installation_fitting_printer_cash: (amount) =>
+    `Bought printer ${formatRupees(amount)} and paid fitting charges ${formatRupees(Math.round(amount * 0.125))} in cash`,
+  asset_purchase_installation_installation_machinery_credit: (amount) =>
+    `Purchased machinery from Amit ${formatRupees(amount)} plus installation charges ${formatRupees(
+      Math.round(amount * 0.1),
+    )} on credit`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -175,6 +185,10 @@ const explicitPracticeTransactionTypes = [
   "asset_installation_erection_machinery_bank",
   "asset_installation_setup_laptop_bank",
   "asset_installation_fitting_printer_cash",
+  "asset_purchase_installation_installation_machinery_cash",
+  "asset_purchase_installation_setup_laptop_bank",
+  "asset_purchase_installation_fitting_printer_cash",
+  "asset_purchase_installation_installation_machinery_credit",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [

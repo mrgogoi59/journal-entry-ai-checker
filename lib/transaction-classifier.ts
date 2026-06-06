@@ -16,6 +16,8 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (discountAllowedSettlement) return discountAllowedSettlement;
   const discountReceivedSettlement = classifyDiscountReceivedSettlement(transactionText);
   if (discountReceivedSettlement) return discountReceivedSettlement;
+  const assetPurchaseInstallationCharge = classifyAssetPurchaseInstallationCharge(transactionText);
+  if (assetPurchaseInstallationCharge) return assetPurchaseInstallationCharge;
   const assetInstallationCharge = classifyAssetInstallationCharge(transactionText);
   if (assetInstallationCharge) return assetInstallationCharge;
   const assetGstPurchase = classifyAssetGstPurchase(transactionText);
@@ -35,6 +37,7 @@ export function classifyTransaction(transactionText: string): TransactionClassif
   if (hasUnsupportedSalesReturnContext(transactionText)) return null;
   if (hasUnsupportedPurchaseReturnContext(transactionText)) return null;
   if (hasAssetPurchasePlusInstallationContext(transactionText)) return null;
+  if (hasAssetPurchaseRepairContext(transactionText)) return null;
 
   const rule = transactionRules.find((candidate) =>
     candidate.patterns.some((pattern) => pattern.test(transactionText)),
@@ -359,6 +362,76 @@ function classifyAssetInstallationCharge(transactionText: string): TransactionCl
       amount,
       paymentAccount,
       creditorAccount,
+    },
+  };
+}
+
+function classifyAssetPurchaseInstallationCharge(transactionText: string): TransactionClassification | null {
+  if (!hasAssetPurchasePlusInstallationContext(transactionText)) return null;
+  if (hasGstMention(transactionText)) return null;
+  if (hasAssetPurchaseRepairContext(transactionText)) return null;
+
+  const asset = extractAssetInstallationItem(transactionText);
+  const charge = extractAssetInstallationCharge(transactionText);
+  if (!asset || !charge) return null;
+
+  const amounts = extractAmounts(transactionText);
+  const assetAmount = amounts[0];
+  const chargeAmount = amounts[1];
+  if (!assetAmount || !chargeAmount) return null;
+
+  if (hasMixedAssetPurchaseInstallationPaymentModes(transactionText)) return null;
+
+  const paymentAccount = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText)
+    ? "Bank"
+    : CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText)
+      ? "Creditor"
+      : CASH_PAYMENT_PATTERN.test(transactionText)
+        ? "Cash"
+        : null;
+  if (!paymentAccount) return null;
+
+  const partyName = paymentAccount === "Creditor" ? extractAssetGstSupplierName(transactionText) : undefined;
+  const creditorAccount = partyName ?? paymentAccount;
+  const totalAmount = roundCurrency(assetAmount + chargeAmount);
+  const creditLine: CorrectJournalEntry["credits"][number] = { account: creditorAccount, amount: totalAmount };
+  if (partyName && paymentAccount === "Creditor") {
+    creditLine.acceptedAccounts = ["Creditor"];
+    creditLine.partyRole = "creditor";
+  }
+
+  const paymentSuffix = paymentAccount === "Bank" ? "bank" : paymentAccount === "Cash" ? "cash" : "credit";
+
+  return {
+    transaction_type: `asset_purchase_installation_${charge.key}_${asset.key}_${paymentSuffix}`,
+    confidence: DIRECT_MATCH_CONFIDENCE,
+    debitAccount: asset.account,
+    creditAccount: creditorAccount,
+    expectedDebitAccount: asset.account,
+    expectedCreditAccount: creditorAccount,
+    genericDebitAccount: asset.account,
+    genericCreditAccount: paymentAccount,
+    amount: totalAmount,
+    explanationLogic:
+      "A fixed asset was purchased and installation-related charges were paid to bring it into usable condition. The asset is debited with the total cost and Cash, Bank, Creditor, or the named supplier is credited.",
+    partyName,
+    partyRole: partyName ? "creditor" : undefined,
+    partyAccountSide: partyName ? "credit" : undefined,
+    expectedEntry: {
+      debits: [{ account: asset.account, amount: totalAmount }],
+      credits: [creditLine],
+    },
+    compoundDetails: {
+      kind: "asset_purchase_installation_charge",
+      assetAccount: asset.account,
+      assetLabel: asset.label,
+      chargeLabel: charge.label,
+      assetAmount,
+      chargeAmount,
+      totalAmount,
+      paymentAccount,
+      creditorAccount,
+      partyName,
     },
   };
 }
@@ -692,7 +765,26 @@ function hasAssetPurchasePlusInstallationContext(transactionText: string): boole
   return (
     /\b(?:bought|purchased|purchase)\b/i.test(transactionText) &&
     Boolean(extractAssetInstallationItem(transactionText)) &&
-    Boolean(extractAssetInstallationCharge(transactionText))
+    hasAssetInstallationCostClue(transactionText)
+  );
+}
+
+function hasAssetInstallationCostClue(transactionText: string): boolean {
+  return Boolean(extractAssetInstallationCharge(transactionText)) || /\binstallation\b/i.test(transactionText);
+}
+
+function hasMixedAssetPurchaseInstallationPaymentModes(transactionText: string): boolean {
+  const hasCash = CASH_PAYMENT_PATTERN.test(transactionText);
+  const hasBank = DIGITAL_OR_BANK_PAYMENT_PATTERN.test(transactionText);
+  const hasCredit = CREDIT_PAYMENT_PATTERN_REGEX.test(transactionText);
+  return [hasCash, hasBank, hasCredit].filter(Boolean).length > 1;
+}
+
+function hasAssetPurchaseRepairContext(transactionText: string): boolean {
+  return (
+    /\b(?:bought|purchased|purchase)\b/i.test(transactionText) &&
+    Boolean(extractAssetInstallationItem(transactionText)) &&
+    /\b(?:repairs?|repair\s+charges?|maintenance\s+charges?|maintenance\s+expense)\b/i.test(transactionText)
   );
 }
 

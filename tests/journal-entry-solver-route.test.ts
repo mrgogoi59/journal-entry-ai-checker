@@ -1067,6 +1067,59 @@ describe("POST /api/journal-entry-solver", () => {
     expect(body.journalEntry).toEqual([]);
   });
 
+  it("solves asset purchase plus installation charges as total asset cost", async () => {
+    const body = await solve("Purchased machinery Rs.50000 and paid installation charges Rs.5000 in cash");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toHaveLength(2);
+    expect(body.journalEntry).toEqual([
+      { account: "Machinery A/c", debit: 55000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 55000 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Total machinery cost = ₹50,000 + ₹5,000 = ₹55,000.");
+    expect(body.affectedAccounts[0]).toMatchObject({
+      account: "Machinery A/c",
+      modernType: "Asset",
+      effect: "Asset cost increased by ₹55,000",
+      debitOrCredit: "Debit",
+    });
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves laptop purchase plus setup charges by UPI through Bank", async () => {
+    const body = await solve("Bought laptop Rs.30000 and paid setup charges Rs.1500 by UPI");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Computer A/c", debit: 31500, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 31500 },
+    ]);
+    expect(body.stepByStepExplanation).toContain("Setup charges are capitalized into Computer A/c.");
+    expect(body.stepByStepExplanation).toContain("Bank A/c is credited because payment was made through bank/digital mode.");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("does not solve asset purchase plus installation with GST yet", async () => {
+    const body = await solve("Purchased machinery Rs.50000 plus installation Rs.5000 plus GST 18%");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not solve asset purchase plus installation with different payment modes", async () => {
+    const body = await solve("Purchased machinery Rs.50000 through bank and paid installation Rs.5000 in cash");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
+  it("does not capitalize repair charges with asset purchase", async () => {
+    const body = await solve("Purchased machinery Rs.50000 and paid repair charges Rs.5000");
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
+
   it("does not solve GST yet", async () => {
     const body = await solve("GST paid Rs.1000");
 
