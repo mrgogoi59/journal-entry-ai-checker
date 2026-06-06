@@ -76,8 +76,8 @@ export function generateLedger(input: string): LedgerResult {
     }
 
     parsedEntries.push([
-      ...parsed.debits.map((line) => ({ account: line.account, side: "debit" as const, amount: line.amount })),
-      ...parsed.credits.map((line) => ({ account: line.account, side: "credit" as const, amount: line.amount })),
+      ...parsed.debits.map((line) => ({ account: ledgerAccountName(line), side: "debit" as const, amount: line.amount })),
+      ...parsed.credits.map((line) => ({ account: ledgerAccountName(line), side: "credit" as const, amount: line.amount })),
     ]);
   });
 
@@ -103,6 +103,25 @@ function splitJournalEntryBlocks(input: string): string[] {
     .split(/\n\s*\n/)
     .map((block) => block.trim())
     .filter(Boolean);
+}
+
+function ledgerAccountName(line: { account: string; rawAccount?: string }): string {
+  if (!line.rawAccount) return line.account;
+  return titleCaseAccount(line.rawAccount.replace(/\s+a\/c$/i, "").trim());
+}
+
+function titleCaseAccount(value: string): string {
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => {
+      const upperWord = word.toUpperCase();
+      if (["GST", "CGST", "SGST", "IGST", "UPI", "GPAY", "NEFT"].includes(upperWord)) {
+        return upperWord;
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
 }
 
 function buildPostings(entry: LedgerJournalLine[], sourceEntryIndex: number): LedgerPosting[] {

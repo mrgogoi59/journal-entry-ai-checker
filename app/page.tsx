@@ -147,7 +147,7 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-4">
+        <div className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-white p-2 shadow-soft sm:grid-cols-2 lg:grid-cols-5">
           <button onClick={() => setMode("own")} className={modeButtonClass(mode === "own")}>
             <span>Check My Journal Entry</span>
             <span className="text-xs font-medium leading-5 opacity-80">
@@ -171,6 +171,13 @@ export default function Home() {
             <span className="text-xs font-medium leading-5 opacity-80">
               Convert journal entries into ledger accounts and understand debit-credit posting.
             </span>
+          </Link>
+          <Link href="/trial-balance" className={modeButtonClass(false)}>
+            <span>Trial Balance</span>
+            <span className="text-xs font-medium leading-5 opacity-80">
+              Prepare a trial balance from journal entries and ledger balances.
+            </span>
+            <span className="text-xs font-semibold leading-5 opacity-90">Open Trial Balance</span>
           </Link>
         </div>
 
