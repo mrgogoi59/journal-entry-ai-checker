@@ -154,6 +154,13 @@ export default function ToolsPage() {
     }, 0);
   }
 
+  function tryAgain() {
+    window.setTimeout(() => {
+      document.getElementById("journal-entry-checker")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("journal-entry-input")?.focus();
+    }, 0);
+  }
+
   return (
     <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
       <section className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 sm:gap-7">
@@ -235,6 +242,7 @@ export default function ToolsPage() {
             transactionText={transactionText}
             studentEntry={journalEntry}
             buttonLabel="Report wrong answer"
+            onTryAgain={tryAgain}
           />
         ) : null}
       </section>
@@ -364,15 +372,18 @@ function ResultCard({
   transactionText,
   studentEntry,
   buttonLabel,
+  onTryAgain,
 }: {
   result: CheckEntryResponse;
   moduleName: "Checker";
   transactionText: string;
   studentEntry: string;
   buttonLabel: string;
+  onTryAgain: () => void;
 }) {
   const status = getStatusDisplay(result.result_status);
   const correctEntry = formatJournalEntry(result.correct_journal_entry);
+  const isCorrect = result.result_status === "Correct";
 
   return (
     <section className="rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-6">
@@ -396,36 +407,79 @@ function ResultCard({
         <ResultSection title="Similar practice question" body={result.similar_practice_question} />
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <FeedbackReport
-          buttonLabel={buttonLabel}
-          details={{
-            module: moduleName,
-            transaction: transactionText,
-            studentEntry,
-            appResult: [
-              `Status: ${result.result_status}`,
-              `Score: ${result.score}/100`,
-              `Mistake type: ${result.mistake_type}`,
-              `Explanation: ${simplifyExplanation(result.simple_explanation)}`,
-            ].join("\n"),
-            appCorrectEntry: correctEntry || "No expected entry available.",
-          }}
-        />
-        <Link
-          href="/history"
-          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
-        >
-          View Attempt History
-        </Link>
-        <Link
-          href="/progress"
-          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
-        >
-          View Weak Areas
-        </Link>
+      <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50/80 p-4">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Next actions</p>
+        <h2 className="mt-1 text-xl font-bold text-blue-950">{isCorrect ? "Build on this correct answer" : "Fix and understand the mistake"}</h2>
+
+        {isCorrect ? (
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <ActionLink href="/practice" variant="primary">
+              Practice Similar
+            </ActionLink>
+            <ActionLink href="/journal-entry-solver" variant="secondary">
+              Explain Another Transaction
+            </ActionLink>
+            <ActionLink href="/progress" variant="secondary">
+              View Progress
+            </ActionLink>
+          </div>
+        ) : (
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <button
+              type="button"
+              onClick={onTryAgain}
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-4 py-3 text-base font-bold text-white transition hover:bg-blue-800"
+            >
+              Try Again
+            </button>
+            <ActionLink href="/journal-entry-solver" variant="secondary">
+              Open Explainer
+            </ActionLink>
+            <ActionLink href="/supported-transactions" variant="secondary">
+              View Supported Topics
+            </ActionLink>
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <FeedbackReport
+                buttonLabel={buttonLabel}
+                details={{
+                  module: moduleName,
+                  transaction: transactionText,
+                  studentEntry,
+                  appResult: [
+                    `Status: ${result.result_status}`,
+                    `Score: ${result.score}/100`,
+                    `Mistake type: ${result.mistake_type}`,
+                    `Explanation: ${simplifyExplanation(result.simple_explanation)}`,
+                  ].join("\n"),
+                  appCorrectEntry: correctEntry || "No expected entry available.",
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </section>
+  );
+}
+
+function ActionLink({
+  href,
+  variant,
+  children,
+}: {
+  href: string;
+  variant: "primary" | "secondary";
+  children: React.ReactNode;
+}) {
+  const className =
+    variant === "primary"
+      ? "inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-4 py-3 text-base font-bold text-white transition hover:bg-blue-800"
+      : "inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-blue-950 transition hover:border-blue-300 hover:bg-blue-50";
+
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }
 

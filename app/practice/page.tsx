@@ -535,36 +535,42 @@ function ResultCard({
         <ResultSection title="Simple explanation" body={simplifyExplanation(result.simple_explanation)} />
       </div>
 
-      <div className="mt-4">
-        <FeedbackReport
-          buttonLabel="Report wrong answer"
-          details={{
-            module: "Practice",
-            transaction: transactionText,
-            studentEntry,
-            appResult: [
-              `Status: ${result.result_status}`,
-              `Score: ${result.score}/100`,
-              `Mistake type: ${result.mistake_type}`,
-              `Explanation: ${simplifyExplanation(result.simple_explanation)}`,
-            ].join("\n"),
-            appCorrectEntry: correctEntry || "No expected entry available.",
-          }}
-        />
-      </div>
+      <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50/80 p-4">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Next actions</p>
+          <h2 className="mt-1 text-xl font-bold text-blue-950">Keep practicing this skill</h2>
+        </div>
 
-      <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
-        <h2 className="text-sm font-bold uppercase tracking-normal text-emerald-700">Next actions</h2>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          <SecondaryButton onClick={onRetry}>Retry Same Question</SecondaryButton>
-          <SecondaryButton onClick={onNext}>Try Another Question</SecondaryButton>
-          <SecondaryButton onClick={onChangeTopic}>Change Topic</SecondaryButton>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <PrimaryButton onClick={onRetry}>Retry Same Question</PrimaryButton>
+          <PrimaryButton onClick={onNext}>Try Another Question</PrimaryButton>
+        </div>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/progress"
             className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-blue-950 transition hover:border-blue-300 hover:bg-blue-50"
           >
             View Progress
           </Link>
+          <SecondaryButton onClick={onChangeTopic}>Change Topic</SecondaryButton>
+          <div className="rounded-xl border border-slate-200 bg-white p-3">
+            <FeedbackReport
+              buttonLabel="Report wrong answer"
+              details={{
+                module: "Practice",
+                transaction: transactionText,
+                studentEntry,
+                appResult: [
+                  `Status: ${result.result_status}`,
+                  `Score: ${result.score}/100`,
+                  `Mistake type: ${result.mistake_type}`,
+                  `Explanation: ${simplifyExplanation(result.simple_explanation)}`,
+                ].join("\n"),
+                appCorrectEntry: correctEntry || "No expected entry available.",
+              }}
+            />
+          </div>
         </div>
       </div>
     </section>

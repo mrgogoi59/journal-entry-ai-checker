@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
 import type {
   JournalEntrySolverResponse,
@@ -26,6 +26,8 @@ export default function JournalEntrySolverPage() {
   const [result, setResult] = useState<JournalEntrySolverResponse | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const inputSectionRef = useRef<HTMLElement | null>(null);
+  const transactionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   async function explainTransaction() {
     setError("");
@@ -57,6 +59,16 @@ export default function JournalEntrySolverPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function tryAnotherTransaction() {
+    setTransaction("");
+    setResult(null);
+    setError("");
+    window.setTimeout(() => {
+      inputSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      transactionInputRef.current?.focus();
+    }, 0);
   }
 
   return (
@@ -96,7 +108,7 @@ export default function JournalEntrySolverPage() {
           </div>
         </header>
 
-        <section className="rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6">
+        <section ref={inputSectionRef} className="scroll-mt-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6">
           <div className="flex flex-col gap-5">
             <div>
               <h2 className="text-xl font-bold text-blue-950">Enter a business transaction</h2>
@@ -108,6 +120,7 @@ export default function JournalEntrySolverPage() {
             <label className="flex flex-col gap-2">
               <span className="text-sm font-bold text-slate-800">Business Transaction</span>
               <textarea
+                ref={transactionInputRef}
                 value={transaction}
                 onChange={(event) => setTransaction(event.target.value)}
                 placeholder="Example: Bought goods for cash Rs.10000"
@@ -146,19 +159,19 @@ export default function JournalEntrySolverPage() {
           </div>
         </section>
 
-        {result ? <SolverResult result={result} /> : <EmptyPreview />}
+        {result ? <SolverResult result={result} onTryAnother={tryAnotherTransaction} /> : <EmptyPreview />}
       </section>
     </main>
   );
 }
 
-function SolverResult({ result }: { result: JournalEntrySolverResponse }) {
+function SolverResult({ result, onTryAnother }: { result: JournalEntrySolverResponse; onTryAnother: () => void }) {
   if (result.status === "ambiguous") {
-    return <AmbiguousResult result={result} />;
+    return <AmbiguousResult result={result} onTryAnother={onTryAnother} />;
   }
 
   if (result.status === "unsupported") {
-    return <UnsupportedResult result={result} />;
+    return <UnsupportedResult result={result} onTryAnother={onTryAnother} />;
   }
 
   return (
@@ -198,18 +211,10 @@ function SolverResult({ result }: { result: JournalEntrySolverResponse }) {
         <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
           <p className="text-sm font-bold leading-6 text-blue-950">{result.practiceQuestion.question}</p>
           <p className="mt-2 text-sm leading-6 text-slate-700">{result.practiceQuestion.expectedPattern}</p>
-          <Link
-            href="/"
-            className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
-          >
-            Try in Checker
-          </Link>
         </div>
       </ResultSection>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
-        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
-      </section>
+      <SolvedResultActions result={result} />
     </section>
   );
 }
@@ -256,7 +261,7 @@ function EmptyPreview() {
   );
 }
 
-function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
+function AmbiguousResult({ result, onTryAnother }: { result: JournalEntrySolverResponse; onTryAnother: () => void }) {
   return (
     <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-soft sm:p-6">
       <p className="text-xs font-bold uppercase tracking-normal text-amber-700">Needs more context</p>
@@ -288,14 +293,12 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-4">
-        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
-      </div>
+      <UnsolvedResultActions result={result} onTryAnother={onTryAnother} />
     </section>
   );
 }
 
-function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
+function UnsupportedResult({ result, onTryAnother }: { result: JournalEntrySolverResponse; onTryAnother: () => void }) {
   return (
     <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-soft sm:p-6">
       <p className="text-xs font-bold uppercase tracking-normal text-amber-700">Unsupported for now</p>
@@ -308,10 +311,81 @@ function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
         <IssueInfo label="Try writing it like" value={suggestedRewrite(result)} />
       </div>
 
-      <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-4">
+      <UnsolvedResultActions result={result} onTryAnother={onTryAnother} />
+    </section>
+  );
+}
+
+function SolvedResultActions({ result }: { result: JournalEntrySolverResponse }) {
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-blue-50/80 p-4 shadow-soft sm:p-6">
+      <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Next actions</p>
+      <h2 className="mt-1 text-xl font-bold text-blue-950">Use this explanation</h2>
+      <div className="mt-4 grid gap-2 sm:grid-cols-3">
+        <ActionLink href="/practice" variant="primary">
+          Practice Similar
+        </ActionLink>
+        <ActionLink href="/tools" variant="secondary">
+          Check My Answer
+        </ActionLink>
+        <ActionLink href="/supported-transactions" variant="secondary">
+          View Supported Topics
+        </ActionLink>
+      </div>
+      <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
         <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
       </div>
     </section>
+  );
+}
+
+function UnsolvedResultActions({
+  result,
+  onTryAnother,
+}: {
+  result: JournalEntrySolverResponse;
+  onTryAnother: () => void;
+}) {
+  return (
+    <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-4">
+      <p className="text-sm font-bold uppercase tracking-normal text-amber-700">Next actions</p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <ActionLink href="/supported-transactions" variant="primary">
+          View Supported Topics
+        </ActionLink>
+        <button
+          type="button"
+          onClick={onTryAnother}
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-blue-950 transition hover:border-blue-300 hover:bg-blue-50"
+        >
+          Try Another Transaction
+        </button>
+        <div className="rounded-xl border border-slate-200 bg-white p-3">
+          <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ActionLink({
+  href,
+  variant,
+  children,
+}: {
+  href: string;
+  variant: "primary" | "secondary";
+  children: ReactNode;
+}) {
+  const className =
+    variant === "primary"
+      ? "inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-4 py-3 text-base font-bold text-white transition hover:bg-blue-800"
+      : "inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-blue-950 transition hover:border-blue-300 hover:bg-blue-50";
+
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }
 
