@@ -727,7 +727,7 @@ Debtors A/c Dr Rs.50000`,
       );
 
       expect(result.status).toBe("success");
-      expect(result.parsedAdjustments).toEqual(
+      expect(result.parsedAdjustments, adjustment).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             type: "further_bad_debts",
@@ -737,6 +737,288 @@ Debtors A/c Dr Rs.50000`,
         ]),
       );
       expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 48000 });
+    });
+  });
+
+  it("creates new provision for discount on debtors by percentage", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      "Create provision for discount on debtors @ 2%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toMatchObject({
+      debtors: 50000,
+      furtherBadDebts: 0,
+      adjustedDebtors: 50000,
+      provisionForDoubtfulDebts: 0,
+      goodDebtors: 50000,
+      existingProvision: 0,
+      requiredProvision: 1000,
+      increase: 1000,
+      decrease: 0,
+      pnlEffect: "debit",
+      netDebtors: 49000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Discount on Debtors")).toEqual({
+      account: "Provision for Discount on Debtors",
+      amount: 1000,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 49000 });
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("calculates discount provision after further bad debts and provision for doubtful debts", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      `Further bad debts Rs.2000
+Create provision for doubtful debts @ 5% on debtors
+Create provision for discount on debtors @ 2%`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toMatchObject({
+      debtors: 50000,
+      furtherBadDebts: 2000,
+      adjustedDebtors: 48000,
+      provisionForDoubtfulDebts: 2400,
+      goodDebtors: 45600,
+      existingProvision: 0,
+      requiredProvision: 912,
+      increase: 912,
+      decrease: 0,
+      pnlEffect: "debit",
+      netDebtors: 44688,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 2400,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Discount on Debtors")).toEqual({
+      account: "Provision for Discount on Debtors",
+      amount: 912,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 44688 });
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("handles full smoke case with further bad debts, doubtful provision, and discount provision", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.30000
+Debtors A/c Dr Rs.50000
+Purchases A/c Dr Rs.20000
+Sales A/c Cr Rs.60000
+Creditors A/c Cr Rs.10000
+Provision for Doubtful Debts A/c Cr Rs.1000
+Provision for Discount on Debtors A/c Cr Rs.500
+Bank A/c Dr Rs.71500`,
+      `Further bad debts Rs.2000
+Create provision for doubtful debts @ 5% on debtors
+Create provision for discount on debtors @ 2%`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      requiredProvision: 2400,
+      increase: 1400,
+    });
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toMatchObject({
+      debtors: 50000,
+      furtherBadDebts: 2000,
+      adjustedDebtors: 48000,
+      provisionForDoubtfulDebts: 2400,
+      goodDebtors: 45600,
+      existingProvision: 500,
+      requiredProvision: 912,
+      increase: 412,
+      netDebtors: 44688,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 1400,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Discount on Debtors")).toEqual({
+      account: "Provision for Discount on Debtors",
+      amount: 412,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 44688 });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
+    );
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Discount on Debtors" })]),
+    );
+    expect(result.balanceSheet.assetTotal).toBe(146188);
+    expect(result.balanceSheet.liabilityTotal).toBe(146188);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("debits only discount provision increase when existing provision is lower", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000
+Provision for Discount on Debtors A/c Cr Rs.500
+Cash A/c Dr Rs.500`,
+      "Create provision for discount on debtors @ 2%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toMatchObject({
+      requiredProvision: 1000,
+      existingProvision: 500,
+      increase: 500,
+      decrease: 0,
+      pnlEffect: "debit",
+      netDebtors: 49000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Discount on Debtors")).toEqual({
+      account: "Provision for Discount on Debtors",
+      amount: 500,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 49000 });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Discount on Debtors" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("credits only discount provision decrease when existing provision is higher", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000
+Provision for Discount on Debtors A/c Cr Rs.1500
+Cash A/c Dr Rs.1500`,
+      "Create provision for discount on debtors @ 2%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toMatchObject({
+      requiredProvision: 1000,
+      existingProvision: 1500,
+      increase: 0,
+      decrease: 500,
+      pnlEffect: "credit",
+      netDebtors: 49000,
+    });
+    expect(line(result.profitAndLossAccount.creditLines, "Provision for Discount on Debtors")).toEqual({
+      account: "Provision for Discount on Debtors",
+      amount: 500,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 49000 });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Discount on Debtors" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("uses directly given required discount provision amount", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      "Provision for discount on debtors required Rs.1200",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toMatchObject({
+      goodDebtors: 50000,
+      requiredProvision: 1200,
+      increase: 1200,
+      netDebtors: 48800,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Discount on Debtors")).toEqual({
+      account: "Provision for Discount on Debtors",
+      amount: 1200,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 48800 });
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("warns when debtors are missing for percentage discount provision", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Cash A/c Dr Rs.50000`,
+      "Create provision for discount on debtors @ 2%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Debtors balance not found, so provision for discount on debtors could not be calculated.",
+    );
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toBeUndefined();
+  });
+
+  it("calculates manager commission after provision for discount on debtors", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Debtors A/c Dr Rs.50000
+Sales A/c Cr Rs.50000
+Provision for Discount on Debtors A/c Cr Rs.500
+Cash A/c Dr Rs.500`,
+      `Create provision for discount on debtors @ 2%
+Manager's commission 10% on net profit before commission`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDiscountOnDebtorsWorking).toMatchObject({
+      requiredProvision: 1000,
+      existingProvision: 500,
+      increase: 500,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Discount on Debtors")).toEqual({
+      account: "Provision for Discount on Debtors",
+      amount: 500,
+    });
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      profitBeforeCommission: 49500,
+      commission: 4950,
+      netProfitAfterCommission: 44550,
+    });
+  });
+
+  it("parses supported provision for discount on debtors wording patterns", () => {
+    [
+      "Create provision for discount on debtors @ 2%",
+      "Create provision for discount on debtors at 2%",
+      "Provide 2% for discount on debtors",
+      "Make provision for discount on debtors 2%",
+      "Provision for discount on debtors 2%",
+      "New provision for discount on debtors 2%",
+      "Maintain provision for discount on debtors at 2%",
+      "Provision for discount on good debtors @ 2%",
+      "Provide 2% discount on good debtors",
+      "Create provision for discount on debtors Rs.1000",
+      "Provision for discount on debtors required Rs.1000",
+      "Maintain provision for discount on debtors Rs.1000",
+      "New provision for discount on debtors Rs.1000",
+      "Required provision for discount on debtors Rs.1000",
+    ].forEach((adjustment) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "provision_for_discount_on_debtors",
+            account: "Provision for Discount on Debtors",
+          }),
+        ]),
+      );
+      expect(line(result.balanceSheet.assets, "Net Debtors").amount).toBeLessThan(50000);
     });
   });
 

@@ -10,6 +10,7 @@ import {
   type FinalAccountLine,
   type FinalAccountsResult,
   type ManagerCommissionWorking,
+  type ProvisionForDiscountOnDebtorsWorking,
   type ProvisionForDoubtfulDebtsWorking,
   type TrialBalanceBalance,
 } from "@/lib/final-accounts-engine";
@@ -37,6 +38,7 @@ Depreciation on machinery Rs.5000`;
 const limitations = [
   "Only selected adjustments are supported",
   "Only controlled provision for doubtful debts support",
+  "Only controlled provision for discount on debtors support",
   "Only controlled manager's commission support",
   "Only controlled further bad debts support",
   "No goods withdrawn/lost/free sample adjustments yet",
@@ -72,7 +74,7 @@ export default function FinalAccountsPage() {
             This version prepares Trading A/c, Profit & Loss A/c, and a simple sole proprietorship Balance Sheet. It
             also supports selected adjustments such as closing stock, outstanding expenses, prepaid expenses, accrued
             income, income received in advance, depreciation, provision for doubtful debts, manager&apos;s commission, and
-            further bad debts.
+            debtor-related provisions.
           </p>
         </header>
 
@@ -105,7 +107,7 @@ export default function FinalAccountsPage() {
             <p className="rounded-md bg-paper px-3 py-2 text-sm leading-6 text-slate-600">
               Enter one adjustment per line. This MVP supports closing stock, outstanding expenses, prepaid expenses,
               accrued income, income received in advance, depreciation, provision for doubtful debts, manager&apos;s
-              commission, and further bad debts.
+              commission, further bad debts, and provision for discount on debtors.
             </p>
             <button
               type="button"
@@ -228,6 +230,9 @@ function FinalAccountsResultView({
       {result.balanceSheet.capitalWorking ? <CapitalWorkingView working={result.balanceSheet.capitalWorking} /> : null}
       {result.balanceSheet.provisionForDoubtfulDebtsWorking ? (
         <ProvisionWorkingView working={result.balanceSheet.provisionForDoubtfulDebtsWorking} />
+      ) : null}
+      {result.balanceSheet.provisionForDiscountOnDebtorsWorking ? (
+        <DiscountProvisionWorkingView working={result.balanceSheet.provisionForDiscountOnDebtorsWorking} />
       ) : null}
       {result.balanceSheet.managerCommissionWorking ? (
         <ManagerCommissionWorkingView working={result.balanceSheet.managerCommissionWorking} />
@@ -498,6 +503,36 @@ function ProvisionWorkingView({ working }: { working: ProvisionForDoubtfulDebtsW
             ) : null}
             <CapitalWorkingRow label="Existing Provision" amount={working.existingProvision} />
             <CapitalWorkingRow label="Required Provision" amount={working.requiredProvision} />
+            {working.increase > 0 ? <CapitalWorkingRow label="Increase debited to P&L" amount={working.increase} /> : null}
+            {working.decrease > 0 ? <CapitalWorkingRow label="Decrease credited to P&L" amount={working.decrease} /> : null}
+            <tr className="border-t border-line bg-paper font-bold text-ink">
+              <td className="px-3 py-2">Net Debtors</td>
+              <td className="px-3 py-2 text-right">Rs.{working.netDebtors.toLocaleString("en-IN")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ResultSection>
+  );
+}
+
+function DiscountProvisionWorkingView({ working }: { working: ProvisionForDiscountOnDebtorsWorking }) {
+  return (
+    <ResultSection title="Provision for Discount on Debtors Working">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[520px] border-collapse text-sm">
+          <tbody>
+            <CapitalWorkingRow label="Debtors" amount={working.debtors} />
+            {working.furtherBadDebts > 0 ? (
+              <CapitalWorkingRow label="Less: Further Bad Debts" amount={working.furtherBadDebts} />
+            ) : null}
+            <CapitalWorkingRow label="Adjusted Debtors" amount={working.adjustedDebtors} />
+            {working.provisionForDoubtfulDebts > 0 ? (
+              <CapitalWorkingRow label="Less: Provision for Doubtful Debts" amount={working.provisionForDoubtfulDebts} />
+            ) : null}
+            <CapitalWorkingRow label="Good Debtors" amount={working.goodDebtors} />
+            <CapitalWorkingRow label="Existing Provision for Discount on Debtors" amount={working.existingProvision} />
+            <CapitalWorkingRow label="Required Provision for Discount on Debtors" amount={working.requiredProvision} />
             {working.increase > 0 ? <CapitalWorkingRow label="Increase debited to P&L" amount={working.increase} /> : null}
             {working.decrease > 0 ? <CapitalWorkingRow label="Decrease credited to P&L" amount={working.decrease} /> : null}
             <tr className="border-t border-line bg-paper font-bold text-ink">
