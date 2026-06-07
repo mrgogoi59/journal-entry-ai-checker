@@ -259,6 +259,10 @@ function PageHeader() {
           Learning Tools
         </Link>
         <span className="text-slate-300">/</span>
+        <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
+          Learn
+        </Link>
+        <span className="text-slate-300">/</span>
         <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
           Supported Topics
         </Link>
@@ -302,12 +306,20 @@ function StartHere() {
             </code>
             . First understand the journal entry, then move to ledger, trial balance, and final accounts.
           </p>
-          <Link
-            href="/tools"
-            className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
-          >
-            Open Learning Tools
-          </Link>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/learn"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+            >
+              Open Learn
+            </Link>
+            <Link
+              href="/tools"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+            >
+              Open Learning Tools
+            </Link>
+          </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-5">
           {workflowSteps.map((step, index) => (

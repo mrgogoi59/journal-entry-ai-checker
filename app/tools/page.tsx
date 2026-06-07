@@ -12,49 +12,64 @@ type AppMode = "own" | "practice";
 
 const learningTools = [
   {
+    title: "Learn Accountancy",
+    description: "Read simple lessons and understand concepts before practicing.",
+    href: "/learn",
+    label: "Open Learn",
+  },
+  {
     title: "Student Dashboard",
     description: "Track progress, weak areas, and recommended practice.",
     href: "/dashboard",
+    label: "Open Dashboard",
   },
   {
     title: "AI Journal Entry Explainer",
     description: "Understand the debit-credit logic behind any supported transaction.",
     href: "/journal-entry-solver",
+    label: "Open tool",
   },
   {
     title: "Ledger Posting",
     description: "Convert journal entries into account-wise ledger postings.",
     href: "/ledger",
+    label: "Open tool",
   },
   {
     title: "Trial Balance",
     description: "Prepare trial balance from journal entries and ledger balances.",
     href: "/trial-balance",
+    label: "Open tool",
   },
   {
     title: "Final Accounts",
     description: "Prepare Trading A/c, Profit & Loss A/c, Balance Sheet, and adjustments.",
     href: "/final-accounts",
+    label: "Open tool",
   },
   {
     title: "Supported Topics",
     description: "See what the platform currently supports and what is not supported yet.",
     href: "/supported-transactions",
+    label: "Open tool",
   },
   {
     title: "Attempt History",
     description: "Review recent attempts, scores, and mistakes saved on this browser.",
     href: "/history",
+    label: "Open tool",
   },
   {
     title: "Learning Progress",
     description: "Review your weak areas and recommended practice based on recent attempts.",
     href: "/progress",
+    label: "Open tool",
   },
   {
     title: "How to Use Accywise",
     description: "Learn the best order to use all tools.",
     href: "/how-to-use",
+    label: "Open tool",
   },
 ];
 
@@ -218,6 +233,10 @@ export default function ToolsPage() {
               Accywise
             </Link>
             <span className="text-slate-300">/</span>
+            <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
+              Learn
+            </Link>
+            <span className="text-slate-300">/</span>
             <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
               Supported Topics
             </Link>
@@ -260,7 +279,7 @@ export default function ToolsPage() {
           </Link>
           {learningTools.map((tool) => (
             <Link key={tool.href} href={tool.href} className="group">
-              <ToolCard title={tool.title} description={tool.description} label="Open tool" />
+              <ToolCard title={tool.title} description={tool.description} label={tool.label} />
             </Link>
           ))}
         </section>

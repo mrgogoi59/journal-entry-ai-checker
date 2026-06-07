@@ -34,17 +34,17 @@ export default function Home() {
             Accywise
           </Link>
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-700 md:flex">
-            <Link href="/dashboard" className="transition hover:text-blue-900">
-              Dashboard
+            <Link href="/learn" className="transition hover:text-blue-900">
+              Learn
             </Link>
             <Link href="/tools" className="transition hover:text-blue-900">
               Tools
             </Link>
-            <Link href="/supported-transactions" className="transition hover:text-blue-900">
-              Supported Topics
-            </Link>
             <Link href="/how-to-use" className="transition hover:text-blue-900">
               How to Use
+            </Link>
+            <Link href="/supported-transactions" className="transition hover:text-blue-900">
+              Supported Topics
             </Link>
           </div>
           <Link
@@ -186,17 +186,17 @@ export default function Home() {
             <p className="mt-1">Built for commerce students</p>
           </div>
           <div className="flex flex-wrap gap-4 font-semibold text-slate-700">
-            <Link href="/dashboard" className="hover:text-blue-900">
-              Dashboard
+            <Link href="/learn" className="hover:text-blue-900">
+              Learn
             </Link>
             <Link href="/tools" className="hover:text-blue-900">
               Tools
             </Link>
-            <Link href="/supported-transactions" className="hover:text-blue-900">
-              Supported Topics
-            </Link>
             <Link href="/how-to-use" className="hover:text-blue-900">
               How to Use
+            </Link>
+            <Link href="/supported-transactions" className="hover:text-blue-900">
+              Supported Topics
             </Link>
             <Link href="/final-accounts" className="hover:text-blue-900">
               Final Accounts

@@ -14,6 +14,7 @@ const learningPath = [
 ];
 
 const quickActions = [
+  { title: "Learn Concepts", href: "/learn" },
   { title: "Practice by Topic", href: "/practice" },
   { title: "Explain a Transaction", href: "/journal-entry-solver" },
   { title: "Generate Ledger", href: "/ledger" },
@@ -46,6 +47,10 @@ export default function DashboardPage() {
             <span className="text-slate-300">/</span>
             <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
               Learning Tools
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
+              Learn
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
