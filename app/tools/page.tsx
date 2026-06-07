@@ -4,88 +4,110 @@ import Link from "next/link";
 import { useState } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
 import { mapCheckResultStatus, saveAttemptHistoryItem } from "@/lib/attempt-history";
-import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion } from "@/lib/types";
+import type { CheckEntryResponse, CorrectJournalEntry } from "@/lib/types";
 
 const sampleTransaction = "Bought goods for cash Rs.10000";
 const sampleEntry = "Purchases A/c Dr. Rs.10000\nTo Cash A/c Rs.10000";
-type AppMode = "own" | "practice";
 
-const learningTools = [
+const toolSections = [
   {
-    title: "Learn Accountancy",
-    description: "Read simple lessons and understand concepts before practicing. Track lesson completion in your browser.",
-    href: "/learn",
-    label: "Open Learn",
+    title: "Core Learning",
+    description: "Start here for lessons, practice, checking, and explanations.",
+    tools: [
+      {
+        title: "Learn Accountancy",
+        description: "Read simple lessons and track lesson completion in your browser.",
+        href: "/learn",
+        label: "Open Learn",
+      },
+      {
+        title: "Topic-wise Practice",
+        description: "Choose a topic and practice journal entries step by step.",
+        href: "/practice",
+        label: "Start Practice",
+      },
+      {
+        title: "Journal Entry Checker",
+        description: "Enter your own journal entry and check whether it is correct.",
+        action: "checker",
+        label: "Open Checker",
+      },
+      {
+        title: "AI Journal Entry Explainer",
+        description: "Understand the debit-credit logic behind a supported transaction.",
+        href: "/journal-entry-solver",
+        label: "Open Explainer",
+      },
+    ],
   },
   {
-    title: "Student Dashboard",
-    description: "Track progress, weak areas, and recommended practice.",
-    href: "/dashboard",
-    label: "Open Dashboard",
+    title: "Accounting Workflow",
+    description: "Move from journal entries into the next accountancy steps.",
+    tools: [
+      {
+        title: "Ledger Posting",
+        description: "Convert journal entries into account-wise ledger postings.",
+        href: "/ledger",
+        label: "Open Ledger",
+      },
+      {
+        title: "Trial Balance",
+        description: "Prepare trial balance from journal entries and ledger balances.",
+        href: "/trial-balance",
+        label: "Open Trial Balance",
+      },
+      {
+        title: "Final Accounts",
+        description: "Prepare Trading A/c, Profit & Loss A/c, Balance Sheet, and adjustments.",
+        href: "/final-accounts",
+        label: "Open Final Accounts",
+      },
+    ],
   },
   {
-    title: "AI Journal Entry Explainer",
-    description: "Understand the debit-credit logic behind any supported transaction.",
-    href: "/journal-entry-solver",
-    label: "Open tool",
+    title: "Review & Support",
+    description: "Review saved browser data and understand what the app supports.",
+    tools: [
+      {
+        title: "Student Dashboard",
+        description: "Open your main home base for next actions, progress, and recent attempts.",
+        href: "/dashboard",
+        label: "Open Dashboard",
+      },
+      {
+        title: "Attempt History",
+        description: "Review recent attempts, scores, and mistakes saved on this browser.",
+        href: "/history",
+        label: "Open History",
+      },
+      {
+        title: "Weak Areas / Learning Progress",
+        description: "Review mistake patterns and recommended practice topics.",
+        href: "/progress",
+        label: "Open Progress",
+      },
+      {
+        title: "Supported Topics",
+        description: "See what Accywise currently supports and what is not supported yet.",
+        href: "/supported-transactions",
+        label: "View Topics",
+      },
+      {
+        title: "How to Use",
+        description: "Learn the best order to use the pages and tools.",
+        href: "/how-to-use",
+        label: "Read Guide",
+      },
+    ],
   },
-  {
-    title: "Ledger Posting",
-    description: "Convert journal entries into account-wise ledger postings.",
-    href: "/ledger",
-    label: "Open tool",
-  },
-  {
-    title: "Trial Balance",
-    description: "Prepare trial balance from journal entries and ledger balances.",
-    href: "/trial-balance",
-    label: "Open tool",
-  },
-  {
-    title: "Final Accounts",
-    description: "Prepare Trading A/c, Profit & Loss A/c, Balance Sheet, and adjustments.",
-    href: "/final-accounts",
-    label: "Open tool",
-  },
-  {
-    title: "Supported Topics",
-    description: "See what the platform currently supports and what is not supported yet.",
-    href: "/supported-transactions",
-    label: "Open tool",
-  },
-  {
-    title: "Attempt History",
-    description: "Review recent attempts, scores, and mistakes saved on this browser.",
-    href: "/history",
-    label: "Open tool",
-  },
-  {
-    title: "Learning Progress",
-    description: "Review your weak areas and recommended practice based on recent attempts.",
-    href: "/progress",
-    label: "Open tool",
-  },
-  {
-    title: "How to Use Accywise",
-    description: "Learn the best order to use all tools.",
-    href: "/how-to-use",
-    label: "Open tool",
-  },
-];
+] as const;
 
 export default function ToolsPage() {
-  const [mode, setMode] = useState<AppMode>("own");
   const [transactionText, setTransactionText] = useState("");
   const [journalEntry, setJournalEntry] = useState("");
   const [result, setResult] = useState<CheckEntryResponse | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [practiceQuestion, setPracticeQuestion] = useState<PracticeQuestion | null>(null);
-  const [practiceEntry, setPracticeEntry] = useState("");
-  const [practiceResult, setPracticeResult] = useState<CheckEntryResponse | null>(null);
-  const [practiceError, setPracticeError] = useState("");
-  const [isPracticeLoading, setIsPracticeLoading] = useState(false);
-  const [isPracticeChecking, setIsPracticeChecking] = useState(false);
 
   async function checkEntry() {
     setError("");
@@ -132,95 +154,9 @@ export default function ToolsPage() {
     }
   }
 
-  async function loadPracticeQuestion() {
-    setPracticeError("");
-    setPracticeResult(null);
-    setPracticeEntry("");
-    setIsPracticeLoading(true);
-
-    try {
-      const response = await fetch("/api/generate-practice-question");
-      const data = await response.json();
-
-      if (!response.ok) {
-        setPracticeError("Could not generate a practice question. Try again.");
-        return;
-      }
-
-      setPracticeQuestion(data);
-    } catch {
-      setPracticeError("Could not generate a practice question. Please try again.");
-    } finally {
-      setIsPracticeLoading(false);
-    }
-  }
-
-  async function checkPracticeAnswer() {
-    setPracticeError("");
-    setPracticeResult(null);
-
-    if (!practiceQuestion) {
-      setPracticeError("Click Try Another Question to get a transaction.");
-      return;
-    }
-
-    if (!practiceEntry.trim()) {
-      setPracticeError("Write your journal entry before checking.");
-      return;
-    }
-
-    setIsPracticeChecking(true);
-
-    try {
-      const response = await fetch("/api/check-entry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionText: practiceQuestion.transaction_text,
-          journalEntry: practiceEntry,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setPracticeError("Could not check this answer. Please try again.");
-        return;
-      }
-
-      const typedData = data as CheckEntryResponse;
-      setPracticeResult(typedData);
-      saveAttemptHistoryItem({
-        module: "practice",
-        topic: practiceQuestion.topic ?? "mixed",
-        transaction: practiceQuestion.transaction_text,
-        studentEntry: practiceEntry,
-        resultStatus: mapCheckResultStatus(typedData.result_status),
-        score: typedData.score,
-        mistakeType: typedData.mistake_type,
-        correctEntry: formatJournalEntry(typedData.correct_journal_entry),
-        explanation: simplifyExplanation(typedData.simple_explanation),
-      });
-    } catch {
-      setPracticeError("Could not reach the checker. Please try again.");
-    } finally {
-      setIsPracticeChecking(false);
-    }
-  }
-
-  function retryPracticeQuestion() {
-    setPracticeEntry("");
-    setPracticeError("");
-    setPracticeResult(null);
-  }
-
-  function openWorkspace(nextMode: AppMode) {
-    setMode(nextMode);
-    if (nextMode === "practice" && !practiceQuestion && !isPracticeLoading) {
-      void loadPracticeQuestion();
-    }
+  function openCheckerWorkspace() {
     window.setTimeout(() => {
-      document.getElementById("learning-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("journal-entry-checker")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
   }
 
@@ -230,110 +166,75 @@ export default function ToolsPage() {
         <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
           <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
             <Link href="/" className="text-blue-800 transition hover:text-blue-950">
-              Accywise
+              Home
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
+              Dashboard
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
               Learn
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
-              Supported Topics
+            <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
+              Practice
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/how-to-use" className="text-blue-800 transition hover:text-blue-950">
-              How to Use
-            </Link>
-            <span className="text-slate-300">/</span>
-            <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
-              Attempt History
-            </Link>
-            <span className="text-slate-300">/</span>
-            <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
-              Progress
+            <Link href="/tools" className="text-blue-950">
+              Tools
             </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning Hub</p>
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Utility shelf</p>
             <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Learning Tools</h1>
             <p className="mt-4 text-lg leading-8 text-slate-700">
-              Choose a tool to learn, practice, check, and understand accountancy step by step.
+              Use focused utilities after learning or when you need to check work.
             </p>
           </div>
         </header>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <button type="button" onClick={() => openWorkspace("own")} className="group text-left">
-            <ToolCard
-              title="Journal Entry Checker"
-              description="Enter your journal entry and check whether it is correct."
-              label="Open checker"
-            />
-          </button>
-          <Link href="/practice" className="group">
-            <ToolCard
-              title="Practice Questions"
-              description="Choose a topic and practice journal entries step by step."
-              label="Open practice"
-            />
-          </Link>
-          {learningTools.map((tool) => (
-            <Link key={tool.href} href={tool.href} className="group">
-              <ToolCard title={tool.title} description={tool.description} label={tool.label} />
-            </Link>
+        <div className="grid gap-5">
+          {toolSections.map((section) => (
+            <ToolShelfSection key={section.title} section={section} onOpenChecker={openCheckerWorkspace} />
           ))}
-        </section>
+        </div>
 
-        <section id="learning-workspace" className="scroll-mt-5">
+        <section id="journal-entry-checker" className="scroll-mt-5">
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Workspace</p>
-                <h2 className="mt-2 text-2xl font-bold text-blue-950">
-                  {mode === "own" ? "Journal Entry Checker" : "Practice Questions"}
-                </h2>
+                <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Checker workspace</p>
+                <h2 className="mt-2 text-2xl font-bold text-blue-950">Journal Entry Checker</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                  Check your own entry here. For generated questions, use Topic-wise Practice.
+                </p>
               </div>
-              <div className="grid grid-cols-1 gap-2 rounded-xl border border-blue-100 bg-blue-50 p-2 sm:grid-cols-2">
-                <button type="button" onClick={() => setMode("own")} className={modeButtonClass(mode === "own")}>
-                  Check Entry
-                </button>
-                <button type="button" onClick={() => openWorkspace("practice")} className={modeButtonClass(mode === "practice")}>
-                  Practice
-                </button>
-              </div>
+              <Link
+                href="/practice"
+                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+              >
+                Open Practice
+              </Link>
             </div>
 
             <div className="mt-5">
-              {mode === "own" ? (
-                <EntryCard
-                  transactionText={transactionText}
-                  journalEntry={journalEntry}
-                  error={error}
-                  isLoading={isLoading}
-                  buttonText="Check My Journal Entry"
-                  loadingText="Checking..."
-                  onTransactionChange={setTransactionText}
-                  onJournalEntryChange={setJournalEntry}
-                  onSubmit={checkEntry}
-                />
-              ) : (
-                <PracticeCard
-                  question={practiceQuestion}
-                  journalEntry={practiceEntry}
-                  error={practiceError}
-                  isQuestionLoading={isPracticeLoading}
-                  isChecking={isPracticeChecking}
-                  onJournalEntryChange={setPracticeEntry}
-                  onCheck={checkPracticeAnswer}
-                  onNext={() => void loadPracticeQuestion()}
-                  onRetry={retryPracticeQuestion}
-                />
-              )}
+              <EntryCard
+                transactionText={transactionText}
+                journalEntry={journalEntry}
+                error={error}
+                isLoading={isLoading}
+                buttonText="Check My Journal Entry"
+                loadingText="Checking..."
+                onTransactionChange={setTransactionText}
+                onJournalEntryChange={setJournalEntry}
+                onSubmit={checkEntry}
+              />
             </div>
           </div>
         </section>
 
-        {mode === "own" && result ? (
+        {result ? (
           <ResultCard
             result={result}
             moduleName="Checker"
@@ -342,23 +243,44 @@ export default function ToolsPage() {
             buttonLabel="Report wrong answer"
           />
         ) : null}
-        {mode === "practice" && practiceResult ? (
-          <ResultCard
-            result={practiceResult}
-            moduleName="Practice"
-            transactionText={practiceQuestion?.transaction_text ?? ""}
-            studentEntry={practiceEntry}
-            buttonLabel="Report wrong answer"
-          />
-        ) : null}
       </section>
     </main>
   );
 }
 
+function ToolShelfSection({
+  section,
+  onOpenChecker,
+}: {
+  section: (typeof toolSections)[number];
+  onOpenChecker: () => void;
+}) {
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-soft sm:p-5">
+      <div className="max-w-3xl">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">{section.title}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{section.description}</p>
+      </div>
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {section.tools.map((tool) =>
+          "action" in tool ? (
+            <button key={tool.title} type="button" onClick={onOpenChecker} className="group text-left">
+              <ToolCard title={tool.title} description={tool.description} label={tool.label} />
+            </button>
+          ) : (
+            <Link key={tool.href} href={tool.href} className="group">
+              <ToolCard title={tool.title} description={tool.description} label={tool.label} />
+            </Link>
+          ),
+        )}
+      </div>
+    </section>
+  );
+}
+
 function ToolCard({ title, description, label }: { title: string; description: string; label: string }) {
   return (
-    <article className="flex h-full min-h-44 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-soft transition group-hover:-translate-y-0.5 group-hover:border-blue-200 group-hover:shadow-lg">
+    <article className="flex h-full min-h-40 flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-soft transition group-hover:-translate-y-0.5 group-hover:border-blue-200 group-hover:shadow-lg">
       <div>
         <div className="mb-4 h-10 w-10 rounded-xl bg-emerald-100 ring-8 ring-emerald-50" />
         <h2 className="text-xl font-bold text-blue-950">{title}</h2>
@@ -415,58 +337,6 @@ function EntryCard({
   );
 }
 
-function PracticeCard({
-  question,
-  journalEntry,
-  error,
-  isQuestionLoading,
-  isChecking,
-  onJournalEntryChange,
-  onCheck,
-  onNext,
-  onRetry,
-}: {
-  question: PracticeQuestion | null;
-  journalEntry: string;
-  error: string;
-  isQuestionLoading: boolean;
-  isChecking: boolean;
-  onJournalEntryChange: (value: string) => void;
-  onCheck: () => void;
-  onNext: () => void;
-  onRetry: () => void;
-}) {
-  return (
-    <div className="rounded-xl border border-line bg-white p-4 sm:p-6">
-      <div className="flex flex-col gap-4">
-        <div className="rounded-lg border border-line bg-paper p-4">
-          <div className="text-sm font-semibold text-ink">Practice Question</div>
-          <p className="mt-2 min-h-7 text-base font-medium leading-7 text-slate-800">
-            {isQuestionLoading ? "Generating a question..." : question?.transaction_text ?? "No question yet."}
-          </p>
-        </div>
-        <p className="text-sm leading-6 text-slate-600">Try solving first before checking the answer.</p>
-
-        <JournalEntryInput value={journalEntry} onChange={onJournalEntryChange} />
-
-        {error ? <MessageBox message={error} /> : null}
-
-        <div className="grid gap-2 sm:grid-cols-3">
-          <PrimaryButton disabled={isChecking || isQuestionLoading || !question} onClick={onCheck}>
-            {isChecking ? "Checking..." : "Check Answer"}
-          </PrimaryButton>
-          <SecondaryButton disabled={isQuestionLoading || isChecking} onClick={onNext}>
-            {isQuestionLoading ? "Loading..." : "Try Another Question"}
-          </SecondaryButton>
-          <SecondaryButton disabled={!question || isChecking} onClick={onRetry}>
-            Retry Same Question
-          </SecondaryButton>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function JournalEntryInput({
   value,
   onChange,
@@ -502,7 +372,7 @@ function ResultCard({
   buttonLabel,
 }: {
   result: CheckEntryResponse;
-  moduleName: "Checker" | "Practice";
+  moduleName: "Checker";
   transactionText: string;
   studentEntry: string;
   buttonLabel: string;
@@ -532,7 +402,7 @@ function ResultCard({
         <ResultSection title="Similar practice question" body={result.similar_practice_question} />
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <FeedbackReport
           buttonLabel={buttonLabel}
           details={{
@@ -550,9 +420,15 @@ function ResultCard({
         />
         <Link
           href="/history"
-          className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
         >
           View Attempt History
+        </Link>
+        <Link
+          href="/progress"
+          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+        >
+          View Weak Areas
         </Link>
       </div>
     </section>
@@ -611,39 +487,12 @@ function PrimaryButton({
   );
 }
 
-function SecondaryButton({
-  children,
-  disabled,
-  onClick,
-}: {
-  children: React.ReactNode;
-  disabled?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="min-h-12 rounded-lg border border-line bg-white px-4 py-3 text-base font-semibold text-ink transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:text-slate-400"
-    >
-      {children}
-    </button>
-  );
-}
-
 function MessageBox({ message }: { message: string }) {
   return (
     <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-6 text-red-700">
       {message}
     </div>
   );
-}
-
-function modeButtonClass(isActive: boolean): string {
-  return [
-    "min-h-11 rounded-lg px-4 py-2 text-sm font-bold transition",
-    isActive ? "bg-blue-900 text-white shadow-soft" : "bg-white text-blue-900 hover:bg-blue-100",
-  ].join(" ");
 }
 
 function getMissingInputMessage(transaction: string, entry: string): string {

@@ -179,6 +179,8 @@ export default function PracticePage() {
       <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-6">
         <PageHeader />
 
+        <ReviewLinks />
+
         <section>
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Topic Categories</p>
@@ -224,7 +226,22 @@ export default function PracticePage() {
         )}
 
         {result && question ? (
-          <ResultCard result={result} transactionText={question.transaction_text} studentEntry={journalEntry} />
+          <ResultCard
+            result={result}
+            transactionText={question.transaction_text}
+            studentEntry={journalEntry}
+            onRetry={retryQuestion}
+            onNext={() => {
+              if (selectedTopic) void loadQuestion(selectedTopic);
+            }}
+            onChangeTopic={() => {
+              setSelectedTopic(null);
+              setQuestion(null);
+              setJournalEntry("");
+              setResult(null);
+              setError("");
+            }}
+          />
         ) : null}
       </section>
     </main>
@@ -236,23 +253,23 @@ function PageHeader() {
     <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
       <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
         <Link href="/" className="text-blue-800 transition hover:text-blue-950">
-          Back to Home
+          Home
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
+          Dashboard
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
+          Learn
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/practice" className="text-blue-950">
+          Practice
         </Link>
         <span className="text-slate-300">/</span>
         <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
-          Learning Tools
-        </Link>
-        <span className="text-slate-300">/</span>
-        <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
-          Supported Topics
-        </Link>
-        <span className="text-slate-300">/</span>
-        <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
-          View Attempt History
-        </Link>
-        <span className="text-slate-300">/</span>
-        <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
-          View Progress
+          Tools
         </Link>
       </nav>
       <div className="mt-7 max-w-3xl">
@@ -266,6 +283,25 @@ function PageHeader() {
         </p>
       </div>
     </header>
+  );
+}
+
+function ReviewLinks() {
+  return (
+    <section className="grid gap-3 md:grid-cols-2">
+      <Link href="/progress" className="group">
+        <article className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50">
+          <h2 className="text-lg font-bold text-blue-950">View Progress</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">See weak areas and recommended topics.</p>
+        </article>
+      </Link>
+      <Link href="/history" className="group">
+        <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50">
+          <h2 className="text-lg font-bold text-blue-950">View History</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Review your recent attempts saved on this browser.</p>
+        </article>
+      </Link>
+    </section>
   );
 }
 
@@ -406,10 +442,16 @@ function ResultCard({
   result,
   transactionText,
   studentEntry,
+  onRetry,
+  onNext,
+  onChangeTopic,
 }: {
   result: CheckEntryResponse;
   transactionText: string;
   studentEntry: string;
+  onRetry: () => void;
+  onNext: () => void;
+  onChangeTopic: () => void;
 }) {
   const status = getStatusDisplay(result.result_status);
   const correctEntry = formatJournalEntry(result.correct_journal_entry);
@@ -450,6 +492,21 @@ function ResultCard({
             appCorrectEntry: correctEntry || "No expected entry available.",
           }}
         />
+      </div>
+
+      <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
+        <h2 className="text-sm font-bold uppercase tracking-normal text-emerald-700">Next actions</h2>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <SecondaryButton onClick={onRetry}>Retry Same Question</SecondaryButton>
+          <SecondaryButton onClick={onNext}>Try Another Question</SecondaryButton>
+          <SecondaryButton onClick={onChangeTopic}>Change Topic</SecondaryButton>
+          <Link
+            href="/progress"
+            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-blue-950 transition hover:border-blue-300 hover:bg-blue-50"
+          >
+            View Progress
+          </Link>
+        </div>
       </div>
     </section>
   );

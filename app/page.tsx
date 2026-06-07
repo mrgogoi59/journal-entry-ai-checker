@@ -34,21 +34,21 @@ export default function Home() {
             Accywise
           </Link>
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-700 md:flex">
+            <Link href="/dashboard" className="transition hover:text-blue-900">
+              Dashboard
+            </Link>
             <Link href="/learn" className="transition hover:text-blue-900">
               Learn
+            </Link>
+            <Link href="/practice" className="transition hover:text-blue-900">
+              Practice
             </Link>
             <Link href="/tools" className="transition hover:text-blue-900">
               Tools
             </Link>
-            <Link href="/how-to-use" className="transition hover:text-blue-900">
-              How to Use
-            </Link>
-            <Link href="/supported-transactions" className="transition hover:text-blue-900">
-              Supported Topics
-            </Link>
           </div>
           <Link
-            href="/tools"
+            href="/dashboard"
             className="inline-flex min-h-10 items-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-blue-800"
           >
             Start Learning
@@ -61,7 +61,7 @@ export default function Home() {
           <div>
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Accountancy learning platform</p>
             <h1 className="mt-4 max-w-4xl text-4xl font-bold tracking-normal text-blue-950 sm:text-6xl">
-              Master Accountancy with Step-by-Step AI Guidance
+              Master Accountancy with Step-by-Step Guidance
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700">
               Learn journal entries, ledgers, trial balance, final accounts, and adjustments with beginner-friendly
@@ -79,16 +79,22 @@ export default function Home() {
             </div>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/tools"
+                href="/dashboard"
                 className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800"
               >
                 Start Learning
               </Link>
               <Link
-                href="/journal-entry-solver"
+                href="/learn"
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-900 transition hover:bg-blue-50"
               >
-                Try Explainer
+                Learn Concepts
+              </Link>
+              <Link
+                href="/tools"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl px-4 py-3 text-sm font-bold text-blue-800 transition hover:bg-blue-50"
+              >
+                Open Tools
               </Link>
             </div>
           </div>
@@ -170,10 +176,10 @@ export default function Home() {
               Use the tools to check, understand, and practice accountancy step by step.
             </p>
             <Link
-              href="/tools"
+              href="/dashboard"
               className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-5 py-3 text-base font-bold text-blue-950 transition hover:bg-blue-50"
             >
-              Open Learning Tools
+              Open Student Dashboard
             </Link>
           </div>
         </div>
@@ -186,8 +192,14 @@ export default function Home() {
             <p className="mt-1">Built for commerce students</p>
           </div>
           <div className="flex flex-wrap gap-4 font-semibold text-slate-700">
+            <Link href="/dashboard" className="hover:text-blue-900">
+              Dashboard
+            </Link>
             <Link href="/learn" className="hover:text-blue-900">
               Learn
+            </Link>
+            <Link href="/practice" className="hover:text-blue-900">
+              Practice
             </Link>
             <Link href="/tools" className="hover:text-blue-900">
               Tools

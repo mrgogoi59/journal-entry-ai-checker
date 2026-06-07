@@ -37,20 +37,24 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
       <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-7">
         <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
           <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
-            <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
-              Back to Learn
+            <Link href="/" className="text-blue-800 transition hover:text-blue-950">
+              Home
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
-              Learning Tools
+            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
+              Dashboard
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/learn" className="text-blue-950">
+              Learn
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
               Practice
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
-              Dashboard
+            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
+              Tools
             </Link>
           </nav>
           <div className="mt-7 max-w-4xl">
@@ -203,13 +207,39 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
                 </p>
               )}
             </div>
-            <button
-              type="button"
-              onClick={isCompleted ? handleMarkIncomplete : handleMarkCompleted}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
-            >
-              {isCompleted ? "Mark as Not Completed" : "Mark as Completed"}
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={isCompleted ? handleMarkIncomplete : handleMarkCompleted}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+              >
+                {isCompleted ? "Mark as Not Completed" : "Mark as Completed"}
+              </button>
+              {isCompleted ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  {lesson.nextLesson ? (
+                    <Link
+                      href={lesson.nextLesson.href}
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-emerald-300 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-emerald-50"
+                    >
+                      Next Lesson
+                    </Link>
+                  ) : null}
+                  <Link
+                    href="/practice"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg border border-emerald-300 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-emerald-50"
+                  >
+                    Practice Basics
+                  </Link>
+                  <Link
+                    href="/learn"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg border border-emerald-300 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-emerald-50"
+                  >
+                    Back to Learn
+                  </Link>
+                </div>
+              ) : null}
+            </div>
           </div>
         </section>
 

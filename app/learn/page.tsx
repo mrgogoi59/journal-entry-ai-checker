@@ -31,6 +31,7 @@ const toolConnections = [
 export default function LearnPage() {
   const [summary, setSummary] = useState<LessonProgressSummary>(() => getLessonProgressSummary([]));
   const completedSlugs = useMemo(() => new Set(summary.completedLessonSlugs), [summary.completedLessonSlugs]);
+  const recommendedLesson = lessonCards.find((lesson) => !completedSlugs.has(lesson.slug)) ?? lessonCards[0];
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -46,19 +47,23 @@ export default function LearnPage() {
         <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
           <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
             <Link href="/" className="text-blue-800 transition hover:text-blue-950">
-              Back to Home
+              Home
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
-              Learning Tools
+            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
+              Dashboard
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/learn" className="text-blue-950">
+              Learn
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
               Practice
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
-              Dashboard
+            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
+              Tools
             </Link>
           </nav>
           <div className="mt-7 max-w-4xl">
@@ -97,6 +102,24 @@ export default function LearnPage() {
           </div>
         </section>
 
+        {recommendedLesson ? (
+          <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-5 shadow-soft sm:p-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Recommended next lesson</p>
+                <h2 className="mt-2 text-2xl font-bold text-blue-950">{recommendedLesson.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{recommendedLesson.description}</p>
+              </div>
+              <Link
+                href={recommendedLesson.href}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+              >
+                {completedSlugs.has(recommendedLesson.slug) ? "Continue" : "Start Lesson"}
+              </Link>
+            </div>
+          </section>
+        ) : null}
+
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
           <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning path</p>
           <h2 className="mt-2 text-2xl font-bold text-blue-950">Start with rules, then practice</h2>
@@ -119,25 +142,41 @@ export default function LearnPage() {
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {lessonCards.map((lesson) => (
-              <Link key={lesson.href} href={lesson.href} className="group">
-                <article className="flex h-full min-h-52 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50">
-                  <div>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-emerald-100 ring-8 ring-emerald-50" />
-                      {completedSlugs.has(lesson.slug) ? (
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
-                          Completed
-                        </span>
-                      ) : null}
-                    </div>
-                    <h3 className="mt-5 text-xl font-bold text-blue-950">{lesson.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-slate-600">{lesson.description}</p>
+              <article
+                key={lesson.href}
+                className="flex h-full min-h-52 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-100 ring-8 ring-emerald-50" />
+                    <span
+                      className={`rounded-full border px-3 py-1 text-xs font-bold ${
+                        completedSlugs.has(lesson.slug)
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                          : "border-slate-200 bg-slate-50 text-slate-600"
+                      }`}
+                    >
+                      {completedSlugs.has(lesson.slug) ? "Completed" : "Not started"}
+                    </span>
                   </div>
-                  <span className="mt-5 text-sm font-bold text-blue-800">
+                  <h3 className="mt-5 text-xl font-bold text-blue-950">{lesson.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{lesson.description}</p>
+                </div>
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  <Link
+                    href={lesson.href}
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+                  >
                     {completedSlugs.has(lesson.slug) ? "Continue" : "Start Lesson"}
-                  </span>
-                </article>
-              </Link>
+                  </Link>
+                  <Link
+                    href="/practice"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+                  >
+                    Practice related concept
+                  </Link>
+                </div>
+              </article>
             ))}
           </div>
         </section>

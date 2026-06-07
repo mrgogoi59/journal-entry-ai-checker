@@ -56,30 +56,30 @@ export default function AttemptHistoryPage() {
         <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
           <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
             <Link href="/" className="text-blue-800 transition hover:text-blue-950">
-              Back to Home
+              Home
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
-              Learning Tools
+            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
+              Dashboard
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
+              Learn
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
               Practice
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
-              Learning Progress
-            </Link>
-            <span className="text-slate-300">/</span>
-            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
-              Dashboard
+            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
+              Tools
             </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning record</p>
             <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Attempt History</h1>
             <p className="mt-4 text-lg leading-8 text-slate-700">
-              Review your recent attempts and learn from mistakes.
+              A raw log of your recent attempts saved on this browser.
             </p>
             <div className="mt-5 grid gap-3 md:grid-cols-2">
               <p className="rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">

@@ -5,18 +5,12 @@ import { useEffect, useState } from "react";
 import { getDashboardSummary, type AttemptHistoryItem, type DashboardSummary } from "@/lib/attempt-history";
 import { getLessonProgressSummary, type LessonProgressSummary } from "@/lib/lesson-progress";
 
-const learningPath = [
-  { step: "1", title: "Understand Journal Entries", href: "/journal-entry-solver", label: "Explainer" },
-  { step: "2", title: "Practice by Topic", href: "/practice", label: "Practice" },
-  { step: "3", title: "Learn Ledger Posting", href: "/ledger", label: "Ledger" },
-  { step: "4", title: "Prepare Trial Balance", href: "/trial-balance", label: "Trial Balance" },
-  { step: "5", title: "Prepare Final Accounts", href: "/final-accounts", label: "Final Accounts" },
-  { step: "6", title: "Review Weak Areas", href: "/progress", label: "Progress" },
-];
-
 const quickActions = [
+  { title: "Open Tools", href: "/tools" },
   { title: "Learn Concepts", href: "/learn" },
   { title: "Practice by Topic", href: "/practice" },
+  { title: "View History", href: "/history" },
+  { title: "View Weak Areas", href: "/progress" },
   { title: "Explain a Transaction", href: "/journal-entry-solver" },
   { title: "Generate Ledger", href: "/ledger" },
   { title: "Prepare Trial Balance", href: "/trial-balance" },
@@ -45,11 +39,11 @@ export default function DashboardPage() {
         <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
           <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
             <Link href="/" className="text-blue-800 transition hover:text-blue-950">
-              Back to Home
+              Home
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
-              Learning Tools
+            <Link href="/dashboard" className="text-blue-950">
+              Dashboard
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
@@ -60,19 +54,15 @@ export default function DashboardPage() {
               Practice
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
-              Progress
-            </Link>
-            <span className="text-slate-300">/</span>
-            <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
-              History
+            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
+              Tools
             </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learner overview</p>
             <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Student Dashboard</h1>
             <p className="mt-4 text-lg leading-8 text-slate-700">
-              Track your recent practice, weak areas, and next learning steps.
+              Your summary and next learning actions.
             </p>
             <p className="mt-5 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
               This dashboard is saved only on this browser. No login or cloud sync yet.
@@ -82,12 +72,14 @@ export default function DashboardPage() {
 
         <WelcomeCard hasAttempts={hasAttempts} />
 
+        <RecommendedPracticeCard summary={summary} hasAttempts={hasAttempts} />
+
         <LessonProgressCard summary={lessonSummary} />
 
         <section>
           <div className="mb-4">
-            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning summary</p>
-            <h2 className="mt-2 text-2xl font-bold text-blue-950">Your recent progress</h2>
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Practice summary</p>
+            <h2 className="mt-2 text-2xl font-bold text-blue-950">Your recent practice</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-4">
             <SummaryCard label="Total Attempts" value={summary.totalAttempts.toString()} />
@@ -104,12 +96,10 @@ export default function DashboardPage() {
 
         <section className="grid gap-4 xl:grid-cols-[1.35fr_0.85fr]">
           <WeakAreasSection summary={summary} />
-          <RecommendedPracticeCard summary={summary} hasAttempts={hasAttempts} />
+          <ReviewLinksCard />
         </section>
 
         <RecentAttemptsSection attempts={summary.recentAttempts} />
-
-        <LearningPathSection />
 
         <QuickActionsSection />
 
@@ -172,19 +162,23 @@ function WelcomeCard({ hasAttempts }: { hasAttempts: boolean }) {
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
-            href="/practice"
+            href="/learn"
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+          >
+            Continue Learning
+          </Link>
+          <Link
+            href="/practice"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
           >
             {hasAttempts ? "Practice Recommended Topic" : "Start Practice"}
           </Link>
-          {hasAttempts ? (
-            <Link
-              href="/history"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
-            >
-              View History
-            </Link>
-          ) : null}
+          <Link
+            href="/tools"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+          >
+            Open Tools
+          </Link>
         </div>
       </div>
     </section>
@@ -259,12 +253,46 @@ function RecommendedPracticeCard({
       <p className="text-sm font-bold uppercase tracking-normal text-emerald-100">Recommended next practice</p>
       <h2 className="mt-2 text-2xl font-bold">Recommended next: {title}</h2>
       <p className="mt-4 text-sm leading-6 text-blue-50">{description}</p>
-      <Link
-        href="/practice"
-        className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2 text-sm font-bold text-blue-950 transition hover:bg-blue-50"
-      >
-        Start Practice
-      </Link>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <Link
+          href="/practice"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2 text-sm font-bold text-blue-950 transition hover:bg-blue-50"
+        >
+          Start Practice
+        </Link>
+        <Link
+          href="/progress"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/30 px-5 py-2 text-sm font-bold text-white transition hover:bg-white/10"
+        >
+          View Weak Areas
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function ReviewLinksCard() {
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-5 shadow-soft sm:p-6">
+      <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Review links</p>
+      <h2 className="mt-2 text-2xl font-bold text-blue-950">History and weak areas</h2>
+      <p className="mt-3 text-sm leading-6 text-slate-700">
+        Use these when you want to inspect the full attempt log or review mistake patterns.
+      </p>
+      <div className="mt-5 grid gap-3">
+        <Link
+          href="/history"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+        >
+          View History
+        </Link>
+        <Link
+          href="/progress"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+        >
+          View Weak Areas
+        </Link>
+      </div>
     </section>
   );
 }
@@ -331,33 +359,6 @@ function RecentAttemptCard({ attempt }: { attempt: AttemptHistoryItem }) {
         ) : null}
       </div>
     </article>
-  );
-}
-
-function LearningPathSection() {
-  return (
-    <section>
-      <div className="mb-4">
-        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning path</p>
-        <h2 className="mt-2 text-2xl font-bold text-blue-950">A simple accountancy journey</h2>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {learningPath.map((item) => (
-          <article key={item.step} className="rounded-2xl border border-blue-100 bg-white p-5 shadow-soft">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-900 text-sm font-bold text-white">
-              {item.step}
-            </span>
-            <h3 className="mt-4 text-lg font-bold text-blue-950">{item.title}</h3>
-            <Link
-              href={item.href}
-              className="mt-5 inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
-            >
-              {item.label}
-            </Link>
-          </article>
-        ))}
-      </div>
-    </section>
   );
 }
 
