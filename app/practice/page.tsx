@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
 import { mapCheckResultStatus, saveAttemptHistoryItem } from "@/lib/attempt-history";
 import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion, PracticeTopic } from "@/lib/types";
@@ -78,6 +78,10 @@ const practiceTopics: Array<{
 ];
 
 export default function PracticePage() {
+  const topicSectionRef = useRef<HTMLElement | null>(null);
+  const practiceAreaRef = useRef<HTMLElement | null>(null);
+  const answerTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const shouldFocusAnswerRef = useRef(false);
   const [selectedTopic, setSelectedTopic] = useState<PracticeTopic | null>(null);
   const [question, setQuestion] = useState<PracticeQuestion | null>(null);
   const [journalEntry, setJournalEntry] = useState("");
@@ -86,13 +90,37 @@ export default function PracticePage() {
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
-  async function loadQuestion(topic: PracticeTopic) {
+  useEffect(() => {
+    if (!question || !shouldFocusAnswerRef.current) return;
+
+    const timeoutId = window.setTimeout(() => {
+      if (window.matchMedia("(min-width: 768px)").matches) {
+        answerTextareaRef.current?.focus({ preventScroll: true });
+      }
+
+      shouldFocusAnswerRef.current = false;
+    }, 150);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [question]);
+
+  async function loadQuestion(topic: PracticeTopic, options: { scrollToPractice?: boolean } = {}) {
+    if (options.scrollToPractice) {
+      shouldFocusAnswerRef.current = true;
+    }
+
     setSelectedTopic(topic);
     setQuestion(null);
     setJournalEntry("");
     setResult(null);
     setError("");
     setIsQuestionLoading(true);
+
+    if (options.scrollToPractice) {
+      window.setTimeout(() => {
+        practiceAreaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+    }
 
     try {
       const response = await fetch("/api/generate-practice-question", {
@@ -172,6 +200,19 @@ export default function PracticePage() {
     setError("");
   }
 
+  function changeTopic() {
+    setSelectedTopic(null);
+    setQuestion(null);
+    setJournalEntry("");
+    setResult(null);
+    setError("");
+    shouldFocusAnswerRef.current = false;
+
+    window.requestAnimationFrame(() => {
+      topicSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   const selectedTopicName = practiceTopics.find((topic) => topic.id === selectedTopic)?.name;
 
   return (
@@ -181,7 +222,7 @@ export default function PracticePage() {
 
         <ReviewLinks />
 
-        <section>
+        <section ref={topicSectionRef} className="scroll-mt-5">
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Topic Categories</p>
             <h2 className="mt-2 text-3xl font-bold tracking-normal text-blue-950">Choose a topic</h2>
@@ -195,7 +236,7 @@ export default function PracticePage() {
                 key={topic.id}
                 topic={topic}
                 isSelected={topic.id === selectedTopic}
-                onSelect={() => void loadQuestion(topic.id)}
+                onSelect={() => void loadQuestion(topic.id, { scrollToPractice: true })}
               />
             ))}
           </div>
@@ -203,6 +244,8 @@ export default function PracticePage() {
 
         {selectedTopic ? (
           <PracticeWorkspace
+            practiceAreaRef={practiceAreaRef}
+            answerTextareaRef={answerTextareaRef}
             selectedTopicName={selectedTopicName ?? "Selected topic"}
             question={question}
             journalEntry={journalEntry}
@@ -213,13 +256,7 @@ export default function PracticePage() {
             onCheck={() => void checkAnswer()}
             onNext={() => void loadQuestion(selectedTopic)}
             onRetry={retryQuestion}
-            onChangeTopic={() => {
-              setSelectedTopic(null);
-              setQuestion(null);
-              setJournalEntry("");
-              setResult(null);
-              setError("");
-            }}
+            onChangeTopic={changeTopic}
           />
         ) : (
           <TipsCard />
@@ -234,13 +271,7 @@ export default function PracticePage() {
             onNext={() => {
               if (selectedTopic) void loadQuestion(selectedTopic);
             }}
-            onChangeTopic={() => {
-              setSelectedTopic(null);
-              setQuestion(null);
-              setJournalEntry("");
-              setResult(null);
-              setError("");
-            }}
+            onChangeTopic={changeTopic}
           />
         ) : null}
       </section>
@@ -345,6 +376,8 @@ function TopicCard({
 }
 
 function PracticeWorkspace({
+  practiceAreaRef,
+  answerTextareaRef,
   selectedTopicName,
   question,
   journalEntry,
@@ -357,6 +390,8 @@ function PracticeWorkspace({
   onRetry,
   onChangeTopic,
 }: {
+  practiceAreaRef: RefObject<HTMLElement | null>;
+  answerTextareaRef: RefObject<HTMLTextAreaElement | null>;
   selectedTopicName: string;
   question: PracticeQuestion | null;
   journalEntry: string;
@@ -370,7 +405,11 @@ function PracticeWorkspace({
   onChangeTopic: () => void;
 }) {
   return (
-    <section className="rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6">
+    <section
+      id="practice-question-area"
+      ref={practiceAreaRef}
+      className="scroll-mt-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Practice Area</p>
@@ -396,6 +435,7 @@ function PracticeWorkspace({
         <label className="grid gap-2">
           <span className="text-sm font-bold text-slate-800">Your Journal Entry</span>
           <textarea
+            ref={answerTextareaRef}
             value={journalEntry}
             onChange={(event) => onJournalEntryChange(event.target.value)}
             placeholder={journalEntryPlaceholder}
