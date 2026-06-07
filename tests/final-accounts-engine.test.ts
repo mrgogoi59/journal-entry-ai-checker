@@ -81,6 +81,143 @@ Creditors Cr 5000`);
     expect(line(result.tradingAccount.creditLines, "Sales")).toEqual({ account: "Sales", amount: 30000 });
   });
 
+  it("classifies direct expenses to Trading Account debit side", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Purchases A/c Dr Rs.40000
+Sales A/c Cr Rs.80000
+Carriage Inward A/c Dr Rs.3000
+Freight Inward A/c Dr Rs.2000
+Factory Expenses A/c Dr Rs.5000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 40000 });
+    expect(line(result.tradingAccount.debitLines, "Carriage Inward")).toEqual({
+      account: "Carriage Inward",
+      amount: 3000,
+    });
+    expect(line(result.tradingAccount.debitLines, "Freight Inward")).toEqual({
+      account: "Freight Inward",
+      amount: 2000,
+    });
+    expect(line(result.tradingAccount.debitLines, "Factory Expenses")).toEqual({
+      account: "Factory Expenses",
+      amount: 5000,
+    });
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ account: "Carriage Inward" }),
+        expect.objectContaining({ account: "Freight Inward" }),
+        expect.objectContaining({ account: "Factory Expenses" }),
+      ]),
+    );
+  });
+
+  it("classifies indirect expenses to Profit and Loss debit side", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.80000
+Salary A/c Dr Rs.10000
+Office Rent A/c Dr Rs.5000
+Advertisement A/c Dr Rs.3000
+Legal Charges A/c Dr Rs.2000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Salary")).toEqual({ account: "Salary", amount: 10000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Office Rent")).toEqual({
+      account: "Office Rent",
+      amount: 5000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Advertisement")).toEqual({
+      account: "Advertisement",
+      amount: 3000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Legal Charges")).toEqual({
+      account: "Legal Charges",
+      amount: 2000,
+    });
+    expect(result.tradingAccount.debitLines).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ account: "Salary" }),
+        expect.objectContaining({ account: "Office Rent" }),
+        expect.objectContaining({ account: "Advertisement" }),
+        expect.objectContaining({ account: "Legal Charges" }),
+      ]),
+    );
+  });
+
+  it("keeps inward carriage and freight in Trading while outward goes to P&L", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Purchases A/c Dr Rs.40000
+Sales A/c Cr Rs.80000
+Carriage Inward A/c Dr Rs.3000
+Carriage Outward A/c Dr Rs.4000
+Freight Inward A/c Dr Rs.2000
+Freight Outward A/c Dr Rs.5000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Carriage Inward")).toEqual({
+      account: "Carriage Inward",
+      amount: 3000,
+    });
+    expect(line(result.tradingAccount.debitLines, "Freight Inward")).toEqual({
+      account: "Freight Inward",
+      amount: 2000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Carriage Outward")).toEqual({
+      account: "Carriage Outward",
+      amount: 4000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Freight Outward")).toEqual({
+      account: "Freight Outward",
+      amount: 5000,
+    });
+  });
+
+  it("keeps factory expenses direct and office expenses indirect", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.80000
+Factory Rent A/c Dr Rs.6000
+Office Rent A/c Dr Rs.5000
+Factory Insurance A/c Dr Rs.3000
+Office Insurance A/c Dr Rs.2000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Factory Rent")).toEqual({ account: "Factory Rent", amount: 6000 });
+    expect(line(result.tradingAccount.debitLines, "Factory Insurance")).toEqual({
+      account: "Factory Insurance",
+      amount: 3000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Office Rent")).toEqual({
+      account: "Office Rent",
+      amount: 5000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Office Insurance")).toEqual({
+      account: "Office Insurance",
+      amount: 2000,
+    });
+  });
+
+  it("keeps purchase and sales returns in the correct Trading Account sides", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.90000
+Sales Return A/c Dr Rs.5000
+Purchase Return A/c Cr Rs.3000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 50000 });
+    expect(line(result.tradingAccount.debitLines, "Sales Return")).toEqual({ account: "Sales Return", amount: 5000 });
+    expect(line(result.tradingAccount.creditLines, "Sales")).toEqual({ account: "Sales", amount: 90000 });
+    expect(line(result.tradingAccount.creditLines, "Purchase Return")).toEqual({
+      account: "Purchase Return",
+      amount: 3000,
+    });
+  });
+
   it("keeps unknown accounts unclassified", () => {
     const result = generateFinalAccounts(`Unknown Expense Dr 1000
 Sales Cr 1000`);
