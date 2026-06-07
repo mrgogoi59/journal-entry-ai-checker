@@ -9,6 +9,7 @@ import {
   type FinalAccountAdjustment,
   type FinalAccountLine,
   type FinalAccountsResult,
+  type ManagerCommissionWorking,
   type ProvisionForDoubtfulDebtsWorking,
   type TrialBalanceBalance,
 } from "@/lib/final-accounts-engine";
@@ -174,7 +175,11 @@ function FinalAccountsResultView({
       </ResultSection>
 
       <ResultSection title="Parsed Adjustments">
-        <ParsedAdjustments adjustments={result.parsedAdjustments} unclassifiedAdjustments={result.unclassifiedAdjustments} />
+        <ParsedAdjustments
+          adjustments={result.parsedAdjustments}
+          unclassifiedAdjustments={result.unclassifiedAdjustments}
+          managerCommissionWorking={result.balanceSheet.managerCommissionWorking}
+        />
       </ResultSection>
 
       <ResultSection title="Trading Account">
@@ -220,6 +225,9 @@ function FinalAccountsResultView({
       {result.balanceSheet.capitalWorking ? <CapitalWorkingView working={result.balanceSheet.capitalWorking} /> : null}
       {result.balanceSheet.provisionForDoubtfulDebtsWorking ? (
         <ProvisionWorkingView working={result.balanceSheet.provisionForDoubtfulDebtsWorking} />
+      ) : null}
+      {result.balanceSheet.managerCommissionWorking ? (
+        <ManagerCommissionWorkingView working={result.balanceSheet.managerCommissionWorking} />
       ) : null}
 
       <ResultSection title="Balance Sheet">
@@ -303,9 +311,11 @@ function ParsedTrialBalance({ balances }: { balances: TrialBalanceBalance[] }) {
 function ParsedAdjustments({
   adjustments,
   unclassifiedAdjustments,
+  managerCommissionWorking,
 }: {
   adjustments: FinalAccountAdjustment[];
   unclassifiedAdjustments: string[];
+  managerCommissionWorking?: ManagerCommissionWorking;
 }) {
   return (
     <div className="grid gap-4">
@@ -329,7 +339,9 @@ function ParsedAdjustments({
                   <td className="px-3 py-2 text-slate-700">{formatAdjustmentType(adjustment.type)}</td>
                   <td className="px-3 py-2 font-medium text-ink">{adjustment.account}</td>
                   <td className="px-3 py-2 text-slate-700">{adjustment.relatedAccount ?? "-"}</td>
-                  <td className="px-3 py-2 text-right text-ink">{formatAdjustmentAmount(adjustment)}</td>
+                  <td className="px-3 py-2 text-right text-ink">
+                    {formatAdjustmentAmount(adjustment, managerCommissionWorking)}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -485,6 +497,38 @@ function ProvisionWorkingView({ working }: { working: ProvisionForDoubtfulDebtsW
                 Rs.{Math.max(working.debtors - working.requiredProvision, 0).toLocaleString("en-IN")}
               </td>
             </tr>
+          </tbody>
+        </table>
+      </div>
+    </ResultSection>
+  );
+}
+
+function ManagerCommissionWorkingView({ working }: { working: ManagerCommissionWorking }) {
+  return (
+    <ResultSection title="Manager's Commission Working">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[520px] border-collapse text-sm">
+          <tbody>
+            {working.basis !== "fixed" ? (
+              <CapitalWorkingRow label="Net Profit before commission" amount={working.profitBeforeCommission} />
+            ) : null}
+            {working.percentage !== undefined ? (
+              <tr className="border-b border-line">
+                <td className="px-3 py-2 font-medium text-ink">Commission rate</td>
+                <td className="px-3 py-2 text-right text-ink">{working.percentage}%</td>
+              </tr>
+            ) : null}
+            {working.basis === "after_commission" ? (
+              <tr className="border-b border-line">
+                <td className="px-3 py-2 font-medium text-ink">Formula</td>
+                <td className="px-3 py-2 text-right text-ink">Profit before commission x rate / (100 + rate)</td>
+              </tr>
+            ) : null}
+            <CapitalWorkingRow label="Manager's Commission" amount={working.commission} />
+            {working.basis !== "fixed" ? (
+              <CapitalWorkingRow label="Net Profit after commission" amount={working.netProfitAfterCommission} />
+            ) : null}
           </tbody>
         </table>
       </div>
@@ -680,7 +724,13 @@ function formatAdjustmentType(type: FinalAccountAdjustment["type"]): string {
     .join(" ");
 }
 
-function formatAdjustmentAmount(adjustment: FinalAccountAdjustment): string {
+function formatAdjustmentAmount(
+  adjustment: FinalAccountAdjustment,
+  managerCommissionWorking?: ManagerCommissionWorking,
+): string {
+  if (adjustment.type === "manager_commission" && managerCommissionWorking) {
+    return `Rs.${managerCommissionWorking.commission.toLocaleString("en-IN")}`;
+  }
   if (adjustment.amount !== undefined) return `Rs.${adjustment.amount.toLocaleString("en-IN")}`;
   if (adjustment.percentage !== undefined) return `${adjustment.percentage}%`;
   return "-";

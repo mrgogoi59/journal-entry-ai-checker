@@ -31,6 +31,14 @@ export type ProvisionForDoubtfulDebtsWorking = {
   pnlEffect: "debit" | "credit" | "none";
 };
 
+export type ManagerCommissionWorking = {
+  basis: "fixed" | "before_commission" | "after_commission";
+  profitBeforeCommission: number;
+  percentage?: number;
+  commission: number;
+  netProfitAfterCommission: number;
+};
+
 export type FinalAccountAdjustment = {
   type:
     | "closing_stock"
@@ -39,11 +47,13 @@ export type FinalAccountAdjustment = {
     | "accrued_income"
     | "income_received_in_advance"
     | "depreciation"
-    | "provision_for_doubtful_debts";
+    | "provision_for_doubtful_debts"
+    | "manager_commission";
   account: string;
   relatedAccount?: string;
   amount?: number;
   percentage?: number;
+  basis?: "fixed" | "before_commission" | "after_commission";
   rawText: string;
 };
 
@@ -76,6 +86,7 @@ export type FinalAccountsResult = {
     difference: number;
     capitalWorking?: CapitalWorking;
     provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking;
+    managerCommissionWorking?: ManagerCommissionWorking;
   };
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
@@ -352,6 +363,11 @@ const commonMistakes = [
   "Do not debit the full required provision to P&L when an existing provision already exists.",
   "Use only the increase or decrease in provision in P&L.",
   "Deduct the required closing provision from Debtors in the Balance Sheet.",
+  "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
+  "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
+  "Manager's commission is an expense, not a trading item.",
+  "If unpaid, manager's commission is shown as a liability.",
+  "Net Profit should be calculated after deducting manager's commission.",
 ];
 
 const logic = [
@@ -375,6 +391,10 @@ const adjustmentLogic = [
   "If required provision is more than existing provision, only the increase is debited to Profit & Loss A/c.",
   "If required provision is less than existing provision, the decrease is credited to Profit & Loss A/c.",
   "Provision is calculated on debtors unless a fixed required amount is given.",
+  "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
+  "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
+  "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
+  "Manager's Commission Payable is shown as a liability in the Balance Sheet.",
 ];
 
 export function generateFinalAccounts(input: string, adjustmentsInput = ""): FinalAccountsResult {
@@ -430,7 +450,21 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
   const classified = classifyBalances(parsedBalances);
   const adjustmentWarnings = applyAdjustments(classified, adjustmentResult.parsedAdjustments);
   const tradingAccount = buildTradingAccount(classified.tradingDebitLines, classified.tradingCreditLines);
-  const profitAndLossAccount = buildProfitAndLossAccount(
+  const managerCommissionAdjustment = adjustmentResult.parsedAdjustments.find(
+    (adjustment) => adjustment.type === "manager_commission",
+  );
+  let profitAndLossAccount = buildProfitAndLossAccount(
+    classified.profitAndLossDebitLines,
+    classified.profitAndLossCreditLines,
+    tradingAccount.grossProfit,
+    tradingAccount.grossLoss,
+  );
+  const managerCommissionResult = applyManagerCommission(
+    classified,
+    profitAndLossAccount,
+    managerCommissionAdjustment,
+  );
+  profitAndLossAccount = buildProfitAndLossAccount(
     classified.profitAndLossDebitLines,
     classified.profitAndLossCreditLines,
     tradingAccount.grossProfit,
@@ -441,6 +475,7 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     profitAndLossAccount.netProfit,
     profitAndLossAccount.netLoss,
     classified.provisionForDoubtfulDebtsWorking,
+    managerCommissionResult.working,
   );
   const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
   const unclassifiedAdjustmentWarnings = adjustmentResult.unclassifiedAdjustments.length
@@ -458,9 +493,15 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     unclassifiedItems: classified.unclassifiedItems,
     unclassifiedAdjustments: adjustmentResult.unclassifiedAdjustments,
     errors: [],
-    warnings: [...warnings, ...adjustmentWarnings, ...unclassifiedAdjustmentWarnings, ...balanceSheetWarnings],
+    warnings: [
+      ...warnings,
+      ...adjustmentWarnings,
+      ...managerCommissionResult.warnings,
+      ...unclassifiedAdjustmentWarnings,
+      ...balanceSheetWarnings,
+    ],
     balanceSheetWarnings,
-    adjustmentWarnings: [...adjustmentWarnings, ...unclassifiedAdjustmentWarnings],
+    adjustmentWarnings: [...adjustmentWarnings, ...managerCommissionResult.warnings, ...unclassifiedAdjustmentWarnings],
     adjustmentLogic,
     logic,
     commonMistakes,
@@ -489,6 +530,7 @@ function cleanDisplayAccountName(value: string): string {
     .toLowerCase()
     .replace(/\ba\s*\/\s*c\b/g, " ")
     .replace(/\s+ac\b/g, " ")
+    .replace(/['’]/g, " ")
     .replace(/&/g, " and ")
     .replace(/[-_/]/g, " ")
     .replace(/[.:,()]/g, " ")
@@ -618,6 +660,37 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
         account: "Provision for Doubtful Debts",
         relatedAccount: "Debtors",
         amount,
+        rawText: line,
+      };
+    }
+  }
+
+  if (
+    /\b(manager s commission|manager commission|managers commission|commission payable to manager|commission to manager|manager is entitled)\b/.test(
+      text,
+    )
+  ) {
+    if (percentage !== null) {
+      const basis =
+        /\b(after commission|after charging commission|net profit after commission)\b/.test(text)
+          ? "after_commission"
+          : "before_commission";
+
+      return {
+        type: "manager_commission",
+        account: "Manager's Commission",
+        percentage,
+        basis,
+        rawText: line,
+      };
+    }
+
+    if (amount) {
+      return {
+        type: "manager_commission",
+        account: "Manager's Commission",
+        amount,
+        basis: "fixed",
         rawText: line,
       };
     }
@@ -924,6 +997,7 @@ function buildBalanceSheet(
   netProfit: number,
   netLoss: number,
   provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking,
+  managerCommissionWorking?: ManagerCommissionWorking,
 ): FinalAccountsResult["balanceSheet"] {
   const assets: FinalAccountLine[] = [];
   const liabilities: FinalAccountLine[] = [];
@@ -981,6 +1055,10 @@ function buildBalanceSheet(
     liabilities.unshift({ account: "Adjusted Capital", amount: adjustedCapital });
   }
 
+  if (managerCommissionWorking) {
+    liabilities.push({ account: "Manager's Commission Payable", amount: managerCommissionWorking.commission });
+  }
+
   const assetTotal = sumLines(assets);
   const liabilityTotal = sumLines(liabilities);
   const difference = Math.abs(assetTotal - liabilityTotal);
@@ -994,6 +1072,7 @@ function buildBalanceSheet(
     difference,
     capitalWorking,
     provisionForDoubtfulDebtsWorking,
+    managerCommissionWorking,
   };
 }
 
@@ -1018,6 +1097,49 @@ function buildBalanceSheetWarnings(
   }
 
   return warnings;
+}
+
+function applyManagerCommission(
+  classified: {
+    profitAndLossDebitLines: FinalAccountLine[];
+  },
+  profitAndLossAccountBeforeCommission: FinalAccountsResult["profitAndLossAccount"],
+  adjustment?: FinalAccountAdjustment,
+): { working?: ManagerCommissionWorking; warnings: string[] } {
+  if (!adjustment) return { warnings: [] };
+
+  const profitBeforeCommission = profitAndLossAccountBeforeCommission.netProfit;
+
+  if (adjustment.basis !== "fixed" && profitBeforeCommission <= 0) {
+    return {
+      warnings: ["Manager's commission percentage cannot be calculated because there is no net profit before commission."],
+    };
+  }
+
+  let commission = adjustment.amount ?? 0;
+
+  if (adjustment.basis === "before_commission" && adjustment.percentage !== undefined) {
+    commission = Math.round((profitBeforeCommission * adjustment.percentage) / 100);
+  }
+
+  if (adjustment.basis === "after_commission" && adjustment.percentage !== undefined) {
+    commission = Math.round((profitBeforeCommission * adjustment.percentage) / (100 + adjustment.percentage));
+  }
+
+  if (commission <= 0) return { warnings: [] };
+
+  addAmount(classified.profitAndLossDebitLines, adjustment.account, commission);
+
+  return {
+    working: {
+      basis: adjustment.basis ?? "fixed",
+      profitBeforeCommission,
+      percentage: adjustment.percentage,
+      commission,
+      netProfitAfterCommission: Math.max(profitBeforeCommission - commission, 0),
+    },
+    warnings: [],
+  };
 }
 
 function buildProvisionForDoubtfulDebtsWorking(

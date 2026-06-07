@@ -379,11 +379,11 @@ Depreciation on machinery Rs.5000`,
     const result = generateFinalAccounts(
       `Capital Cr 50000
 Cash Dr 50000`,
-      "Manager commission Rs.2000",
+      "Partner commission Rs.2000",
     );
 
     expect(result.status).toBe("success");
-    expect(result.unclassifiedAdjustments).toContain("Manager commission Rs.2000");
+    expect(result.unclassifiedAdjustments).toContain("Partner commission Rs.2000");
     expect(result.adjustmentWarnings).toContain("Some adjustments could not be classified.");
   });
 
@@ -519,6 +519,139 @@ Bank A/c Dr Rs.71000`,
     expect(result.balanceSheet.liabilities).not.toEqual(
       expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
     );
+  });
+
+  it("applies fixed manager commission", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      "Manager's commission Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      basis: "fixed",
+      profitBeforeCommission: 40000,
+      commission: 5000,
+      netProfitAfterCommission: 35000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Manager's Commission")).toEqual({
+      account: "Manager's Commission",
+      amount: 5000,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(35000);
+    expect(line(result.balanceSheet.liabilities, "Manager's Commission Payable")).toEqual({
+      account: "Manager's Commission Payable",
+      amount: 5000,
+    });
+  });
+
+  it("calculates manager commission before charging commission", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      "Manager's commission 10% on net profit before commission",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      basis: "before_commission",
+      profitBeforeCommission: 40000,
+      percentage: 10,
+      commission: 4000,
+      netProfitAfterCommission: 36000,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(36000);
+    expect(line(result.balanceSheet.liabilities, "Manager's Commission Payable")).toEqual({
+      account: "Manager's Commission Payable",
+      amount: 4000,
+    });
+  });
+
+  it("calculates manager commission after charging commission", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.55000`,
+      "Manager's commission 10% on net profit after commission",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      basis: "after_commission",
+      profitBeforeCommission: 55000,
+      percentage: 10,
+      commission: 5000,
+      netProfitAfterCommission: 50000,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(50000);
+    expect(line(result.balanceSheet.liabilities, "Manager's Commission Payable")).toEqual({
+      account: "Manager's Commission Payable",
+      amount: 5000,
+    });
+  });
+
+  it("calculates manager commission after other adjustments", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.60000
+Salary A/c Dr Rs.10000`,
+      `Salary outstanding Rs.5000
+Manager's commission 10% on net profit before commission`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Salary")).toEqual({ account: "Salary", amount: 15000 });
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      profitBeforeCommission: 45000,
+      commission: 4500,
+      netProfitAfterCommission: 40500,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(40500);
+    expect(line(result.balanceSheet.liabilities, "Manager's Commission Payable")).toEqual({
+      account: "Manager's Commission Payable",
+      amount: 4500,
+    });
+  });
+
+  it("does not calculate percentage manager commission when there is no profit", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Rent A/c Dr Rs.20000`,
+      "Manager's commission 10% on net profit before commission",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Manager's commission percentage cannot be calculated because there is no net profit before commission.",
+    );
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Manager's Commission" })]),
+    );
+  });
+
+  it("parses commission payable to manager as fixed manager commission", () => {
+    const result = generateFinalAccounts(
+      `Capital Cr 50000
+Cash Dr 50000`,
+      "Commission payable to manager Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      basis: "fixed",
+      commission: 3000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Manager's Commission")).toEqual({
+      account: "Manager's Commission",
+      amount: 3000,
+    });
   });
 
   it("reduces Commission Received for commission received in advance", () => {
