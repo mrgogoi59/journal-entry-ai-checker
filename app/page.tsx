@@ -34,6 +34,9 @@ export default function Home() {
             Accywise
           </Link>
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-700 md:flex">
+            <Link href="/dashboard" className="transition hover:text-blue-900">
+              Dashboard
+            </Link>
             <Link href="/tools" className="transition hover:text-blue-900">
               Tools
             </Link>
@@ -183,6 +186,9 @@ export default function Home() {
             <p className="mt-1">Built for commerce students</p>
           </div>
           <div className="flex flex-wrap gap-4 font-semibold text-slate-700">
+            <Link href="/dashboard" className="hover:text-blue-900">
+              Dashboard
+            </Link>
             <Link href="/tools" className="hover:text-blue-900">
               Tools
             </Link>

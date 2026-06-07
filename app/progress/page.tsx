@@ -37,6 +37,10 @@ export default function ProgressPage() {
             <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
               History
             </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
+              Dashboard
+            </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Student progress</p>
@@ -82,7 +86,13 @@ export default function ProgressPage() {
               <MistakePatterns patterns={summary.mistakePatterns} />
             </section>
 
-            <section className="grid gap-4 md:grid-cols-2">
+            <section className="grid gap-4 md:grid-cols-3">
+              <ActionCard
+                title="Student Dashboard"
+                description="Open the central dashboard for progress, weak areas, recent attempts, and next steps."
+                href="/dashboard"
+                label="Open Dashboard"
+              />
               <ActionCard
                 title="Recent Attempts"
                 description="Open the full attempt list with transactions, entries, scores, and explanations."

@@ -12,6 +12,11 @@ type AppMode = "own" | "practice";
 
 const learningTools = [
   {
+    title: "Student Dashboard",
+    description: "Track progress, weak areas, and recommended practice.",
+    href: "/dashboard",
+  },
+  {
     title: "AI Journal Entry Explainer",
     description: "Understand the debit-credit logic behind any supported transaction.",
     href: "/journal-entry-solver",

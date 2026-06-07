@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   attemptHistoryLimit,
   createAttemptHistoryItem,
+  getDashboardSummary,
   getAttemptHistory,
   getAttemptHistorySummary,
   getWeakAreaSummary,
@@ -144,5 +145,63 @@ describe("attempt history helpers", () => {
 
     expect(summary.totalAttempts).toBe(attemptHistoryLimit);
     expect(summary.weakAreas).toEqual([]);
+  });
+
+  it("returns an empty dashboard summary for no attempts", () => {
+    expect(getDashboardSummary([])).toEqual({
+      totalAttempts: 0,
+      correctAttempts: 0,
+      incorrectAttempts: 0,
+      averageScore: 0,
+      weakAreas: [],
+      mistakePatterns: [],
+      recentAttempts: [],
+      recommendation: {
+        title: "Start with Basics",
+        description: "Begin with simple capital, cash, purchases, and sales entries.",
+        ctaLabel: "Start Practice",
+        href: "/practice",
+      },
+    });
+  });
+
+  it("builds dashboard summary counts from attempts", () => {
+    const summary = getDashboardSummary([
+      makeAttempt(1, "correct", { score: 100 }),
+      makeAttempt(2, "incorrect", { score: 40 }),
+      makeAttempt(3, "invalid", { score: 0 }),
+    ]);
+
+    expect(summary.totalAttempts).toBe(3);
+    expect(summary.correctAttempts).toBe(1);
+    expect(summary.incorrectAttempts).toBe(2);
+    expect(summary.averageScore).toBe(47);
+  });
+
+  it("reuses weak areas in dashboard summary", () => {
+    const summary = getDashboardSummary([
+      makeAttempt(1, "incorrect", { topic: "gst", score: 50, mistakeType: "wrong_account" }),
+    ]);
+
+    expect(summary.weakAreas[0]).toEqual(
+      expect.objectContaining({
+        label: "GST",
+        recommendation: "Practice GST questions next.",
+      }),
+    );
+    expect(summary.recommendation.title).toBe("Practice GST");
+  });
+
+  it("returns the latest five recent attempts for dashboard", () => {
+    const attempts = Array.from({ length: 8 }, (_, index) => makeAttempt(index, "correct"));
+
+    expect(getDashboardSummary(attempts).recentAttempts).toHaveLength(5);
+    expect(getDashboardSummary(attempts).recentAttempts.map((attempt) => attempt.id)).toEqual([
+      "attempt-0",
+      "attempt-1",
+      "attempt-2",
+      "attempt-3",
+      "attempt-4",
+    ]);
   });
 });

@@ -1,0 +1,387 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getDashboardSummary, type AttemptHistoryItem, type DashboardSummary } from "@/lib/attempt-history";
+
+const learningPath = [
+  { step: "1", title: "Understand Journal Entries", href: "/journal-entry-solver", label: "Explainer" },
+  { step: "2", title: "Practice by Topic", href: "/practice", label: "Practice" },
+  { step: "3", title: "Learn Ledger Posting", href: "/ledger", label: "Ledger" },
+  { step: "4", title: "Prepare Trial Balance", href: "/trial-balance", label: "Trial Balance" },
+  { step: "5", title: "Prepare Final Accounts", href: "/final-accounts", label: "Final Accounts" },
+  { step: "6", title: "Review Weak Areas", href: "/progress", label: "Progress" },
+];
+
+const quickActions = [
+  { title: "Practice by Topic", href: "/practice" },
+  { title: "Explain a Transaction", href: "/journal-entry-solver" },
+  { title: "Generate Ledger", href: "/ledger" },
+  { title: "Prepare Trial Balance", href: "/trial-balance" },
+  { title: "Prepare Final Accounts", href: "/final-accounts" },
+  { title: "Read How to Use", href: "/how-to-use" },
+];
+
+export default function DashboardPage() {
+  const [summary, setSummary] = useState<DashboardSummary>(() => getDashboardSummary([]));
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setSummary(getDashboardSummary());
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  const hasAttempts = summary.totalAttempts > 0;
+
+  return (
+    <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
+      <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-7">
+        <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
+          <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+            <Link href="/" className="text-blue-800 transition hover:text-blue-950">
+              Back to Home
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
+              Learning Tools
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
+              Practice
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
+              Progress
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
+              History
+            </Link>
+          </nav>
+          <div className="mt-7 max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learner overview</p>
+            <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Student Dashboard</h1>
+            <p className="mt-4 text-lg leading-8 text-slate-700">
+              Track your recent practice, weak areas, and next learning steps.
+            </p>
+            <p className="mt-5 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
+              This dashboard is saved only on this browser. No login or cloud sync yet.
+            </p>
+          </div>
+        </header>
+
+        <WelcomeCard hasAttempts={hasAttempts} />
+
+        <section>
+          <div className="mb-4">
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning summary</p>
+            <h2 className="mt-2 text-2xl font-bold text-blue-950">Your recent progress</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <SummaryCard label="Total Attempts" value={summary.totalAttempts.toString()} />
+            <SummaryCard label="Correct Attempts" value={summary.correctAttempts.toString()} />
+            <SummaryCard label="Needs Correction" value={summary.incorrectAttempts.toString()} />
+            <SummaryCard label="Average Score" value={`${summary.averageScore}/100`} />
+          </div>
+          {!hasAttempts ? (
+            <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold leading-6 text-blue-900">
+              Start your first practice attempt to build your dashboard.
+            </p>
+          ) : null}
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-[1.35fr_0.85fr]">
+          <WeakAreasSection summary={summary} />
+          <RecommendedPracticeCard summary={summary} hasAttempts={hasAttempts} />
+        </section>
+
+        <RecentAttemptsSection attempts={summary.recentAttempts} />
+
+        <LearningPathSection />
+
+        <QuickActionsSection />
+
+        <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+          <h2 className="text-lg font-bold text-emerald-950">Browser-only privacy note</h2>
+          <p className="mt-2 text-sm font-semibold leading-6 text-emerald-800">
+            Your dashboard is saved only on this browser using local storage. No login or cloud sync yet.
+          </p>
+        </section>
+      </section>
+    </main>
+  );
+}
+
+function WelcomeCard({ hasAttempts }: { hasAttempts: boolean }) {
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Welcome</p>
+          <h2 className="mt-2 text-2xl font-bold text-blue-950">Welcome back to Accywise</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-600">Continue practicing accountancy step by step.</p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+            {hasAttempts
+              ? "Continue learning from your recent attempts."
+              : "Start your first practice attempt to build your dashboard."}
+          </p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link
+            href="/practice"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+          >
+            {hasAttempts ? "Practice Recommended Topic" : "Start Practice"}
+          </Link>
+          {hasAttempts ? (
+            <Link
+              href="/history"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+            >
+              View History
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: string }) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft">
+      <div className="text-sm font-bold text-slate-600">{label}</div>
+      <div className="mt-3 text-3xl font-bold text-blue-950">{value}</div>
+    </article>
+  );
+}
+
+function WeakAreasSection({ summary }: { summary: DashboardSummary }) {
+  const weakAreas = summary.weakAreas.slice(0, 3);
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
+      <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Weak areas</p>
+      <h2 className="mt-2 text-2xl font-bold text-blue-950">Focus areas</h2>
+      {weakAreas.length > 0 ? (
+        <div className="mt-5 grid gap-4 md:grid-cols-3 xl:grid-cols-1">
+          {weakAreas.map((area) => (
+            <article key={area.id} className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+              <h3 className="text-lg font-bold text-blue-950">{area.label}</h3>
+              <p className="mt-2 text-sm font-semibold text-slate-700">Average score: {area.averageScore}%</p>
+              <p className="mt-1 text-sm font-semibold text-slate-700">Attempts: {area.attempts}</p>
+              <p className="mt-1 text-sm font-semibold text-slate-700">Issue count: {area.issueCount}</p>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{area.recommendation}</p>
+              <Link
+                href="/practice"
+                className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+              >
+                Practice {area.label}
+              </Link>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-sm font-semibold leading-6 text-emerald-800">
+            No weak areas found yet. Keep practicing mixed questions to build accuracy.
+          </p>
+          <Link
+            href="/practice"
+            className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+          >
+            Practice Mixed Questions
+          </Link>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function RecommendedPracticeCard({
+  summary,
+  hasAttempts,
+}: {
+  summary: DashboardSummary;
+  hasAttempts: boolean;
+}) {
+  const title = hasAttempts ? summary.recommendation.title : "Start with Basics";
+  const description = hasAttempts
+    ? summary.recommendation.description
+    : "Begin with simple capital, cash, purchases, and sales entries.";
+
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-950 to-emerald-800 p-5 text-white shadow-soft sm:p-6">
+      <p className="text-sm font-bold uppercase tracking-normal text-emerald-100">Recommended next practice</p>
+      <h2 className="mt-2 text-2xl font-bold">Recommended next: {title}</h2>
+      <p className="mt-4 text-sm leading-6 text-blue-50">{description}</p>
+      <Link
+        href="/practice"
+        className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2 text-sm font-bold text-blue-950 transition hover:bg-blue-50"
+      >
+        Start Practice
+      </Link>
+    </section>
+  );
+}
+
+function RecentAttemptsSection({ attempts }: { attempts: AttemptHistoryItem[] }) {
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Recent attempts</p>
+          <h2 className="mt-2 text-2xl font-bold text-blue-950">Latest practice activity</h2>
+        </div>
+        <Link
+          href="/history"
+          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+        >
+          View Full History
+        </Link>
+      </div>
+      {attempts.length > 0 ? (
+        <div className="mt-5 grid gap-3">
+          {attempts.map((attempt) => (
+            <RecentAttemptCard key={attempt.id} attempt={attempt} />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-semibold leading-6 text-slate-700">
+          No recent attempts yet.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function RecentAttemptCard({ attempt }: { attempt: AttemptHistoryItem }) {
+  return (
+    <article className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-bold text-blue-900">
+              {formatModule(attempt.module)}
+            </span>
+            {attempt.topic ? (
+              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-bold text-emerald-800">
+                {formatTopic(attempt.topic)}
+              </span>
+            ) : null}
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-700">
+              {formatStatus(attempt.resultStatus)}
+            </span>
+          </div>
+          <h3 className="mt-3 text-base font-bold leading-7 text-blue-950">{attempt.transaction}</h3>
+          <p className="mt-1 text-sm font-medium text-slate-500">{formatDate(attempt.createdAt)}</p>
+          {attempt.mistakeType && attempt.mistakeType !== "correct" ? (
+            <p className="mt-2 text-sm font-semibold text-slate-700">Mistake: {formatMistake(attempt.mistakeType)}</p>
+          ) : null}
+        </div>
+        {typeof attempt.score === "number" ? (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+            <div className="text-xs font-bold uppercase tracking-normal text-slate-500">Score</div>
+            <div className="mt-1 text-2xl font-bold text-blue-950">{attempt.score}/100</div>
+          </div>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+function LearningPathSection() {
+  return (
+    <section>
+      <div className="mb-4">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning path</p>
+        <h2 className="mt-2 text-2xl font-bold text-blue-950">A simple accountancy journey</h2>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {learningPath.map((item) => (
+          <article key={item.step} className="rounded-2xl border border-blue-100 bg-white p-5 shadow-soft">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-900 text-sm font-bold text-white">
+              {item.step}
+            </span>
+            <h3 className="mt-4 text-lg font-bold text-blue-950">{item.title}</h3>
+            <Link
+              href={item.href}
+              className="mt-5 inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+            >
+              {item.label}
+            </Link>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function QuickActionsSection() {
+  return (
+    <section>
+      <div className="mb-4">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Quick actions</p>
+        <h2 className="mt-2 text-2xl font-bold text-blue-950">Jump back into learning</h2>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {quickActions.map((action) => (
+          <Link key={action.href} href={action.href} className="group">
+            <article className="flex h-full min-h-32 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50">
+              <h3 className="text-lg font-bold text-blue-950">{action.title}</h3>
+              <span className="mt-5 text-sm font-bold text-blue-800">Open</span>
+            </article>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function formatModule(module: AttemptHistoryItem["module"]): string {
+  if (module === "checker") return "Checker";
+  if (module === "practice") return "Practice";
+  return "Explainer";
+}
+
+function formatTopic(topic: string): string {
+  return topic
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function formatStatus(status: AttemptHistoryItem["resultStatus"]): string {
+  if (status === "correct") return "Correct";
+  if (status === "invalid") return "Invalid format";
+  if (status === "unsupported") return "Unsupported";
+  if (status === "ambiguous") return "Ambiguous";
+  if (status === "solved") return "Solved";
+  return "Needs correction";
+}
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function formatMistake(mistakeType: string): string {
+  const labels: Record<string, string> = {
+    wrong_account: "Wrong account",
+    reversed_sides: "Debit/Credit side",
+    amount_mismatch: "Amount mismatch",
+    missing_account: "Missing account",
+    unbalanced_entry: "Unbalanced entry",
+    format_error: "Format",
+    unsupported_transaction: "Unsupported transaction",
+  };
+
+  return labels[mistakeType] ?? mistakeType;
+}

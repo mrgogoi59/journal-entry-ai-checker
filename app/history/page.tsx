@@ -70,6 +70,10 @@ export default function AttemptHistoryPage() {
             <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
               Learning Progress
             </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
+              Dashboard
+            </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning record</p>
@@ -105,6 +109,20 @@ export default function AttemptHistoryPage() {
                 </p>
               </div>
               <span className="text-sm font-bold text-blue-800">Open Progress</span>
+            </div>
+          </section>
+        </Link>
+
+        <Link href="/dashboard" className="group">
+          <section className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-5 shadow-soft transition group-hover:border-emerald-200 group-hover:bg-emerald-50 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-blue-950">Student Dashboard</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Track progress, weak areas, recent attempts, and next steps.
+                </p>
+              </div>
+              <span className="text-sm font-bold text-blue-800">Open Dashboard</span>
             </div>
           </section>
         </Link>

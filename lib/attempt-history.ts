@@ -56,6 +56,24 @@ export type WeakAreaSummary = {
   }[];
 };
 
+export type DashboardRecommendation = {
+  title: string;
+  description: string;
+  ctaLabel: string;
+  href: string;
+};
+
+export type DashboardSummary = {
+  totalAttempts: number;
+  correctAttempts: number;
+  incorrectAttempts: number;
+  averageScore: number;
+  weakAreas: WeakAreaSummary["weakAreas"];
+  mistakePatterns: WeakAreaSummary["mistakePatterns"];
+  recentAttempts: AttemptHistoryItem[];
+  recommendation: DashboardRecommendation;
+};
+
 const emptyWeakAreaSummary: WeakAreaSummary = {
   totalAttempts: 0,
   correctAttempts: 0,
@@ -63,6 +81,17 @@ const emptyWeakAreaSummary: WeakAreaSummary = {
   averageScore: 0,
   weakAreas: [],
   mistakePatterns: [],
+};
+
+const emptyDashboardSummary: DashboardSummary = {
+  ...emptyWeakAreaSummary,
+  recentAttempts: [],
+  recommendation: {
+    title: "Start with Basics",
+    description: "Begin with simple capital, cash, purchases, and sales entries.",
+    ctaLabel: "Start Practice",
+    href: "/practice",
+  },
 };
 
 const topicLabels: Record<string, string> = {
@@ -230,11 +259,51 @@ export function getWeakAreaSummary(items?: AttemptHistoryItem[]): WeakAreaSummar
   };
 }
 
+export function getDashboardSummary(items?: AttemptHistoryItem[]): DashboardSummary {
+  if (!items && typeof window === "undefined") return emptyDashboardSummary;
+
+  const attempts = trimAttemptHistory(items ?? getAttemptHistory());
+  if (attempts.length === 0) return emptyDashboardSummary;
+
+  const weakAreaSummary = getWeakAreaSummary(attempts);
+
+  return {
+    totalAttempts: weakAreaSummary.totalAttempts,
+    correctAttempts: weakAreaSummary.correctAttempts,
+    incorrectAttempts: weakAreaSummary.incorrectAttempts,
+    averageScore: weakAreaSummary.averageScore,
+    weakAreas: weakAreaSummary.weakAreas,
+    mistakePatterns: weakAreaSummary.mistakePatterns,
+    recentAttempts: attempts.slice(0, 5),
+    recommendation: getDashboardRecommendation(weakAreaSummary),
+  };
+}
+
 export function mapCheckResultStatus(status: ResultStatus): AttemptHistoryResultStatus {
   if (status === "Correct") return "correct";
   if (status === "Invalid Format") return "invalid";
   if (status === "Unsupported Transaction") return "unsupported";
   return "incorrect";
+}
+
+function getDashboardRecommendation(summary: WeakAreaSummary): DashboardRecommendation {
+  const firstWeakArea = summary.weakAreas[0];
+
+  if (firstWeakArea) {
+    return {
+      title: `Practice ${firstWeakArea.label}`,
+      description: `You made mistakes or low scores in ${firstWeakArea.label}. Practice this topic next.`,
+      ctaLabel: "Start Practice",
+      href: "/practice",
+    };
+  }
+
+  return {
+    title: "Practice Mixed Questions",
+    description: "Keep practicing mixed questions to strengthen speed and accuracy.",
+    ctaLabel: "Practice Mixed Questions",
+    href: "/practice",
+  };
 }
 
 function inferWeakArea(attempt: AttemptHistoryItem): { id: string; label: string } {
