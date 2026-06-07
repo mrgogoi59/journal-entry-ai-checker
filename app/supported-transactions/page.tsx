@@ -299,7 +299,7 @@ export default function SupportedTransactionsPage() {
 function PageHeader() {
   return (
     <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
-      <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+      <nav className="hidden flex-wrap items-center gap-3 text-sm font-semibold sm:flex">
         <Link href="/" className="text-blue-800 transition hover:text-blue-950">
           Back to Home
         </Link>
@@ -308,6 +308,12 @@ function PageHeader() {
           Learning Tools
         </Link>
         <span className="text-slate-300">/</span>
+        <Link href="/journal-entry-solver" className="text-blue-800 transition hover:text-blue-950">
+          Start Explainer
+        </Link>
+      </nav>
+      <nav className="flex items-center justify-between gap-3 text-sm font-semibold sm:hidden">
+        <span className="text-blue-950">Supported Topics</span>
         <Link href="/journal-entry-solver" className="text-blue-800 transition hover:text-blue-950">
           Start Explainer
         </Link>

@@ -54,7 +54,7 @@ export default function AttemptHistoryPage() {
     <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
       <section className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 sm:gap-7">
         <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
-          <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+          <nav className="hidden flex-wrap items-center gap-3 text-sm font-semibold sm:flex">
             <Link href="/" className="text-blue-800 transition hover:text-blue-950">
               Home
             </Link>
@@ -73,6 +73,12 @@ export default function AttemptHistoryPage() {
             <span className="text-slate-300">/</span>
             <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
               Tools
+            </Link>
+          </nav>
+          <nav className="flex items-center justify-between gap-3 text-sm font-semibold sm:hidden">
+            <span className="text-blue-950">History</span>
+            <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
+              Progress
             </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
