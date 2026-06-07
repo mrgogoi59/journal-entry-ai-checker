@@ -9,6 +9,7 @@ import {
   type FinalAccountAdjustment,
   type FinalAccountLine,
   type FinalAccountsResult,
+  type ProvisionForDoubtfulDebtsWorking,
   type TrialBalanceBalance,
 } from "@/lib/final-accounts-engine";
 
@@ -217,6 +218,9 @@ function FinalAccountsResultView({
       </ResultSection>
 
       {result.balanceSheet.capitalWorking ? <CapitalWorkingView working={result.balanceSheet.capitalWorking} /> : null}
+      {result.balanceSheet.provisionForDoubtfulDebtsWorking ? (
+        <ProvisionWorkingView working={result.balanceSheet.provisionForDoubtfulDebtsWorking} />
+      ) : null}
 
       <ResultSection title="Balance Sheet">
         <BalanceSheetTable
@@ -325,7 +329,7 @@ function ParsedAdjustments({
                   <td className="px-3 py-2 text-slate-700">{formatAdjustmentType(adjustment.type)}</td>
                   <td className="px-3 py-2 font-medium text-ink">{adjustment.account}</td>
                   <td className="px-3 py-2 text-slate-700">{adjustment.relatedAccount ?? "-"}</td>
-                  <td className="px-3 py-2 text-right text-ink">Rs.{adjustment.amount.toLocaleString("en-IN")}</td>
+                  <td className="px-3 py-2 text-right text-ink">{formatAdjustmentAmount(adjustment)}</td>
                 </tr>
               ))
             ) : (
@@ -461,6 +465,30 @@ function CapitalWorkingRow({ label, amount }: { label: string; amount: number })
       <td className="px-3 py-2 font-medium text-ink">{label}</td>
       <td className="px-3 py-2 text-right text-ink">Rs.{amount.toLocaleString("en-IN")}</td>
     </tr>
+  );
+}
+
+function ProvisionWorkingView({ working }: { working: ProvisionForDoubtfulDebtsWorking }) {
+  return (
+    <ResultSection title="Provision for Doubtful Debts Working">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[460px] border-collapse text-sm">
+          <tbody>
+            <CapitalWorkingRow label="Debtors" amount={working.debtors} />
+            <CapitalWorkingRow label="Existing Provision" amount={working.existingProvision} />
+            <CapitalWorkingRow label="Required Provision" amount={working.requiredProvision} />
+            {working.increase > 0 ? <CapitalWorkingRow label="Increase debited to P&L" amount={working.increase} /> : null}
+            {working.decrease > 0 ? <CapitalWorkingRow label="Decrease credited to P&L" amount={working.decrease} /> : null}
+            <tr className="border-t border-line bg-paper font-bold text-ink">
+              <td className="px-3 py-2">Net Debtors</td>
+              <td className="px-3 py-2 text-right">
+                Rs.{Math.max(working.debtors - working.requiredProvision, 0).toLocaleString("en-IN")}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ResultSection>
   );
 }
 
@@ -650,6 +678,12 @@ function formatAdjustmentType(type: FinalAccountAdjustment["type"]): string {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+function formatAdjustmentAmount(adjustment: FinalAccountAdjustment): string {
+  if (adjustment.amount !== undefined) return `Rs.${adjustment.amount.toLocaleString("en-IN")}`;
+  if (adjustment.percentage !== undefined) return `${adjustment.percentage}%`;
+  return "-";
 }
 
 function formatReportInput(trialBalanceInput: string, adjustmentsInput: string): string {

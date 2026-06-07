@@ -22,6 +22,15 @@ export type CapitalWorking = {
   adjustedCapital: number;
 };
 
+export type ProvisionForDoubtfulDebtsWorking = {
+  debtors: number;
+  existingProvision: number;
+  requiredProvision: number;
+  increase: number;
+  decrease: number;
+  pnlEffect: "debit" | "credit" | "none";
+};
+
 export type FinalAccountAdjustment = {
   type:
     | "closing_stock"
@@ -29,10 +38,12 @@ export type FinalAccountAdjustment = {
     | "prepaid_expense"
     | "accrued_income"
     | "income_received_in_advance"
-    | "depreciation";
+    | "depreciation"
+    | "provision_for_doubtful_debts";
   account: string;
   relatedAccount?: string;
-  amount: number;
+  amount?: number;
+  percentage?: number;
   rawText: string;
 };
 
@@ -64,6 +75,7 @@ export type FinalAccountsResult = {
     agrees: boolean;
     difference: number;
     capitalWorking?: CapitalWorking;
+    provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking;
   };
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
@@ -150,6 +162,9 @@ const balanceSheetAccounts = new Set([
   "debtors",
   "sundry debtor",
   "sundry debtors",
+  "trade debtor",
+  "trade debtors",
+  "accounts receivable",
   "customer",
   "customers",
   "creditor",
@@ -212,6 +227,10 @@ const balanceSheetAccounts = new Set([
   "inventory",
   "asset disposal",
   "accumulated depreciation",
+  "provision for doubtful debts",
+  "provision for bad debts",
+  "reserve for doubtful debts",
+  "doubtful debts provision",
 ]);
 
 const capitalAccounts = new Set(["capital", "owner capital", "proprietor capital"]);
@@ -255,6 +274,9 @@ const assetAccounts = new Set([
   "debtors",
   "sundry debtor",
   "sundry debtors",
+  "trade debtor",
+  "trade debtors",
+  "accounts receivable",
   "customer",
   "customers",
   "machinery",
@@ -292,6 +314,25 @@ const supportedAdjustmentAccounts = {
   assets: ["machinery", "furniture", "computer", "equipment", "vehicle"],
 };
 
+const debtorAccounts = new Set([
+  "debtor",
+  "debtors",
+  "sundry debtor",
+  "sundry debtors",
+  "trade debtor",
+  "trade debtors",
+  "accounts receivable",
+  "customer",
+  "customers",
+]);
+
+const provisionForDoubtfulDebtsAccounts = new Set([
+  "provision for doubtful debts",
+  "provision for bad debts",
+  "reserve for doubtful debts",
+  "doubtful debts provision",
+]);
+
 const commonMistakes = [
   "Do not put Cash or Bank in Trading A/c or P&L A/c.",
   "Do not put Capital in Trading A/c or P&L A/c.",
@@ -306,6 +347,11 @@ const commonMistakes = [
   "Income received in advance reduces income and creates liability.",
   "Depreciation is an expense and reduces the asset value.",
   "Do not double count closing stock if it already appears in Trial Balance.",
+  "Do not show Provision for Doubtful Debts as a normal liability when it is adjusted against Debtors.",
+  "Do not deduct the provision twice.",
+  "Do not debit the full required provision to P&L when an existing provision already exists.",
+  "Use only the increase or decrease in provision in P&L.",
+  "Deduct the required closing provision from Debtors in the Balance Sheet.",
 ];
 
 const logic = [
@@ -325,6 +371,10 @@ const adjustmentLogic = [
   "Accrued interest is added to interest income and shown as an asset.",
   "Rent received in advance is deducted from rent income and shown as a liability.",
   "Depreciation is charged to Profit & Loss A/c and deducted from the related asset.",
+  "Provision for doubtful debts is deducted from Debtors in the Balance Sheet.",
+  "If required provision is more than existing provision, only the increase is debited to Profit & Loss A/c.",
+  "If required provision is less than existing provision, the decrease is credited to Profit & Loss A/c.",
+  "Provision is calculated on debtors unless a fixed required amount is given.",
 ];
 
 export function generateFinalAccounts(input: string, adjustmentsInput = ""): FinalAccountsResult {
@@ -390,6 +440,7 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     classified.balanceSheetItems,
     profitAndLossAccount.netProfit,
     profitAndLossAccount.netLoss,
+    classified.provisionForDoubtfulDebtsWorking,
   );
   const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
   const unclassifiedAdjustmentWarnings = adjustmentResult.unclassifiedAdjustments.length
@@ -452,6 +503,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
   profitAndLossCreditLines: FinalAccountLine[];
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
+  provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking;
 } {
   const tradingDebitLines: FinalAccountLine[] = [];
   const tradingCreditLines: FinalAccountLine[] = [];
@@ -544,11 +596,35 @@ function parseAdjustments(input: string): {
 
 function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
   const amount = extractAmount(line);
-  if (!amount) return null;
+  const percentage = extractPercentage(line);
+  if (!amount && percentage === null) return null;
 
-  const text = cleanDisplayAccountName(removeFirstAmount(line));
+  const text = cleanDisplayAccountName(amount ? removeFirstAmount(line) : line);
+
+  if (/\b(provision for doubtful debts|provision for bad debts|doubtful debts)\b/.test(text)) {
+    if (percentage !== null) {
+      return {
+        type: "provision_for_doubtful_debts",
+        account: "Provision for Doubtful Debts",
+        relatedAccount: "Debtors",
+        percentage,
+        rawText: line,
+      };
+    }
+
+    if (amount) {
+      return {
+        type: "provision_for_doubtful_debts",
+        account: "Provision for Doubtful Debts",
+        relatedAccount: "Debtors",
+        amount,
+        rawText: line,
+      };
+    }
+  }
 
   if (/\bclosing stock\b/.test(text) || /\bstock at end\b/.test(text)) {
+    if (!amount) return null;
     return {
       type: "closing_stock",
       account: "Closing Stock",
@@ -562,6 +638,7 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
     (word) => `outstanding ${word}`,
   ]);
   if (outstandingExpense) {
+    if (!amount) return null;
     return {
       type: "outstanding_expense",
       account: `Outstanding ${titleCaseAccount(outstandingExpense)}`,
@@ -577,6 +654,7 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
     (word) => `${word} paid in advance`,
   ]);
   if (prepaidExpense) {
+    if (!amount) return null;
     return {
       type: "prepaid_expense",
       account: `Prepaid ${titleCaseAccount(prepaidExpense)}`,
@@ -592,6 +670,7 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
     (word) => `${word} receivable`,
   ]);
   if (accruedIncome) {
+    if (!amount) return null;
     return {
       type: "accrued_income",
       account: `Accrued ${titleCaseAccount(accruedIncome)}`,
@@ -606,6 +685,7 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
     (word) => `unearned ${word}`,
   ]);
   if (advanceIncome) {
+    if (!amount) return null;
     return {
       type: "income_received_in_advance",
       account: `${titleCaseAccount(advanceIncome)} Received In Advance`,
@@ -620,6 +700,7 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
     (word) => `depreciation charged on ${word}`,
   ]);
   if (depreciationAsset) {
+    if (!amount) return null;
     return {
       type: "depreciation",
       account: "Depreciation",
@@ -632,6 +713,14 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
   return null;
 }
 
+function extractPercentage(line: string): number | null {
+  const match = line.match(/(?:@|at)?\s*([0-9]+(?:\.\d+)?)\s*%/i);
+  if (!match) return null;
+
+  const percentage = Number(match[1]);
+  return Number.isFinite(percentage) && percentage > 0 ? percentage : null;
+}
+
 function applyAdjustments(
   classified: {
     tradingDebitLines: FinalAccountLine[];
@@ -639,6 +728,7 @@ function applyAdjustments(
     profitAndLossDebitLines: FinalAccountLine[];
     profitAndLossCreditLines: FinalAccountLine[];
     balanceSheetItems: TrialBalanceBalance[];
+    provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking;
   },
   adjustments: FinalAccountAdjustment[],
 ): string[] {
@@ -646,36 +736,39 @@ function applyAdjustments(
 
   adjustments.forEach((adjustment) => {
     if (adjustment.type === "closing_stock") {
-      addAmount(classified.tradingCreditLines, adjustment.account, adjustment.amount);
+      const amount = adjustment.amount ?? 0;
+      addAmount(classified.tradingCreditLines, adjustment.account, amount);
       classified.balanceSheetItems.push({
         account: adjustment.account,
         side: "debit",
-        amount: adjustment.amount,
+        amount,
       });
       return;
     }
 
     if (adjustment.type === "outstanding_expense") {
+      const amount = adjustment.amount ?? 0;
       const relatedAccount = adjustment.relatedAccount ?? adjustment.account;
       if (
-        !addAmountIfExists(classified.tradingDebitLines, relatedAccount, adjustment.amount) &&
-        !addAmountIfExists(classified.profitAndLossDebitLines, relatedAccount, adjustment.amount)
+        !addAmountIfExists(classified.tradingDebitLines, relatedAccount, amount) &&
+        !addAmountIfExists(classified.profitAndLossDebitLines, relatedAccount, amount)
       ) {
-        addAmount(classified.profitAndLossDebitLines, relatedAccount, adjustment.amount);
+        addAmount(classified.profitAndLossDebitLines, relatedAccount, amount);
       }
       classified.balanceSheetItems.push({
         account: adjustment.account,
         side: "credit",
-        amount: adjustment.amount,
+        amount,
       });
       return;
     }
 
     if (adjustment.type === "prepaid_expense") {
+      const amount = adjustment.amount ?? 0;
       const relatedAccount = adjustment.relatedAccount ?? adjustment.account;
       const reduced =
-        reduceAmountIfExists(classified.profitAndLossDebitLines, relatedAccount, adjustment.amount) ||
-        reduceAmountIfExists(classified.tradingDebitLines, relatedAccount, adjustment.amount);
+        reduceAmountIfExists(classified.profitAndLossDebitLines, relatedAccount, amount) ||
+        reduceAmountIfExists(classified.tradingDebitLines, relatedAccount, amount);
 
       if (!reduced) {
         warnings.push(`Related expense not found for ${cleanAccountName(adjustment.account)}.`);
@@ -684,24 +777,26 @@ function applyAdjustments(
       classified.balanceSheetItems.push({
         account: adjustment.account,
         side: "debit",
-        amount: adjustment.amount,
+        amount,
       });
       return;
     }
 
     if (adjustment.type === "accrued_income") {
-      addAmount(classified.profitAndLossCreditLines, adjustment.relatedAccount ?? adjustment.account, adjustment.amount);
+      const amount = adjustment.amount ?? 0;
+      addAmount(classified.profitAndLossCreditLines, adjustment.relatedAccount ?? adjustment.account, amount);
       classified.balanceSheetItems.push({
         account: adjustment.account,
         side: "debit",
-        amount: adjustment.amount,
+        amount,
       });
       return;
     }
 
     if (adjustment.type === "income_received_in_advance") {
+      const amount = adjustment.amount ?? 0;
       const relatedAccount = adjustment.relatedAccount ?? adjustment.account;
-      const reduced = reduceAmountIfExists(classified.profitAndLossCreditLines, relatedAccount, adjustment.amount);
+      const reduced = reduceAmountIfExists(classified.profitAndLossCreditLines, relatedAccount, amount);
 
       if (!reduced) {
         warnings.push(`Related income not found for ${cleanAccountName(adjustment.account)}.`);
@@ -710,18 +805,44 @@ function applyAdjustments(
       classified.balanceSheetItems.push({
         account: adjustment.account,
         side: "credit",
-        amount: adjustment.amount,
+        amount,
       });
       return;
     }
 
     if (adjustment.type === "depreciation") {
-      addAmount(classified.profitAndLossDebitLines, adjustment.account, adjustment.amount);
+      const amount = adjustment.amount ?? 0;
+      addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
       const relatedAccount = adjustment.relatedAccount ?? "";
-      const reduced = reduceBalanceSheetAsset(classified.balanceSheetItems, relatedAccount, adjustment.amount);
+      const reduced = reduceBalanceSheetAsset(classified.balanceSheetItems, relatedAccount, amount);
 
       if (!reduced) {
         warnings.push(`Related asset not found for depreciation on ${cleanAccountName(relatedAccount)}.`);
+      }
+      return;
+    }
+
+    if (adjustment.type === "provision_for_doubtful_debts") {
+      const working = buildProvisionForDoubtfulDebtsWorking(classified.balanceSheetItems, adjustment);
+
+      if (!working) {
+        if (adjustment.amount) {
+          warnings.push("Debtors balance not found, so Balance Sheet deduction for provision for doubtful debts cannot be shown.");
+          addAmount(classified.profitAndLossDebitLines, adjustment.account, adjustment.amount);
+        } else {
+          warnings.push("Debtors balance not found, so provision for doubtful debts could not be calculated.");
+        }
+        return;
+      }
+
+      classified.provisionForDoubtfulDebtsWorking = working;
+
+      if (working.pnlEffect === "debit") {
+        addAmount(classified.profitAndLossDebitLines, adjustment.account, working.increase);
+      }
+
+      if (working.pnlEffect === "credit") {
+        addAmount(classified.profitAndLossCreditLines, adjustment.account, working.decrease);
       }
     }
   });
@@ -802,6 +923,7 @@ function buildBalanceSheet(
   balanceSheetItems: TrialBalanceBalance[],
   netProfit: number,
   netLoss: number,
+  provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking,
 ): FinalAccountsResult["balanceSheet"] {
   const assets: FinalAccountLine[] = [];
   const liabilities: FinalAccountLine[] = [];
@@ -810,6 +932,10 @@ function buildBalanceSheet(
 
   balanceSheetItems.forEach((item) => {
     const key = cleanAccountName(item.account);
+
+    if (provisionForDoubtfulDebtsAccounts.has(key)) {
+      return;
+    }
 
     if (capitalAccounts.has(key)) {
       openingCapital += item.amount;
@@ -827,6 +953,14 @@ function buildBalanceSheet(
     }
 
     if (assetAccounts.has(key)) {
+      if (debtorAccounts.has(key) && provisionForDoubtfulDebtsWorking) {
+        assets.push({
+          account: "Net Debtors",
+          amount: Math.max(item.amount - provisionForDoubtfulDebtsWorking.requiredProvision, 0),
+        });
+        return;
+      }
+
       assets.push(toFinalAccountLine(item));
     }
   });
@@ -859,6 +993,7 @@ function buildBalanceSheet(
     agrees: difference === 0,
     difference,
     capitalWorking,
+    provisionForDoubtfulDebtsWorking,
   };
 }
 
@@ -883,6 +1018,38 @@ function buildBalanceSheetWarnings(
   }
 
   return warnings;
+}
+
+function buildProvisionForDoubtfulDebtsWorking(
+  balanceSheetItems: TrialBalanceBalance[],
+  adjustment: FinalAccountAdjustment,
+): ProvisionForDoubtfulDebtsWorking | null {
+  const debtors = balanceSheetItems
+    .filter((item) => debtorAccounts.has(cleanAccountName(item.account)))
+    .reduce((total, item) => total + item.amount, 0);
+  const existingProvision = balanceSheetItems
+    .filter((item) => provisionForDoubtfulDebtsAccounts.has(cleanAccountName(item.account)))
+    .reduce((total, item) => total + item.amount, 0);
+
+  if (debtors === 0) {
+    return null;
+  }
+
+  const requiredProvision =
+    adjustment.amount ?? (adjustment.percentage !== undefined ? Math.round((debtors * adjustment.percentage) / 100) : 0);
+  const increase = Math.max(requiredProvision - existingProvision, 0);
+  const decrease = Math.max(existingProvision - requiredProvision, 0);
+  const pnlEffect: ProvisionForDoubtfulDebtsWorking["pnlEffect"] =
+    increase > 0 ? "debit" : decrease > 0 ? "credit" : "none";
+
+  return {
+    debtors,
+    existingProvision,
+    requiredProvision,
+    increase,
+    decrease,
+    pnlEffect,
+  };
 }
 
 function findRelatedWord(

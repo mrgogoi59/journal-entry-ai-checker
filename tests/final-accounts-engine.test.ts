@@ -387,6 +387,140 @@ Cash Dr 50000`,
     expect(result.adjustmentWarnings).toContain("Some adjustments could not be classified.");
   });
 
+  it("creates new provision for doubtful debts by percentage", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      "Create provision for doubtful debts @ 5% on debtors",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      debtors: 50000,
+      existingProvision: 0,
+      requiredProvision: 2500,
+      increase: 2500,
+      decrease: 0,
+      pnlEffect: "debit",
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 2500,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 47500 });
+  });
+
+  it("debits only additional provision when existing provision is lower than required", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000
+Provision for Doubtful Debts A/c Cr Rs.1000
+Cash A/c Dr Rs.1000`,
+      "Create provision for doubtful debts @ 5% on debtors",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      existingProvision: 1000,
+      requiredProvision: 2500,
+      increase: 1500,
+      decrease: 0,
+      pnlEffect: "debit",
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 1500,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 47500 });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
+    );
+  });
+
+  it("credits excess provision when existing provision is higher than required", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000
+Provision for Doubtful Debts A/c Cr Rs.4000
+Cash A/c Dr Rs.4000`,
+      "Create provision for doubtful debts @ 5% on debtors",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      existingProvision: 4000,
+      requiredProvision: 2500,
+      increase: 0,
+      decrease: 1500,
+      pnlEffect: "credit",
+    });
+    expect(line(result.profitAndLossAccount.creditLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 1500,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 47500 });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
+    );
+  });
+
+  it("uses directly given required provision amount", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      "Provision for doubtful debts required Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking?.requiredProvision).toBe(3000);
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 3000,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 47000 });
+  });
+
+  it("warns when debtors are missing for percentage provision", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Cash A/c Dr Rs.50000`,
+      "Create provision for doubtful debts @ 5% on debtors",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Debtors balance not found, so provision for doubtful debts could not be calculated.",
+    );
+  });
+
+  it("handles full case with existing provision for doubtful debts", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.30000
+Debtors A/c Dr Rs.50000
+Purchases A/c Dr Rs.20000
+Sales A/c Cr Rs.60000
+Creditors A/c Cr Rs.10000
+Provision for Doubtful Debts A/c Cr Rs.1000
+Bank A/c Dr Rs.71000`,
+      "Create provision for doubtful debts @ 5% on debtors",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      requiredProvision: 2500,
+      increase: 1500,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 1500,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 47500 });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
+    );
+  });
+
   it("reduces Commission Received for commission received in advance", () => {
     const result = generateFinalAccounts(
       `Commission Received A/c Cr Rs.4000
