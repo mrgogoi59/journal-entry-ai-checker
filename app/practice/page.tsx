@@ -13,66 +13,77 @@ const practiceTopics: Array<{
   id: PracticeTopic;
   name: string;
   description: string;
+  shortDescription: string;
   difficulty: "Beginner" | "Intermediate";
 }> = [
   {
     id: "basics",
     name: "Basics",
     description: "Capital, cash, bank, simple purchases and sales.",
+    shortDescription: "Capital, cash, bank, purchases, sales.",
     difficulty: "Beginner",
   },
   {
     id: "purchases_sales",
     name: "Purchases and Sales",
     description: "Cash/credit purchases, cash/credit sales, partial purchase/sale.",
+    shortDescription: "Cash, credit, and partial goods entries.",
     difficulty: "Beginner",
   },
   {
     id: "expenses_incomes",
     name: "Expenses and Incomes",
     description: "Expense payments and income receipts in cash/bank/digital mode.",
+    shortDescription: "Payments and receipts in cash/bank.",
     difficulty: "Beginner",
   },
   {
     id: "debtors_creditors",
     name: "Debtors and Creditors",
     description: "Receipt from debtors, payment to creditors, discount allowed/received.",
+    shortDescription: "Receipts, payments, and discounts.",
     difficulty: "Beginner",
   },
   {
     id: "adjustments",
     name: "Adjustments",
     description: "Outstanding expenses, prepaid expenses, accrued income, income received in advance.",
+    shortDescription: "Outstanding, prepaid, accrued, advance.",
     difficulty: "Intermediate",
   },
   {
     id: "assets",
     name: "Assets",
     description: "Fixed asset purchase, installation charges, asset sale, depreciation.",
+    shortDescription: "Assets, installation, sale, depreciation.",
     difficulty: "Intermediate",
   },
   {
     id: "goods_adjustments",
     name: "Goods Adjustments",
     description: "Goods withdrawn, free samples, charity, goods lost by fire/theft.",
+    shortDescription: "Withdrawn, samples, charity, lost goods.",
     difficulty: "Intermediate",
   },
   {
     id: "returns_discounts",
     name: "Returns and Discounts",
     description: "Sales return, purchase return, trade discount, settlement discount.",
+    shortDescription: "Returns, trade discount, settlement.",
     difficulty: "Intermediate",
   },
   {
     id: "gst",
     name: "GST",
     description: "GST on purchases/sales, GST-inclusive, CGST/SGST/IGST, GST set-off/payment.",
+    shortDescription: "GST purchase, sale, inclusive, set-off.",
     difficulty: "Intermediate",
   },
   {
     id: "mixed",
     name: "Mixed Practice",
     description: "Random questions from all supported beginner journal-entry categories.",
+    shortDescription: "Random supported practice questions.",
     difficulty: "Intermediate",
   },
 ];
@@ -220,17 +231,15 @@ export default function PracticePage() {
       <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-6">
         <PageHeader />
 
-        <ReviewLinks />
-
         <section ref={topicSectionRef} className="scroll-mt-5">
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Topic Categories</p>
             <h2 className="mt-2 text-3xl font-bold tracking-normal text-blue-950">Choose a topic</h2>
             <p className="mt-3 text-base leading-7 text-slate-600">
-              Pick one area and build confidence one question at a time.
+              Pick one topic. A practice question will open automatically.
             </p>
           </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:mt-6 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
             {practiceTopics.map((topic) => (
               <TopicCard
                 key={topic.id}
@@ -274,6 +283,8 @@ export default function PracticePage() {
             onChangeTopic={changeTopic}
           />
         ) : null}
+
+        <ReviewLinks />
       </section>
     </main>
   );
@@ -321,15 +332,15 @@ function ReviewLinks() {
   return (
     <section className="grid gap-3 md:grid-cols-2">
       <Link href="/progress" className="group">
-        <article className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50">
-          <h2 className="text-lg font-bold text-blue-950">View Progress</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">See weak areas and recommended topics.</p>
+        <article className="rounded-xl border border-blue-100 bg-blue-50/70 p-3 shadow-sm transition group-hover:border-blue-200 group-hover:bg-blue-50 sm:rounded-2xl sm:p-4 sm:shadow-soft">
+          <h2 className="text-base font-bold text-blue-950 sm:text-lg">View Progress</h2>
+          <p className="mt-1 text-xs leading-5 text-slate-600 sm:mt-2 sm:text-sm sm:leading-6">See weak areas and recommended topics.</p>
         </article>
       </Link>
       <Link href="/history" className="group">
-        <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50">
-          <h2 className="text-lg font-bold text-blue-950">View History</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">Review your recent attempts saved on this browser.</p>
+        <article className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition group-hover:border-blue-200 group-hover:bg-blue-50 sm:rounded-2xl sm:p-4 sm:shadow-soft">
+          <h2 className="text-base font-bold text-blue-950 sm:text-lg">View History</h2>
+          <p className="mt-1 text-xs leading-5 text-slate-600 sm:mt-2 sm:text-sm sm:leading-6">Review recent attempts saved on this browser.</p>
         </article>
       </Link>
     </section>
@@ -347,27 +358,35 @@ function TopicCard({
 }) {
   return (
     <article
-      className={`flex h-full min-h-56 flex-col justify-between rounded-2xl border p-5 shadow-soft transition ${
+      className={`flex h-full flex-col justify-between rounded-xl border p-3 shadow-sm transition sm:min-h-56 sm:rounded-2xl sm:p-5 sm:shadow-soft ${
         isSelected ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white"
       }`}
     >
       <div>
-        <span
-          className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
-            topic.difficulty === "Beginner"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-blue-200 bg-blue-50 text-blue-800"
-          }`}
-        >
-          {topic.difficulty}
-        </span>
-        <h3 className="mt-4 text-xl font-bold text-blue-950">{topic.name}</h3>
-        <p className="mt-3 text-sm leading-6 text-slate-600">{topic.description}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-bold sm:px-3 sm:py-1 sm:text-xs ${
+              topic.difficulty === "Beginner"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                : "border-blue-200 bg-blue-50 text-blue-800"
+            }`}
+          >
+            {topic.difficulty}
+          </span>
+          {isSelected ? (
+            <span className="inline-flex rounded-full border border-blue-200 bg-white px-2 py-0.5 text-[11px] font-bold text-blue-800 sm:px-3 sm:py-1 sm:text-xs">
+              Selected
+            </span>
+          ) : null}
+        </div>
+        <h3 className="mt-2 text-base font-bold text-blue-950 sm:mt-4 sm:text-xl">{topic.name}</h3>
+        <p className="mt-1 text-xs leading-5 text-slate-600 sm:hidden">{topic.shortDescription}</p>
+        <p className="mt-3 hidden text-sm leading-6 text-slate-600 sm:block">{topic.description}</p>
       </div>
       <button
         type="button"
         onClick={onSelect}
-        className="mt-5 min-h-11 rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+        className="mt-3 min-h-11 rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800 sm:mt-5"
       >
         Practice this
       </button>
