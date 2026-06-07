@@ -92,6 +92,19 @@ export type InterestOnLoanWorking = {
   interestOnLoan: number;
 };
 
+export type BalanceSheetAssetGroups = {
+  fixedAssets: FinalAccountLine[];
+  currentAssets: FinalAccountLine[];
+  otherAssets: FinalAccountLine[];
+};
+
+export type BalanceSheetLiabilityGroups = {
+  capital: FinalAccountLine[];
+  nonCurrentLiabilities: FinalAccountLine[];
+  currentLiabilities: FinalAccountLine[];
+  otherLiabilities: FinalAccountLine[];
+};
+
 export type FinalAccountAdjustment = {
   type:
     | "closing_stock"
@@ -147,6 +160,8 @@ export type FinalAccountsResult = {
   balanceSheet: {
     assets: FinalAccountLine[];
     liabilities: FinalAccountLine[];
+    assetGroups?: BalanceSheetAssetGroups;
+    liabilityGroups?: BalanceSheetLiabilityGroups;
     assetTotal: number;
     liabilityTotal: number;
     agrees: boolean;
@@ -495,6 +510,92 @@ const assetAccounts = new Set([
   "inventory",
 ]);
 
+const capitalGroupAccounts = new Set(["adjusted capital"]);
+const nonCurrentLiabilityGroupAccounts = new Set([
+  "loan",
+  "loans",
+  "bank loan",
+  "loan from bank",
+  "borrowing",
+  "borrowings",
+  "long term loan",
+  "loan payable",
+]);
+const currentLiabilityGroupAccounts = new Set([
+  "creditor",
+  "creditors",
+  "net creditors",
+  "sundry creditor",
+  "sundry creditors",
+  "trade creditor",
+  "trade creditors",
+  "accounts payable",
+  "supplier",
+  "suppliers",
+  "outstanding salary",
+  "outstanding rent",
+  "outstanding wages",
+  "outstanding expenses",
+  "income received in advance",
+  "rent received in advance",
+  "commission received in advance",
+  "interest received in advance",
+  "output gst",
+  "output cgst",
+  "output sgst",
+  "output igst",
+  "gst payable",
+  "manager s commission payable",
+  "manager commission payable",
+  "managers commission payable",
+  "outstanding interest on loan",
+  "interest on loan payable",
+]);
+const fixedAssetGroupAccounts = new Set([
+  "machinery",
+  "furniture",
+  "computer",
+  "equipment",
+  "vehicle",
+  "land",
+  "building",
+]);
+const currentAssetGroupAccounts = new Set([
+  "cash",
+  "bank",
+  "debtor",
+  "debtors",
+  "net debtors",
+  "sundry debtor",
+  "sundry debtors",
+  "trade debtor",
+  "trade debtors",
+  "accounts receivable",
+  "customer",
+  "customers",
+  "closing stock",
+  "stock",
+  "inventory",
+  "prepaid rent",
+  "prepaid insurance",
+  "prepaid expenses",
+  "prepaid salary",
+  "prepaid wages",
+  "prepaid electricity",
+  "accrued income",
+  "accrued interest",
+  "accrued commission",
+  "accrued rent",
+  "income receivable",
+  "input gst",
+  "input cgst",
+  "input sgst",
+  "input igst",
+  "input tax credit",
+  "itc",
+  "insurance claim receivable",
+]);
+
 const supportedAdjustmentAccounts = {
   expenses: ["salary", "rent", "wages", "electricity", "insurance"],
   incomes: ["interest", "commission", "rent"],
@@ -627,6 +728,12 @@ const commonMistakes = [
   "Outstanding Interest on Loan is a liability.",
   "Do not add interest to loan principal in this MVP.",
   "Do not calculate percentage interest if loan balance is missing.",
+  "Do not put fixed assets under current assets.",
+  "Do not put creditors under assets.",
+  "Do not show drawings separately if it is already deducted from capital.",
+  "Do not double-count gross debtors and net debtors.",
+  "Do not double-count gross creditors and net creditors.",
+  "Balance Sheet grouping does not change totals.",
   "Do not confuse carriage inward with carriage outward. Carriage inward goes to Trading A/c, while carriage outward goes to P&L.",
   "Factory expenses are direct expenses, but office expenses are indirect expenses.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
@@ -646,6 +753,11 @@ const logic = [
   "Indirect incomes such as commission received and interest received go to the credit side of Profit & Loss Account.",
   "Net Profit is added to Capital, while Net Loss and Drawings are deducted from Capital.",
   "Balance Sheet uses asset, liability, and adjusted capital balances only.",
+  "The Balance Sheet is grouped into Capital, Non-current Liabilities, Current Liabilities, Fixed Assets, and Current Assets.",
+  "Fixed assets are long-term assets like machinery, furniture, computer, vehicle, land, and building.",
+  "Current assets include cash, bank, stock, debtors, prepaid expenses, accrued income, and input GST.",
+  "Current liabilities include creditors, outstanding expenses, income received in advance, output GST, and unpaid commissions or interest.",
+  "Grouping does not change the accounting totals; it only makes the Balance Sheet easier to read.",
 ];
 
 const adjustmentLogic = [
@@ -1992,10 +2104,14 @@ function buildBalanceSheet(
   const assetTotal = sumLines(assets);
   const liabilityTotal = sumLines(liabilities);
   const difference = Math.abs(assetTotal - liabilityTotal);
+  const assetGroups = groupBalanceSheetAssets(assets);
+  const liabilityGroups = groupBalanceSheetLiabilities(liabilities);
 
   return {
     assets,
     liabilities,
+    assetGroups,
+    liabilityGroups,
     assetTotal,
     liabilityTotal,
     agrees: difference === 0,
@@ -2032,6 +2148,64 @@ function buildBalanceSheetWarnings(
   }
 
   return warnings;
+}
+
+function groupBalanceSheetAssets(assets: FinalAccountLine[]): BalanceSheetAssetGroups {
+  const groups: BalanceSheetAssetGroups = {
+    fixedAssets: [],
+    currentAssets: [],
+    otherAssets: [],
+  };
+
+  assets.forEach((line) => {
+    const key = cleanAccountName(line.account);
+
+    if (fixedAssetGroupAccounts.has(key)) {
+      groups.fixedAssets.push(line);
+      return;
+    }
+
+    if (currentAssetGroupAccounts.has(key)) {
+      groups.currentAssets.push(line);
+      return;
+    }
+
+    groups.otherAssets.push(line);
+  });
+
+  return groups;
+}
+
+function groupBalanceSheetLiabilities(liabilities: FinalAccountLine[]): BalanceSheetLiabilityGroups {
+  const groups: BalanceSheetLiabilityGroups = {
+    capital: [],
+    nonCurrentLiabilities: [],
+    currentLiabilities: [],
+    otherLiabilities: [],
+  };
+
+  liabilities.forEach((line) => {
+    const key = cleanAccountName(line.account);
+
+    if (capitalGroupAccounts.has(key)) {
+      groups.capital.push(line);
+      return;
+    }
+
+    if (nonCurrentLiabilityGroupAccounts.has(key)) {
+      groups.nonCurrentLiabilities.push(line);
+      return;
+    }
+
+    if (currentLiabilityGroupAccounts.has(key)) {
+      groups.currentLiabilities.push(line);
+      return;
+    }
+
+    groups.otherLiabilities.push(line);
+  });
+
+  return groups;
 }
 
 function applyManagerCommission(

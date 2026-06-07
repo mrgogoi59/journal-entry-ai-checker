@@ -290,6 +290,111 @@ Cash A/c Dr Rs.45000`);
     expect(result.balanceSheet.agrees).toBe(true);
   });
 
+  it("groups basic Balance Sheet items without changing totals", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.100000
+Loan A/c Cr Rs.50000
+Creditors A/c Cr Rs.30000
+Cash A/c Dr Rs.20000
+Bank A/c Dr Rs.30000
+Machinery A/c Dr Rs.80000
+Debtors A/c Dr Rs.50000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.balanceSheet.liabilityGroups!.capital, "Adjusted Capital")).toEqual({
+      account: "Adjusted Capital",
+      amount: 100000,
+    });
+    expect(line(result.balanceSheet.liabilityGroups!.nonCurrentLiabilities, "Loan")).toEqual({
+      account: "Loan",
+      amount: 50000,
+    });
+    expect(line(result.balanceSheet.liabilityGroups!.currentLiabilities, "Creditors")).toEqual({
+      account: "Creditors",
+      amount: 30000,
+    });
+    expect(line(result.balanceSheet.assetGroups!.fixedAssets, "Machinery")).toEqual({
+      account: "Machinery",
+      amount: 80000,
+    });
+    expect(line(result.balanceSheet.assetGroups!.currentAssets, "Cash")).toEqual({ account: "Cash", amount: 20000 });
+    expect(line(result.balanceSheet.assetGroups!.currentAssets, "Bank")).toEqual({ account: "Bank", amount: 30000 });
+    expect(line(result.balanceSheet.assetGroups!.currentAssets, "Debtors")).toEqual({
+      account: "Debtors",
+      amount: 50000,
+    });
+    expect(sumLinesForTest(result.balanceSheet.liabilities)).toBe(result.balanceSheet.liabilityTotal);
+    expect(sumLinesForTest(result.balanceSheet.assets)).toBe(result.balanceSheet.assetTotal);
+    expect(result.balanceSheet.liabilityTotal).toBe(180000);
+    expect(result.balanceSheet.assetTotal).toBe(180000);
+  });
+
+  it("groups GST balances as current liability and current asset", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.100000
+Output GST A/c Cr Rs.5000
+Input GST A/c Dr Rs.3000
+Cash A/c Dr Rs.102000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.balanceSheet.liabilityGroups!.currentLiabilities, "Output GST")).toEqual({
+      account: "Output GST",
+      amount: 5000,
+    });
+    expect(line(result.balanceSheet.assetGroups!.currentAssets, "Input GST")).toEqual({
+      account: "Input GST",
+      amount: 3000,
+    });
+    expect(result.balanceSheet.liabilityTotal).toBe(105000);
+    expect(result.balanceSheet.assetTotal).toBe(105000);
+  });
+
+  it("groups net debtors and net creditors without double-counting gross balances", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Creditors A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000
+Cash A/c Dr Rs.100000`,
+      `Provision for doubtful debts 10%
+Provision for discount on creditors 2%`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.balanceSheet.assetGroups!.currentAssets, "Net Debtors")).toEqual({
+      account: "Net Debtors",
+      amount: 45000,
+    });
+    expect(line(result.balanceSheet.liabilityGroups!.currentLiabilities, "Net Creditors")).toEqual({
+      account: "Net Creditors",
+      amount: 49000,
+    });
+    expect(result.balanceSheet.assets).not.toEqual(expect.arrayContaining([expect.objectContaining({ account: "Debtors" })]));
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Creditors" })]),
+    );
+    expect(result.balanceSheet.assetTotal).toBe(145000);
+    expect(result.balanceSheet.liabilityTotal).toBe(145000);
+  });
+
+  it("groups fixed assets together", () => {
+    const result = generateFinalAccounts(`Capital A/c Cr Rs.230000
+Machinery A/c Dr Rs.50000
+Furniture A/c Dr Rs.20000
+Computer A/c Dr Rs.10000
+Vehicle A/c Dr Rs.30000
+Land A/c Dr Rs.40000
+Building A/c Dr Rs.80000`);
+
+    expect(result.status).toBe("success");
+    expect(line(result.balanceSheet.assetGroups!.fixedAssets, "Machinery")).toEqual({ account: "Machinery", amount: 50000 });
+    expect(line(result.balanceSheet.assetGroups!.fixedAssets, "Furniture")).toEqual({ account: "Furniture", amount: 20000 });
+    expect(line(result.balanceSheet.assetGroups!.fixedAssets, "Computer")).toEqual({ account: "Computer", amount: 10000 });
+    expect(line(result.balanceSheet.assetGroups!.fixedAssets, "Vehicle")).toEqual({ account: "Vehicle", amount: 30000 });
+    expect(line(result.balanceSheet.assetGroups!.fixedAssets, "Land")).toEqual({ account: "Land", amount: 40000 });
+    expect(line(result.balanceSheet.assetGroups!.fixedAssets, "Building")).toEqual({ account: "Building", amount: 80000 });
+    expect(result.balanceSheet.assetGroups!.currentAssets).toEqual([]);
+    expect(result.balanceSheet.assetGroups!.otherAssets).toEqual([]);
+    expect(result.balanceSheet.assetTotal).toBe(230000);
+  });
+
   it("deducts drawings from capital", () => {
     const result = generateFinalAccounts(`Capital A/c Cr Rs.50000
 Drawings A/c Dr Rs.10000
@@ -3131,4 +3236,8 @@ function balance(balances: TrialBalanceBalance[], account: string): TrialBalance
   const found = balances.find((trialBalanceBalance) => trialBalanceBalance.account === account);
   expect(found).toBeDefined();
   return found!;
+}
+
+function sumLinesForTest(lines: FinalAccountLine[]): number {
+  return lines.reduce((total, finalAccountLine) => total + finalAccountLine.amount, 0);
 }

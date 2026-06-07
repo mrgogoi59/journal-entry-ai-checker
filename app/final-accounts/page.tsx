@@ -257,6 +257,8 @@ function FinalAccountsResultView({
         <BalanceSheetTable
           liabilities={result.balanceSheet.liabilities}
           assets={result.balanceSheet.assets}
+          liabilityGroups={result.balanceSheet.liabilityGroups}
+          assetGroups={result.balanceSheet.assetGroups}
           liabilityTotal={result.balanceSheet.liabilityTotal}
           assetTotal={result.balanceSheet.assetTotal}
         />
@@ -725,52 +727,101 @@ function InterestOnLoanWorkingView({ working }: { working: InterestOnLoanWorking
 function BalanceSheetTable({
   liabilities,
   assets,
+  liabilityGroups,
+  assetGroups,
   liabilityTotal,
   assetTotal,
 }: {
   liabilities: FinalAccountLine[];
   assets: FinalAccountLine[];
+  liabilityGroups?: FinalAccountsResult["balanceSheet"]["liabilityGroups"];
+  assetGroups?: FinalAccountsResult["balanceSheet"]["assetGroups"];
   liabilityTotal: number;
   assetTotal: number;
 }) {
-  const rowCount = Math.max(liabilities.length, assets.length, 1);
-  const rows = Array.from({ length: rowCount }, (_, index) => ({
-    liability: liabilities[index],
-    asset: assets[index],
-  }));
+  const groupedLiabilities = liabilityGroups ?? {
+    capital: liabilities,
+    nonCurrentLiabilities: [],
+    currentLiabilities: [],
+    otherLiabilities: [],
+  };
+  const groupedAssets = assetGroups ?? {
+    fixedAssets: [],
+    currentAssets: assets,
+    otherAssets: [],
+  };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-sm">
-        <thead>
-          <tr className="border-b border-line bg-paper text-left text-slate-700">
-            <th className="px-3 py-2 font-semibold">Liabilities</th>
-            <th className="px-3 py-2 text-right font-semibold">Amount</th>
-            <th className="px-3 py-2 font-semibold">Assets</th>
-            <th className="px-3 py-2 text-right font-semibold">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={`balance-sheet-row-${row.liability?.account ?? "blank"}-${row.asset?.account ?? "blank"}-${index}`} className="border-b border-line">
-              <td className="px-3 py-2 font-medium text-ink">{row.liability?.account ?? "-"}</td>
-              <td className="px-3 py-2 text-right text-ink">
-                {row.liability ? `Rs.${row.liability.amount.toLocaleString("en-IN")}` : "-"}
-              </td>
-              <td className="px-3 py-2 font-medium text-ink">{row.asset?.account ?? "-"}</td>
-              <td className="px-3 py-2 text-right text-ink">
-                {row.asset ? `Rs.${row.asset.amount.toLocaleString("en-IN")}` : "-"}
-              </td>
-            </tr>
-          ))}
-          <tr className="bg-paper font-bold text-ink">
-            <td className="px-3 py-2">Total Liabilities</td>
-            <td className="px-3 py-2 text-right">Rs.{liabilityTotal.toLocaleString("en-IN")}</td>
-            <td className="px-3 py-2">Total Assets</td>
-            <td className="px-3 py-2 text-right">Rs.{assetTotal.toLocaleString("en-IN")}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="grid gap-4 lg:grid-cols-2">
+      <GroupedBalanceSheetSide
+        title="Liabilities"
+        groups={[
+          { title: "Capital", lines: groupedLiabilities.capital },
+          { title: "Non-current Liabilities", lines: groupedLiabilities.nonCurrentLiabilities },
+          { title: "Current Liabilities", lines: groupedLiabilities.currentLiabilities },
+          { title: "Other Liabilities", lines: groupedLiabilities.otherLiabilities },
+        ]}
+        totalLabel="Total Liabilities"
+        total={liabilityTotal}
+      />
+      <GroupedBalanceSheetSide
+        title="Assets"
+        groups={[
+          { title: "Fixed Assets", lines: groupedAssets.fixedAssets },
+          { title: "Current Assets", lines: groupedAssets.currentAssets },
+          { title: "Other Assets", lines: groupedAssets.otherAssets },
+        ]}
+        totalLabel="Total Assets"
+        total={assetTotal}
+      />
+    </div>
+  );
+}
+
+function GroupedBalanceSheetSide({
+  title,
+  groups,
+  totalLabel,
+  total,
+}: {
+  title: string;
+  groups: Array<{ title: string; lines: FinalAccountLine[] }>;
+  totalLabel: string;
+  total: number;
+}) {
+  return (
+    <div className="rounded-lg border border-line bg-paper p-3">
+      <h3 className="text-sm font-bold text-ink">{title}</h3>
+      <div className="mt-3 grid gap-3">
+        {groups.map((group) => (
+          <BalanceSheetGroup key={`balance-sheet-group-${title}-${group.title}`} title={group.title} lines={group.lines} />
+        ))}
+      </div>
+      <div className="mt-3 flex items-center justify-between border-t border-line pt-3 text-sm font-bold text-ink">
+        <span>{totalLabel}</span>
+        <span>Rs.{total.toLocaleString("en-IN")}</span>
+      </div>
+    </div>
+  );
+}
+
+function BalanceSheetGroup({ title, lines }: { title: string; lines: FinalAccountLine[] }) {
+  if (!lines.length) return null;
+
+  return (
+    <div>
+      <h4 className="text-xs font-bold uppercase tracking-normal text-slate-600">{title}</h4>
+      <div className="mt-1 overflow-hidden rounded-md border border-line bg-white">
+        {lines.map((line, index) => (
+          <div
+            key={`balance-sheet-group-line-${title}-${line.account}-${line.amount}-${index}`}
+            className="flex items-center justify-between gap-3 border-b border-line px-3 py-2 text-sm last:border-b-0"
+          >
+            <span className="font-medium text-ink">{line.account}</span>
+            <span className="shrink-0 text-right text-ink">Rs.{line.amount.toLocaleString("en-IN")}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
