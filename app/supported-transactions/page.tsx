@@ -79,7 +79,7 @@ const supportedGroups = [
       "GST with trade discount on goods purchases and sales when trade discount is deducted before GST",
       "GST on fixed asset purchases: plus GST, GST-inclusive amount with GST rate, and CGST/SGST or IGST plus GST",
       "GST on selected expenses: legal charges, repairs, advertisement, freight, carriage, printing and stationery, telephone, internet, office expenses, and professional fees",
-      "GST on selected income/service receipts: service income, consultancy fees, professional fees received, tuition fees, royalty, and rent",
+      "GST on selected service/income receipts with clear GST rate or amount: service income, consultancy fees, professional fees received, tuition or coaching fees, royalty, and rent",
       "GST with simple sales return and purchase return without refund",
       "Simple direct GST set-off and GST payment through bank",
     ],
@@ -174,8 +174,8 @@ const unsupportedGroups = [
       "GSTR filing",
       "Complex GST ledger adjustment",
       "GST with unsupported final accounts adjustments",
-      "GST on salary, wages, rent, interest, or commission",
-      "GST on interest, dividend, discount received, miscellaneous income, bad debts recovered, capital receipts, or loan receipts",
+      "GST on unsupported income categories, unclear GST wording, or missing GST rate/amount",
+      "GST on salary, wages, interest, dividend, discount received, miscellaneous income, bad debts recovered, capital receipts, or loan receipts",
       "GST with full-settlement discount allowed or received",
       "GST-inclusive amount with trade discount",
       "Multiple discounts with GST",
@@ -239,7 +239,7 @@ const unsupportedGroups = [
   },
   {
     title: "Product Features Not Added Yet",
-    items: ["Login", "Dashboard", "Attempt history", "AI Tutor", "Database storage"],
+    items: ["Login / cloud sync", "Teacher dashboard", "AI Tutor", "Database-backed saved progress", "Advanced analytics"],
   },
 ];
 
@@ -326,6 +326,10 @@ function PageHeader() {
         </p>
         <p className="mt-4 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
           This page helps you write transactions in a format the app can safely understand.
+        </p>
+        <p className="mt-3 rounded-xl border border-blue-100 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
+          Current checking and accounting engines are rule-based for consistency. AI Tutor will be added later as an
+          explanation layer on top of the verified accounting engines.
         </p>
       </div>
       <div className="mt-6 flex flex-wrap gap-2">

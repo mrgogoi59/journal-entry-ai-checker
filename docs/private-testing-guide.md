@@ -366,7 +366,8 @@ Use this flow to check the platform end to end:
 ## 15. Known Unsupported Areas
 
 - AI Tutor not added yet
-- Database/login/history not added yet
+- Database/login/cloud sync not added yet
+- Attempt History exists, but it is browser-only localStorage and not cloud synced
 - Company accounts not added yet
 - Partnership accounts not added yet
 - Detailed schedules not added yet
