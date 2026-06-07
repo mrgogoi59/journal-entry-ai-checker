@@ -1,26 +1,10 @@
 import Link from "next/link";
 
-const heroBadges = ["Class 11 & 12", "B.Com Basics", "Indian Accountancy Format", "Step-by-step learning"];
-
 const valuePoints = [
   "Learn the logic, not just answers",
   "Practice with instant correction",
   "Understand mistakes clearly",
   "Move from Journal to Final Accounts",
-];
-
-const struggleCards = [
-  "Debit and Credit feel confusing",
-  "Journal entries are hard to check alone",
-  "Ledger and Trial Balance feel disconnected",
-  "Final Accounts adjustments are difficult",
-];
-
-const audienceCards = [
-  "Class 11 Commerce",
-  "Class 12 Commerce",
-  "B.Com Beginners",
-  "Accountancy Teachers and Tutors",
 ];
 
 const learningFlow = ["Transaction", "Journal", "Ledger", "Trial Balance", "Final Accounts"];
@@ -56,50 +40,36 @@ export default function Home() {
         </nav>
       </header>
 
-      <section className="px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto grid w-full max-w-[1120px] gap-8 lg:grid-cols-[1fr_440px] lg:items-center">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Accountancy learning platform</p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-bold tracking-normal text-blue-950 sm:text-6xl">
-              Master Accountancy with Step-by-Step Guidance
-            </h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700">
-              Learn journal entries, ledgers, trial balance, final accounts, and adjustments with beginner-friendly
-              explanations built for commerce students.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {heroBadges.map((badge) => (
-                <span
-                  key={badge}
-                  className="rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-900"
-                >
-                  {badge}
-                </span>
-              ))}
-            </div>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/dashboard"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800"
-              >
-                Start Learning
-              </Link>
-              <Link
-                href="/learn"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-900 transition hover:bg-blue-50"
-              >
-                Learn Concepts
-              </Link>
-              <Link
-                href="/tools"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl px-4 py-3 text-sm font-bold text-blue-800 transition hover:bg-blue-50"
-              >
-                Open Tools
-              </Link>
-            </div>
+      <section className="px-4 py-14 sm:px-6 sm:py-20">
+        <div className="mx-auto w-full max-w-[1120px]">
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Accountancy learning platform</p>
+          <h1 className="mt-4 max-w-4xl text-4xl font-bold tracking-normal text-blue-950 sm:text-6xl">
+            Master Accountancy with Step-by-Step Guidance
+          </h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700">
+            Learn journal entries, ledgers, trial balance, final accounts, and adjustments with beginner-friendly
+            explanations built for commerce students.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/dashboard"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800"
+            >
+              Start Learning
+            </Link>
+            <Link
+              href="/learn"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-900 transition hover:bg-blue-50"
+            >
+              Learn Concepts
+            </Link>
+            <Link
+              href="/tools"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl px-4 py-3 text-sm font-bold text-blue-800 transition hover:bg-blue-50"
+            >
+              Open Tools
+            </Link>
           </div>
-
-          <HeroMockCard />
         </div>
       </section>
 
@@ -110,24 +80,6 @@ export default function Home() {
               {point}
             </div>
           ))}
-        </div>
-      </section>
-
-      <section className="px-4 py-12 sm:px-6 sm:py-16">
-        <div className="mx-auto w-full max-w-[1120px]">
-          <SectionHeader
-            eyebrow="The problem"
-            title="Why students struggle with Accountancy"
-            body="The subject becomes easier when every rule is tied to a visible accounting step."
-          />
-          <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {struggleCards.map((card) => (
-              <article key={card} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft">
-                <div className="h-10 w-10 rounded-xl bg-amber-100 ring-8 ring-amber-50" />
-                <h3 className="mt-5 text-lg font-bold text-blue-950">{card}</h3>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -152,23 +104,6 @@ export default function Home() {
       </section>
 
       <section className="px-4 py-12 sm:px-6 sm:py-16">
-        <div className="mx-auto w-full max-w-[1120px]">
-          <SectionHeader
-            eyebrow="Who it is for"
-            title="Built for commerce learners and teachers"
-            body="A focused practice space for students learning the foundations and teachers helping them get unstuck."
-          />
-          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {audienceCards.map((card) => (
-              <article key={card} className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
-                <h3 className="text-lg font-bold text-emerald-950">{card}</h3>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 pb-12 sm:px-6 sm:pb-16">
         <div className="mx-auto overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-950 via-blue-900 to-emerald-800 p-6 text-white shadow-soft sm:p-10 lg:max-w-[1120px]">
           <div className="max-w-2xl">
             <h2 className="text-3xl font-bold tracking-normal sm:text-4xl">Start with one transaction today</h2>
@@ -218,68 +153,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
-  );
-}
-
-function HeroMockCard() {
-  return (
-    <aside className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-4 shadow-soft sm:p-5">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">Live learning preview</p>
-            <h2 className="mt-1 text-lg font-bold text-blue-950">Journal Entry Logic</h2>
-          </div>
-          <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">100% Match</div>
-        </div>
-
-        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <p className="text-xs font-bold text-slate-500">Sample transaction</p>
-          <p className="mt-1 text-sm font-bold text-blue-950">Bought goods for cash Rs.10000</p>
-        </div>
-
-        <div className="mt-4 overflow-x-auto rounded-xl border border-blue-100">
-          <table className="w-full min-w-[320px] border-collapse text-sm">
-            <thead>
-              <tr className="bg-blue-950 text-left text-white">
-                <th className="px-3 py-2 font-semibold">Particulars</th>
-                <th className="px-3 py-2 text-right font-semibold">Debit ₹</th>
-                <th className="px-3 py-2 text-right font-semibold">Credit ₹</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-blue-50">
-                <td className="px-3 py-3 font-semibold text-blue-950">Purchases A/c Dr.</td>
-                <td className="px-3 py-3 text-right font-semibold">10,000</td>
-                <td className="px-3 py-3 text-right text-slate-400">-</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-3 pl-6 font-semibold text-blue-950">To Cash A/c</td>
-                <td className="px-3 py-3 text-right text-slate-400">-</td>
-                <td className="px-3 py-3 text-right font-semibold">10,000</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-4 grid gap-2">
-          <PreviewStep number="1" text="Identify Purchases A/c as goods bought for resale." />
-          <PreviewStep number="2" text="Debit Purchases because expenses increase." />
-          <PreviewStep number="3" text="Credit Cash because money goes out." />
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-function PreviewStep({ number, text }: { number: string; text: string }) {
-  return (
-    <div className="flex gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm leading-6 text-slate-700">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
-        {number}
-      </span>
-      <span>{text}</span>
-    </div>
   );
 }
 
