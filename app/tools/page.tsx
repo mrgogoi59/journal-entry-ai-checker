@@ -204,13 +204,13 @@ export default function ToolsPage() {
               label="Open checker"
             />
           </button>
-          <button type="button" onClick={() => openWorkspace("practice")} className="group text-left">
+          <Link href="/practice" className="group">
             <ToolCard
               title="Practice Questions"
-              description="Practice beginner journal entries and check your answer."
-              label="Start practice"
+              description="Choose a topic and practice journal entries step by step."
+              label="Open practice"
             />
-          </button>
+          </Link>
           {learningTools.map((tool) => (
             <Link key={tool.href} href={tool.href} className="group">
               <ToolCard title={tool.title} description={tool.description} label="Open tool" />

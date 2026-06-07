@@ -1,5 +1,5 @@
 import { transactionRules } from "./accounting-rules";
-import type { PracticeQuestion } from "./types";
+import type { PracticeQuestion, PracticeTopic } from "./types";
 
 export const simplePracticeAmounts = [1000, 2000, 5000, 10000, 20000, 50000, 80000, 100000] as const;
 
@@ -165,6 +165,14 @@ const PRACTICE_TEXT: Record<string, (amount: number) => string> = {
     `Sold goods ${formatRupees(amount)} less trade discount ${formatRupees(Math.round(amount * 0.1))} plus GST 18% for cash`,
   goods_gst_trade_discount_cgst_sgst_sale_cash: (amount) =>
     `Sold goods ${formatRupees(amount)} less trade discount 10% plus CGST 9% and SGST 9% for cash`,
+  partial_goods_purchase_cash_credit: (amount) =>
+    `Purchased goods ${formatRupees(amount)}, paid ${formatRupees(Math.round(amount * 0.4))} cash and balance on credit`,
+  partial_goods_purchase_bank_credit: (amount) =>
+    `Purchased goods ${formatRupees(amount)}, paid ${formatRupees(Math.round(amount * 0.4))} through bank and balance on credit`,
+  partial_goods_sale_cash_credit: (amount) =>
+    `Sold goods ${formatRupees(amount)}, received ${formatRupees(Math.round(amount * 0.4))} cash and balance on credit`,
+  partial_goods_sale_bank_credit: (amount) =>
+    `Sold goods ${formatRupees(amount)}, received ${formatRupees(Math.round(amount * 0.4))} through bank and balance on credit`,
   deposited_cash_bank: (amount) => `Deposited cash into bank ${formatRupees(amount)}`,
   withdrew_cash_bank: (amount) => `Withdraw cash from bank ${formatRupees(amount)}`,
   owner_drawings_cash: (amount) => `Owner withdrew cash for personal use ${formatRupees(amount)}`,
@@ -271,6 +279,10 @@ const explicitPracticeTransactionTypes = [
   "goods_gst_trade_discount_purchase_cash",
   "goods_gst_trade_discount_sale_cash",
   "goods_gst_trade_discount_cgst_sgst_sale_cash",
+  "partial_goods_purchase_cash_credit",
+  "partial_goods_purchase_bank_credit",
+  "partial_goods_sale_cash_credit",
+  "partial_goods_sale_bank_credit",
 ] as const;
 
 export const supportedPracticeTransactionTypes = [
@@ -278,15 +290,154 @@ export const supportedPracticeTransactionTypes = [
   ...explicitPracticeTransactionTypes,
 ].filter((transactionType) => transactionType in PRACTICE_TEXT);
 
-export function generatePracticeQuestion(random = Math.random): PracticeQuestion {
-  const transactionType = pick(supportedPracticeTransactionTypes, random);
-  const amount = pick(simplePracticeAmounts, random);
+export const practiceTopics = [
+  "basics",
+  "purchases_sales",
+  "expenses_incomes",
+  "debtors_creditors",
+  "adjustments",
+  "assets",
+  "goods_adjustments",
+  "returns_discounts",
+  "gst",
+  "mixed",
+] as const satisfies readonly PracticeTopic[];
+
+export const topicPracticeTransactionTypes: Record<PracticeTopic, string[]> = {
+  basics: [
+    "capital_introduced_cash",
+    "started_business_bank",
+    "bought_goods_cash",
+    "sold_goods_cash",
+    "deposited_cash_bank",
+    "withdrew_cash_bank",
+  ],
+  purchases_sales: [
+    "bought_goods_cash",
+    "bought_goods_credit",
+    "sold_goods_cash",
+    "sold_goods_credit",
+    "partial_goods_purchase_cash_credit",
+    "partial_goods_purchase_bank_credit",
+    "partial_goods_sale_cash_credit",
+    "partial_goods_sale_bank_credit",
+  ],
+  expenses_incomes: [
+    "paid_rent",
+    "paid_salary",
+    "paid_wages_cash",
+    "paid_legal_charges_bank",
+    "paid_telephone_cash",
+    "paid_internet_bank",
+    "paid_travelling_cash",
+    "paid_office_expenses_bank",
+    "rent_received_cash",
+    "commission_received_bank",
+    "interest_received_cash",
+    "service_income_received_bank",
+    "consultancy_income_received_cash",
+    "tuition_income_received_bank",
+    "royalty_income_received_cash",
+  ],
+  debtors_creditors: [
+    "received_from_debtor",
+    "paid_creditor",
+    "discount_allowed_cash_settlement",
+    "discount_received_cash_settlement",
+  ],
+  adjustments: [
+    "outstanding_salary",
+    "outstanding_rent",
+    "outstanding_wages",
+    "prepaid_rent",
+    "prepaid_insurance",
+    "accrued_interest",
+    "accrued_commission",
+    "accrued_rent",
+    "rent_received_in_advance",
+    "commission_received_in_advance",
+    "interest_received_in_advance",
+  ],
+  assets: [
+    "bought_furniture_cash",
+    "bought_machinery_cheque",
+    "asset_purchase_laptop_cash",
+    "asset_purchase_laptop_bank",
+    "asset_purchase_camera_credit",
+    "asset_installation_installation_machinery_cash",
+    "asset_purchase_installation_installation_machinery_cash",
+    "asset_sale_machinery_cash",
+    "asset_sale_profit_machinery_cash",
+    "asset_sale_loss_laptop_bank",
+    "depreciation_machinery",
+    "depreciation_furniture",
+    "depreciation_computer",
+  ],
+  goods_adjustments: [
+    "goods_withdrawn_personal_use",
+    "goods_distributed_free_sample",
+    "goods_given_as_charity",
+    "goods_lost_by_fire",
+    "goods_lost_by_theft",
+    "goods_lost_general",
+  ],
+  returns_discounts: [
+    "sales_return",
+    "purchase_return",
+    "goods_gst_trade_discount_purchase_cash",
+    "goods_gst_trade_discount_sale_cash",
+    "discount_allowed_cash_settlement",
+    "discount_received_cash_settlement",
+  ],
+  gst: [
+    "goods_gst_purchase_cash",
+    "goods_gst_purchase_credit",
+    "goods_gst_sale_cash",
+    "goods_gst_sale_credit",
+    "goods_gst_inclusive_purchase_cash",
+    "goods_gst_inclusive_sale_cash",
+    "goods_gst_cgst_sgst_purchase_cash",
+    "goods_gst_cgst_sgst_sale_cash",
+    "goods_gst_igst_purchase_cash",
+    "goods_gst_igst_sale_cash",
+    "expense_gst_legal_charges_bank",
+    "income_gst_consultancy_income_bank",
+    "sales_return_gst_named",
+    "purchase_return_gst_named",
+    "gst_setoff_generic",
+    "gst_payment_generic",
+    "goods_gst_trade_discount_purchase_cash",
+    "goods_gst_trade_discount_sale_cash",
+  ],
+  mixed: supportedPracticeTransactionTypes,
+};
+
+export function isPracticeTopic(value: unknown): value is PracticeTopic {
+  return typeof value === "string" && practiceTopics.includes(value as PracticeTopic);
+}
+
+export function normalizePracticeTopic(value: unknown): PracticeTopic {
+  return isPracticeTopic(value) ? value : "mixed";
+}
+
+export function generatePracticeQuestion(
+  topicOrRandom: PracticeTopic | (() => number) = Math.random,
+  random = Math.random,
+): PracticeQuestion {
+  const topic = typeof topicOrRandom === "function" ? "mixed" : normalizePracticeTopic(topicOrRandom);
+  const randomFn = typeof topicOrRandom === "function" ? topicOrRandom : random;
+  const transactionTypes = topicPracticeTransactionTypes[topic].filter((transactionType) =>
+    supportedPracticeTransactionTypes.includes(transactionType),
+  );
+  const transactionType = pick(transactionTypes.length ? transactionTypes : supportedPracticeTransactionTypes, randomFn);
+  const amount = pick(simplePracticeAmounts, randomFn);
 
   return {
     id: createPracticeQuestionId(transactionType, amount),
     transaction_text: PRACTICE_TEXT[transactionType](amount),
     difficulty: "Beginner",
     transaction_type: transactionType,
+    topic,
   };
 }
 

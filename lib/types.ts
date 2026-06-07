@@ -321,7 +321,20 @@ export interface PracticeQuestion {
   transaction_text: string;
   difficulty: "Beginner";
   transaction_type: string;
+  topic?: PracticeTopic;
 }
+
+export type PracticeTopic =
+  | "basics"
+  | "purchases_sales"
+  | "expenses_incomes"
+  | "debtors_creditors"
+  | "adjustments"
+  | "assets"
+  | "goods_adjustments"
+  | "returns_discounts"
+  | "gst"
+  | "mixed";
 
 export type SolverMode = "beginner" | "exam";
 export type SolverStatus = "solved" | "ambiguous" | "unsupported";
