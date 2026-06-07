@@ -250,6 +250,10 @@ function PageHeader() {
         <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
           View Attempt History
         </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
+          View Progress
+        </Link>
       </nav>
       <div className="mt-7 max-w-3xl">
         <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Journal-entry practice</p>

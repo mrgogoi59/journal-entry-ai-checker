@@ -66,6 +66,10 @@ export default function AttemptHistoryPage() {
             <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
               Practice
             </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
+              Learning Progress
+            </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning record</p>
@@ -90,6 +94,20 @@ export default function AttemptHistoryPage() {
           <SummaryCard label="Needs correction" value={summary.needsCorrection.toString()} />
           <SummaryCard label="Average score" value={summary.averageScore === null ? "-" : `${summary.averageScore}/100`} />
         </section>
+
+        <Link href="/progress" className="group">
+          <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-5 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-blue-950">Learning Progress</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  See weak areas and recommended practice.
+                </p>
+              </div>
+              <span className="text-sm font-bold text-blue-800">Open Progress</span>
+            </div>
+          </section>
+        </Link>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

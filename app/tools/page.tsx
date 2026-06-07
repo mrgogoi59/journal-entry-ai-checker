@@ -42,6 +42,11 @@ const learningTools = [
     href: "/history",
   },
   {
+    title: "Learning Progress",
+    description: "Review your weak areas and recommended practice based on recent attempts.",
+    href: "/progress",
+  },
+  {
     title: "How to Use Accywise",
     description: "Learn the best order to use all tools.",
     href: "/how-to-use",
@@ -218,6 +223,10 @@ export default function ToolsPage() {
             <span className="text-slate-300">/</span>
             <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
               Attempt History
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/progress" className="text-blue-800 transition hover:text-blue-950">
+              Progress
             </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
