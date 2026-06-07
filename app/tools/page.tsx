@@ -15,16 +15,10 @@ const toolSections = [
     description: "Start here for lessons, practice, checking, and explanations.",
     tools: [
       {
-        title: "Learn Accountancy",
-        description: "Read simple lessons and track lesson completion in your browser.",
-        href: "/learn",
-        label: "Open Learn",
-      },
-      {
-        title: "Topic-wise Practice",
-        description: "Choose a topic and practice journal entries step by step.",
-        href: "/practice",
-        label: "Start Practice",
+        title: "AI Journal Entry Explainer",
+        description: "Understand the debit-credit logic behind a supported transaction.",
+        href: "/journal-entry-solver",
+        label: "Open Explainer",
       },
       {
         title: "Journal Entry Checker",
@@ -33,10 +27,10 @@ const toolSections = [
         label: "Open Checker",
       },
       {
-        title: "AI Journal Entry Explainer",
-        description: "Understand the debit-credit logic behind a supported transaction.",
-        href: "/journal-entry-solver",
-        label: "Open Explainer",
+        title: "Topic-wise Practice",
+        description: "Choose a topic and practice journal entries step by step.",
+        href: "/practice",
+        label: "Start Practice",
       },
     ],
   },
