@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
+import { mapCheckResultStatus, saveAttemptHistoryItem } from "@/lib/attempt-history";
 import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion } from "@/lib/types";
 
 const sampleTransaction = "Bought goods for cash Rs.10000";
@@ -34,6 +35,11 @@ const learningTools = [
     title: "Supported Topics",
     description: "See what the platform currently supports and what is not supported yet.",
     href: "/supported-transactions",
+  },
+  {
+    title: "Attempt History",
+    description: "Review recent attempts, scores, and mistakes saved on this browser.",
+    href: "/history",
   },
   {
     title: "How to Use Accywise",
@@ -82,7 +88,18 @@ export default function ToolsPage() {
         return;
       }
 
-      setResult(data);
+      const typedData = data as CheckEntryResponse;
+      setResult(typedData);
+      saveAttemptHistoryItem({
+        module: "checker",
+        transaction: transactionText,
+        studentEntry: journalEntry,
+        resultStatus: mapCheckResultStatus(typedData.result_status),
+        score: typedData.score,
+        mistakeType: typedData.mistake_type,
+        correctEntry: formatJournalEntry(typedData.correct_journal_entry),
+        explanation: simplifyExplanation(typedData.simple_explanation),
+      });
     } catch {
       setError("Could not reach the checker. Please try again.");
     } finally {
@@ -146,7 +163,19 @@ export default function ToolsPage() {
         return;
       }
 
-      setPracticeResult(data);
+      const typedData = data as CheckEntryResponse;
+      setPracticeResult(typedData);
+      saveAttemptHistoryItem({
+        module: "practice",
+        topic: practiceQuestion.topic ?? "mixed",
+        transaction: practiceQuestion.transaction_text,
+        studentEntry: practiceEntry,
+        resultStatus: mapCheckResultStatus(typedData.result_status),
+        score: typedData.score,
+        mistakeType: typedData.mistake_type,
+        correctEntry: formatJournalEntry(typedData.correct_journal_entry),
+        explanation: simplifyExplanation(typedData.simple_explanation),
+      });
     } catch {
       setPracticeError("Could not reach the checker. Please try again.");
     } finally {
@@ -185,6 +214,10 @@ export default function ToolsPage() {
             <span className="text-slate-300">/</span>
             <Link href="/how-to-use" className="text-blue-800 transition hover:text-blue-950">
               How to Use
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
+              Attempt History
             </Link>
           </nav>
           <div className="mt-7 max-w-3xl">
@@ -482,6 +515,12 @@ function ResultCard({
             appCorrectEntry: correctEntry || "No expected entry available.",
           }}
         />
+        <Link
+          href="/history"
+          className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
+        >
+          View Attempt History
+        </Link>
       </div>
     </section>
   );

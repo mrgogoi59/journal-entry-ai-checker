@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
+import { mapCheckResultStatus, saveAttemptHistoryItem } from "@/lib/attempt-history";
 import type { CheckEntryResponse, CorrectJournalEntry, PracticeQuestion, PracticeTopic } from "@/lib/types";
 
 const journalEntryPlaceholder = `Purchases A/c Dr. Rs.10000
@@ -147,6 +148,17 @@ export default function PracticePage() {
       }
 
       setResult(data);
+      saveAttemptHistoryItem({
+        module: "practice",
+        topic: selectedTopic ?? question.topic,
+        transaction: question.transaction_text,
+        studentEntry: journalEntry,
+        resultStatus: mapCheckResultStatus(data.result_status),
+        score: data.score,
+        mistakeType: data.mistake_type,
+        correctEntry: formatJournalEntry(data.correct_journal_entry),
+        explanation: simplifyExplanation(data.simple_explanation),
+      });
     } catch {
       setError("Could not reach the checker. Please try again.");
     } finally {
@@ -233,6 +245,10 @@ function PageHeader() {
         <span className="text-slate-300">/</span>
         <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
           Supported Topics
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/history" className="text-blue-800 transition hover:text-blue-950">
+          View Attempt History
         </Link>
       </nav>
       <div className="mt-7 max-w-3xl">
