@@ -114,8 +114,10 @@ Bank A/c Dr Rs.32000`);
       openingCapital: 50000,
       netProfit: 14000,
       netLoss: 0,
+      interestOnCapital: 0,
       drawings: 5000,
       goodsWithdrawnByProprietor: 0,
+      interestOnDrawings: 0,
       adjustedCapital: 59000,
     });
     expect(line(result.balanceSheet.liabilities, "Adjusted Capital")).toEqual({
@@ -1341,6 +1343,301 @@ Cash A/c Dr Rs.130000`,
       expect(result.unclassifiedAdjustments).toContain(adjustment);
       expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 50000 });
     });
+  });
+
+  it("applies fixed interest on capital to P&L and capital working", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      "Interest on capital Rs.10000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Interest on Capital")).toEqual({
+      account: "Interest on Capital",
+      amount: 10000,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(30000);
+    expect(result.balanceSheet.capitalWorking).toMatchObject({
+      openingCapital: 100000,
+      netProfit: 30000,
+      interestOnCapital: 10000,
+      adjustedCapital: 140000,
+    });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Interest on Capital" })]),
+    );
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Interest on Capital" })]),
+    );
+  });
+
+  it("calculates percentage interest on capital from capital balance", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      "Interest on capital @ 10%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "interest_on_capital",
+          account: "Interest on Capital",
+          percentage: 10,
+          amount: 10000,
+        }),
+      ]),
+    );
+    expect(line(result.profitAndLossAccount.debitLines, "Interest on Capital")).toEqual({
+      account: "Interest on Capital",
+      amount: 10000,
+    });
+    expect(result.balanceSheet.interestWorking).toMatchObject({
+      capital: 100000,
+      interestOnCapitalRate: 10,
+      interestOnCapital: 10000,
+    });
+    expect(result.balanceSheet.capitalWorking?.adjustedCapital).toBe(140000);
+  });
+
+  it("parses supported interest on capital wording patterns", () => {
+    const patterns: Array<[string, number | undefined]> = [
+      ["Interest allowed on capital Rs.10000", undefined],
+      ["Allow interest on capital Rs.10000", undefined],
+      ["Provide interest on capital Rs.10000", undefined],
+      ["Capital interest Rs.10000", undefined],
+      ["Interest on capital at 10%", 10],
+      ["Allow interest on capital @ 10%", 10],
+      ["Provide interest on capital at 10%", 10],
+      ["Interest allowed on capital @ 10%", 10],
+    ];
+
+    patterns.forEach(([adjustment, percentage]) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "interest_on_capital",
+            account: "Interest on Capital",
+            amount: 10000,
+            ...(percentage !== undefined ? { percentage } : {}),
+          }),
+        ]),
+      );
+      expect(line(result.profitAndLossAccount.debitLines, "Interest on Capital")).toEqual({
+        account: "Interest on Capital",
+        amount: 10000,
+      });
+    });
+  });
+
+  it("applies fixed interest on drawings to P&L and capital working", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Drawings A/c Dr Rs.20000
+Cash A/c Dr Rs.80000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      "Interest on drawings Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.creditLines, "Interest on Drawings")).toEqual({
+      account: "Interest on Drawings",
+      amount: 2000,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(42000);
+    expect(result.balanceSheet.capitalWorking).toMatchObject({
+      openingCapital: 100000,
+      netProfit: 42000,
+      drawings: 20000,
+      interestOnDrawings: 2000,
+      adjustedCapital: 120000,
+    });
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Interest on Drawings" })]),
+    );
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Interest on Drawings" })]),
+    );
+  });
+
+  it("calculates percentage interest on drawings from drawings balance", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Drawings A/c Dr Rs.20000
+Cash A/c Dr Rs.80000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      "Interest on drawings @ 10%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "interest_on_drawings",
+          account: "Interest on Drawings",
+          percentage: 10,
+          amount: 2000,
+        }),
+      ]),
+    );
+    expect(line(result.profitAndLossAccount.creditLines, "Interest on Drawings")).toEqual({
+      account: "Interest on Drawings",
+      amount: 2000,
+    });
+    expect(result.balanceSheet.interestWorking).toMatchObject({
+      drawings: 20000,
+      interestOnDrawingsRate: 10,
+      interestOnDrawings: 2000,
+    });
+    expect(result.balanceSheet.capitalWorking?.interestOnDrawings).toBe(2000);
+  });
+
+  it("parses supported interest on drawings wording patterns", () => {
+    const patterns: Array<[string, number | undefined]> = [
+      ["Interest charged on drawings Rs.2000", undefined],
+      ["Charge interest on drawings Rs.2000", undefined],
+      ["Drawings interest Rs.2000", undefined],
+      ["Interest on drawings at 10%", 10],
+      ["Interest charged on drawings @ 10%", 10],
+      ["Charge interest on drawings at 10%", 10],
+    ];
+
+    patterns.forEach(([adjustment, percentage]) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Drawings A/c Dr Rs.20000
+Cash A/c Dr Rs.80000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "interest_on_drawings",
+            account: "Interest on Drawings",
+            amount: 2000,
+            ...(percentage !== undefined ? { percentage } : {}),
+          }),
+        ]),
+      );
+      expect(line(result.profitAndLossAccount.creditLines, "Interest on Drawings")).toEqual({
+        account: "Interest on Drawings",
+        amount: 2000,
+      });
+    });
+  });
+
+  it("applies interest on capital and drawings together", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Drawings A/c Dr Rs.20000
+Cash A/c Dr Rs.80000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      `Interest on capital @ 10%
+Interest on drawings @ 10%`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Interest on Capital")).toEqual({
+      account: "Interest on Capital",
+      amount: 10000,
+    });
+    expect(line(result.profitAndLossAccount.creditLines, "Interest on Drawings")).toEqual({
+      account: "Interest on Drawings",
+      amount: 2000,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(32000);
+    expect(result.balanceSheet.capitalWorking).toMatchObject({
+      openingCapital: 100000,
+      netProfit: 32000,
+      interestOnCapital: 10000,
+      drawings: 20000,
+      interestOnDrawings: 2000,
+      adjustedCapital: 120000,
+    });
+    expect(result.balanceSheet.interestWorking).toMatchObject({
+      capital: 100000,
+      drawings: 20000,
+      interestOnCapitalRate: 10,
+      interestOnDrawingsRate: 10,
+      interestOnCapital: 10000,
+      interestOnDrawings: 2000,
+    });
+  });
+
+  it("warns when capital is missing for percentage interest on capital", () => {
+    const result = generateFinalAccounts("Cash A/c Dr Rs.100000", "Interest on capital @ 10%");
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Capital balance not found, so interest on capital could not be calculated.",
+    );
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Interest on Capital" })]),
+    );
+  });
+
+  it("warns when drawings are missing for percentage interest on drawings", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000`,
+      "Interest on drawings @ 10%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Drawings balance not found, so interest on drawings could not be calculated.",
+    );
+    expect(result.profitAndLossAccount.creditLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Interest on Drawings" })]),
+    );
+  });
+
+  it("calculates manager commission after interest on capital and drawings", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000
+Sales A/c Cr Rs.50000
+Rent A/c Dr Rs.10000`,
+      `Interest on capital Rs.10000
+Interest on drawings Rs.2000
+Manager's commission 10% on net profit before commission`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      basis: "before_commission",
+      profitBeforeCommission: 32000,
+      percentage: 10,
+      commission: 3200,
+      netProfitAfterCommission: 28800,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Manager's Commission")).toEqual({
+      account: "Manager's Commission",
+      amount: 3200,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(28800);
   });
 
   it("keeps unknown adjustments unclassified and warns", () => {

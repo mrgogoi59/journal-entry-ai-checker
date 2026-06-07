@@ -10,6 +10,7 @@ import {
   type FinalAccountLine,
   type FinalAccountsResult,
   type GoodsLostByFireWorking,
+  type InterestWorking,
   type ManagerCommissionWorking,
   type ProvisionForDiscountOnCreditorsWorking,
   type ProvisionForDiscountOnDebtorsWorking,
@@ -246,6 +247,7 @@ function FinalAccountsResultView({
       {result.balanceSheet.goodsLostByFireWorkings?.length ? (
         <GoodsLostByFireWorkingView workings={result.balanceSheet.goodsLostByFireWorkings} />
       ) : null}
+      {result.balanceSheet.interestWorking ? <InterestWorkingView working={result.balanceSheet.interestWorking} /> : null}
 
       <ResultSection title="Balance Sheet">
         <BalanceSheetTable
@@ -485,6 +487,9 @@ function CapitalWorkingView({ working }: { working: CapitalWorking }) {
           <tbody>
             <CapitalWorkingRow label="Capital A/c" amount={working.openingCapital} />
             {working.netProfit > 0 ? <CapitalWorkingRow label="Add: Net Profit" amount={working.netProfit} /> : null}
+            {working.interestOnCapital > 0 ? (
+              <CapitalWorkingRow label="Add: Interest on Capital" amount={working.interestOnCapital} />
+            ) : null}
             {working.netLoss > 0 ? <CapitalWorkingRow label="Less: Net Loss" amount={working.netLoss} /> : null}
             {working.drawings > 0 ? <CapitalWorkingRow label="Less: Drawings" amount={working.drawings} /> : null}
             {working.goodsWithdrawnByProprietor > 0 ? (
@@ -492,6 +497,9 @@ function CapitalWorkingView({ working }: { working: CapitalWorking }) {
                 label="Less: Goods Withdrawn by Proprietor"
                 amount={working.goodsWithdrawnByProprietor}
               />
+            ) : null}
+            {working.interestOnDrawings > 0 ? (
+              <CapitalWorkingRow label="Less: Interest on Drawings" amount={working.interestOnDrawings} />
             ) : null}
             <tr className="border-t border-line bg-paper font-bold text-ink">
               <td className="px-3 py-2">Adjusted Capital</td>
@@ -647,6 +655,43 @@ function GoodsLostByFireWorkingView({ workings }: { workings: GoodsLostByFireWor
             </table>
           </div>
         ))}
+      </div>
+    </ResultSection>
+  );
+}
+
+function InterestWorkingView({ working }: { working: InterestWorking }) {
+  return (
+    <ResultSection title="Interest Working">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[460px] border-collapse text-sm">
+          <tbody>
+            {working.interestOnCapital > 0 ? (
+              <>
+                <CapitalWorkingRow label="Capital" amount={working.capital} />
+                {working.interestOnCapitalRate !== undefined ? (
+                  <tr className="border-b border-line">
+                    <td className="px-3 py-2 font-medium text-ink">Interest on Capital Rate</td>
+                    <td className="px-3 py-2 text-right text-ink">{working.interestOnCapitalRate}%</td>
+                  </tr>
+                ) : null}
+                <CapitalWorkingRow label="Interest on Capital" amount={working.interestOnCapital} />
+              </>
+            ) : null}
+            {working.interestOnDrawings > 0 ? (
+              <>
+                <CapitalWorkingRow label="Drawings" amount={working.drawings} />
+                {working.interestOnDrawingsRate !== undefined ? (
+                  <tr className="border-b border-line">
+                    <td className="px-3 py-2 font-medium text-ink">Interest on Drawings Rate</td>
+                    <td className="px-3 py-2 text-right text-ink">{working.interestOnDrawingsRate}%</td>
+                  </tr>
+                ) : null}
+                <CapitalWorkingRow label="Interest on Drawings" amount={working.interestOnDrawings} />
+              </>
+            ) : null}
+          </tbody>
+        </table>
       </div>
     </ResultSection>
   );

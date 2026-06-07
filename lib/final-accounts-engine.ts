@@ -18,8 +18,10 @@ export type CapitalWorking = {
   openingCapital: number;
   netProfit: number;
   netLoss: number;
+  interestOnCapital: number;
   drawings: number;
   goodsWithdrawnByProprietor: number;
+  interestOnDrawings: number;
   adjustedCapital: number;
 };
 
@@ -75,6 +77,15 @@ export type GoodsLostByFireWorking = {
   insuranceClaimReceivable: number;
 };
 
+export type InterestWorking = {
+  capital: number;
+  drawings: number;
+  interestOnCapitalRate?: number;
+  interestOnDrawingsRate?: number;
+  interestOnCapital: number;
+  interestOnDrawings: number;
+};
+
 export type FinalAccountAdjustment = {
   type:
     | "closing_stock"
@@ -92,7 +103,9 @@ export type FinalAccountAdjustment = {
     | "goods_distributed_free_sample"
     | "goods_given_as_charity"
     | "goods_lost"
-    | "goods_lost_with_insurance_claim";
+    | "goods_lost_with_insurance_claim"
+    | "interest_on_capital"
+    | "interest_on_drawings";
   account: string;
   relatedAccount?: string;
   amount?: number;
@@ -137,6 +150,7 @@ export type FinalAccountsResult = {
     provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking;
     managerCommissionWorking?: ManagerCommissionWorking;
     goodsLostByFireWorkings?: GoodsLostByFireWorking[];
+    interestWorking?: InterestWorking;
   };
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
@@ -196,6 +210,7 @@ const profitAndLossDebitAccounts = new Set([
   "loss by fire",
   "loss by theft",
   "goods lost",
+  "interest on capital",
 ]);
 
 const profitAndLossCreditAccounts = new Set([
@@ -214,6 +229,7 @@ const profitAndLossCreditAccounts = new Set([
   "tuition income",
   "royalty income",
   "dividend income",
+  "interest on drawings",
 ]);
 
 const balanceSheetAccounts = new Set([
@@ -506,6 +522,13 @@ const commonMistakes = [
   "Do not forget to deduct total goods lost from Purchases.",
   "Do not treat insurance claim as Sales.",
   "Do not show goods lost as a separate asset.",
+  "Do not show Interest on Capital as an asset.",
+  "Do not show Interest on Drawings as a liability.",
+  "Interest on Capital is an expense and goes to P&L debit.",
+  "Interest on Drawings is income and goes to P&L credit.",
+  "Interest on Capital is added in Capital Working.",
+  "Interest on Drawings is deducted in Capital Working.",
+  "Do not calculate percentage interest if Capital or Drawings balance is missing.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -570,6 +593,10 @@ const adjustmentLogic = [
   "Insurance claim admitted or receivable is shown as an asset in the Balance Sheet.",
   "If insurance claim is received, the claim is treated as recovery and no receivable is shown in this MVP.",
   "Insurance claim cannot exceed goods lost amount.",
+  "Interest on Capital is debited to Profit & Loss A/c and added to Capital.",
+  "Interest on Drawings is credited to Profit & Loss A/c and deducted from Capital.",
+  "If interest is given as a percentage, it is calculated on Capital or Drawings balance.",
+  "Interest on Capital and Interest on Drawings affect Adjusted Capital through Capital Working.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -660,6 +687,9 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     classified.provisionForDiscountOnCreditorsWorking,
     managerCommissionResult.working,
     classified.goodsLostByFireWorkings,
+    classified.interestOnCapital,
+    classified.interestOnDrawings,
+    classified.interestWorking,
   );
   const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
   const unsupportedAdjustmentWarnings = adjustmentResult.warnings;
@@ -742,6 +772,9 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
   furtherBadDebts: number;
   goodsWithdrawnByProprietor: number;
   goodsLostByFireWorkings: GoodsLostByFireWorking[];
+  interestOnCapital: number;
+  interestOnDrawings: number;
+  interestWorking?: InterestWorking;
 } {
   const tradingDebitLines: FinalAccountLine[] = [];
   const tradingCreditLines: FinalAccountLine[] = [];
@@ -798,6 +831,8 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
     furtherBadDebts: 0,
     goodsWithdrawnByProprietor: 0,
     goodsLostByFireWorkings,
+    interestOnCapital: 0,
+    interestOnDrawings: 0,
   };
 }
 
@@ -925,6 +960,46 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
 
   if (isGoodsLostInsuranceText(fullText)) {
     return null;
+  }
+
+  if (/\b(interest on capital|interest allowed on capital|allow interest on capital|provide interest on capital|capital interest)\b/.test(text)) {
+    if (percentage !== null) {
+      return {
+        type: "interest_on_capital",
+        account: "Interest on Capital",
+        percentage,
+        rawText: line,
+      };
+    }
+
+    if (amount) {
+      return {
+        type: "interest_on_capital",
+        account: "Interest on Capital",
+        amount,
+        rawText: line,
+      };
+    }
+  }
+
+  if (/\b(interest on drawings|interest charged on drawings|charge interest on drawings|drawings interest)\b/.test(text)) {
+    if (percentage !== null) {
+      return {
+        type: "interest_on_drawings",
+        account: "Interest on Drawings",
+        percentage,
+        rawText: line,
+      };
+    }
+
+    if (amount) {
+      return {
+        type: "interest_on_drawings",
+        account: "Interest on Drawings",
+        amount,
+        rawText: line,
+      };
+    }
   }
 
   if (/\b(goods lost by fire|goods worth lost by fire|goods destroyed by fire|goods worth destroyed by fire|goods damaged by fire|goods burnt by fire|goods worth burnt in fire|goods burnt in fire|fire destroyed goods worth|goods lost due to fire)\b/.test(text)) {
@@ -1224,6 +1299,9 @@ function applyAdjustments(
     furtherBadDebts?: number;
     goodsWithdrawnByProprietor?: number;
     goodsLostByFireWorkings: GoodsLostByFireWorking[];
+    interestOnCapital: number;
+    interestOnDrawings: number;
+    interestWorking?: InterestWorking;
   },
   adjustments: FinalAccountAdjustment[],
 ): string[] {
@@ -1250,6 +1328,64 @@ function applyAdjustments(
       const amount = adjustment.amount ?? 0;
       classified.furtherBadDebts = (classified.furtherBadDebts ?? 0) + amount;
       addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
+      return;
+    }
+
+    if (adjustment.type === "interest_on_capital") {
+      const capital = totalCapitalBalance(classified.balanceSheetItems);
+      const amount =
+        adjustment.amount ??
+        (adjustment.percentage !== undefined && capital > 0
+          ? Math.round((capital * adjustment.percentage) / 100)
+          : 0);
+
+      if (adjustment.percentage !== undefined && capital === 0) {
+        warnings.push("Capital balance not found, so interest on capital could not be calculated.");
+        return;
+      }
+
+      if (amount <= 0) return;
+
+      adjustment.amount = amount;
+      classified.interestOnCapital += amount;
+      classified.interestWorking = {
+        capital,
+        drawings: classified.interestWorking?.drawings ?? totalDrawingsBalance(classified.balanceSheetItems),
+        interestOnCapitalRate: adjustment.percentage,
+        interestOnDrawingsRate: classified.interestWorking?.interestOnDrawingsRate,
+        interestOnCapital: classified.interestOnCapital,
+        interestOnDrawings: classified.interestOnDrawings,
+      };
+      addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
+      return;
+    }
+
+    if (adjustment.type === "interest_on_drawings") {
+      const drawings = totalDrawingsBalance(classified.balanceSheetItems);
+      const amount =
+        adjustment.amount ??
+        (adjustment.percentage !== undefined && drawings > 0
+          ? Math.round((drawings * adjustment.percentage) / 100)
+          : 0);
+
+      if (adjustment.percentage !== undefined && drawings === 0) {
+        warnings.push("Drawings balance not found, so interest on drawings could not be calculated.");
+        return;
+      }
+
+      if (amount <= 0) return;
+
+      adjustment.amount = amount;
+      classified.interestOnDrawings += amount;
+      classified.interestWorking = {
+        capital: classified.interestWorking?.capital ?? totalCapitalBalance(classified.balanceSheetItems),
+        drawings,
+        interestOnCapitalRate: classified.interestWorking?.interestOnCapitalRate,
+        interestOnDrawingsRate: adjustment.percentage,
+        interestOnCapital: classified.interestOnCapital,
+        interestOnDrawings: classified.interestOnDrawings,
+      };
+      addAmount(classified.profitAndLossCreditLines, adjustment.account, amount);
       return;
     }
 
@@ -1590,6 +1726,9 @@ function buildBalanceSheet(
   provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking,
   managerCommissionWorking?: ManagerCommissionWorking,
   goodsLostByFireWorkings: GoodsLostByFireWorking[] = [],
+  interestOnCapital = 0,
+  interestOnDrawings = 0,
+  interestWorking?: InterestWorking,
 ): FinalAccountsResult["balanceSheet"] {
   const assets: FinalAccountLine[] = [];
   const liabilities: FinalAccountLine[] = [];
@@ -1650,15 +1789,18 @@ function buildBalanceSheet(
     }
   });
 
-  const adjustedCapital = openingCapital + netProfit - netLoss - drawings - goodsWithdrawnByProprietor;
+  const adjustedCapital =
+    openingCapital + netProfit + interestOnCapital - netLoss - drawings - goodsWithdrawnByProprietor - interestOnDrawings;
   const capitalWorking =
     openingCapital > 0
       ? {
           openingCapital,
           netProfit,
           netLoss,
+          interestOnCapital,
           drawings,
           goodsWithdrawnByProprietor,
+          interestOnDrawings,
           adjustedCapital,
         }
       : undefined;
@@ -1688,6 +1830,7 @@ function buildBalanceSheet(
     provisionForDiscountOnCreditorsWorking,
     managerCommissionWorking,
     goodsLostByFireWorkings,
+    interestWorking,
   };
 }
 
@@ -1901,6 +2044,18 @@ function addAmount(lines: FinalAccountLine[], account: string, amount: number): 
   lines.push({ account, amount });
 }
 
+function totalCapitalBalance(items: TrialBalanceBalance[]): number {
+  return items
+    .filter((item) => capitalAccounts.has(cleanAccountName(item.account)))
+    .reduce((total, item) => total + item.amount, 0);
+}
+
+function totalDrawingsBalance(items: TrialBalanceBalance[]): number {
+  return items
+    .filter((item) => drawingAccounts.has(cleanAccountName(item.account)))
+    .reduce((total, item) => total + item.amount, 0);
+}
+
 function addAmountIfExists(lines: FinalAccountLine[], account: string, amount: number): boolean {
   const existing = lines.find((line) => accountMatches(line.account, account));
   if (!existing) return false;
@@ -2036,6 +2191,14 @@ function accountMatchKey(account: string): string {
 
   if (["goods lost", "loss of goods", "goods loss"].includes(key)) {
     return "goods lost";
+  }
+
+  if (["interest on capital", "capital interest"].includes(key)) {
+    return "interest on capital";
+  }
+
+  if (["interest on drawings", "drawings interest"].includes(key)) {
+    return "interest on drawings";
   }
 
   return key;
