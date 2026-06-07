@@ -18,6 +18,33 @@ const quickActions = [
   { title: "Read How to Use", href: "/how-to-use" },
 ];
 
+const startHereSteps = [
+  {
+    title: "Learn the rules",
+    text: "Start with the basic rules of Debit and Credit.",
+    cta: "Read Lesson",
+    href: "/learn/rules-of-debit-and-credit",
+  },
+  {
+    title: "Understand one transaction",
+    text: "Use the Explainer to see why accounts are debited and credited.",
+    cta: "Try Explainer",
+    href: "/journal-entry-solver",
+  },
+  {
+    title: "Practice basics",
+    text: "Solve beginner journal entry questions and check your answer.",
+    cta: "Practice Basics",
+    href: "/practice",
+  },
+  {
+    title: "Review progress",
+    text: "See your attempts, weak areas, and next recommended practice.",
+    cta: "View Progress",
+    href: "/progress",
+  },
+] as const;
+
 export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary>(() => getDashboardSummary([]));
   const [lessonSummary, setLessonSummary] = useState<LessonProgressSummary>(() => getLessonProgressSummary([]));
@@ -72,6 +99,8 @@ export default function DashboardPage() {
 
         <WelcomeCard hasAttempts={hasAttempts} />
 
+        <StartHereCard />
+
         <RecommendedPracticeCard summary={summary} hasAttempts={hasAttempts} />
 
         <LessonProgressCard summary={lessonSummary} />
@@ -111,6 +140,43 @@ export default function DashboardPage() {
         </section>
       </section>
     </main>
+  );
+}
+
+function StartHereCard() {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-6">
+      <div className="max-w-3xl">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Start Here</p>
+        <h2 className="mt-2 text-2xl font-bold text-blue-950">New to Accywise? Start here</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-700">
+          Follow this simple path to learn accountancy step by step.
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {startHereSteps.map((step, index) => (
+          <article
+            key={step.href}
+            className="flex h-full flex-col justify-between rounded-xl border border-blue-100 bg-white/90 p-4 shadow-sm"
+          >
+            <div>
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-900 text-sm font-bold text-white">
+                {index + 1}
+              </span>
+              <h3 className="mt-3 text-lg font-bold leading-6 text-blue-950">{step.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{step.text}</p>
+            </div>
+            <Link
+              href={step.href}
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-900 transition hover:border-blue-300 hover:bg-white"
+            >
+              {step.cta}
+            </Link>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
