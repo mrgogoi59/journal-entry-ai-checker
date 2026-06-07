@@ -34,7 +34,6 @@ export function FeedbackReport({
   const [copyFailed, setCopyFailed] = useState(false);
   const [timestamp, setTimestamp] = useState(() => new Date().toISOString());
   const reportText = buildReportText(details, issueType, comment, timestamp);
-  const autoDetails = buildAutoDetails(details, timestamp);
 
   async function copyReport() {
     setCopied(false);
@@ -102,9 +101,10 @@ export function FeedbackReport({
           </label>
 
           <div>
-            <div className="text-sm font-semibold text-ink">Auto-filled details</div>
+            <div className="text-sm font-semibold text-ink">Report preview</div>
+            <p className="mt-1 text-xs leading-5 text-slate-600">This is what will be copied.</p>
             <pre className="mt-2 max-h-52 select-all overflow-auto rounded-md border border-line bg-paper p-3 text-xs leading-5 text-slate-800">
-              {autoDetails}
+              {reportText}
             </pre>
           </div>
 
@@ -138,17 +138,6 @@ export function FeedbackReport({
   );
 }
 
-function buildAutoDetails(details: FeedbackReportDetails, timestamp: string): string {
-  return [
-    `Transaction: ${details.transaction || "Not available"}`,
-    `Student entry: ${details.studentEntry || "Not available"}`,
-    `App result: ${details.appResult || "Not available"}`,
-    `App correct entry: ${details.appCorrectEntry || "Not available"}`,
-    `Current page/module: ${details.module}`,
-    `Timestamp: ${timestamp}`,
-  ].join("\n");
-}
-
 function buildReportText(
   details: FeedbackReportDetails,
   issueType: IssueType,
@@ -175,6 +164,9 @@ function buildReportText(
     "",
     "App correct entry:",
     details.appCorrectEntry || "Not available",
+    "",
+    "Current page/module:",
+    details.module,
     "",
     "Expected answer / comment:",
     comment || "Not provided",
