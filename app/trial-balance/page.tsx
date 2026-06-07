@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
 import { type LedgerAccount, type LedgerJournalLine } from "@/lib/ledger-engine";
 import { generateTrialBalance, type TrialBalanceResult, type TrialBalanceRow } from "@/lib/trial-balance-engine";
@@ -10,49 +10,77 @@ const sampleEntries = `Cash A/c Dr. Rs.50000
 To Capital A/c Rs.50000
 
 Purchases A/c Dr. Rs.10000
+To Cash A/c Rs.10000`;
+
+const exampleEntries = [
+  {
+    label: "Simple business start",
+    value: `Cash A/c Dr. Rs.50000
+To Capital A/c Rs.50000`,
+  },
+  {
+    label: "Purchases and rent",
+    value: `Cash A/c Dr. Rs.50000
+To Capital A/c Rs.50000
+
+Purchases A/c Dr. Rs.10000
 To Cash A/c Rs.10000
 
 Rent A/c Dr. Rs.3000
-To Cash A/c Rs.3000`;
-
-const limitations = [
-  "No dates",
-  "No opening balances",
-  "No adjustment handling outside journal-entry form",
-  "No Final Accounts",
-  "No database/history",
-  "No AI",
+To Cash A/c Rs.3000`,
+  },
+  {
+    label: "GST purchase",
+    value: `Purchases A/c Dr. Rs.10000
+Input GST A/c Dr. Rs.1800
+To Cash A/c Rs.11800`,
+  },
+  {
+    label: "Discount entry",
+    value: `Creditor A/c Dr. Rs.5000
+To Cash A/c Rs.4800
+To Discount Received A/c Rs.200`,
+  },
 ];
+
+const badges = ["Ledger balances", "Debit total", "Credit total", "Accuracy check"];
+
+const loadingSteps = ["Reading journal entries...", "Preparing ledger balances...", "Building trial balance..."];
 
 export default function TrialBalancePage() {
   const [journalEntries, setJournalEntries] = useState("");
   const [result, setResult] = useState<TrialBalanceResult | null>(null);
+  const [isPreparing, setIsPreparing] = useState(false);
 
   function prepareTrialBalance() {
-    setResult(generateTrialBalance(journalEntries));
+    setIsPreparing(true);
+    window.setTimeout(() => {
+      setResult(generateTrialBalance(journalEntries));
+      setIsPreparing(false);
+    }, 120);
+  }
+
+  function fillExample(value: string) {
+    setJournalEntries(value);
+    setResult(null);
   }
 
   return (
-    <main className="min-h-screen px-4 py-5 sm:px-6 sm:py-9">
-      <section className="mx-auto flex w-full max-w-[980px] flex-col gap-4 sm:gap-5">
-        <header>
-          <Link href="/" className="text-sm font-semibold text-accent hover:text-blue-700">
-            Back to checker
-          </Link>
-          <p className="mt-4 text-sm font-semibold text-accent">Trial Balance Engine MVP</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-normal text-ink sm:text-4xl">Trial Balance</h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Enter journal entries and prepare a trial balance from ledger balances.
-          </p>
-          <p className="mt-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
-            Trial Balance lists debit and credit balances from ledger accounts to check arithmetic accuracy.
-          </p>
-        </header>
+    <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
+      <section className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 sm:gap-6">
+        <PageHeader />
 
-        <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-          <div className="grid gap-4">
+        <section className="rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6">
+          <div className="grid gap-5">
+            <div>
+              <h2 className="text-xl font-bold text-blue-950">Enter journal entries</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Enter journal entries. The app will prepare ledger balances and then generate the Trial Balance.
+              </p>
+            </div>
+
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-ink">Journal Entries</span>
+              <span className="text-sm font-bold text-slate-800">Journal Entries</span>
               <textarea
                 value={journalEntries}
                 onChange={(event) => {
@@ -60,34 +88,79 @@ export default function TrialBalancePage() {
                   setResult(null);
                 }}
                 placeholder={sampleEntries}
-                className="min-h-64 resize-y rounded-lg border border-line bg-white px-4 py-3 font-mono text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
+                className="min-h-72 resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm leading-6 text-blue-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
               />
             </label>
-            <p className="rounded-md bg-paper px-3 py-2 text-sm leading-6 text-slate-600">
-              Enter one journal entry per block. The app will create ledger balances and prepare the trial balance.
-            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {exampleEntries.map((example) => (
+                <button
+                  key={example.label}
+                  type="button"
+                  onClick={() => fillExample(example.value)}
+                  className="rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-left text-sm font-semibold text-blue-900 transition hover:border-blue-300 hover:bg-white"
+                >
+                  {example.label}
+                </button>
+              ))}
+            </div>
+
+            {isPreparing ? <LoadingPanel /> : null}
+
             <button
               type="button"
               onClick={prepareTrialBalance}
-              className="min-h-12 rounded-lg bg-accent px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700"
+              disabled={isPreparing}
+              className="min-h-12 rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              Prepare Trial Balance
+              {isPreparing ? "Preparing..." : "Prepare Trial Balance"}
             </button>
           </div>
         </section>
 
-        <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-          <h2 className="text-base font-bold text-ink">Known limitations</h2>
-          <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700 sm:grid-cols-2">
-            {limitations.map((limitation) => (
-              <li key={limitation}>{limitation}</li>
-            ))}
-          </ul>
-        </section>
-
-        {result ? <TrialBalanceResultView result={result} input={journalEntries} /> : null}
+        {result ? <TrialBalanceResultView result={result} input={journalEntries} /> : <EmptyPreview />}
       </section>
     </main>
+  );
+}
+
+function PageHeader() {
+  return (
+    <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
+      <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+        <Link href="/" className="text-blue-800 transition hover:text-blue-950">
+          Back to Home
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
+          Learning Tools
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
+          Supported Topics
+        </Link>
+      </nav>
+      <div className="mt-7 max-w-3xl">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Ledger balances to trial balance</p>
+        <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Trial Balance</h1>
+        <p className="mt-4 text-lg leading-8 text-slate-700">
+          Prepare a trial balance from journal entries and ledger balances.
+        </p>
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
+          Trial Balance helps check whether total debit balances equal total credit balances.
+        </p>
+      </div>
+      <div className="mt-6 flex flex-wrap gap-2">
+        {badges.map((badge) => (
+          <span
+            key={badge}
+            className="rounded-full border border-blue-100 bg-white/90 px-3 py-2 text-sm font-semibold text-blue-900 shadow-sm"
+          >
+            {badge}
+          </span>
+        ))}
+      </div>
+    </header>
   );
 }
 
@@ -96,16 +169,14 @@ function TrialBalanceResultView({ result, input }: { result: TrialBalanceResult;
     const message = result.errors.join("\n");
 
     return (
-      <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
-        <h2 className="text-lg font-bold">I could not prepare the Trial Balance yet.</h2>
-        <div className="mt-3 grid gap-2 text-sm leading-6">
-          {result.errors.map((error, index) => (
-            <p key={`trial-balance-error-${error}-${index}`} className="rounded-md bg-white px-3 py-2">
-              {error}
-            </p>
-          ))}
+      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-soft sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-normal text-amber-700">Needs correction</p>
+        <h2 className="mt-2 text-2xl font-bold">I could not process this yet.</h2>
+        <div className="mt-4 grid gap-3">
+          <IssueInfo label="Reason" value={message || "The trial balance could not be prepared."} />
+          <IssueInfo label="Try this format" value={sampleEntries} />
         </div>
-        <div className="mt-4">
+        <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-4">
           <FeedbackReport
             buttonLabel="Report issue"
             details={{
@@ -121,7 +192,7 @@ function TrialBalanceResultView({ result, input }: { result: TrialBalanceResult;
   }
 
   return (
-    <section className="grid gap-4">
+    <section className="grid gap-5">
       <ResultSection title="Parsed Journal Entries">
         <ParsedEntries entries={result.parsedEntries} />
       </ResultSection>
@@ -130,57 +201,90 @@ function TrialBalanceResultView({ result, input }: { result: TrialBalanceResult;
         <LedgerBalanceSummary accounts={result.ledgerAccounts} />
       </ResultSection>
 
-      <ResultSection title="Trial Balance">
+      <ResultSection title="Trial Balance" emphasis>
         <TrialBalanceTable rows={result.rows} debitTotal={result.debitTotal} creditTotal={result.creditTotal} />
       </ResultSection>
 
       <ResultSection title="Trial Balance Result">
-        <div
-          className={`rounded-lg border px-4 py-3 text-sm font-semibold leading-6 ${
-            result.agrees
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-rose-200 bg-rose-50 text-rose-800"
-          }`}
-        >
-          {result.agrees
-            ? "Trial Balance agrees. Debit total equals credit total."
-            : `Trial Balance does not agree. Difference: Rs.${result.difference.toLocaleString("en-IN")}.`}
-        </div>
+        <TrialBalanceStatusCard result={result} />
       </ResultSection>
 
       <ResultSection title="Trial Balance Logic">
-        <TextList items={result.logic} keyPrefix="trial-balance-logic" />
+        <TextCards items={result.logic} keyPrefix="trial-balance-logic" />
       </ResultSection>
 
-      <ResultSection title="Common Mistakes">
-        <TextList items={result.commonMistakes} keyPrefix="trial-balance-mistake" />
+      <ResultSection title="Common Mistakes" tone="warning">
+        <TextCards items={result.commonMistakes} keyPrefix="trial-balance-mistake" />
       </ResultSection>
 
-      <FeedbackReport
-        buttonLabel="Report issue"
-        details={{
-          module: "Trial Balance",
-          transaction: input,
-          appResult: `Status: ${result.status}\nDebit total: Rs.${result.debitTotal}\nCredit total: Rs.${result.creditTotal}\nAgrees: ${
-            result.agrees ? "Yes" : "No"
-          }`,
-          appCorrectEntry: formatTrialBalanceReport(result.rows, result.debitTotal, result.creditTotal),
-        }}
-      />
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
+        <FeedbackReport
+          buttonLabel="Report issue"
+          details={{
+            module: "Trial Balance",
+            transaction: input,
+            appResult: `Status: ${result.status}\nDebit total: Rs.${result.debitTotal}\nCredit total: Rs.${result.creditTotal}\nAgrees: ${
+              result.agrees ? "Yes" : "No"
+            }`,
+            appCorrectEntry: formatTrialBalanceReport(result.rows, result.debitTotal, result.creditTotal),
+          }}
+        />
+      </section>
+    </section>
+  );
+}
+
+function EmptyPreview() {
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4 shadow-soft sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">Preview</p>
+      <h2 className="mt-1 text-xl font-bold text-blue-950">Trial Balance will appear here</h2>
+      <div className="mt-4 overflow-x-auto rounded-xl border border-blue-100 bg-white">
+        <table className="w-full min-w-[420px] border-collapse text-sm">
+          <thead>
+            <tr className="bg-blue-950 text-left text-white">
+              <th className="px-3 py-3 font-semibold">Account</th>
+              <th className="px-3 py-3 text-right font-semibold">Debit</th>
+              <th className="px-3 py-3 text-right font-semibold">Credit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b border-blue-50">
+              <td className="px-3 py-3 font-semibold text-blue-950">Cash A/c</td>
+              <td className="px-3 py-3 text-right font-semibold">Rs.37,000</td>
+              <td className="px-3 py-3 text-right text-slate-400">-</td>
+            </tr>
+            <tr className="border-b border-blue-50">
+              <td className="px-3 py-3 font-semibold text-blue-950">Capital A/c</td>
+              <td className="px-3 py-3 text-right text-slate-400">-</td>
+              <td className="px-3 py-3 text-right font-semibold">Rs.50,000</td>
+            </tr>
+            <tr className="bg-blue-50 font-bold text-blue-950">
+              <td className="px-3 py-3">Total</td>
+              <td className="px-3 py-3 text-right">Rs.50,000</td>
+              <td className="px-3 py-3 text-right">Rs.50,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
 
 function ParsedEntries({ entries }: { entries: LedgerJournalLine[][] }) {
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-3 md:grid-cols-2">
       {entries.map((entry, index) => (
-        <div key={`trial-parsed-entry-${index}`} className="rounded-lg border border-line bg-paper p-3">
-          <h3 className="text-sm font-bold text-ink">Entry {index + 1}</h3>
-          <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
+        <div key={`trial-parsed-entry-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-bold text-blue-950">Entry {index + 1}</h3>
+          <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
             {entry.map((line, lineIndex) => (
-              <li key={`trial-parsed-line-${index}-${line.account}-${line.side}-${line.amount}-${lineIndex}`}>
-                {line.account} A/c {line.side === "debit" ? "Dr." : "Cr."} Rs.{line.amount.toLocaleString("en-IN")}
+              <li
+                key={`trial-parsed-line-${index}-${line.account}-${line.side}-${line.amount}-${lineIndex}`}
+                className="rounded-lg bg-white px-3 py-2"
+              >
+                {line.account} A/c {line.side === "debit" ? "Dr." : "Cr."} Rs.
+                {line.amount.toLocaleString("en-IN")}
               </li>
             ))}
           </ul>
@@ -192,23 +296,29 @@ function ParsedEntries({ entries }: { entries: LedgerJournalLine[][] }) {
 
 function LedgerBalanceSummary({ accounts }: { accounts: LedgerAccount[] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[560px] border-collapse text-sm">
+    <div className="overflow-x-auto rounded-xl border border-slate-200">
+      <table className="w-full min-w-[620px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line bg-paper text-left text-slate-700">
-            <th className="px-3 py-2 font-semibold">Account</th>
-            <th className="px-3 py-2 text-right font-semibold">Debit Total</th>
-            <th className="px-3 py-2 text-right font-semibold">Credit Total</th>
-            <th className="px-3 py-2 font-semibold">Balance</th>
+          <tr className="border-b border-slate-200 bg-slate-50 text-left text-slate-700">
+            <th className="px-3 py-3 font-semibold">Account</th>
+            <th className="px-3 py-3 text-right font-semibold">Debit Total</th>
+            <th className="px-3 py-3 text-right font-semibold">Credit Total</th>
+            <th className="px-3 py-3 font-semibold">Balance</th>
           </tr>
         </thead>
         <tbody>
           {accounts.map((account) => (
-            <tr key={`ledger-summary-${account.account}`} className="border-b border-line">
-              <td className="px-3 py-2 font-medium text-ink">{account.account} A/c</td>
-              <td className="px-3 py-2 text-right text-ink">Rs.{account.debitTotal.toLocaleString("en-IN")}</td>
-              <td className="px-3 py-2 text-right text-ink">Rs.{account.creditTotal.toLocaleString("en-IN")}</td>
-              <td className="px-3 py-2 text-slate-700">{formatBalance(account)}</td>
+            <tr key={`ledger-summary-${account.account}`} className="border-b border-slate-100 last:border-b-0">
+              <td className="px-3 py-3 font-bold text-blue-950">{account.account} A/c</td>
+              <td className="px-3 py-3 text-right font-medium text-slate-900">
+                Rs.{account.debitTotal.toLocaleString("en-IN")}
+              </td>
+              <td className="px-3 py-3 text-right font-medium text-slate-900">
+                Rs.{account.creditTotal.toLocaleString("en-IN")}
+              </td>
+              <td className="px-3 py-3">
+                <BalanceBadge account={account} />
+              </td>
             </tr>
           ))}
         </tbody>
@@ -227,35 +337,42 @@ function TrialBalanceTable({
   creditTotal: number;
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-blue-100 bg-white">
       <table className="w-full min-w-[480px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line bg-paper text-left text-slate-700">
-            <th className="px-3 py-2 font-semibold">Account</th>
-            <th className="px-3 py-2 text-right font-semibold">Debit</th>
-            <th className="px-3 py-2 text-right font-semibold">Credit</th>
+          <tr className="border-b border-blue-100 bg-blue-950 text-left text-white">
+            <th className="px-4 py-3 font-semibold">Account</th>
+            <th className="px-4 py-3 text-right font-semibold">Debit</th>
+            <th className="px-4 py-3 text-right font-semibold">Credit</th>
           </tr>
         </thead>
         <tbody>
           {rows.length ? (
             rows.map((row, index) => (
-              <tr key={`trial-balance-row-${row.account}-${row.debit}-${row.credit}-${index}`} className="border-b border-line">
-                <td className="px-3 py-2 font-medium text-ink">{row.account} A/c</td>
-                <td className="px-3 py-2 text-right text-ink">{row.debit ? `Rs.${row.debit.toLocaleString("en-IN")}` : "-"}</td>
-                <td className="px-3 py-2 text-right text-ink">{row.credit ? `Rs.${row.credit.toLocaleString("en-IN")}` : "-"}</td>
+              <tr
+                key={`trial-balance-row-${row.account}-${row.debit}-${row.credit}-${index}`}
+                className="border-b border-blue-50"
+              >
+                <td className="px-4 py-3 font-semibold text-blue-950">{row.account} A/c</td>
+                <td className="px-4 py-3 text-right font-medium text-slate-900">
+                  {row.debit ? `Rs.${row.debit.toLocaleString("en-IN")}` : "-"}
+                </td>
+                <td className="px-4 py-3 text-right font-medium text-slate-900">
+                  {row.credit ? `Rs.${row.credit.toLocaleString("en-IN")}` : "-"}
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td className="px-3 py-2 text-slate-500" colSpan={3}>
+              <td className="px-4 py-3 text-slate-500" colSpan={3}>
                 No non-zero ledger balances.
               </td>
             </tr>
           )}
-          <tr className="bg-paper font-bold text-ink">
-            <td className="px-3 py-2">Total</td>
-            <td className="px-3 py-2 text-right">Rs.{debitTotal.toLocaleString("en-IN")}</td>
-            <td className="px-3 py-2 text-right">Rs.{creditTotal.toLocaleString("en-IN")}</td>
+          <tr className="border-t-2 border-blue-100 bg-blue-50 font-bold text-blue-950">
+            <td className="px-4 py-3">Total</td>
+            <td className="px-4 py-3 text-right">Rs.{debitTotal.toLocaleString("en-IN")}</td>
+            <td className="px-4 py-3 text-right">Rs.{creditTotal.toLocaleString("en-IN")}</td>
           </tr>
         </tbody>
       </table>
@@ -263,28 +380,104 @@ function TrialBalanceTable({
   );
 }
 
-function ResultSection({ title, children }: { title: string; children: React.ReactNode }) {
+function TrialBalanceStatusCard({ result }: { result: TrialBalanceResult }) {
+  const className = result.agrees
+    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+    : "border-amber-200 bg-amber-50 text-amber-900";
+
   return (
-    <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-      <h2 className="text-base font-bold text-ink">{title}</h2>
+    <div className={`rounded-2xl border px-4 py-4 shadow-sm ${className}`}>
+      <div className="text-lg font-bold">{result.agrees ? "Trial Balance agrees" : "Trial Balance does not agree"}</div>
+      <p className="mt-2 text-sm font-medium leading-6">
+        {result.agrees
+          ? "Debit total equals credit total."
+          : `Difference: Rs.${result.difference.toLocaleString("en-IN")}.`}
+      </p>
+    </div>
+  );
+}
+
+function BalanceBadge({ account }: { account: LedgerAccount }) {
+  const label =
+    account.balanceSide === "balanced"
+      ? "Balanced"
+      : `${account.balanceSide === "debit" ? "Debit" : "Credit"} Rs.${account.balanceAmount.toLocaleString("en-IN")}`;
+  const tone =
+    account.balanceSide === "debit"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : account.balanceSide === "credit"
+        ? "border-blue-200 bg-blue-50 text-blue-800"
+        : "border-slate-200 bg-slate-50 text-slate-700";
+
+  return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${tone}`}>{label}</span>;
+}
+
+function ResultSection({
+  title,
+  children,
+  emphasis = false,
+  tone = "default",
+}: {
+  title: string;
+  children: ReactNode;
+  emphasis?: boolean;
+  tone?: "default" | "warning";
+}) {
+  const sectionClass =
+    tone === "warning"
+      ? "border-amber-200 bg-amber-50"
+      : emphasis
+        ? "border-blue-200 bg-gradient-to-br from-white via-blue-50 to-white ring-2 ring-blue-100"
+        : "border-slate-200 bg-white";
+
+  return (
+    <section className={`rounded-2xl border p-4 shadow-soft sm:p-6 ${sectionClass}`}>
+      <h2 className={emphasis ? "text-xl font-bold text-blue-950" : "text-lg font-bold text-blue-950"}>{title}</h2>
       <div className="mt-3">{children}</div>
     </section>
   );
 }
 
-function TextList({ items, keyPrefix }: { items: string[]; keyPrefix: string }) {
+function TextCards({ items, keyPrefix }: { items: string[]; keyPrefix: string }) {
   return (
     <ul className="grid gap-2 text-sm leading-6 text-slate-700">
       {items.map((item, index) => (
-        <li key={`${keyPrefix}-${index}`}>{item}</li>
+        <li key={`${keyPrefix}-${index}`} className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3">
+          {item}
+        </li>
       ))}
     </ul>
   );
 }
 
-function formatBalance(account: LedgerAccount): string {
-  if (account.balanceSide === "balanced") return "Balanced";
-  return `${account.balanceSide === "debit" ? "Debit" : "Credit"} Rs.${account.balanceAmount.toLocaleString("en-IN")}`;
+function LoadingPanel() {
+  return (
+    <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+      <div className="h-2 overflow-hidden rounded-full bg-white">
+        <div className="h-full w-2/3 rounded-full bg-blue-900" />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {loadingSteps.map((step, index) => (
+          <div
+            key={`loading-${step}-${index}`}
+            className="flex items-center gap-3 rounded-xl border border-blue-100 bg-white px-3 py-2 text-sm font-semibold text-blue-950"
+          >
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            {step}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function IssueInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-amber-100 bg-white px-4 py-3">
+      <p className="text-xs font-bold uppercase tracking-normal text-amber-700">{label}</p>
+      <p className="mt-1 whitespace-pre-line text-sm font-medium leading-6 text-slate-800">{value}</p>
+    </div>
+  );
 }
 
 function formatTrialBalanceReport(rows: TrialBalanceRow[], debitTotal: number, creditTotal: number): string {
