@@ -1,7 +1,37 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { LessonContent } from "@/lib/learning-content";
+import {
+  getLessonProgress,
+  markLessonCompleted,
+  markLessonIncomplete,
+  type LessonProgressItem,
+} from "@/lib/lesson-progress";
 
 export function LessonReader({ lesson }: { lesson: LessonContent }) {
+  const [progressItem, setProgressItem] = useState<LessonProgressItem | undefined>(undefined);
+  const isCompleted = Boolean(progressItem?.completed);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setProgressItem(getLessonProgress().find((item) => item.lessonSlug === lesson.slug));
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [lesson.slug]);
+
+  function handleMarkCompleted() {
+    const item = markLessonCompleted(lesson.slug);
+    if (item) setProgressItem(item);
+  }
+
+  function handleMarkIncomplete() {
+    const item = markLessonIncomplete(lesson.slug);
+    if (item) setProgressItem(item);
+  }
+
   return (
     <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
       <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-7">
@@ -156,6 +186,33 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
           </div>
         </section>
 
+        <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-soft sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Finished this lesson?</p>
+              <h2 className="mt-2 text-2xl font-bold text-blue-950">
+                {isCompleted ? "Lesson completed" : "Mark your progress"}
+              </h2>
+              {isCompleted && progressItem?.completedAt ? (
+                <p className="mt-2 text-sm font-semibold leading-6 text-emerald-900">
+                  Completed on {formatCompletedDate(progressItem.completedAt)}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm font-semibold leading-6 text-emerald-900">
+                  Save this lesson as complete on this browser.
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={isCompleted ? handleMarkIncomplete : handleMarkCompleted}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+            >
+              {isCompleted ? "Mark as Not Completed" : "Mark as Completed"}
+            </button>
+          </div>
+        </section>
+
         {lesson.nextLesson ? (
           <section className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-950 to-emerald-800 p-6 text-white shadow-soft sm:p-8">
             <h2 className="text-3xl font-bold tracking-normal">Ready for the next step?</h2>
@@ -173,6 +230,16 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
       </section>
     </main>
   );
+}
+
+function formatCompletedDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {

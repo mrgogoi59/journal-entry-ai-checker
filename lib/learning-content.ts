@@ -40,11 +40,13 @@ export type LessonContent = {
 
 export const lessonCards = [
   {
+    slug: "rules-of-debit-and-credit",
     title: "Rules of Debit and Credit",
     description: "Understand the basic rules behind every journal entry.",
     href: "/learn/rules-of-debit-and-credit",
   },
   {
+    slug: "journal-entry-basics",
     title: "Journal Entry Basics",
     description: "Learn how to convert transactions into proper journal entries.",
     href: "/learn/journal-entry-basics",

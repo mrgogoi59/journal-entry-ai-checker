@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getDashboardSummary, type AttemptHistoryItem, type DashboardSummary } from "@/lib/attempt-history";
+import { getLessonProgressSummary, type LessonProgressSummary } from "@/lib/lesson-progress";
 
 const learningPath = [
   { step: "1", title: "Understand Journal Entries", href: "/journal-entry-solver", label: "Explainer" },
@@ -25,10 +26,12 @@ const quickActions = [
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary>(() => getDashboardSummary([]));
+  const [lessonSummary, setLessonSummary] = useState<LessonProgressSummary>(() => getLessonProgressSummary([]));
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setSummary(getDashboardSummary());
+      setLessonSummary(getLessonProgressSummary());
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
@@ -79,6 +82,8 @@ export default function DashboardPage() {
 
         <WelcomeCard hasAttempts={hasAttempts} />
 
+        <LessonProgressCard summary={lessonSummary} />
+
         <section>
           <div className="mb-4">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning summary</p>
@@ -116,6 +121,38 @@ export default function DashboardPage() {
         </section>
       </section>
     </main>
+  );
+}
+
+function LessonProgressCard({ summary }: { summary: LessonProgressSummary }) {
+  const hasCompletedLessons = summary.completedLessons > 0;
+
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-5 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning Progress</p>
+          <h2 className="mt-2 text-2xl font-bold text-blue-950">
+            Lessons completed: {summary.completedLessons} of {summary.totalLessons}
+          </h2>
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+            {hasCompletedLessons ? `${summary.completionPercent}% complete` : "Start your first lesson."}
+          </p>
+          <div className="mt-4 h-3 max-w-md overflow-hidden rounded-full bg-white">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all"
+              style={{ width: `${summary.completionPercent}%` }}
+            />
+          </div>
+        </div>
+        <Link
+          href="/learn"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+        >
+          Continue Learning
+        </Link>
+      </div>
+    </section>
   );
 }
 

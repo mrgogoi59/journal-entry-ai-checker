@@ -13,7 +13,7 @@ type AppMode = "own" | "practice";
 const learningTools = [
   {
     title: "Learn Accountancy",
-    description: "Read simple lessons and understand concepts before practicing.",
+    description: "Read simple lessons and understand concepts before practicing. Track lesson completion in your browser.",
     href: "/learn",
     label: "Open Learn",
   },

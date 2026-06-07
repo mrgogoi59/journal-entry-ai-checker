@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { comingSoonLessons, lessonCards } from "@/lib/learning-content";
+import { getLessonProgressSummary, type LessonProgressSummary } from "@/lib/lesson-progress";
 
 const learningPath = [
   "Rules of debit and credit",
@@ -25,6 +29,17 @@ const toolConnections = [
 ];
 
 export default function LearnPage() {
+  const [summary, setSummary] = useState<LessonProgressSummary>(() => getLessonProgressSummary([]));
+  const completedSlugs = useMemo(() => new Set(summary.completedLessonSlugs), [summary.completedLessonSlugs]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setSummary(getLessonProgressSummary());
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
   return (
     <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
       <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-7">
@@ -61,6 +76,28 @@ export default function LearnPage() {
         </header>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning Progress</p>
+              <h2 className="mt-2 text-2xl font-bold text-blue-950">
+                Completed {summary.completedLessons} of {summary.totalLessons} lessons
+              </h2>
+              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                {summary.completionPercent}% complete
+              </p>
+            </div>
+            <div className="w-full lg:max-w-md">
+              <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all"
+                  style={{ width: `${summary.completionPercent}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
           <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Learning path</p>
           <h2 className="mt-2 text-2xl font-bold text-blue-950">Start with rules, then practice</h2>
           <div className="mt-5 grid gap-3 md:grid-cols-5">
@@ -85,11 +122,20 @@ export default function LearnPage() {
               <Link key={lesson.href} href={lesson.href} className="group">
                 <article className="flex h-full min-h-52 flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-soft transition group-hover:border-blue-200 group-hover:bg-blue-50">
                   <div>
-                    <div className="h-10 w-10 rounded-xl bg-emerald-100 ring-8 ring-emerald-50" />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-emerald-100 ring-8 ring-emerald-50" />
+                      {completedSlugs.has(lesson.slug) ? (
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
+                          Completed
+                        </span>
+                      ) : null}
+                    </div>
                     <h3 className="mt-5 text-xl font-bold text-blue-950">{lesson.title}</h3>
                     <p className="mt-3 text-sm leading-6 text-slate-600">{lesson.description}</p>
                   </div>
-                  <span className="mt-5 text-sm font-bold text-blue-800">Start Lesson</span>
+                  <span className="mt-5 text-sm font-bold text-blue-800">
+                    {completedSlugs.has(lesson.slug) ? "Continue" : "Start Lesson"}
+                  </span>
                 </article>
               </Link>
             ))}
