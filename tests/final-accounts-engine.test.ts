@@ -1097,7 +1097,7 @@ Cash A/c Dr Rs.99000`,
     });
   });
 
-  it("keeps goods lost insurance claim adjustments unsupported", () => {
+  it("deducts goods lost by fire with admitted insurance claim and shows receivable", () => {
     const result = generateFinalAccounts(
       `Capital A/c Cr Rs.100000
 Purchases A/c Dr Rs.50000
@@ -1107,17 +1107,240 @@ Cash A/c Dr Rs.130000`,
     );
 
     expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_lost_with_insurance_claim",
+          account: "Loss by Fire",
+          amount: 5000,
+          insuranceClaimAmount: 3000,
+          claimStatus: "admitted",
+          lossKind: "fire",
+        }),
+      ]),
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+      account: "Loss by Fire",
+      amount: 2000,
+    });
+    expect(line(result.balanceSheet.assets, "Insurance Claim Receivable")).toEqual({
+      account: "Insurance Claim Receivable",
+      amount: 3000,
+    });
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Lost" })]),
+    );
+    expect(result.balanceSheet.goodsLostByFireWorkings).toEqual([
+      {
+        goodsLost: 5000,
+        insuranceClaim: 3000,
+        uninsuredLoss: 2000,
+        claimStatus: "admitted",
+        insuranceClaimReceivable: 3000,
+      },
+    ]);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("parses accepted insurance claim wording for goods destroyed by fire", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods destroyed by fire Rs.5000, insurance claim accepted Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_lost_with_insurance_claim",
+          claimStatus: "accepted",
+          amount: 5000,
+          insuranceClaimAmount: 3000,
+        }),
+      ]),
+    );
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+      account: "Loss by Fire",
+      amount: 2000,
+    });
+    expect(line(result.balanceSheet.assets, "Insurance Claim Receivable")).toEqual({
+      account: "Insurance Claim Receivable",
+      amount: 3000,
+    });
+  });
+
+  it("shows insurance claim receivable for pending and receivable claim statuses", () => {
+    ["Goods lost by fire Rs.5000, insurance claim pending Rs.3000", "Goods lost by fire Rs.5000, insurance claim receivable Rs.3000"].forEach(
+      (adjustment) => {
+        const result = generateFinalAccounts(
+          `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+          adjustment,
+        );
+
+        expect(result.status).toBe("success");
+        expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+          account: "Loss by Fire",
+          amount: 2000,
+        });
+        expect(line(result.balanceSheet.assets, "Insurance Claim Receivable")).toEqual({
+          account: "Insurance Claim Receivable",
+          amount: 3000,
+        });
+      },
+    );
+  });
+
+  it("parses supported fire insurance claim wording patterns", () => {
+    const patterns: Array<[string, "admitted" | "received", boolean]> = [
+      ["Goods lost by fire Rs.5000 and insurance claim admitted Rs.3000", "admitted", true],
+      ["Goods worth Rs.5000 lost by fire and claim admitted Rs.3000", "admitted", true],
+      ["Goods lost by fire Rs.5000, claim admitted by insurance company Rs.3000", "admitted", true],
+      ["Goods lost by fire Rs.5000, insurance claim Rs.3000 received", "received", false],
+      ["Goods lost by fire Rs.5000, insurance claim received by bank Rs.3000", "received", false],
+      ["Goods lost by fire Rs.5000, claim received from insurance company Rs.3000", "received", false],
+      ["Goods destroyed by fire Rs.5000, insurance company paid Rs.3000", "received", false],
+    ];
+
+    patterns.forEach(([adjustment, claimStatus, shouldShowReceivable]) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "goods_lost_with_insurance_claim",
+            claimStatus,
+            amount: 5000,
+            insuranceClaimAmount: 3000,
+          }),
+        ]),
+      );
+      expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+      expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+        account: "Loss by Fire",
+        amount: 2000,
+      });
+
+      if (shouldShowReceivable) {
+        expect(line(result.balanceSheet.assets, "Insurance Claim Receivable")).toEqual({
+          account: "Insurance Claim Receivable",
+          amount: 3000,
+        });
+      } else {
+        expect(result.balanceSheet.assets).not.toEqual(
+          expect.arrayContaining([expect.objectContaining({ account: "Insurance Claim Receivable" })]),
+        );
+      }
+    });
+  });
+
+  it("treats received insurance claim as recovery without showing receivable", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods lost by fire Rs.5000, insurance claim received Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_lost_with_insurance_claim",
+          claimStatus: "received",
+          amount: 5000,
+          insuranceClaimAmount: 3000,
+        }),
+      ]),
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+      account: "Loss by Fire",
+      amount: 2000,
+    });
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Insurance Claim Receivable" })]),
+    );
+    expect(result.adjustmentWarnings).toContain(
+      "Insurance claim received is treated as recovery for loss calculation only; cash/bank adjustment is not added in this MVP.",
+    );
+  });
+
+  it("keeps insurance claim greater than goods lost unsupported", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods lost by fire Rs.5000, insurance claim admitted Rs.7000",
+    );
+
+    expect(result.status).toBe("success");
     expect(result.parsedAdjustments).not.toEqual(
-      expect.arrayContaining([expect.objectContaining({ type: "goods_lost" })]),
+      expect.arrayContaining([expect.objectContaining({ type: "goods_lost_with_insurance_claim" })]),
     );
     expect(result.unclassifiedAdjustments).toContain(
+      "Goods lost by fire Rs.5000, insurance claim admitted Rs.7000",
+    );
+    expect(result.adjustmentWarnings).toContain("Insurance claim cannot be greater than goods lost amount.");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 50000 });
+  });
+
+  it("warns when purchases are missing for goods lost by fire with insurance claim", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000`,
       "Goods lost by fire Rs.5000, insurance claim admitted Rs.3000",
     );
-    expect(result.adjustmentWarnings).toContain("Goods lost with insurance claim is not supported yet.");
-    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 50000 });
-    expect(result.profitAndLossAccount.debitLines).not.toEqual(
-      expect.arrayContaining([expect.objectContaining({ account: "Loss by Fire" })]),
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Purchases balance not found, so goods lost could not be deducted from purchases.",
     );
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+      account: "Loss by Fire",
+      amount: 2000,
+    });
+    expect(line(result.balanceSheet.assets, "Insurance Claim Receivable")).toEqual({
+      account: "Insurance Claim Receivable",
+      amount: 3000,
+    });
+  });
+
+  it("keeps theft and GST insurance claim wording unsupported", () => {
+    [
+      "Goods stolen Rs.5000, insurance claim admitted Rs.3000",
+      "Goods lost by fire Rs.5000 plus GST, insurance claim admitted Rs.3000",
+    ].forEach((adjustment) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ type: "goods_lost_with_insurance_claim" })]),
+      );
+      expect(result.unclassifiedAdjustments).toContain(adjustment);
+      expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 50000 });
+    });
   });
 
   it("keeps unknown adjustments unclassified and warns", () => {

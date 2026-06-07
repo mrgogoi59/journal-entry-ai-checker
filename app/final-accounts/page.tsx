@@ -9,6 +9,7 @@ import {
   type FinalAccountAdjustment,
   type FinalAccountLine,
   type FinalAccountsResult,
+  type GoodsLostByFireWorking,
   type ManagerCommissionWorking,
   type ProvisionForDiscountOnCreditorsWorking,
   type ProvisionForDiscountOnDebtorsWorking,
@@ -43,7 +44,7 @@ const limitations = [
   "Only controlled provision for discount on creditors support",
   "Only controlled manager's commission support",
   "Only controlled further bad debts support",
-  "No insurance claim treatment for goods lost yet",
+  "No theft/general loss insurance claim treatment yet",
   "No detailed schedules",
   "No company/partnership balance sheet formats",
   "No opening balances workflow",
@@ -242,6 +243,9 @@ function FinalAccountsResultView({
       {result.balanceSheet.managerCommissionWorking ? (
         <ManagerCommissionWorkingView working={result.balanceSheet.managerCommissionWorking} />
       ) : null}
+      {result.balanceSheet.goodsLostByFireWorkings?.length ? (
+        <GoodsLostByFireWorkingView workings={result.balanceSheet.goodsLostByFireWorkings} />
+      ) : null}
 
       <ResultSection title="Balance Sheet">
         <BalanceSheetTable
@@ -333,12 +337,14 @@ function ParsedAdjustments({
   return (
     <div className="grid gap-4">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] border-collapse text-sm">
+        <table className="w-full min-w-[760px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-line bg-paper text-left text-slate-700">
               <th className="px-3 py-2 font-semibold">Type</th>
               <th className="px-3 py-2 font-semibold">Account</th>
               <th className="px-3 py-2 font-semibold">Related Account</th>
+              <th className="px-3 py-2 text-right font-semibold">Insurance Claim</th>
+              <th className="px-3 py-2 font-semibold">Claim Status</th>
               <th className="px-3 py-2 text-right font-semibold">Amount</th>
             </tr>
           </thead>
@@ -353,13 +359,21 @@ function ParsedAdjustments({
                   <td className="px-3 py-2 font-medium text-ink">{adjustment.account}</td>
                   <td className="px-3 py-2 text-slate-700">{adjustment.relatedAccount ?? "-"}</td>
                   <td className="px-3 py-2 text-right text-ink">
+                    {adjustment.insuranceClaimAmount !== undefined
+                      ? `Rs.${adjustment.insuranceClaimAmount.toLocaleString("en-IN")}`
+                      : "-"}
+                  </td>
+                  <td className="px-3 py-2 text-slate-700">
+                    {adjustment.claimStatus ? formatClaimStatus(adjustment.claimStatus) : "-"}
+                  </td>
+                  <td className="px-3 py-2 text-right text-ink">
                     {formatAdjustmentAmount(adjustment, managerCommissionWorking)}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-3 py-2 text-slate-500" colSpan={4}>
+                <td className="px-3 py-2 text-slate-500" colSpan={6}>
                   No adjustments entered.
                 </td>
               </tr>
@@ -611,6 +625,33 @@ function ManagerCommissionWorkingView({ working }: { working: ManagerCommissionW
   );
 }
 
+function GoodsLostByFireWorkingView({ workings }: { workings: GoodsLostByFireWorking[] }) {
+  return (
+    <ResultSection title="Goods Lost by Fire Working">
+      <div className="grid gap-4">
+        {workings.map((working, index) => (
+          <div key={`goods-lost-fire-working-${working.goodsLost}-${working.insuranceClaim}-${index}`} className="overflow-x-auto">
+            <table className="w-full min-w-[460px] border-collapse text-sm">
+              <tbody>
+                <CapitalWorkingRow label="Goods Lost by Fire" amount={working.goodsLost} />
+                <CapitalWorkingRow label="Less: Insurance Claim" amount={working.insuranceClaim} />
+                <CapitalWorkingRow label="Loss transferred to P&L" amount={working.uninsuredLoss} />
+                {working.insuranceClaimReceivable > 0 ? (
+                  <CapitalWorkingRow label="Insurance Claim Receivable" amount={working.insuranceClaimReceivable} />
+                ) : null}
+                <tr className="border-t border-line bg-paper font-bold text-ink">
+                  <td className="px-3 py-2">Claim Status</td>
+                  <td className="px-3 py-2 text-right">{formatClaimStatus(working.claimStatus)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+    </ResultSection>
+  );
+}
+
 function BalanceSheetTable({
   liabilities,
   assets,
@@ -797,6 +838,10 @@ function formatAdjustmentType(type: FinalAccountAdjustment["type"]): string {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+function formatClaimStatus(status: NonNullable<FinalAccountAdjustment["claimStatus"]>): string {
+  return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 function formatAdjustmentAmount(

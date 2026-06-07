@@ -1,4 +1,4 @@
-import { extractAmount, removeFirstAmount } from "./amount-parser";
+import { extractAmount, extractAmounts, removeFirstAmount } from "./amount-parser";
 import { cleanAccountName } from "./account-synonyms";
 
 export type BalanceSide = "debit" | "credit";
@@ -67,6 +67,14 @@ export type ManagerCommissionWorking = {
   netProfitAfterCommission: number;
 };
 
+export type GoodsLostByFireWorking = {
+  goodsLost: number;
+  insuranceClaim: number;
+  uninsuredLoss: number;
+  claimStatus: "admitted" | "accepted" | "pending" | "receivable" | "received";
+  insuranceClaimReceivable: number;
+};
+
 export type FinalAccountAdjustment = {
   type:
     | "closing_stock"
@@ -83,10 +91,13 @@ export type FinalAccountAdjustment = {
     | "goods_withdrawn_by_proprietor"
     | "goods_distributed_free_sample"
     | "goods_given_as_charity"
-    | "goods_lost";
+    | "goods_lost"
+    | "goods_lost_with_insurance_claim";
   account: string;
   relatedAccount?: string;
   amount?: number;
+  insuranceClaimAmount?: number;
+  claimStatus?: "admitted" | "accepted" | "pending" | "receivable" | "received";
   percentage?: number;
   basis?: "fixed" | "before_commission" | "after_commission";
   lossKind?: "fire" | "theft" | "general";
@@ -125,6 +136,7 @@ export type FinalAccountsResult = {
     provisionForDiscountOnDebtorsWorking?: ProvisionForDiscountOnDebtorsWorking;
     provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking;
     managerCommissionWorking?: ManagerCommissionWorking;
+    goodsLostByFireWorkings?: GoodsLostByFireWorking[];
   };
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
@@ -365,6 +377,7 @@ const assetAccounts = new Set([
   "accrued commission",
   "accrued rent",
   "income receivable",
+  "insurance claim receivable",
   "input gst",
   "input cgst",
   "input sgst",
@@ -487,6 +500,12 @@ const commonMistakes = [
   "Add goods lost to Profit & Loss A/c as a loss.",
   "Do not show goods lost as Cash or Bank.",
   "Do not show goods lost as a Balance Sheet item unless insurance claim logic is added later.",
+  "Do not debit the full goods lost amount to P&L when insurance claim is admitted.",
+  "Only the uninsured loss goes to Profit & Loss A/c.",
+  "Do not show insurance claim receivable if the claim has already been received.",
+  "Do not forget to deduct total goods lost from Purchases.",
+  "Do not treat insurance claim as Sales.",
+  "Do not show goods lost as a separate asset.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -545,7 +564,12 @@ const adjustmentLogic = [
   "Goods lost by fire or theft are treated as a loss and debited to Profit & Loss A/c.",
   "Goods lost are not treated as Sales because no sale takes place.",
   "Goods lost are not treated as Drawings because the owner did not take them for personal use.",
-  "Insurance claim treatment for goods lost is not included in this MVP.",
+  "Insurance claim treatment is supported only for goods lost by fire in this MVP.",
+  "Goods lost by fire are deducted from Purchases because goods are taken out of stock.",
+  "Only the uninsured portion is treated as Loss by Fire in Profit & Loss A/c.",
+  "Insurance claim admitted or receivable is shown as an asset in the Balance Sheet.",
+  "If insurance claim is received, the claim is treated as recovery and no receivable is shown in this MVP.",
+  "Insurance claim cannot exceed goods lost amount.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -635,6 +659,7 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     classified.provisionForDiscountOnDebtorsWorking,
     classified.provisionForDiscountOnCreditorsWorking,
     managerCommissionResult.working,
+    classified.goodsLostByFireWorkings,
   );
   const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
   const unsupportedAdjustmentWarnings = adjustmentResult.warnings;
@@ -716,6 +741,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
   provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking;
   furtherBadDebts: number;
   goodsWithdrawnByProprietor: number;
+  goodsLostByFireWorkings: GoodsLostByFireWorking[];
 } {
   const tradingDebitLines: FinalAccountLine[] = [];
   const tradingCreditLines: FinalAccountLine[] = [];
@@ -723,6 +749,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
   const profitAndLossCreditLines: FinalAccountLine[] = [];
   const balanceSheetItems: TrialBalanceBalance[] = [];
   const unclassifiedItems: TrialBalanceBalance[] = [];
+  const goodsLostByFireWorkings: GoodsLostByFireWorking[] = [];
 
   parsedBalances.forEach((balance) => {
     const category = classifyAccount(balance.account);
@@ -770,6 +797,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
     unclassifiedItems,
     furtherBadDebts: 0,
     goodsWithdrawnByProprietor: 0,
+    goodsLostByFireWorkings,
   };
 }
 
@@ -799,30 +827,87 @@ function parseAdjustments(input: string): {
   const warnings: string[] = [];
 
   lines.forEach((line) => {
-    if (isUnsupportedGoodsLostInsuranceAdjustment(line)) {
-      unclassifiedAdjustments.push(line);
-      warnings.push("Goods lost with insurance claim is not supported yet.");
-      return;
-    }
-
     const parsed = parseAdjustmentLine(line);
     if (parsed) {
       parsedAdjustments.push(parsed);
     } else {
       unclassifiedAdjustments.push(line);
+      const unsupportedWarning = getGoodsLostInsuranceUnsupportedWarning(line);
+      if (unsupportedWarning) {
+        warnings.push(unsupportedWarning);
+      }
     }
   });
 
   return { parsedAdjustments, unclassifiedAdjustments, warnings };
 }
 
-function isUnsupportedGoodsLostInsuranceAdjustment(line: string): boolean {
-  const text = cleanDisplayAccountName(line);
+function parseGoodsLostWithInsuranceClaim(line: string, text: string): FinalAccountAdjustment | null {
+  if (!isGoodsLostInsuranceText(text)) return null;
+  if (!isFireGoodsLossText(text)) return null;
+  if (/\b(gst|cgst|sgst|igst)\b/.test(text)) return null;
+
+  const amounts = extractAmounts(line);
+  if (amounts.length < 2) return null;
+
+  const [goodsLostAmount, insuranceClaimAmount] = amounts;
+  if (insuranceClaimAmount > goodsLostAmount) return null;
+
+  const claimStatus = detectInsuranceClaimStatus(text);
+  if (!claimStatus) return null;
+
+  return {
+    type: "goods_lost_with_insurance_claim",
+    account: "Loss by Fire",
+    amount: goodsLostAmount,
+    insuranceClaimAmount,
+    claimStatus,
+    lossKind: "fire",
+    rawText: line,
+  };
+}
+
+function isGoodsLostInsuranceText(text: string): boolean {
   return (
     /\bgoods\b/.test(text) &&
     /\b(lost|destroyed|damaged|burnt|stolen|theft|fire)\b/.test(text) &&
-    /\b(insurance|claim|claimed|admitted|accepted|pending|received|recoverable)\b/.test(text)
+    /\b(insurance|claim|claimed|admitted|accepted|pending|received|receivable|recoverable|paid)\b/.test(text)
   );
+}
+
+function isFireGoodsLossText(text: string): boolean {
+  return /\bgoods\b/.test(text) && /\bfire\b/.test(text) && /\b(lost|destroyed|damaged|burnt)\b/.test(text);
+}
+
+function detectInsuranceClaimStatus(
+  text: string,
+): FinalAccountAdjustment["claimStatus"] | null {
+  if (/\b(received|paid)\b/.test(text)) return "received";
+  if (/\bpending\b/.test(text)) return "pending";
+  if (/\breceivable\b/.test(text)) return "receivable";
+  if (/\baccepted\b/.test(text)) return "accepted";
+  if (/\badmitted\b/.test(text)) return "admitted";
+  return null;
+}
+
+function getGoodsLostInsuranceUnsupportedWarning(line: string): string | null {
+  const text = cleanDisplayAccountName(line);
+  if (!isGoodsLostInsuranceText(text)) return null;
+
+  const amounts = extractAmounts(line);
+  if (isFireGoodsLossText(text) && amounts.length >= 2 && amounts[1] > amounts[0]) {
+    return "Insurance claim cannot be greater than goods lost amount.";
+  }
+
+  if (/\b(gst|cgst|sgst|igst)\b/.test(text)) {
+    return "GST on goods lost with insurance claim is not supported yet.";
+  }
+
+  if (!isFireGoodsLossText(text)) {
+    return "Insurance claim on goods lost is supported only for fire loss in this MVP.";
+  }
+
+  return "Goods lost with insurance claim is not supported yet.";
 }
 
 function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
@@ -831,6 +916,16 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
   if (!amount && percentage === null) return null;
 
   const text = cleanDisplayAccountName(percentage !== null ? line : amount ? removeFirstAmount(line) : line);
+  const fullText = cleanDisplayAccountName(line);
+
+  const goodsLostWithInsuranceClaim = parseGoodsLostWithInsuranceClaim(line, fullText);
+  if (goodsLostWithInsuranceClaim) {
+    return goodsLostWithInsuranceClaim;
+  }
+
+  if (isGoodsLostInsuranceText(fullText)) {
+    return null;
+  }
 
   if (/\b(goods lost by fire|goods worth lost by fire|goods destroyed by fire|goods worth destroyed by fire|goods damaged by fire|goods burnt by fire|goods worth burnt in fire|goods burnt in fire|fire destroyed goods worth|goods lost due to fire)\b/.test(text)) {
     if (!amount) return null;
@@ -1128,6 +1223,7 @@ function applyAdjustments(
     provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking;
     furtherBadDebts?: number;
     goodsWithdrawnByProprietor?: number;
+    goodsLostByFireWorkings: GoodsLostByFireWorking[];
   },
   adjustments: FinalAccountAdjustment[],
 ): string[] {
@@ -1194,6 +1290,43 @@ function applyAdjustments(
         warnings.push(purchaseWarning);
       }
       addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
+      return;
+    }
+
+    if (adjustment.type === "goods_lost_with_insurance_claim") {
+      const amount = adjustment.amount ?? 0;
+      const insuranceClaim = adjustment.insuranceClaimAmount ?? 0;
+      const claimStatus = adjustment.claimStatus ?? "admitted";
+      const uninsuredLoss = Math.max(amount - insuranceClaim, 0);
+      const insuranceClaimReceivable = claimStatus === "received" ? 0 : insuranceClaim;
+      const purchaseWarning = reducePurchasesForGoodsLost(classified.tradingDebitLines, amount);
+      if (purchaseWarning) {
+        warnings.push(purchaseWarning);
+      }
+
+      if (uninsuredLoss > 0) {
+        addAmount(classified.profitAndLossDebitLines, adjustment.account, uninsuredLoss);
+      }
+
+      if (insuranceClaimReceivable > 0) {
+        classified.balanceSheetItems.push({
+          account: "Insurance Claim Receivable",
+          side: "debit",
+          amount: insuranceClaimReceivable,
+        });
+      } else {
+        warnings.push(
+          "Insurance claim received is treated as recovery for loss calculation only; cash/bank adjustment is not added in this MVP.",
+        );
+      }
+
+      classified.goodsLostByFireWorkings.push({
+        goodsLost: amount,
+        insuranceClaim,
+        uninsuredLoss,
+        claimStatus,
+        insuranceClaimReceivable,
+      });
       return;
     }
 
@@ -1456,6 +1589,7 @@ function buildBalanceSheet(
   provisionForDiscountOnDebtorsWorking?: ProvisionForDiscountOnDebtorsWorking,
   provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking,
   managerCommissionWorking?: ManagerCommissionWorking,
+  goodsLostByFireWorkings: GoodsLostByFireWorking[] = [],
 ): FinalAccountsResult["balanceSheet"] {
   const assets: FinalAccountLine[] = [];
   const liabilities: FinalAccountLine[] = [];
@@ -1553,6 +1687,7 @@ function buildBalanceSheet(
     provisionForDiscountOnDebtorsWorking,
     provisionForDiscountOnCreditorsWorking,
     managerCommissionWorking,
+    goodsLostByFireWorkings,
   };
 }
 
