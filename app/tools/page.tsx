@@ -35,6 +35,11 @@ const learningTools = [
     description: "See what the platform currently supports and what is not supported yet.",
     href: "/supported-transactions",
   },
+  {
+    title: "How to Use Accywise",
+    description: "Learn the best order to use all tools.",
+    href: "/how-to-use",
+  },
 ];
 
 export default function ToolsPage() {
@@ -176,6 +181,10 @@ export default function ToolsPage() {
             <span className="text-slate-300">/</span>
             <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
               Supported Topics
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/how-to-use" className="text-blue-800 transition hover:text-blue-950">
+              How to Use
             </Link>
           </nav>
           <div className="mt-7 max-w-3xl">

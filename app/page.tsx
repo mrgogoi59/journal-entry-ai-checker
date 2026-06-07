@@ -40,8 +40,8 @@ export default function Home() {
             <Link href="/supported-transactions" className="transition hover:text-blue-900">
               Supported Topics
             </Link>
-            <Link href="#how-it-works" className="transition hover:text-blue-900">
-              How it works
+            <Link href="/how-to-use" className="transition hover:text-blue-900">
+              How to Use
             </Link>
           </div>
           <Link
@@ -188,6 +188,9 @@ export default function Home() {
             </Link>
             <Link href="/supported-transactions" className="hover:text-blue-900">
               Supported Topics
+            </Link>
+            <Link href="/how-to-use" className="hover:text-blue-900">
+              How to Use
             </Link>
             <Link href="/final-accounts" className="hover:text-blue-900">
               Final Accounts
