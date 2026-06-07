@@ -10,6 +10,7 @@ import {
   type FinalAccountLine,
   type FinalAccountsResult,
   type GoodsLostByFireWorking,
+  type InterestOnLoanWorking,
   type InterestWorking,
   type ManagerCommissionWorking,
   type ProvisionForDiscountOnCreditorsWorking,
@@ -248,6 +249,9 @@ function FinalAccountsResultView({
         <GoodsLostByFireWorkingView workings={result.balanceSheet.goodsLostByFireWorkings} />
       ) : null}
       {result.balanceSheet.interestWorking ? <InterestWorkingView working={result.balanceSheet.interestWorking} /> : null}
+      {result.balanceSheet.interestOnLoanWorking ? (
+        <InterestOnLoanWorkingView working={result.balanceSheet.interestOnLoanWorking} />
+      ) : null}
 
       <ResultSection title="Balance Sheet">
         <BalanceSheetTable
@@ -690,6 +694,27 @@ function InterestWorkingView({ working }: { working: InterestWorking }) {
                 <CapitalWorkingRow label="Interest on Drawings" amount={working.interestOnDrawings} />
               </>
             ) : null}
+          </tbody>
+        </table>
+      </div>
+    </ResultSection>
+  );
+}
+
+function InterestOnLoanWorkingView({ working }: { working: InterestOnLoanWorking }) {
+  return (
+    <ResultSection title="Interest on Loan Working">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[420px] border-collapse text-sm">
+          <tbody>
+            <CapitalWorkingRow label="Loan Balance" amount={working.loanBalance} />
+            {working.interestRate !== undefined ? (
+              <tr className="border-b border-line">
+                <td className="px-3 py-2 font-medium text-ink">Interest Rate</td>
+                <td className="px-3 py-2 text-right text-ink">{working.interestRate}%</td>
+              </tr>
+            ) : null}
+            <CapitalWorkingRow label="Interest on Loan" amount={working.interestOnLoan} />
           </tbody>
         </table>
       </div>

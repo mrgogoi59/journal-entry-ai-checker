@@ -1640,6 +1640,190 @@ Manager's commission 10% on net profit before commission`,
     expect(result.profitAndLossAccount.netProfit).toBe(28800);
   });
 
+  it("applies fixed outstanding interest on loan", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Loan A/c Cr Rs.50000
+Cash A/c Dr Rs.150000`,
+      "Interest on loan outstanding Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Interest on Loan")).toEqual({
+      account: "Interest on Loan",
+      amount: 5000,
+    });
+    expect(line(result.balanceSheet.liabilities, "Loan")).toEqual({ account: "Loan", amount: 50000 });
+    expect(line(result.balanceSheet.liabilities, "Outstanding Interest on Loan")).toEqual({
+      account: "Outstanding Interest on Loan",
+      amount: 5000,
+    });
+    expect(result.balanceSheet.interestOnLoanWorking).toEqual({
+      loanBalance: 50000,
+      interestRate: undefined,
+      interestOnLoan: 5000,
+    });
+  });
+
+  it("treats interest on loan adjustment without outstanding word as outstanding", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Loan A/c Cr Rs.50000
+Cash A/c Dr Rs.150000`,
+      "Interest on loan Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Interest on Loan")).toEqual({
+      account: "Interest on Loan",
+      amount: 5000,
+    });
+    expect(line(result.balanceSheet.liabilities, "Outstanding Interest on Loan")).toEqual({
+      account: "Outstanding Interest on Loan",
+      amount: 5000,
+    });
+  });
+
+  it("calculates percentage interest on loan from loan balance", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Loan A/c Cr Rs.50000
+Cash A/c Dr Rs.150000`,
+      "Interest on loan @ 10%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "interest_on_loan",
+          account: "Interest on Loan",
+          relatedAccount: "Loan",
+          percentage: 10,
+          amount: 5000,
+        }),
+      ]),
+    );
+    expect(line(result.profitAndLossAccount.debitLines, "Interest on Loan")).toEqual({
+      account: "Interest on Loan",
+      amount: 5000,
+    });
+    expect(line(result.balanceSheet.liabilities, "Outstanding Interest on Loan")).toEqual({
+      account: "Outstanding Interest on Loan",
+      amount: 5000,
+    });
+    expect(result.balanceSheet.interestOnLoanWorking).toEqual({
+      loanBalance: 50000,
+      interestRate: 10,
+      interestOnLoan: 5000,
+    });
+  });
+
+  it("adds outstanding loan interest adjustment to existing trial balance interest on loan", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Loan A/c Cr Rs.50000
+Interest on Loan A/c Dr Rs.3000
+Cash A/c Dr Rs.147000`,
+      "Interest on loan outstanding Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Interest On Loan")).toEqual({
+      account: "Interest On Loan",
+      amount: 5000,
+    });
+    expect(line(result.balanceSheet.liabilities, "Outstanding Interest on Loan")).toEqual({
+      account: "Outstanding Interest on Loan",
+      amount: 2000,
+    });
+  });
+
+  it("warns when loan is missing for percentage interest on loan", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000`,
+      "Interest on loan @ 10%",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain("Loan balance not found, so interest on loan could not be calculated.");
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Interest on Loan" })]),
+    );
+  });
+
+  it("calculates manager commission after interest on loan", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Loan A/c Cr Rs.50000
+Cash A/c Dr Rs.150000
+Sales A/c Cr Rs.50000`,
+      `Interest on loan @ 10%
+Manager's commission 10% on net profit before commission`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Interest on Loan")).toEqual({
+      account: "Interest on Loan",
+      amount: 5000,
+    });
+    expect(result.balanceSheet.managerCommissionWorking).toMatchObject({
+      basis: "before_commission",
+      profitBeforeCommission: 45000,
+      percentage: 10,
+      commission: 4500,
+      netProfitAfterCommission: 40500,
+    });
+    expect(result.profitAndLossAccount.netProfit).toBe(40500);
+  });
+
+  it("parses supported interest on loan wording patterns", () => {
+    const patterns: Array<[string, string, number | undefined]> = [
+      ["Outstanding interest on loan Rs.5000", "Loan", undefined],
+      ["Interest on bank loan outstanding Rs.5000", "Bank Loan", undefined],
+      ["Interest on loan due Rs.5000", "Loan", undefined],
+      ["Loan interest outstanding Rs.5000", "Loan", undefined],
+      ["Interest on loan payable Rs.5000", "Loan Payable", undefined],
+      ["Loan interest Rs.5000", "Loan", undefined],
+      ["Interest on bank loan Rs.5000", "Bank Loan", undefined],
+      ["Interest on loan at 10%", "Loan", 10],
+      ["Interest on bank loan @ 10%", "Bank Loan", 10],
+      ["Loan interest @ 10%", "Loan", 10],
+      ["Provide interest on loan @ 10%", "Loan", 10],
+    ];
+
+    patterns.forEach(([adjustment, relatedAccount, percentage]) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Bank Loan A/c Cr Rs.50000
+Cash A/c Dr Rs.150000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "interest_on_loan",
+            account: "Interest on Loan",
+            relatedAccount,
+            amount: 5000,
+            ...(percentage !== undefined ? { percentage } : {}),
+          }),
+        ]),
+      );
+      expect(line(result.profitAndLossAccount.debitLines, "Interest on Loan")).toEqual({
+        account: "Interest on Loan",
+        amount: 5000,
+      });
+      expect(line(result.balanceSheet.liabilities, "Outstanding Interest on Loan")).toEqual({
+        account: "Outstanding Interest on Loan",
+        amount: 5000,
+      });
+    });
+  });
+
   it("keeps unknown adjustments unclassified and warns", () => {
     const result = generateFinalAccounts(
       `Capital Cr 50000

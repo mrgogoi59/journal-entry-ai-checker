@@ -86,6 +86,12 @@ export type InterestWorking = {
   interestOnDrawings: number;
 };
 
+export type InterestOnLoanWorking = {
+  loanBalance: number;
+  interestRate?: number;
+  interestOnLoan: number;
+};
+
 export type FinalAccountAdjustment = {
   type:
     | "closing_stock"
@@ -105,7 +111,8 @@ export type FinalAccountAdjustment = {
     | "goods_lost"
     | "goods_lost_with_insurance_claim"
     | "interest_on_capital"
-    | "interest_on_drawings";
+    | "interest_on_drawings"
+    | "interest_on_loan";
   account: string;
   relatedAccount?: string;
   amount?: number;
@@ -151,6 +158,7 @@ export type FinalAccountsResult = {
     managerCommissionWorking?: ManagerCommissionWorking;
     goodsLostByFireWorkings?: GoodsLostByFireWorking[];
     interestWorking?: InterestWorking;
+    interestOnLoanWorking?: InterestOnLoanWorking;
   };
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
@@ -211,6 +219,7 @@ const profitAndLossDebitAccounts = new Set([
   "loss by theft",
   "goods lost",
   "interest on capital",
+  "interest on loan",
 ]);
 
 const profitAndLossCreditAccounts = new Set([
@@ -275,6 +284,8 @@ const balanceSheetAccounts = new Set([
   "outstanding wages",
   "outstanding electricity",
   "outstanding insurance",
+  "outstanding interest on loan",
+  "interest on loan payable",
   "outstanding expenses",
   "expense payable",
   "salary payable",
@@ -294,7 +305,9 @@ const balanceSheetAccounts = new Set([
   "loans",
   "bank loan",
   "loan from bank",
+  "borrowing",
   "borrowings",
+  "loan payable",
   "gst",
   "input gst",
   "input cgst",
@@ -342,8 +355,12 @@ const liabilityAccounts = new Set([
   "loans",
   "bank loan",
   "loan from bank",
+  "borrowing",
   "borrowings",
+  "loan payable",
   "outstanding expenses",
+  "outstanding interest on loan",
+  "interest on loan payable",
   "outstanding salary",
   "outstanding rent",
   "outstanding wages",
@@ -434,6 +451,8 @@ const creditorAccounts = new Set([
   "supplier",
   "suppliers",
 ]);
+
+const loanAccounts = new Set(["loan", "loans", "bank loan", "loan from bank", "borrowing", "borrowings", "loan payable"]);
 
 const provisionForDoubtfulDebtsAccounts = new Set([
   "provision for doubtful debts",
@@ -529,6 +548,12 @@ const commonMistakes = [
   "Interest on Capital is added in Capital Working.",
   "Interest on Drawings is deducted in Capital Working.",
   "Do not calculate percentage interest if Capital or Drawings balance is missing.",
+  "Do not add interest on loan to Capital.",
+  "Do not show interest on loan as an asset.",
+  "Interest on Loan is an expense and goes to P&L debit.",
+  "Outstanding Interest on Loan is a liability.",
+  "Do not add interest to loan principal in this MVP.",
+  "Do not calculate percentage interest if loan balance is missing.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -597,6 +622,10 @@ const adjustmentLogic = [
   "Interest on Drawings is credited to Profit & Loss A/c and deducted from Capital.",
   "If interest is given as a percentage, it is calculated on Capital or Drawings balance.",
   "Interest on Capital and Interest on Drawings affect Adjusted Capital through Capital Working.",
+  "Interest on Loan is an expense and is debited to Profit & Loss A/c.",
+  "Outstanding Interest on Loan is shown as a liability in the Balance Sheet.",
+  "If interest is given as a percentage, it is calculated on the loan balance.",
+  "Interest on Loan is considered before calculating Manager's Commission.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -690,6 +719,7 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     classified.interestOnCapital,
     classified.interestOnDrawings,
     classified.interestWorking,
+    classified.interestOnLoanWorking,
   );
   const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
   const unsupportedAdjustmentWarnings = adjustmentResult.warnings;
@@ -775,6 +805,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
   interestOnCapital: number;
   interestOnDrawings: number;
   interestWorking?: InterestWorking;
+  interestOnLoanWorking?: InterestOnLoanWorking;
 } {
   const tradingDebitLines: FinalAccountLine[] = [];
   const tradingCreditLines: FinalAccountLine[] = [];
@@ -925,6 +956,13 @@ function detectInsuranceClaimStatus(
   return null;
 }
 
+function detectLoanRelatedAccount(text: string): string {
+  if (/\bbank loan\b|\bloan from bank\b/.test(text)) return "Bank Loan";
+  if (/\b(borrowing|borrowings)\b/.test(text)) return "Borrowings";
+  if (/\bloan payable\b/.test(text)) return "Loan Payable";
+  return "Loan";
+}
+
 function getGoodsLostInsuranceUnsupportedWarning(line: string): string | null {
   const text = cleanDisplayAccountName(line);
   if (!isGoodsLostInsuranceText(text)) return null;
@@ -996,6 +1034,34 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
       return {
         type: "interest_on_drawings",
         account: "Interest on Drawings",
+        amount,
+        rawText: line,
+      };
+    }
+  }
+
+  if (
+    /\b(interest on loan|interest on bank loan|outstanding interest on loan|loan interest|provide interest on loan|interest on loan outstanding|loan interest outstanding|interest on loan due|interest on loan payable)\b/.test(
+      text,
+    )
+  ) {
+    const relatedAccount = detectLoanRelatedAccount(fullText);
+
+    if (percentage !== null) {
+      return {
+        type: "interest_on_loan",
+        account: "Interest on Loan",
+        relatedAccount,
+        percentage,
+        rawText: line,
+      };
+    }
+
+    if (amount) {
+      return {
+        type: "interest_on_loan",
+        account: "Interest on Loan",
+        relatedAccount,
         amount,
         rawText: line,
       };
@@ -1302,6 +1368,7 @@ function applyAdjustments(
     interestOnCapital: number;
     interestOnDrawings: number;
     interestWorking?: InterestWorking;
+    interestOnLoanWorking?: InterestOnLoanWorking;
   },
   adjustments: FinalAccountAdjustment[],
 ): string[] {
@@ -1386,6 +1453,37 @@ function applyAdjustments(
         interestOnDrawings: classified.interestOnDrawings,
       };
       addAmount(classified.profitAndLossCreditLines, adjustment.account, amount);
+      return;
+    }
+
+    if (adjustment.type === "interest_on_loan") {
+      const loanBalance = totalLoanBalance(classified.balanceSheetItems);
+      const amount =
+        adjustment.amount ??
+        (adjustment.percentage !== undefined && loanBalance > 0
+          ? Math.round((loanBalance * adjustment.percentage) / 100)
+          : 0);
+
+      if (adjustment.percentage !== undefined && loanBalance === 0) {
+        warnings.push("Loan balance not found, so interest on loan could not be calculated.");
+        return;
+      }
+
+      if (amount <= 0) return;
+
+      adjustment.amount = amount;
+      adjustment.relatedAccount = adjustment.relatedAccount ?? "Loan";
+      classified.interestOnLoanWorking = {
+        loanBalance,
+        interestRate: adjustment.percentage,
+        interestOnLoan: amount,
+      };
+      addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
+      classified.balanceSheetItems.push({
+        account: "Outstanding Interest on Loan",
+        side: "credit",
+        amount,
+      });
       return;
     }
 
@@ -1729,6 +1827,7 @@ function buildBalanceSheet(
   interestOnCapital = 0,
   interestOnDrawings = 0,
   interestWorking?: InterestWorking,
+  interestOnLoanWorking?: InterestOnLoanWorking,
 ): FinalAccountsResult["balanceSheet"] {
   const assets: FinalAccountLine[] = [];
   const liabilities: FinalAccountLine[] = [];
@@ -1831,6 +1930,7 @@ function buildBalanceSheet(
     managerCommissionWorking,
     goodsLostByFireWorkings,
     interestWorking,
+    interestOnLoanWorking,
   };
 }
 
@@ -2056,6 +2156,12 @@ function totalDrawingsBalance(items: TrialBalanceBalance[]): number {
     .reduce((total, item) => total + item.amount, 0);
 }
 
+function totalLoanBalance(items: TrialBalanceBalance[]): number {
+  return items
+    .filter((item) => item.side === "credit" && loanAccounts.has(cleanAccountName(item.account)))
+    .reduce((total, item) => total + item.amount, 0);
+}
+
 function addAmountIfExists(lines: FinalAccountLine[], account: string, amount: number): boolean {
   const existing = lines.find((line) => accountMatches(line.account, account));
   if (!existing) return false;
@@ -2199,6 +2305,10 @@ function accountMatchKey(account: string): string {
 
   if (["interest on drawings", "drawings interest"].includes(key)) {
     return "interest on drawings";
+  }
+
+  if (["interest on loan", "loan interest", "interest on bank loan"].includes(key)) {
+    return "interest on loan";
   }
 
   return key;
