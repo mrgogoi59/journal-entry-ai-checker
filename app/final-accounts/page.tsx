@@ -43,7 +43,7 @@ const limitations = [
   "Only controlled provision for discount on creditors support",
   "Only controlled manager's commission support",
   "Only controlled further bad debts support",
-  "No goods withdrawn/lost/free sample adjustments yet",
+  "No goods lost/free sample adjustments yet",
   "No detailed schedules",
   "No company/partnership balance sheet formats",
   "No opening balances workflow",
@@ -473,6 +473,12 @@ function CapitalWorkingView({ working }: { working: CapitalWorking }) {
             {working.netProfit > 0 ? <CapitalWorkingRow label="Add: Net Profit" amount={working.netProfit} /> : null}
             {working.netLoss > 0 ? <CapitalWorkingRow label="Less: Net Loss" amount={working.netLoss} /> : null}
             {working.drawings > 0 ? <CapitalWorkingRow label="Less: Drawings" amount={working.drawings} /> : null}
+            {working.goodsWithdrawnByProprietor > 0 ? (
+              <CapitalWorkingRow
+                label="Less: Goods Withdrawn by Proprietor"
+                amount={working.goodsWithdrawnByProprietor}
+              />
+            ) : null}
             <tr className="border-t border-line bg-paper font-bold text-ink">
               <td className="px-3 py-2">Adjusted Capital</td>
               <td className="px-3 py-2 text-right">Rs.{working.adjustedCapital.toLocaleString("en-IN")}</td>

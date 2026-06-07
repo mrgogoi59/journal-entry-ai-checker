@@ -115,6 +115,7 @@ Bank A/c Dr Rs.32000`);
       netProfit: 14000,
       netLoss: 0,
       drawings: 5000,
+      goodsWithdrawnByProprietor: 0,
       adjustedCapital: 59000,
     });
     expect(line(result.balanceSheet.liabilities, "Adjusted Capital")).toEqual({
@@ -373,6 +374,171 @@ Depreciation on machinery Rs.5000`,
       amount: 1000,
     });
     expect(line(result.balanceSheet.assets, "Machinery")).toEqual({ account: "Machinery", amount: 45000 });
+  });
+
+  it("deducts goods withdrawn by proprietor from purchases and capital", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods withdrawn by proprietor Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(result.balanceSheet.capitalWorking).toMatchObject({
+      openingCapital: 100000,
+      netProfit: 35000,
+      drawings: 0,
+      goodsWithdrawnByProprietor: 5000,
+      adjustedCapital: 130000,
+    });
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Withdrawn by Proprietor" })]),
+    );
+    expect(result.profitAndLossAccount.creditLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Withdrawn by Proprietor" })]),
+    );
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Withdrawn by Proprietor" })]),
+    );
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Withdrawn by Proprietor" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("shows goods withdrawn separately from existing drawings in capital working", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Drawings A/c Dr Rs.10000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.120000`,
+      "Goods withdrawn by proprietor Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(result.balanceSheet.capitalWorking).toMatchObject({
+      drawings: 10000,
+      goodsWithdrawnByProprietor: 5000,
+      adjustedCapital: 120000,
+    });
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("parses owner wording for goods withdrawn by proprietor", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Owner withdrew goods Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_withdrawn_by_proprietor",
+          account: "Goods Withdrawn by Proprietor",
+          amount: 3000,
+        }),
+      ]),
+    );
+  });
+
+  it("parses goods worth wording for goods withdrawn by proprietor", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods worth Rs.5000 withdrawn by proprietor for personal use",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_withdrawn_by_proprietor",
+          account: "Goods Withdrawn by Proprietor",
+          amount: 5000,
+        }),
+      ]),
+    );
+  });
+
+  it("warns when purchases are missing but still deducts goods withdrawn from capital", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000`,
+      "Goods withdrawn by proprietor Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Purchases balance not found, so goods withdrawn could not be deducted from purchases.",
+    );
+    expect(result.balanceSheet.capitalWorking).toMatchObject({
+      openingCapital: 100000,
+      goodsWithdrawnByProprietor: 5000,
+      adjustedCapital: 95000,
+    });
+  });
+
+  it("does not make purchases negative when goods withdrawn exceeds purchases", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.3000
+Cash A/c Dr Rs.97000`,
+      "Goods withdrawn by proprietor Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain("Goods withdrawn is more than Purchases, so Purchases was reduced to zero.");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 0 });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(5000);
+  });
+
+  it("parses supported goods withdrawn by proprietor wording patterns", () => {
+    [
+      "Goods withdrawn by proprietor Rs.5000",
+      "Goods withdrawn by owner Rs.5000",
+      "Proprietor withdrew goods Rs.5000",
+      "Owner withdrew goods Rs.5000",
+      "Goods taken by proprietor for personal use Rs.5000",
+      "Goods taken by owner for personal use Rs.5000",
+      "Goods withdrawn for personal use Rs.5000",
+      "Goods withdrawn by proprietor for personal use Rs.5000",
+      "Goods withdrawn by owner for home use Rs.5000",
+      "Goods worth Rs.5000 withdrawn by proprietor for personal use",
+      "Goods worth Rs.5000 taken by owner for household use",
+      "Proprietor used goods for personal use Rs.5000",
+    ].forEach((adjustment) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "goods_withdrawn_by_proprietor",
+            account: "Goods Withdrawn by Proprietor",
+            amount: 5000,
+          }),
+        ]),
+      );
+      expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+      expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(5000);
+    });
   });
 
   it("keeps unknown adjustments unclassified and warns", () => {

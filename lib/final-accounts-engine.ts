@@ -19,6 +19,7 @@ export type CapitalWorking = {
   netProfit: number;
   netLoss: number;
   drawings: number;
+  goodsWithdrawnByProprietor: number;
   adjustedCapital: number;
 };
 
@@ -78,7 +79,8 @@ export type FinalAccountAdjustment = {
     | "manager_commission"
     | "further_bad_debts"
     | "provision_for_discount_on_debtors"
-    | "provision_for_discount_on_creditors";
+    | "provision_for_discount_on_creditors"
+    | "goods_withdrawn_by_proprietor";
   account: string;
   relatedAccount?: string;
   amount?: number;
@@ -450,6 +452,11 @@ const commonMistakes = [
   "Increase in provision for discount on creditors is a gain and goes to P&L credit side.",
   "Decrease in provision for discount on creditors goes to P&L debit side.",
   "Do not confuse discount on debtors with discount on creditors.",
+  "Do not show goods withdrawn as Sales.",
+  "Do not show goods withdrawn as an expense in P&L.",
+  "Deduct goods withdrawn from Purchases.",
+  "Treat goods withdrawn as Drawings in Capital Working.",
+  "Do not show goods withdrawn as Cash or Bank.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -492,6 +499,9 @@ const adjustmentLogic = [
   "If required creditor discount provision is more than existing provision, only the increase is credited to Profit & Loss A/c.",
   "If required creditor discount provision is less than existing provision, only the decrease is debited to Profit & Loss A/c.",
   "Net Creditors are shown after deducting provision for discount on creditors.",
+  "Goods withdrawn by proprietor are deducted from Purchases because goods are taken out of business stock.",
+  "Goods withdrawn by proprietor are treated like Drawings and deducted from Capital.",
+  "Goods withdrawn are not treated as sales because the owner took goods for personal use.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -576,6 +586,7 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     profitAndLossAccount.netProfit,
     profitAndLossAccount.netLoss,
     classified.furtherBadDebts,
+    classified.goodsWithdrawnByProprietor,
     classified.provisionForDoubtfulDebtsWorking,
     classified.provisionForDiscountOnDebtorsWorking,
     classified.provisionForDiscountOnCreditorsWorking,
@@ -653,6 +664,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
   provisionForDiscountOnDebtorsWorking?: ProvisionForDiscountOnDebtorsWorking;
   provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking;
   furtherBadDebts: number;
+  goodsWithdrawnByProprietor: number;
 } {
   const tradingDebitLines: FinalAccountLine[] = [];
   const tradingCreditLines: FinalAccountLine[] = [];
@@ -706,6 +718,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
     balanceSheetItems,
     unclassifiedItems,
     furtherBadDebts: 0,
+    goodsWithdrawnByProprietor: 0,
   };
 }
 
@@ -750,6 +763,20 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
   if (!amount && percentage === null) return null;
 
   const text = cleanDisplayAccountName(percentage !== null ? line : amount ? removeFirstAmount(line) : line);
+
+  if (
+    /\b(goods withdrawn by proprietor|goods withdrawn by owner|proprietor withdrew goods|owner withdrew goods|goods taken by proprietor for personal use|goods taken by owner for personal use|goods withdrawn for personal use|goods withdrawn by proprietor for personal use|goods withdrawn by owner for home use|goods worth withdrawn by proprietor for personal use|goods worth taken by owner for household use|proprietor used goods for personal use)\b/.test(
+      text,
+    )
+  ) {
+    if (!amount) return null;
+    return {
+      type: "goods_withdrawn_by_proprietor",
+      account: "Goods Withdrawn by Proprietor",
+      amount,
+      rawText: line,
+    };
+  }
 
   if (/\b(discount on creditors|discount on good creditors|creditors discount)\b/.test(text)) {
     if (percentage !== null) {
@@ -971,6 +998,7 @@ function applyAdjustments(
     provisionForDiscountOnDebtorsWorking?: ProvisionForDiscountOnDebtorsWorking;
     provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking;
     furtherBadDebts?: number;
+    goodsWithdrawnByProprietor?: number;
   },
   adjustments: FinalAccountAdjustment[],
 ): string[] {
@@ -997,6 +1025,16 @@ function applyAdjustments(
       const amount = adjustment.amount ?? 0;
       classified.furtherBadDebts = (classified.furtherBadDebts ?? 0) + amount;
       addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
+      return;
+    }
+
+    if (adjustment.type === "goods_withdrawn_by_proprietor") {
+      const amount = adjustment.amount ?? 0;
+      classified.goodsWithdrawnByProprietor = (classified.goodsWithdrawnByProprietor ?? 0) + amount;
+      const purchaseWarning = reducePurchasesForGoodsWithdrawn(classified.tradingDebitLines, amount);
+      if (purchaseWarning) {
+        warnings.push(purchaseWarning);
+      }
       return;
     }
 
@@ -1254,6 +1292,7 @@ function buildBalanceSheet(
   netProfit: number,
   netLoss: number,
   furtherBadDebts = 0,
+  goodsWithdrawnByProprietor = 0,
   provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking,
   provisionForDiscountOnDebtorsWorking?: ProvisionForDiscountOnDebtorsWorking,
   provisionForDiscountOnCreditorsWorking?: ProvisionForDiscountOnCreditorsWorking,
@@ -1318,7 +1357,7 @@ function buildBalanceSheet(
     }
   });
 
-  const adjustedCapital = openingCapital + netProfit - netLoss - drawings;
+  const adjustedCapital = openingCapital + netProfit - netLoss - drawings - goodsWithdrawnByProprietor;
   const capitalWorking =
     openingCapital > 0
       ? {
@@ -1326,6 +1365,7 @@ function buildBalanceSheet(
           netProfit,
           netLoss,
           drawings,
+          goodsWithdrawnByProprietor,
           adjustedCapital,
         }
       : undefined;
@@ -1581,6 +1621,21 @@ function reduceAmountIfExists(lines: FinalAccountLine[], account: string, amount
 
   existing.amount = Math.max(existing.amount - amount, 0);
   return true;
+}
+
+function reducePurchasesForGoodsWithdrawn(lines: FinalAccountLine[], amount: number): string | null {
+  const purchases = lines.find((line) => accountMatches(line.account, "Purchases"));
+  if (!purchases) {
+    return "Purchases balance not found, so goods withdrawn could not be deducted from purchases.";
+  }
+
+  if (amount > purchases.amount) {
+    purchases.amount = 0;
+    return "Goods withdrawn is more than Purchases, so Purchases was reduced to zero.";
+  }
+
+  purchases.amount -= amount;
+  return null;
 }
 
 function reduceBalanceSheetAsset(items: TrialBalanceBalance[], account: string, amount: number): boolean {
