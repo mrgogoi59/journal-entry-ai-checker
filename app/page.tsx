@@ -32,10 +32,10 @@ export default function Home() {
             </Link>
           </div>
           <Link
-            href="/dashboard"
+            href="/tools"
             className="inline-flex min-h-10 items-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-blue-800"
           >
-            Start Learning
+            Tools
           </Link>
         </nav>
       </header>
@@ -62,12 +62,6 @@ export default function Home() {
               className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-900 transition hover:bg-blue-50"
             >
               Learn Concepts
-            </Link>
-            <Link
-              href="/tools"
-              className="inline-flex min-h-12 items-center justify-center rounded-xl px-4 py-3 text-sm font-bold text-blue-800 transition hover:bg-blue-50"
-            >
-              Open Tools
             </Link>
           </div>
         </div>
