@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { FeedbackReport } from "@/components/FeedbackReport";
 import {
   generateFinalAccounts,
@@ -39,16 +39,51 @@ Interest accrued Rs.1500
 Rent received in advance Rs.4000
 Depreciation on machinery Rs.5000`;
 
+const exampleSets = [
+  {
+    label: "Basic final accounts",
+    balances: sampleBalances,
+    adjustments: "",
+  },
+  {
+    label: "With closing stock",
+    balances: sampleBalances,
+    adjustments: "Closing stock Rs.10000",
+  },
+  {
+    label: "With provisions",
+    balances: `${sampleBalances}
+Provision for Doubtful Debts A/c Cr Rs.500`,
+    adjustments: `Further bad debts Rs.1000
+Create provision for doubtful debts 5% on debtors`,
+  },
+  {
+    label: "With manager's commission",
+    balances: sampleBalances,
+    adjustments: `Closing stock Rs.10000
+Manager's commission 10% after commission`,
+  },
+  {
+    label: "With goods adjustments",
+    balances: sampleBalances,
+    adjustments: `Closing stock Rs.10000
+Goods withdrawn by proprietor Rs.2000
+Goods lost by fire Rs.3000 insurance claim Rs.2000 admitted`,
+  },
+];
+
+const badges = ["Trading A/c", "Profit & Loss A/c", "Balance Sheet", "Adjustments", "Beginner friendly"];
+
+const loadingSteps = [
+  "Reading trial balance...",
+  "Applying adjustments...",
+  "Preparing Trading A/c, P&L A/c, and Balance Sheet...",
+];
+
 const limitations = [
   "Only selected adjustments are supported",
-  "Only controlled provision for doubtful debts support",
-  "Only controlled provision for discount on debtors support",
-  "Only controlled provision for discount on creditors support",
-  "Only controlled manager's commission support",
-  "Only controlled further bad debts support",
-  "No theft/general loss insurance claim treatment yet",
-  "No detailed schedules",
   "No company/partnership balance sheet formats",
+  "No detailed schedules",
   "No opening balances workflow",
   "No database/history",
   "No AI",
@@ -58,84 +93,185 @@ export default function FinalAccountsPage() {
   const [trialBalanceInput, setTrialBalanceInput] = useState("");
   const [adjustmentsInput, setAdjustmentsInput] = useState("");
   const [result, setResult] = useState<FinalAccountsResult | null>(null);
+  const [isPreparing, setIsPreparing] = useState(false);
 
   function prepareFinalAccounts() {
-    setResult(generateFinalAccounts(trialBalanceInput, adjustmentsInput));
+    setIsPreparing(true);
+    window.setTimeout(() => {
+      setResult(generateFinalAccounts(trialBalanceInput, adjustmentsInput));
+      setIsPreparing(false);
+    }, 120);
+  }
+
+  function fillExample(balances: string, adjustments: string) {
+    setTrialBalanceInput(balances);
+    setAdjustmentsInput(adjustments);
+    setResult(null);
   }
 
   return (
-    <main className="min-h-screen px-4 py-5 sm:px-6 sm:py-9">
-      <section className="mx-auto flex w-full max-w-[980px] flex-col gap-4 sm:gap-5">
-        <header>
-          <Link href="/" className="text-sm font-semibold text-accent hover:text-blue-700">
-            Back to checker
-          </Link>
-          <p className="mt-4 text-sm font-semibold text-accent">Final Accounts Engine MVP</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-normal text-ink sm:text-4xl">Final Accounts MVP</h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Enter trial balance balances and prepare Trading A/c, Profit & Loss A/c, and Balance Sheet.
-          </p>
-          <p className="mt-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
-            This version prepares Trading A/c, Profit & Loss A/c, and a simple sole proprietorship Balance Sheet. It
-            also supports selected adjustments such as closing stock, outstanding expenses, prepaid expenses, accrued
-            income, income received in advance, depreciation, provision for doubtful debts, manager&apos;s commission, and
-            debtor-related provisions.
-          </p>
-        </header>
+    <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
+      <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-6">
+        <PageHeader />
 
-        <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-          <div className="grid gap-4">
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-ink">Trial Balance Balances</span>
-              <textarea
-                value={trialBalanceInput}
-                onChange={(event) => {
-                  setTrialBalanceInput(event.target.value);
-                  setResult(null);
-                }}
-                placeholder={sampleBalances}
-                className="min-h-64 resize-y rounded-lg border border-line bg-white px-4 py-3 font-mono text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
-              />
-            </label>
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-ink">Adjustments</span>
-              <textarea
-                value={adjustmentsInput}
-                onChange={(event) => {
-                  setAdjustmentsInput(event.target.value);
-                  setResult(null);
-                }}
-                placeholder={sampleAdjustments}
-                className="min-h-44 resize-y rounded-lg border border-line bg-white px-4 py-3 font-mono text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
-              />
-            </label>
-            <p className="rounded-md bg-paper px-3 py-2 text-sm leading-6 text-slate-600">
-              Enter one adjustment per line. This MVP supports closing stock, outstanding expenses, prepaid expenses,
-              accrued income, income received in advance, depreciation, provision for doubtful debts, manager&apos;s
-              commission, further bad debts, and provision for discount on debtors/creditors.
-            </p>
+        <section className="rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6">
+          <div className="grid gap-5">
+            <div>
+              <h2 className="text-xl font-bold text-blue-950">Prepare from trial balance</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Add balances and selected adjustments, then prepare Trading A/c, P&L A/c, and Balance Sheet.
+              </p>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+              <label className="grid gap-2">
+                <span className="text-sm font-bold text-slate-800">Trial Balance Balances</span>
+                <textarea
+                  value={trialBalanceInput}
+                  onChange={(event) => {
+                    setTrialBalanceInput(event.target.value);
+                    setResult(null);
+                  }}
+                  placeholder={sampleBalances}
+                  className="min-h-80 resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm leading-6 text-blue-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                />
+                <span className="rounded-lg bg-blue-50 px-3 py-2 text-sm leading-6 text-slate-600">
+                  Write one balance per line using Dr or Cr.
+                </span>
+              </label>
+
+              <label className="grid gap-2">
+                <span className="text-sm font-bold text-slate-800">Adjustments</span>
+                <textarea
+                  value={adjustmentsInput}
+                  onChange={(event) => {
+                    setAdjustmentsInput(event.target.value);
+                    setResult(null);
+                  }}
+                  placeholder={sampleAdjustments}
+                  className="min-h-80 resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm leading-6 text-blue-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                />
+                <span className="rounded-lg bg-emerald-50 px-3 py-2 text-sm leading-6 text-slate-600">
+                  Enter one adjustment per line. Selected adjustments are supported.
+                </span>
+              </label>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {exampleSets.map((example) => (
+                <button
+                  key={example.label}
+                  type="button"
+                  onClick={() => fillExample(example.balances, example.adjustments)}
+                  className="rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-left text-sm font-semibold text-blue-900 transition hover:border-blue-300 hover:bg-white"
+                >
+                  {example.label}
+                </button>
+              ))}
+            </div>
+
+            {isPreparing ? <LoadingPanel /> : null}
+
             <button
               type="button"
               onClick={prepareFinalAccounts}
-              className="min-h-12 rounded-lg bg-accent px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700"
+              disabled={isPreparing}
+              className="min-h-12 rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              Prepare Final Accounts
+              {isPreparing ? "Preparing..." : "Prepare Final Accounts"}
             </button>
           </div>
         </section>
 
-        <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-          <h2 className="text-base font-bold text-ink">Known limitations</h2>
-          <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700 sm:grid-cols-2">
-            {limitations.map((limitation) => (
-              <li key={limitation}>{limitation}</li>
-            ))}
-          </ul>
-        </section>
+        <LimitationsCard />
 
         {result ? <FinalAccountsResultView result={result} input={trialBalanceInput} adjustments={adjustmentsInput} /> : null}
       </section>
     </main>
+  );
+}
+
+function PageHeader() {
+  return (
+    <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
+      <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+        <Link href="/" className="text-blue-800 transition hover:text-blue-950">
+          Back to Home
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/tools" className="text-blue-800 transition hover:text-blue-950">
+          Learning Tools
+        </Link>
+        <span className="text-slate-300">/</span>
+        <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
+          Supported Topics
+        </Link>
+      </nav>
+      <div className="mt-7 max-w-3xl">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Trial balance to final accounts</p>
+        <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Final Accounts</h1>
+        <p className="mt-4 text-lg leading-8 text-slate-700">
+          Prepare Trading A/c, Profit & Loss A/c, Balance Sheet, and selected adjustments step by step.
+        </p>
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
+          Final Accounts show how trial balance balances become business results and financial position.
+        </p>
+      </div>
+      <div className="mt-6 flex flex-wrap gap-2">
+        {badges.map((badge) => (
+          <span
+            key={badge}
+            className="rounded-full border border-blue-100 bg-white/90 px-3 py-2 text-sm font-semibold text-blue-900 shadow-sm"
+          >
+            {badge}
+          </span>
+        ))}
+      </div>
+    </header>
+  );
+}
+
+function LimitationsCard() {
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">Scope</p>
+          <h2 className="mt-1 text-xl font-bold text-blue-950">Known limitations</h2>
+        </div>
+        <p className="max-w-xl text-sm leading-6 text-slate-600">
+          This page focuses on selected student-level final accounts workflows.
+        </p>
+      </div>
+      <ul className="mt-4 grid gap-2 text-sm leading-6 text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
+        {limitations.map((limitation) => (
+          <li key={limitation} className="rounded-xl border border-blue-100 bg-white px-3 py-2 font-medium">
+            {limitation}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function LoadingPanel() {
+  return (
+    <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+      <div className="h-2 overflow-hidden rounded-full bg-white">
+        <div className="h-full w-2/3 rounded-full bg-blue-900" />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {loadingSteps.map((step, index) => (
+          <div
+            key={`loading-${step}-${index}`}
+            className="flex items-center gap-3 rounded-xl border border-blue-100 bg-white px-3 py-2 text-sm font-semibold text-blue-950"
+          >
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            {step}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -152,16 +288,14 @@ function FinalAccountsResultView({
     const message = result.errors.join("\n");
 
     return (
-      <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
-        <h2 className="text-lg font-bold">I could not prepare Final Accounts yet.</h2>
-        <div className="mt-3 grid gap-2 text-sm leading-6">
-          {result.errors.map((error, index) => (
-            <p key={`final-accounts-error-${error}-${index}`} className="rounded-md bg-white px-3 py-2">
-              {error}
-            </p>
-          ))}
+      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-soft sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-normal text-amber-700">Needs correction</p>
+        <h2 className="mt-2 text-2xl font-bold">I could not process this yet.</h2>
+        <div className="mt-4 grid gap-3">
+          <IssueInfo label="Reason" value={message || "The final accounts could not be prepared."} />
+          <IssueInfo label="Try this format" value={sampleBalances} />
         </div>
-        <div className="mt-4">
+        <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-4">
           <FeedbackReport
             buttonLabel="Report issue"
             details={{
@@ -177,7 +311,7 @@ function FinalAccountsResultView({
   }
 
   return (
-    <section className="grid gap-4">
+    <section className="grid gap-5">
       {result.warnings.length ? <WarningList warnings={result.warnings} /> : null}
 
       <ResultSection title="Parsed Trial Balance">
@@ -192,7 +326,7 @@ function FinalAccountsResultView({
         />
       </ResultSection>
 
-      <ResultSection title="Trading Account">
+      <ResultSection title="Trading Account" emphasis>
         <FinalAccountTable
           debitTitle="Debit Side"
           creditTitle="Credit Side"
@@ -212,7 +346,7 @@ function FinalAccountsResultView({
         />
       </ResultSection>
 
-      <ResultSection title="Profit & Loss Account">
+      <ResultSection title="Profit & Loss Account" emphasis>
         <FinalAccountTable
           debitTitle="Debit Side"
           creditTitle="Credit Side"
@@ -253,7 +387,7 @@ function FinalAccountsResultView({
         <InterestOnLoanWorkingView working={result.balanceSheet.interestOnLoanWorking} />
       ) : null}
 
-      <ResultSection title="Balance Sheet">
+      <ResultSection title="Balance Sheet" emphasis>
         <BalanceSheetTable
           liabilities={result.balanceSheet.liabilities}
           assets={result.balanceSheet.assets}
@@ -276,55 +410,69 @@ function FinalAccountsResultView({
       <UnclassifiedItems items={result.unclassifiedItems} />
 
       <ResultSection title="Adjustment Logic">
-        <TextList items={result.adjustmentLogic} keyPrefix="final-accounts-adjustment-logic" />
+        <TextList items={result.adjustmentLogic} keyPrefix="final-accounts-adjustment-logic" numbered />
       </ResultSection>
 
-      <ResultSection title="Common Mistakes">
+      <ResultSection title="Common Mistakes" tone="warning">
         <TextList items={result.commonMistakes} keyPrefix="final-accounts-mistake" />
       </ResultSection>
 
-      <FeedbackReport
-        buttonLabel="Report issue"
-        details={{
-          module: "Final Accounts",
-          transaction: formatReportInput(input, adjustments),
-          appResult: `Status: ${result.status}\nGross profit: Rs.${result.tradingAccount.grossProfit}\nGross loss: Rs.${result.tradingAccount.grossLoss}\nNet profit: Rs.${result.profitAndLossAccount.netProfit}\nNet loss: Rs.${result.profitAndLossAccount.netLoss}\nBalance Sheet agrees: ${
-            result.balanceSheet.agrees ? "Yes" : "No"
-          }`,
-          appCorrectEntry: formatFinalAccountsReport(result),
-        }}
-      />
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
+        <FeedbackReport
+          buttonLabel="Report issue"
+          details={{
+            module: "Final Accounts",
+            transaction: formatReportInput(input, adjustments),
+            appResult: `Status: ${result.status}\nGross profit: Rs.${result.tradingAccount.grossProfit}\nGross loss: Rs.${result.tradingAccount.grossLoss}\nNet profit: Rs.${result.profitAndLossAccount.netProfit}\nNet loss: Rs.${result.profitAndLossAccount.netLoss}\nBalance Sheet agrees: ${
+              result.balanceSheet.agrees ? "Yes" : "No"
+            }`,
+            appCorrectEntry: formatFinalAccountsReport(result),
+          }}
+        />
+      </section>
     </section>
   );
 }
 
 function WarningList({ warnings }: { warnings: string[] }) {
   return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-900 shadow-soft sm:p-6">
-      {warnings.map((warning, index) => (
-        <p key={`final-accounts-warning-${warning}-${index}`}>{warning}</p>
-      ))}
+    <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-soft sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-normal text-amber-700">Alerts / warnings</p>
+      <div className="mt-3 grid gap-2 text-sm font-medium leading-6">
+        {warnings.map((warning, index) => (
+          <p key={`final-accounts-warning-${warning}-${index}`} className="rounded-xl border border-amber-100 bg-white px-3 py-2">
+            {warning}
+          </p>
+        ))}
+      </div>
     </section>
   );
 }
 
 function ParsedTrialBalance({ balances }: { balances: TrialBalanceBalance[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-slate-200">
       <table className="w-full min-w-[480px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line bg-paper text-left text-slate-700">
-            <th className="px-3 py-2 font-semibold">Account</th>
-            <th className="px-3 py-2 font-semibold">Side</th>
-            <th className="px-3 py-2 text-right font-semibold">Amount</th>
+          <tr className="border-b border-slate-200 bg-slate-50 text-left text-slate-700">
+            <th className="px-3 py-3 font-semibold">Account</th>
+            <th className="px-3 py-3 font-semibold">Side</th>
+            <th className="px-3 py-3 text-right font-semibold">Amount</th>
           </tr>
         </thead>
         <tbody>
           {balances.map((balance, index) => (
-            <tr key={`parsed-balance-${balance.account}-${balance.side}-${balance.amount}-${index}`} className="border-b border-line">
-              <td className="px-3 py-2 font-medium text-ink">{balance.account} A/c</td>
-              <td className="px-3 py-2 text-slate-700">{balance.side === "debit" ? "Dr" : "Cr"}</td>
-              <td className="px-3 py-2 text-right text-ink">Rs.{balance.amount.toLocaleString("en-IN")}</td>
+            <tr
+              key={`parsed-balance-${balance.account}-${balance.side}-${balance.amount}-${index}`}
+              className="border-b border-slate-100 last:border-b-0"
+            >
+              <td className="px-3 py-3 font-bold text-blue-950">{balance.account} A/c</td>
+              <td className="px-3 py-3">
+                <SideBadge side={balance.side} />
+              </td>
+              <td className="px-3 py-3 text-right font-medium text-slate-900">
+                Rs.{balance.amount.toLocaleString("en-IN")}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -344,16 +492,17 @@ function ParsedAdjustments({
 }) {
   return (
     <div className="grid gap-4">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl border border-slate-200">
         <table className="w-full min-w-[760px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-line bg-paper text-left text-slate-700">
-              <th className="px-3 py-2 font-semibold">Type</th>
-              <th className="px-3 py-2 font-semibold">Account</th>
-              <th className="px-3 py-2 font-semibold">Related Account</th>
-              <th className="px-3 py-2 text-right font-semibold">Insurance Claim</th>
-              <th className="px-3 py-2 font-semibold">Claim Status</th>
-              <th className="px-3 py-2 text-right font-semibold">Amount</th>
+            <tr className="border-b border-slate-200 bg-slate-50 text-left text-slate-700">
+              <th className="px-3 py-3 font-semibold">Type</th>
+              <th className="px-3 py-3 font-semibold">Account</th>
+              <th className="px-3 py-3 font-semibold">Related Account</th>
+              <th className="px-3 py-3 text-right font-semibold">Insurance Claim</th>
+              <th className="px-3 py-3 font-semibold">Claim Status</th>
+              <th className="px-3 py-3 text-right font-semibold">Percentage</th>
+              <th className="px-3 py-3 text-right font-semibold">Calculated amount</th>
             </tr>
           </thead>
           <tbody>
@@ -361,27 +510,32 @@ function ParsedAdjustments({
               adjustments.map((adjustment, index) => (
                 <tr
                   key={`parsed-adjustment-${adjustment.type}-${adjustment.account}-${adjustment.amount}-${index}`}
-                  className="border-b border-line"
+                  className="border-b border-slate-100 last:border-b-0"
                 >
-                  <td className="px-3 py-2 text-slate-700">{formatAdjustmentType(adjustment.type)}</td>
-                  <td className="px-3 py-2 font-medium text-ink">{adjustment.account}</td>
-                  <td className="px-3 py-2 text-slate-700">{adjustment.relatedAccount ?? "-"}</td>
-                  <td className="px-3 py-2 text-right text-ink">
+                  <td className="px-3 py-3">
+                    <AdjustmentBadge type={adjustment.type} />
+                  </td>
+                  <td className="px-3 py-3 font-bold text-blue-950">{adjustment.account}</td>
+                  <td className="px-3 py-3 text-slate-700">{adjustment.relatedAccount ?? "-"}</td>
+                  <td className="px-3 py-3 text-right font-medium text-slate-900">
                     {adjustment.insuranceClaimAmount !== undefined
                       ? `Rs.${adjustment.insuranceClaimAmount.toLocaleString("en-IN")}`
                       : "-"}
                   </td>
-                  <td className="px-3 py-2 text-slate-700">
+                  <td className="px-3 py-3 text-slate-700">
                     {adjustment.claimStatus ? formatClaimStatus(adjustment.claimStatus) : "-"}
                   </td>
-                  <td className="px-3 py-2 text-right text-ink">
+                  <td className="px-3 py-3 text-right font-medium text-slate-900">
+                    {adjustment.percentage !== undefined ? `${adjustment.percentage}%` : "-"}
+                  </td>
+                  <td className="px-3 py-3 text-right font-medium text-slate-900">
                     {formatAdjustmentAmount(adjustment, managerCommissionWorking)}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-3 py-2 text-slate-500" colSpan={6}>
+                <td className="px-3 py-3 text-slate-500" colSpan={7}>
                   No adjustments entered.
                 </td>
               </tr>
@@ -390,11 +544,13 @@ function ParsedAdjustments({
         </table>
       </div>
       {unclassifiedAdjustments.length ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
-          <div className="font-semibold">Unclassified adjustments</div>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+          <div className="font-bold">Unclassified adjustments</div>
           <ul className="mt-2 grid gap-1">
             {unclassifiedAdjustments.map((adjustment, index) => (
-              <li key={`unclassified-adjustment-${adjustment}-${index}`}>{adjustment}</li>
+              <li key={`unclassified-adjustment-${adjustment}-${index}`} className="rounded-lg bg-white px-3 py-2">
+                {adjustment}
+              </li>
             ))}
           </ul>
         </div>
@@ -428,34 +584,36 @@ function FinalAccountTable({
 
 function AccountSideTable({ title, lines, total }: { title: string; lines: FinalAccountLine[]; total: number }) {
   return (
-    <div>
-      <h3 className="text-sm font-bold text-ink">{title}</h3>
-      <div className="mt-2 overflow-x-auto">
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <h3 className="text-sm font-bold text-blue-950">{title}</h3>
+      <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table className="w-full min-w-[320px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-line bg-paper text-left text-slate-700">
-              <th className="px-3 py-2 font-semibold">Particulars</th>
-              <th className="px-3 py-2 text-right font-semibold">Amount</th>
+            <tr className="border-b border-slate-200 bg-slate-50 text-left text-slate-700">
+              <th className="px-3 py-3 font-semibold">Particulars</th>
+              <th className="px-3 py-3 text-right font-semibold">Amount</th>
             </tr>
           </thead>
           <tbody>
             {lines.length ? (
               lines.map((line, index) => (
-                <tr key={`account-side-${title}-${line.account}-${line.amount}-${index}`} className="border-b border-line">
-                  <td className="px-3 py-2 font-medium text-ink">{line.account}</td>
-                  <td className="px-3 py-2 text-right text-ink">Rs.{line.amount.toLocaleString("en-IN")}</td>
+                <tr key={`account-side-${title}-${line.account}-${line.amount}-${index}`} className="border-b border-slate-100">
+                  <td className="px-3 py-3 font-medium text-blue-950">{line.account}</td>
+                  <td className="px-3 py-3 text-right font-medium text-slate-900">
+                    Rs.{line.amount.toLocaleString("en-IN")}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="px-3 py-2 text-slate-500" colSpan={2}>
+                <td className="px-3 py-3 text-slate-500" colSpan={2}>
                   No items
                 </td>
               </tr>
             )}
-            <tr className="bg-paper font-bold text-ink">
-              <td className="px-3 py-2">Total</td>
-              <td className="px-3 py-2 text-right">Rs.{total.toLocaleString("en-IN")}</td>
+            <tr className="border-t-2 border-blue-100 bg-blue-50 font-bold text-blue-950">
+              <td className="px-3 py-3">Total</td>
+              <td className="px-3 py-3 text-right">Rs.{total.toLocaleString("en-IN")}</td>
             </tr>
           </tbody>
         </table>
@@ -481,8 +639,9 @@ function ProfitLossResult({
       : loss > 0
         ? `${lossLabel}: Rs.${loss.toLocaleString("en-IN")}`
         : "No profit or loss.";
+  const tone = profit > 0 ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-900";
 
-  return <p className="rounded-lg border border-line bg-paper px-4 py-3 text-sm font-semibold text-ink">{text}</p>;
+  return <p className={`rounded-2xl border px-4 py-4 text-lg font-bold shadow-sm ${tone}`}>{text}</p>;
 }
 
 function CapitalWorkingView({ working }: { working: CapitalWorking }) {
@@ -507,9 +666,9 @@ function CapitalWorkingView({ working }: { working: CapitalWorking }) {
             {working.interestOnDrawings > 0 ? (
               <CapitalWorkingRow label="Less: Interest on Drawings" amount={working.interestOnDrawings} />
             ) : null}
-            <tr className="border-t border-line bg-paper font-bold text-ink">
-              <td className="px-3 py-2">Adjusted Capital</td>
-              <td className="px-3 py-2 text-right">Rs.{working.adjustedCapital.toLocaleString("en-IN")}</td>
+            <tr className="border-t-2 border-blue-100 bg-blue-50 font-bold text-blue-950">
+              <td className="px-3 py-3">Adjusted Capital</td>
+              <td className="px-3 py-3 text-right">Rs.{working.adjustedCapital.toLocaleString("en-IN")}</td>
             </tr>
           </tbody>
         </table>
@@ -520,9 +679,9 @@ function CapitalWorkingView({ working }: { working: CapitalWorking }) {
 
 function CapitalWorkingRow({ label, amount }: { label: string; amount: number }) {
   return (
-    <tr className="border-b border-line">
-      <td className="px-3 py-2 font-medium text-ink">{label}</td>
-      <td className="px-3 py-2 text-right text-ink">Rs.{amount.toLocaleString("en-IN")}</td>
+    <tr className="border-b border-slate-100">
+      <td className="px-3 py-3 font-medium text-blue-950">{label}</td>
+      <td className="px-3 py-3 text-right font-medium text-slate-900">Rs.{amount.toLocaleString("en-IN")}</td>
     </tr>
   );
 }
@@ -544,9 +703,9 @@ function ProvisionWorkingView({ working }: { working: ProvisionForDoubtfulDebtsW
             <CapitalWorkingRow label="Required Provision" amount={working.requiredProvision} />
             {working.increase > 0 ? <CapitalWorkingRow label="Increase debited to P&L" amount={working.increase} /> : null}
             {working.decrease > 0 ? <CapitalWorkingRow label="Decrease credited to P&L" amount={working.decrease} /> : null}
-            <tr className="border-t border-line bg-paper font-bold text-ink">
-              <td className="px-3 py-2">Net Debtors</td>
-              <td className="px-3 py-2 text-right">Rs.{working.netDebtors.toLocaleString("en-IN")}</td>
+            <tr className="border-t-2 border-blue-100 bg-blue-50 font-bold text-blue-950">
+              <td className="px-3 py-3">Net Debtors</td>
+              <td className="px-3 py-3 text-right">Rs.{working.netDebtors.toLocaleString("en-IN")}</td>
             </tr>
           </tbody>
         </table>
@@ -574,9 +733,9 @@ function DiscountProvisionWorkingView({ working }: { working: ProvisionForDiscou
             <CapitalWorkingRow label="Required Provision for Discount on Debtors" amount={working.requiredProvision} />
             {working.increase > 0 ? <CapitalWorkingRow label="Increase debited to P&L" amount={working.increase} /> : null}
             {working.decrease > 0 ? <CapitalWorkingRow label="Decrease credited to P&L" amount={working.decrease} /> : null}
-            <tr className="border-t border-line bg-paper font-bold text-ink">
-              <td className="px-3 py-2">Net Debtors</td>
-              <td className="px-3 py-2 text-right">Rs.{working.netDebtors.toLocaleString("en-IN")}</td>
+            <tr className="border-t-2 border-blue-100 bg-blue-50 font-bold text-blue-950">
+              <td className="px-3 py-3">Net Debtors</td>
+              <td className="px-3 py-3 text-right">Rs.{working.netDebtors.toLocaleString("en-IN")}</td>
             </tr>
           </tbody>
         </table>
@@ -596,9 +755,9 @@ function CreditorsDiscountProvisionWorkingView({ working }: { working: Provision
             <CapitalWorkingRow label="Required Provision for Discount on Creditors" amount={working.requiredProvision} />
             {working.increase > 0 ? <CapitalWorkingRow label="Increase credited to P&L" amount={working.increase} /> : null}
             {working.decrease > 0 ? <CapitalWorkingRow label="Decrease debited to P&L" amount={working.decrease} /> : null}
-            <tr className="border-t border-line bg-paper font-bold text-ink">
-              <td className="px-3 py-2">Net Creditors</td>
-              <td className="px-3 py-2 text-right">Rs.{working.netCreditors.toLocaleString("en-IN")}</td>
+            <tr className="border-t-2 border-blue-100 bg-blue-50 font-bold text-blue-950">
+              <td className="px-3 py-3">Net Creditors</td>
+              <td className="px-3 py-3 text-right">Rs.{working.netCreditors.toLocaleString("en-IN")}</td>
             </tr>
           </tbody>
         </table>
@@ -617,15 +776,17 @@ function ManagerCommissionWorkingView({ working }: { working: ManagerCommissionW
               <CapitalWorkingRow label="Net Profit before commission" amount={working.profitBeforeCommission} />
             ) : null}
             {working.percentage !== undefined ? (
-              <tr className="border-b border-line">
-                <td className="px-3 py-2 font-medium text-ink">Commission rate</td>
-                <td className="px-3 py-2 text-right text-ink">{working.percentage}%</td>
+              <tr className="border-b border-slate-100">
+                <td className="px-3 py-3 font-medium text-blue-950">Commission rate</td>
+                <td className="px-3 py-3 text-right font-medium text-slate-900">{working.percentage}%</td>
               </tr>
             ) : null}
             {working.basis === "after_commission" ? (
-              <tr className="border-b border-line">
-                <td className="px-3 py-2 font-medium text-ink">Formula</td>
-                <td className="px-3 py-2 text-right text-ink">Profit before commission x rate / (100 + rate)</td>
+              <tr className="border-b border-slate-100">
+                <td className="px-3 py-3 font-medium text-blue-950">Formula</td>
+                <td className="px-3 py-3 text-right font-medium text-slate-900">
+                  Profit before commission x rate / (100 + rate)
+                </td>
               </tr>
             ) : null}
             <CapitalWorkingRow label="Manager's Commission" amount={working.commission} />
@@ -653,9 +814,9 @@ function GoodsLostByFireWorkingView({ workings }: { workings: GoodsLostByFireWor
                 {working.insuranceClaimReceivable > 0 ? (
                   <CapitalWorkingRow label="Insurance Claim Receivable" amount={working.insuranceClaimReceivable} />
                 ) : null}
-                <tr className="border-t border-line bg-paper font-bold text-ink">
-                  <td className="px-3 py-2">Claim Status</td>
-                  <td className="px-3 py-2 text-right">{formatClaimStatus(working.claimStatus)}</td>
+                <tr className="border-t-2 border-blue-100 bg-blue-50 font-bold text-blue-950">
+                  <td className="px-3 py-3">Claim Status</td>
+                  <td className="px-3 py-3 text-right">{formatClaimStatus(working.claimStatus)}</td>
                 </tr>
               </tbody>
             </table>
@@ -676,9 +837,9 @@ function InterestWorkingView({ working }: { working: InterestWorking }) {
               <>
                 <CapitalWorkingRow label="Capital" amount={working.capital} />
                 {working.interestOnCapitalRate !== undefined ? (
-                  <tr className="border-b border-line">
-                    <td className="px-3 py-2 font-medium text-ink">Interest on Capital Rate</td>
-                    <td className="px-3 py-2 text-right text-ink">{working.interestOnCapitalRate}%</td>
+                  <tr className="border-b border-slate-100">
+                    <td className="px-3 py-3 font-medium text-blue-950">Interest on Capital Rate</td>
+                    <td className="px-3 py-3 text-right font-medium text-slate-900">{working.interestOnCapitalRate}%</td>
                   </tr>
                 ) : null}
                 <CapitalWorkingRow label="Interest on Capital" amount={working.interestOnCapital} />
@@ -688,9 +849,9 @@ function InterestWorkingView({ working }: { working: InterestWorking }) {
               <>
                 <CapitalWorkingRow label="Drawings" amount={working.drawings} />
                 {working.interestOnDrawingsRate !== undefined ? (
-                  <tr className="border-b border-line">
-                    <td className="px-3 py-2 font-medium text-ink">Interest on Drawings Rate</td>
-                    <td className="px-3 py-2 text-right text-ink">{working.interestOnDrawingsRate}%</td>
+                  <tr className="border-b border-slate-100">
+                    <td className="px-3 py-3 font-medium text-blue-950">Interest on Drawings Rate</td>
+                    <td className="px-3 py-3 text-right font-medium text-slate-900">{working.interestOnDrawingsRate}%</td>
                   </tr>
                 ) : null}
                 <CapitalWorkingRow label="Interest on Drawings" amount={working.interestOnDrawings} />
@@ -711,9 +872,9 @@ function InterestOnLoanWorkingView({ working }: { working: InterestOnLoanWorking
           <tbody>
             <CapitalWorkingRow label="Loan Balance" amount={working.loanBalance} />
             {working.interestRate !== undefined ? (
-              <tr className="border-b border-line">
-                <td className="px-3 py-2 font-medium text-ink">Interest Rate</td>
-                <td className="px-3 py-2 text-right text-ink">{working.interestRate}%</td>
+              <tr className="border-b border-slate-100">
+                <td className="px-3 py-3 font-medium text-blue-950">Interest Rate</td>
+                <td className="px-3 py-3 text-right font-medium text-slate-900">{working.interestRate}%</td>
               </tr>
             ) : null}
             <CapitalWorkingRow label="Interest on Loan" amount={working.interestOnLoan} />
@@ -790,14 +951,14 @@ function GroupedBalanceSheetSide({
   total: number;
 }) {
   return (
-    <div className="rounded-lg border border-line bg-paper p-3">
-      <h3 className="text-sm font-bold text-ink">{title}</h3>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <h3 className="text-lg font-bold text-blue-950">{title}</h3>
       <div className="mt-3 grid gap-3">
         {groups.map((group) => (
           <BalanceSheetGroup key={`balance-sheet-group-${title}-${group.title}`} title={group.title} lines={group.lines} />
         ))}
       </div>
-      <div className="mt-3 flex items-center justify-between border-t border-line pt-3 text-sm font-bold text-ink">
+      <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-bold text-blue-950">
         <span>{totalLabel}</span>
         <span>Rs.{total.toLocaleString("en-IN")}</span>
       </div>
@@ -807,20 +968,25 @@ function GroupedBalanceSheetSide({
 
 function BalanceSheetGroup({ title, lines }: { title: string; lines: FinalAccountLine[] }) {
   if (!lines.length) return null;
+  const subtotal = lines.reduce((total, line) => total + line.amount, 0);
 
   return (
-    <div>
-      <h4 className="text-xs font-bold uppercase tracking-normal text-slate-600">{title}</h4>
-      <div className="mt-1 overflow-hidden rounded-md border border-line bg-white">
+    <div className="rounded-xl border border-slate-200 bg-white p-3">
+      <h4 className="text-xs font-bold uppercase tracking-normal text-emerald-700">{title}</h4>
+      <div className="mt-2 overflow-hidden rounded-lg border border-slate-100 bg-white">
         {lines.map((line, index) => (
           <div
             key={`balance-sheet-group-line-${title}-${line.account}-${line.amount}-${index}`}
-            className="flex items-center justify-between gap-3 border-b border-line px-3 py-2 text-sm last:border-b-0"
+            className="flex items-center justify-between gap-3 border-b border-slate-100 px-3 py-2 text-sm last:border-b-0"
           >
-            <span className="font-medium text-ink">{line.account}</span>
-            <span className="shrink-0 text-right text-ink">Rs.{line.amount.toLocaleString("en-IN")}</span>
+            <span className="font-medium text-blue-950">{line.account}</span>
+            <span className="shrink-0 text-right font-medium text-slate-900">Rs.{line.amount.toLocaleString("en-IN")}</span>
           </div>
         ))}
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 text-sm font-bold text-slate-800">
+        <span>Subtotal</span>
+        <span>Rs.{subtotal.toLocaleString("en-IN")}</span>
       </div>
     </div>
   );
@@ -839,16 +1005,15 @@ function BalanceSheetResult({
 }) {
   return (
     <div
-      className={`rounded-lg border px-4 py-3 text-sm font-semibold leading-6 ${
+      className={`rounded-2xl border px-4 py-4 shadow-sm ${
         agrees ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-900"
       }`}
     >
-      {agrees
-        ? "Balance Sheet agrees."
-        : `Balance Sheet does not agree. Difference: Rs.${difference.toLocaleString("en-IN")}.`}
-      <div className="mt-1 text-xs font-medium">
-        Total liabilities Rs.{liabilityTotal.toLocaleString("en-IN")} | Total assets Rs.
-        {assetTotal.toLocaleString("en-IN")}
+      <div className="text-lg font-bold">{agrees ? "Balance Sheet agrees." : "Balance Sheet does not agree."}</div>
+      {!agrees ? <p className="mt-2 text-sm font-semibold">Difference: Rs.{difference.toLocaleString("en-IN")}</p> : null}
+      <div className="mt-3 grid gap-2 text-sm font-semibold sm:grid-cols-2">
+        <div className="rounded-xl bg-white/80 px-3 py-2">Total liabilities Rs.{liabilityTotal.toLocaleString("en-IN")}</div>
+        <div className="rounded-xl bg-white/80 px-3 py-2">Total assets Rs.{assetTotal.toLocaleString("en-IN")}</div>
       </div>
     </div>
   );
@@ -875,27 +1040,31 @@ function BalanceList({
   keyPrefix: string;
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-slate-200">
       <table className="w-full min-w-[480px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line bg-paper text-left text-slate-700">
-            <th className="px-3 py-2 font-semibold">Account</th>
-            <th className="px-3 py-2 font-semibold">Side</th>
-            <th className="px-3 py-2 text-right font-semibold">Amount</th>
+          <tr className="border-b border-slate-200 bg-slate-50 text-left text-slate-700">
+            <th className="px-3 py-3 font-semibold">Account</th>
+            <th className="px-3 py-3 font-semibold">Side</th>
+            <th className="px-3 py-3 text-right font-semibold">Amount</th>
           </tr>
         </thead>
         <tbody>
           {items.length ? (
             items.map((item, index) => (
-              <tr key={`${keyPrefix}-${item.account}-${item.side}-${item.amount}-${index}`} className="border-b border-line">
-                <td className="px-3 py-2 font-medium text-ink">{item.account} A/c</td>
-                <td className="px-3 py-2 text-slate-700">{item.side === "debit" ? "Dr" : "Cr"}</td>
-                <td className="px-3 py-2 text-right text-ink">Rs.{item.amount.toLocaleString("en-IN")}</td>
+              <tr key={`${keyPrefix}-${item.account}-${item.side}-${item.amount}-${index}`} className="border-b border-slate-100">
+                <td className="px-3 py-3 font-bold text-blue-950">{item.account} A/c</td>
+                <td className="px-3 py-3">
+                  <SideBadge side={item.side} />
+                </td>
+                <td className="px-3 py-3 text-right font-medium text-slate-900">
+                  Rs.{item.amount.toLocaleString("en-IN")}
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td className="px-3 py-2 text-slate-500" colSpan={3}>
+              <td className="px-3 py-3 text-slate-500" colSpan={3}>
                 {emptyText}
               </td>
             </tr>
@@ -906,22 +1075,78 @@ function BalanceList({
   );
 }
 
-function ResultSection({ title, children }: { title: string; children: React.ReactNode }) {
+function ResultSection({
+  title,
+  children,
+  emphasis = false,
+  tone = "default",
+}: {
+  title: string;
+  children: ReactNode;
+  emphasis?: boolean;
+  tone?: "default" | "warning";
+}) {
+  const sectionClass =
+    tone === "warning"
+      ? "border-amber-200 bg-amber-50"
+      : emphasis
+        ? "border-blue-200 bg-gradient-to-br from-white via-blue-50 to-white ring-2 ring-blue-100"
+        : "border-slate-200 bg-white";
+
   return (
-    <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-      <h2 className="text-base font-bold text-ink">{title}</h2>
+    <section className={`rounded-2xl border p-4 shadow-soft sm:p-6 ${sectionClass}`}>
+      <h2 className={emphasis ? "text-xl font-bold text-blue-950" : "text-lg font-bold text-blue-950"}>{title}</h2>
       <div className="mt-3">{children}</div>
     </section>
   );
 }
 
-function TextList({ items, keyPrefix }: { items: string[]; keyPrefix: string }) {
+function TextList({ items, keyPrefix, numbered = false }: { items: string[]; keyPrefix: string; numbered?: boolean }) {
   return (
     <ul className="grid gap-2 text-sm leading-6 text-slate-700">
       {items.map((item, index) => (
-        <li key={`${keyPrefix}-${index}`}>{item}</li>
+        <li key={`${keyPrefix}-${index}`} className="flex gap-3 rounded-xl border border-slate-200 bg-white/80 px-4 py-3">
+          {numbered ? (
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-xs font-bold text-white">
+              {index + 1}
+            </span>
+          ) : null}
+          <span className="pt-0.5">{item}</span>
+        </li>
       ))}
     </ul>
+  );
+}
+
+function SideBadge({ side }: { side: TrialBalanceBalance["side"] }) {
+  const tone =
+    side === "debit"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : "border-blue-200 bg-blue-50 text-blue-800";
+
+  return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${tone}`}>{side === "debit" ? "Dr" : "Cr"}</span>;
+}
+
+function AdjustmentBadge({ type }: { type: FinalAccountAdjustment["type"] }) {
+  const formattedType = formatAdjustmentType(type);
+  const normalizedType = type.toLowerCase();
+  const tone = normalizedType.includes("stock") || normalizedType.includes("goods")
+    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+    : normalizedType.includes("depreciation") || normalizedType.includes("provision")
+      ? "border-amber-200 bg-amber-50 text-amber-800"
+      : normalizedType.includes("interest") || normalizedType.includes("commission")
+        ? "border-blue-200 bg-blue-50 text-blue-800"
+        : "border-slate-200 bg-slate-50 text-slate-700";
+
+  return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${tone}`}>{formattedType}</span>;
+}
+
+function IssueInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-amber-100 bg-white px-4 py-3">
+      <p className="text-xs font-bold uppercase tracking-normal text-amber-700">{label}</p>
+      <p className="mt-1 whitespace-pre-line text-sm font-medium leading-6 text-slate-800">{value}</p>
+    </div>
   );
 }
 
@@ -973,7 +1198,6 @@ function formatAdjustmentAmount(
     return `Rs.${managerCommissionWorking.commission.toLocaleString("en-IN")}`;
   }
   if (adjustment.amount !== undefined) return `Rs.${adjustment.amount.toLocaleString("en-IN")}`;
-  if (adjustment.percentage !== undefined) return `${adjustment.percentage}%`;
   return "-";
 }
 
