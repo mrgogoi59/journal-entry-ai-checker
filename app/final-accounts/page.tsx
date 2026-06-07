@@ -314,11 +314,21 @@ function FinalAccountsResultView({
     <section className="grid gap-5">
       {result.warnings.length ? <WarningList warnings={result.warnings} /> : null}
 
-      <ResultSection title="Parsed Trial Balance">
+      <FinalAccountsSummary result={result} />
+
+      <ResultSection
+        title="Parsed Trial Balance"
+        summary={`${result.parsedBalances.length} balances parsed`}
+        defaultOpenMobile={false}
+      >
         <ParsedTrialBalance balances={result.parsedBalances} />
       </ResultSection>
 
-      <ResultSection title="Parsed Adjustments">
+      <ResultSection
+        title="Parsed Adjustments"
+        summary={`${result.parsedAdjustments.length} adjustments parsed`}
+        defaultOpenMobile={false}
+      >
         <ParsedAdjustments
           adjustments={result.parsedAdjustments}
           unclassifiedAdjustments={result.unclassifiedAdjustments}
@@ -326,7 +336,7 @@ function FinalAccountsResultView({
         />
       </ResultSection>
 
-      <ResultSection title="Trading Account" emphasis>
+      <ResultSection title="Trading Account" summary={formatGrossResult(result)} emphasis>
         <FinalAccountTable
           debitTitle="Debit Side"
           creditTitle="Credit Side"
@@ -337,7 +347,7 @@ function FinalAccountsResultView({
         />
       </ResultSection>
 
-      <ResultSection title="Gross Profit / Gross Loss">
+      <ResultSection title="Gross Profit / Gross Loss" summary={formatGrossResult(result)}>
         <ProfitLossResult
           profitLabel="Gross Profit"
           lossLabel="Gross Loss"
@@ -346,7 +356,7 @@ function FinalAccountsResultView({
         />
       </ResultSection>
 
-      <ResultSection title="Profit & Loss Account" emphasis>
+      <ResultSection title="Profit & Loss Account" summary={formatNetResult(result)} emphasis>
         <FinalAccountTable
           debitTitle="Debit Side"
           creditTitle="Credit Side"
@@ -357,7 +367,7 @@ function FinalAccountsResultView({
         />
       </ResultSection>
 
-      <ResultSection title="Net Profit / Net Loss">
+      <ResultSection title="Net Profit / Net Loss" summary={formatNetResult(result)}>
         <ProfitLossResult
           profitLabel="Net Profit"
           lossLabel="Net Loss"
@@ -387,7 +397,7 @@ function FinalAccountsResultView({
         <InterestOnLoanWorkingView working={result.balanceSheet.interestOnLoanWorking} />
       ) : null}
 
-      <ResultSection title="Balance Sheet" emphasis>
+      <ResultSection title="Balance Sheet" summary={formatBalanceSheetStatus(result)} emphasis>
         <BalanceSheetTable
           liabilities={result.balanceSheet.liabilities}
           assets={result.balanceSheet.assets}
@@ -398,7 +408,7 @@ function FinalAccountsResultView({
         />
       </ResultSection>
 
-      <ResultSection title="Balance Sheet Result">
+      <ResultSection title="Balance Sheet Result" summary={formatBalanceSheetStatus(result)}>
         <BalanceSheetResult
           agrees={result.balanceSheet.agrees}
           difference={result.balanceSheet.difference}
@@ -409,15 +419,19 @@ function FinalAccountsResultView({
 
       <UnclassifiedItems items={result.unclassifiedItems} />
 
-      <ResultSection title="Adjustment Logic">
+      <ResultSection
+        title="Adjustment Logic"
+        summary={`${result.adjustmentLogic.length} steps`}
+        defaultOpenMobile={false}
+      >
         <TextList items={result.adjustmentLogic} keyPrefix="final-accounts-adjustment-logic" numbered />
       </ResultSection>
 
-      <ResultSection title="Common Mistakes" tone="warning">
+      <ResultSection title="Common Mistakes" summary={`${result.commonMistakes.length} tips`} tone="warning" defaultOpenMobile={false}>
         <TextList items={result.commonMistakes} keyPrefix="final-accounts-mistake" />
       </ResultSection>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
+      <ResultSection title="Report Issue" summary="Copy a tester report" defaultOpenMobile={false}>
         <FeedbackReport
           buttonLabel="Report issue"
           details={{
@@ -429,8 +443,30 @@ function FinalAccountsResultView({
             appCorrectEntry: formatFinalAccountsReport(result),
           }}
         />
-      </section>
+      </ResultSection>
     </section>
+  );
+}
+
+function FinalAccountsSummary({ result }: { result: FinalAccountsResult }) {
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-4 shadow-soft sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">Final Accounts Summary</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <SummaryPill label="Trading Result" value={formatGrossResult(result)} />
+        <SummaryPill label="P&L Result" value={formatNetResult(result)} />
+        <SummaryPill label="Balance Sheet" value={formatBalanceSheetStatus(result)} />
+      </div>
+    </section>
+  );
+}
+
+function SummaryPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-blue-100 bg-white/90 px-4 py-3 shadow-sm">
+      <p className="text-xs font-bold uppercase tracking-normal text-slate-500">{label}</p>
+      <p className="mt-1 text-sm font-bold leading-6 text-blue-950">{value}</p>
+    </div>
   );
 }
 
@@ -646,7 +682,7 @@ function ProfitLossResult({
 
 function CapitalWorkingView({ working }: { working: CapitalWorking }) {
   return (
-    <ResultSection title="Capital Working">
+    <ResultSection title="Capital Working" summary="Adjusted capital" defaultOpenMobile={false}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] border-collapse text-sm">
           <tbody>
@@ -688,7 +724,7 @@ function CapitalWorkingRow({ label, amount }: { label: string; amount: number })
 
 function ProvisionWorkingView({ working }: { working: ProvisionForDoubtfulDebtsWorking }) {
   return (
-    <ResultSection title="Provision for Doubtful Debts Working">
+    <ResultSection title="Provision for Doubtful Debts Working" summary="Net debtors working" defaultOpenMobile={false}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] border-collapse text-sm">
           <tbody>
@@ -716,7 +752,7 @@ function ProvisionWorkingView({ working }: { working: ProvisionForDoubtfulDebtsW
 
 function DiscountProvisionWorkingView({ working }: { working: ProvisionForDiscountOnDebtorsWorking }) {
   return (
-    <ResultSection title="Provision for Discount on Debtors Working">
+    <ResultSection title="Provision for Discount on Debtors Working" summary="Discount provision working" defaultOpenMobile={false}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <tbody>
@@ -746,7 +782,7 @@ function DiscountProvisionWorkingView({ working }: { working: ProvisionForDiscou
 
 function CreditorsDiscountProvisionWorkingView({ working }: { working: ProvisionForDiscountOnCreditorsWorking }) {
   return (
-    <ResultSection title="Provision for Discount on Creditors Working">
+    <ResultSection title="Provision for Discount on Creditors Working" summary="Creditors provision working" defaultOpenMobile={false}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <tbody>
@@ -768,7 +804,7 @@ function CreditorsDiscountProvisionWorkingView({ working }: { working: Provision
 
 function ManagerCommissionWorkingView({ working }: { working: ManagerCommissionWorking }) {
   return (
-    <ResultSection title="Manager's Commission Working">
+    <ResultSection title="Manager's Commission Working" summary="Commission calculation" defaultOpenMobile={false}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <tbody>
@@ -802,7 +838,7 @@ function ManagerCommissionWorkingView({ working }: { working: ManagerCommissionW
 
 function GoodsLostByFireWorkingView({ workings }: { workings: GoodsLostByFireWorking[] }) {
   return (
-    <ResultSection title="Goods Lost by Fire Working">
+    <ResultSection title="Goods Lost by Fire Working" summary={`${workings.length} working${workings.length === 1 ? "" : "s"}`} defaultOpenMobile={false}>
       <div className="grid gap-4">
         {workings.map((working, index) => (
           <div key={`goods-lost-fire-working-${working.goodsLost}-${working.insuranceClaim}-${index}`} className="overflow-x-auto">
@@ -829,7 +865,7 @@ function GoodsLostByFireWorkingView({ workings }: { workings: GoodsLostByFireWor
 
 function InterestWorkingView({ working }: { working: InterestWorking }) {
   return (
-    <ResultSection title="Interest Working">
+    <ResultSection title="Interest Working" summary="Capital/drawings interest" defaultOpenMobile={false}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] border-collapse text-sm">
           <tbody>
@@ -866,7 +902,7 @@ function InterestWorkingView({ working }: { working: InterestWorking }) {
 
 function InterestOnLoanWorkingView({ working }: { working: InterestOnLoanWorking }) {
   return (
-    <ResultSection title="Interest on Loan Working">
+    <ResultSection title="Interest on Loan Working" summary="Loan interest" defaultOpenMobile={false}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] border-collapse text-sm">
           <tbody>
@@ -1078,14 +1114,19 @@ function BalanceList({
 function ResultSection({
   title,
   children,
+  summary,
+  defaultOpenMobile = true,
   emphasis = false,
   tone = "default",
 }: {
   title: string;
   children: ReactNode;
+  summary?: string;
+  defaultOpenMobile?: boolean;
   emphasis?: boolean;
   tone?: "default" | "warning";
 }) {
+  const [isOpen, setIsOpen] = useState(defaultOpenMobile);
   const sectionClass =
     tone === "warning"
       ? "border-amber-200 bg-amber-50"
@@ -1095,10 +1136,52 @@ function ResultSection({
 
   return (
     <section className={`rounded-2xl border p-4 shadow-soft sm:p-6 ${sectionClass}`}>
-      <h2 className={emphasis ? "text-xl font-bold text-blue-950" : "text-lg font-bold text-blue-950"}>{title}</h2>
-      <div className="mt-3">{children}</div>
+      <button
+        type="button"
+        onClick={() => setIsOpen((current) => !current)}
+        className="flex min-h-12 w-full items-center justify-between gap-3 text-left sm:pointer-events-none sm:min-h-0"
+        aria-expanded={isOpen}
+      >
+        <span>
+          <span className={emphasis ? "block text-xl font-bold text-blue-950" : "block text-lg font-bold text-blue-950"}>
+            {title}
+          </span>
+          {summary ? <span className="mt-1 block text-sm font-semibold leading-5 text-slate-500">{summary}</span> : null}
+        </span>
+        <span
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-white text-lg font-bold text-blue-900 sm:hidden"
+          aria-hidden="true"
+        >
+          {isOpen ? "-" : "+"}
+        </span>
+      </button>
+      <div className={`mt-3 ${isOpen ? "block" : "hidden sm:block"}`}>{children}</div>
     </section>
   );
+}
+
+function formatGrossResult(result: FinalAccountsResult): string {
+  if (result.tradingAccount.grossProfit > 0) {
+    return `Gross Profit Rs.${result.tradingAccount.grossProfit.toLocaleString("en-IN")}`;
+  }
+  if (result.tradingAccount.grossLoss > 0) {
+    return `Gross Loss Rs.${result.tradingAccount.grossLoss.toLocaleString("en-IN")}`;
+  }
+  return "No gross profit or loss";
+}
+
+function formatNetResult(result: FinalAccountsResult): string {
+  if (result.profitAndLossAccount.netProfit > 0) {
+    return `Net Profit Rs.${result.profitAndLossAccount.netProfit.toLocaleString("en-IN")}`;
+  }
+  if (result.profitAndLossAccount.netLoss > 0) {
+    return `Net Loss Rs.${result.profitAndLossAccount.netLoss.toLocaleString("en-IN")}`;
+  }
+  return "No net profit or loss";
+}
+
+function formatBalanceSheetStatus(result: FinalAccountsResult): string {
+  return result.balanceSheet.agrees ? "Balance Sheet agrees" : "Balance Sheet does not agree";
 }
 
 function TextList({ items, keyPrefix, numbered = false }: { items: string[]; keyPrefix: string; numbered?: boolean }) {
