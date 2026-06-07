@@ -36,8 +36,9 @@ Depreciation on machinery Rs.5000`;
 
 const limitations = [
   "Only selected adjustments are supported",
-  "No provision for doubtful debts yet",
-  "No manager's commission yet",
+  "Only controlled provision for doubtful debts support",
+  "Only controlled manager's commission support",
+  "Only controlled further bad debts support",
   "No goods withdrawn/lost/free sample adjustments yet",
   "No detailed schedules",
   "No company/partnership balance sheet formats",
@@ -70,7 +71,8 @@ export default function FinalAccountsPage() {
           <p className="mt-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
             This version prepares Trading A/c, Profit & Loss A/c, and a simple sole proprietorship Balance Sheet. It
             also supports selected adjustments such as closing stock, outstanding expenses, prepaid expenses, accrued
-            income, income received in advance, and depreciation.
+            income, income received in advance, depreciation, provision for doubtful debts, manager&apos;s commission, and
+            further bad debts.
           </p>
         </header>
 
@@ -102,7 +104,8 @@ export default function FinalAccountsPage() {
             </label>
             <p className="rounded-md bg-paper px-3 py-2 text-sm leading-6 text-slate-600">
               Enter one adjustment per line. This MVP supports closing stock, outstanding expenses, prepaid expenses,
-              accrued income, income received in advance, and depreciation.
+              accrued income, income received in advance, depreciation, provision for doubtful debts, manager&apos;s
+              commission, and further bad debts.
             </p>
             <button
               type="button"
@@ -487,15 +490,19 @@ function ProvisionWorkingView({ working }: { working: ProvisionForDoubtfulDebtsW
         <table className="w-full min-w-[460px] border-collapse text-sm">
           <tbody>
             <CapitalWorkingRow label="Debtors" amount={working.debtors} />
+            {working.furtherBadDebts > 0 ? (
+              <CapitalWorkingRow label="Less: Further Bad Debts" amount={working.furtherBadDebts} />
+            ) : null}
+            {working.furtherBadDebts > 0 ? (
+              <CapitalWorkingRow label="Adjusted Debtors" amount={working.adjustedDebtors} />
+            ) : null}
             <CapitalWorkingRow label="Existing Provision" amount={working.existingProvision} />
             <CapitalWorkingRow label="Required Provision" amount={working.requiredProvision} />
             {working.increase > 0 ? <CapitalWorkingRow label="Increase debited to P&L" amount={working.increase} /> : null}
             {working.decrease > 0 ? <CapitalWorkingRow label="Decrease credited to P&L" amount={working.decrease} /> : null}
             <tr className="border-t border-line bg-paper font-bold text-ink">
               <td className="px-3 py-2">Net Debtors</td>
-              <td className="px-3 py-2 text-right">
-                Rs.{Math.max(working.debtors - working.requiredProvision, 0).toLocaleString("en-IN")}
-              </td>
+              <td className="px-3 py-2 text-right">Rs.{working.netDebtors.toLocaleString("en-IN")}</td>
             </tr>
           </tbody>
         </table>

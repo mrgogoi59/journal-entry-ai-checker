@@ -24,11 +24,14 @@ export type CapitalWorking = {
 
 export type ProvisionForDoubtfulDebtsWorking = {
   debtors: number;
+  furtherBadDebts: number;
+  adjustedDebtors: number;
   existingProvision: number;
   requiredProvision: number;
   increase: number;
   decrease: number;
   pnlEffect: "debit" | "credit" | "none";
+  netDebtors: number;
 };
 
 export type ManagerCommissionWorking = {
@@ -48,7 +51,8 @@ export type FinalAccountAdjustment = {
     | "income_received_in_advance"
     | "depreciation"
     | "provision_for_doubtful_debts"
-    | "manager_commission";
+    | "manager_commission"
+    | "further_bad_debts";
   account: string;
   relatedAccount?: string;
   amount?: number;
@@ -363,6 +367,10 @@ const commonMistakes = [
   "Do not debit the full required provision to P&L when an existing provision already exists.",
   "Use only the increase or decrease in provision in P&L.",
   "Deduct the required closing provision from Debtors in the Balance Sheet.",
+  "Do not calculate provision on original debtors when further bad debts are given.",
+  "Deduct further bad debts first, then calculate provision.",
+  "Do not deduct further bad debts twice.",
+  "Balance Sheet should show net debtors after further bad debts and provision.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -391,6 +399,10 @@ const adjustmentLogic = [
   "If required provision is more than existing provision, only the increase is debited to Profit & Loss A/c.",
   "If required provision is less than existing provision, the decrease is credited to Profit & Loss A/c.",
   "Provision is calculated on debtors unless a fixed required amount is given.",
+  "Further bad debts are first deducted from Debtors.",
+  "Provision for doubtful debts is calculated on Debtors after deducting further bad debts.",
+  "Further bad debts are debited to Profit & Loss A/c.",
+  "Net Debtors are shown in the Balance Sheet after deducting further bad debts and required provision.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -474,6 +486,7 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     classified.balanceSheetItems,
     profitAndLossAccount.netProfit,
     profitAndLossAccount.netLoss,
+    classified.furtherBadDebts,
     classified.provisionForDoubtfulDebtsWorking,
     managerCommissionResult.working,
   );
@@ -546,6 +559,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
   balanceSheetItems: TrialBalanceBalance[];
   unclassifiedItems: TrialBalanceBalance[];
   provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking;
+  furtherBadDebts: number;
 } {
   const tradingDebitLines: FinalAccountLine[] = [];
   const tradingCreditLines: FinalAccountLine[] = [];
@@ -598,6 +612,7 @@ function classifyBalances(parsedBalances: TrialBalanceBalance[]): {
     profitAndLossCreditLines,
     balanceSheetItems,
     unclassifiedItems,
+    furtherBadDebts: 0,
   };
 }
 
@@ -694,6 +709,20 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
         rawText: line,
       };
     }
+  }
+
+  if (
+    /\b(further bad debts|additional bad debts|bad debts further written off|bad debts to be written off|write off further bad debts|further bad debts written off|additional bad debts written off)\b/.test(
+      text,
+    )
+  ) {
+    if (!amount) return null;
+    return {
+      type: "further_bad_debts",
+      account: "Further Bad Debts",
+      amount,
+      rawText: line,
+    };
   }
 
   if (/\bclosing stock\b/.test(text) || /\bstock at end\b/.test(text)) {
@@ -802,12 +831,26 @@ function applyAdjustments(
     profitAndLossCreditLines: FinalAccountLine[];
     balanceSheetItems: TrialBalanceBalance[];
     provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking;
+    furtherBadDebts?: number;
   },
   adjustments: FinalAccountAdjustment[],
 ): string[] {
   const warnings: string[] = [];
 
+  const provisionAdjustments = adjustments.filter((adjustment) => adjustment.type === "provision_for_doubtful_debts");
+
   adjustments.forEach((adjustment) => {
+    if (adjustment.type === "provision_for_doubtful_debts") {
+      return;
+    }
+
+    if (adjustment.type === "further_bad_debts") {
+      const amount = adjustment.amount ?? 0;
+      classified.furtherBadDebts = (classified.furtherBadDebts ?? 0) + amount;
+      addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
+      return;
+    }
+
     if (adjustment.type === "closing_stock") {
       const amount = adjustment.amount ?? 0;
       addAmount(classified.tradingCreditLines, adjustment.account, amount);
@@ -895,28 +938,33 @@ function applyAdjustments(
       return;
     }
 
-    if (adjustment.type === "provision_for_doubtful_debts") {
-      const working = buildProvisionForDoubtfulDebtsWorking(classified.balanceSheetItems, adjustment);
+  });
 
-      if (!working) {
-        if (adjustment.amount) {
-          warnings.push("Debtors balance not found, so Balance Sheet deduction for provision for doubtful debts cannot be shown.");
-          addAmount(classified.profitAndLossDebitLines, adjustment.account, adjustment.amount);
-        } else {
-          warnings.push("Debtors balance not found, so provision for doubtful debts could not be calculated.");
-        }
-        return;
+  provisionAdjustments.forEach((adjustment) => {
+    const working = buildProvisionForDoubtfulDebtsWorking(
+      classified.balanceSheetItems,
+      adjustment,
+      classified.furtherBadDebts ?? 0,
+    );
+
+    if (!working) {
+      if (adjustment.amount) {
+        warnings.push("Debtors balance not found, so Balance Sheet deduction for provision for doubtful debts cannot be shown.");
+        addAmount(classified.profitAndLossDebitLines, adjustment.account, adjustment.amount);
+      } else {
+        warnings.push("Debtors balance not found, so provision for doubtful debts could not be calculated.");
       }
+      return;
+    }
 
-      classified.provisionForDoubtfulDebtsWorking = working;
+    classified.provisionForDoubtfulDebtsWorking = working;
 
-      if (working.pnlEffect === "debit") {
-        addAmount(classified.profitAndLossDebitLines, adjustment.account, working.increase);
-      }
+    if (working.pnlEffect === "debit") {
+      addAmount(classified.profitAndLossDebitLines, adjustment.account, working.increase);
+    }
 
-      if (working.pnlEffect === "credit") {
-        addAmount(classified.profitAndLossCreditLines, adjustment.account, working.decrease);
-      }
+    if (working.pnlEffect === "credit") {
+      addAmount(classified.profitAndLossCreditLines, adjustment.account, working.decrease);
     }
   });
 
@@ -996,6 +1044,7 @@ function buildBalanceSheet(
   balanceSheetItems: TrialBalanceBalance[],
   netProfit: number,
   netLoss: number,
+  furtherBadDebts = 0,
   provisionForDoubtfulDebtsWorking?: ProvisionForDoubtfulDebtsWorking,
   managerCommissionWorking?: ManagerCommissionWorking,
 ): FinalAccountsResult["balanceSheet"] {
@@ -1027,10 +1076,12 @@ function buildBalanceSheet(
     }
 
     if (assetAccounts.has(key)) {
-      if (debtorAccounts.has(key) && provisionForDoubtfulDebtsWorking) {
+      if (debtorAccounts.has(key) && (provisionForDoubtfulDebtsWorking || furtherBadDebts > 0)) {
+        const netDebtors =
+          provisionForDoubtfulDebtsWorking?.netDebtors ?? Math.max(item.amount - furtherBadDebts, 0);
         assets.push({
           account: "Net Debtors",
-          amount: Math.max(item.amount - provisionForDoubtfulDebtsWorking.requiredProvision, 0),
+          amount: netDebtors,
         });
         return;
       }
@@ -1145,6 +1196,7 @@ function applyManagerCommission(
 function buildProvisionForDoubtfulDebtsWorking(
   balanceSheetItems: TrialBalanceBalance[],
   adjustment: FinalAccountAdjustment,
+  furtherBadDebts: number,
 ): ProvisionForDoubtfulDebtsWorking | null {
   const debtors = balanceSheetItems
     .filter((item) => debtorAccounts.has(cleanAccountName(item.account)))
@@ -1157,20 +1209,26 @@ function buildProvisionForDoubtfulDebtsWorking(
     return null;
   }
 
+  const adjustedDebtors = Math.max(debtors - furtherBadDebts, 0);
   const requiredProvision =
-    adjustment.amount ?? (adjustment.percentage !== undefined ? Math.round((debtors * adjustment.percentage) / 100) : 0);
+    adjustment.amount ??
+    (adjustment.percentage !== undefined ? Math.round((adjustedDebtors * adjustment.percentage) / 100) : 0);
   const increase = Math.max(requiredProvision - existingProvision, 0);
   const decrease = Math.max(existingProvision - requiredProvision, 0);
+  const netDebtors = Math.max(adjustedDebtors - requiredProvision, 0);
   const pnlEffect: ProvisionForDoubtfulDebtsWorking["pnlEffect"] =
     increase > 0 ? "debit" : decrease > 0 ? "credit" : "none";
 
   return {
     debtors,
+    furtherBadDebts,
+    adjustedDebtors,
     existingProvision,
     requiredProvision,
     increase,
     decrease,
     pnlEffect,
+    netDebtors,
   };
 }
 

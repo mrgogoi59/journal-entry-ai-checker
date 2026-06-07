@@ -521,6 +521,225 @@ Bank A/c Dr Rs.71000`,
     );
   });
 
+  it("deducts further bad debts from debtors and debits Profit and Loss", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      "Further bad debts Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toBeUndefined();
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 48000 });
+    expect(result.balanceSheet.capitalWorking?.adjustedCapital).toBe(48000);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("calculates new provision after deducting further bad debts even when provision is entered first", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      `Create provision for doubtful debts @ 5% on debtors
+Additional bad debts Rs.2000`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      debtors: 50000,
+      furtherBadDebts: 2000,
+      adjustedDebtors: 48000,
+      existingProvision: 0,
+      requiredProvision: 2400,
+      increase: 2400,
+      decrease: 0,
+      pnlEffect: "debit",
+      netDebtors: 45600,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 2400,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 45600 });
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("debits only provision increase after further bad debts when existing provision is lower", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000
+Provision for Doubtful Debts A/c Cr Rs.1000
+Cash A/c Dr Rs.1000`,
+      `Bad debts further written off Rs.2000
+Create provision for doubtful debts @ 5% on debtors`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      debtors: 50000,
+      furtherBadDebts: 2000,
+      adjustedDebtors: 48000,
+      existingProvision: 1000,
+      requiredProvision: 2400,
+      increase: 1400,
+      decrease: 0,
+      pnlEffect: "debit",
+      netDebtors: 45600,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 1400,
+    });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("credits only provision decrease after further bad debts when existing provision is higher", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000
+Provision for Doubtful Debts A/c Cr Rs.4000
+Cash A/c Dr Rs.4000`,
+      `Bad debts to be written off Rs.2000
+Create provision for doubtful debts @ 5% on debtors`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      existingProvision: 4000,
+      requiredProvision: 2400,
+      increase: 0,
+      decrease: 1600,
+      pnlEffect: "credit",
+      netDebtors: 45600,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(line(result.profitAndLossAccount.creditLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 1600,
+    });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("uses amount-based required provision with further bad debts already deducted", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+      `Write off further bad debts Rs.2000
+Provision for doubtful debts required Rs.3000`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      adjustedDebtors: 48000,
+      requiredProvision: 3000,
+      increase: 3000,
+      netDebtors: 45000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Provision for Doubtful Debts")).toEqual({
+      account: "Provision for Doubtful Debts",
+      amount: 3000,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 45000 });
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("prepares full balanced final accounts with further bad debts and existing provision", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.30000
+Debtors A/c Dr Rs.50000
+Purchases A/c Dr Rs.20000
+Sales A/c Cr Rs.60000
+Creditors A/c Cr Rs.10000
+Provision for Doubtful Debts A/c Cr Rs.1000
+Bank A/c Dr Rs.71000`,
+      `Further bad debts written off Rs.2000
+Create provision for doubtful debts @ 5% on debtors`,
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.tradingAccount.grossProfit).toBe(40000);
+    expect(result.profitAndLossAccount.netProfit).toBe(36600);
+    expect(result.balanceSheet.provisionForDoubtfulDebtsWorking).toMatchObject({
+      debtors: 50000,
+      furtherBadDebts: 2000,
+      adjustedDebtors: 48000,
+      existingProvision: 1000,
+      requiredProvision: 2400,
+      increase: 1400,
+      netDebtors: 45600,
+    });
+    expect(line(result.profitAndLossAccount.debitLines, "Further Bad Debts")).toEqual({
+      account: "Further Bad Debts",
+      amount: 2000,
+    });
+    expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 45600 });
+    expect(line(result.balanceSheet.liabilities, "Adjusted Capital")).toEqual({
+      account: "Adjusted Capital",
+      amount: 136600,
+    });
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Provision for Doubtful Debts" })]),
+    );
+    expect(result.balanceSheet.assetTotal).toBe(146600);
+    expect(result.balanceSheet.liabilityTotal).toBe(146600);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("parses supported further bad debts wording patterns", () => {
+    [
+      "Further bad debts Rs.2000",
+      "Additional bad debts Rs.2000",
+      "Bad debts further written off Rs.2000",
+      "Bad debts to be written off Rs.2000",
+      "Write off further bad debts Rs.2000",
+      "Further bad debts written off Rs.2000",
+      "Additional bad debts written off Rs.2000",
+    ].forEach((adjustment) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.50000
+Debtors A/c Dr Rs.50000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "further_bad_debts",
+            account: "Further Bad Debts",
+            amount: 2000,
+          }),
+        ]),
+      );
+      expect(line(result.balanceSheet.assets, "Net Debtors")).toEqual({ account: "Net Debtors", amount: 48000 });
+    });
+  });
+
   it("applies fixed manager commission", () => {
     const result = generateFinalAccounts(
       `Capital A/c Cr Rs.100000
