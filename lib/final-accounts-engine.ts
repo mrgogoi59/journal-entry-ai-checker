@@ -80,7 +80,8 @@ export type FinalAccountAdjustment = {
     | "further_bad_debts"
     | "provision_for_discount_on_debtors"
     | "provision_for_discount_on_creditors"
-    | "goods_withdrawn_by_proprietor";
+    | "goods_withdrawn_by_proprietor"
+    | "goods_distributed_free_sample";
   account: string;
   relatedAccount?: string;
   amount?: number;
@@ -457,6 +458,12 @@ const commonMistakes = [
   "Deduct goods withdrawn from Purchases.",
   "Treat goods withdrawn as Drawings in Capital Working.",
   "Do not show goods withdrawn as Cash or Bank.",
+  "Do not show goods distributed as free samples as Sales.",
+  "Do not treat free samples as Drawings.",
+  "Deduct free samples from Purchases.",
+  "Add free samples to Advertisement Expense in P&L.",
+  "Do not show free samples as Cash or Bank.",
+  "Do not show free samples as a Balance Sheet asset or liability.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -502,6 +509,10 @@ const adjustmentLogic = [
   "Goods withdrawn by proprietor are deducted from Purchases because goods are taken out of business stock.",
   "Goods withdrawn by proprietor are treated like Drawings and deducted from Capital.",
   "Goods withdrawn are not treated as sales because the owner took goods for personal use.",
+  "Goods distributed as free samples are deducted from Purchases because goods are taken out of stock.",
+  "Goods distributed as free samples are treated as advertisement or promotion expense and debited to Profit & Loss A/c.",
+  "Free samples are not treated as Sales because no selling price is received.",
+  "Free samples are not treated as Drawings because the owner did not take them for personal use.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -763,6 +774,20 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
   if (!amount && percentage === null) return null;
 
   const text = cleanDisplayAccountName(percentage !== null ? line : amount ? removeFirstAmount(line) : line);
+
+  if (
+    /\b(goods distributed as free sample|goods distributed as free samples|goods worth distributed as free sample|goods worth distributed as free samples|goods given as free sample|goods worth given as free sample|goods used as free sample|goods distributed for advertisement|goods used for advertisement|goods distributed for promotion|goods used for promotion|free samples distributed|promotional samples distributed|goods given away as free sample)\b/.test(
+      text,
+    )
+  ) {
+    if (!amount) return null;
+    return {
+      type: "goods_distributed_free_sample",
+      account: "Goods Distributed as Free Sample",
+      amount,
+      rawText: line,
+    };
+  }
 
   if (
     /\b(goods withdrawn by proprietor|goods withdrawn by owner|proprietor withdrew goods|owner withdrew goods|goods taken by proprietor for personal use|goods taken by owner for personal use|goods withdrawn for personal use|goods withdrawn by proprietor for personal use|goods withdrawn by owner for home use|goods worth withdrawn by proprietor for personal use|goods worth taken by owner for household use|proprietor used goods for personal use)\b/.test(
@@ -1035,6 +1060,16 @@ function applyAdjustments(
       if (purchaseWarning) {
         warnings.push(purchaseWarning);
       }
+      return;
+    }
+
+    if (adjustment.type === "goods_distributed_free_sample") {
+      const amount = adjustment.amount ?? 0;
+      const purchaseWarning = reducePurchasesForFreeSample(classified.tradingDebitLines, amount);
+      if (purchaseWarning) {
+        warnings.push(purchaseWarning);
+      }
+      addAmount(classified.profitAndLossDebitLines, "Advertisement Expense", amount);
       return;
     }
 
@@ -1638,6 +1673,21 @@ function reducePurchasesForGoodsWithdrawn(lines: FinalAccountLine[], amount: num
   return null;
 }
 
+function reducePurchasesForFreeSample(lines: FinalAccountLine[], amount: number): string | null {
+  const purchases = lines.find((line) => accountMatches(line.account, "Purchases"));
+  if (!purchases) {
+    return "Purchases balance not found, so free sample goods could not be deducted from purchases.";
+  }
+
+  if (amount > purchases.amount) {
+    purchases.amount = 0;
+    return "Free sample goods amount is more than Purchases, so Purchases was reduced to zero.";
+  }
+
+  purchases.amount -= amount;
+  return null;
+}
+
 function reduceBalanceSheetAsset(items: TrialBalanceBalance[], account: string, amount: number): boolean {
   const existing = items.find((item) => item.side === "debit" && accountMatches(item.account, account));
   if (!existing) return false;
@@ -1663,6 +1713,10 @@ function accountMatchKey(account: string): string {
 
   if (["rent income", "rent received"].includes(key)) {
     return "rent income";
+  }
+
+  if (["advertisement", "advertisement expense", "advertising", "advertising expense"].includes(key)) {
+    return "advertisement expense";
   }
 
   return key;

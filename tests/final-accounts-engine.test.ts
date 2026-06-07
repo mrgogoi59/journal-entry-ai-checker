@@ -541,6 +541,177 @@ Cash A/c Dr Rs.130000`,
     });
   });
 
+  it("deducts free sample goods from purchases and debits advertisement expense", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods distributed as free sample Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 47000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Advertisement Expense")).toEqual({
+      account: "Advertisement Expense",
+      amount: 3000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Distributed as Free Sample" })]),
+    );
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Distributed as Free Sample" })]),
+    );
+    expect(result.profitAndLossAccount.creditLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Distributed as Free Sample" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("adds free sample goods to existing advertisement expense", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Advertisement A/c Dr Rs.5000
+Cash A/c Dr Rs.125000`,
+      "Goods distributed as free sample Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 47000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Advertisement")).toEqual({
+      account: "Advertisement",
+      amount: 8000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("parses promotional wording for free sample goods", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods distributed for promotion Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_distributed_free_sample",
+          account: "Goods Distributed as Free Sample",
+          amount: 2000,
+        }),
+      ]),
+    );
+  });
+
+  it("parses goods worth wording for free sample goods", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods worth Rs.3000 distributed as free sample",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_distributed_free_sample",
+          account: "Goods Distributed as Free Sample",
+          amount: 3000,
+        }),
+      ]),
+    );
+  });
+
+  it("warns when purchases are missing but still debits advertisement for free samples", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000`,
+      "Goods distributed as free sample Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Purchases balance not found, so free sample goods could not be deducted from purchases.",
+    );
+    expect(line(result.profitAndLossAccount.debitLines, "Advertisement Expense")).toEqual({
+      account: "Advertisement Expense",
+      amount: 3000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+  });
+
+  it("does not make purchases negative when free sample goods exceed purchases", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.2000
+Cash A/c Dr Rs.98000`,
+      "Goods distributed as free sample Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Free sample goods amount is more than Purchases, so Purchases was reduced to zero.",
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 0 });
+    expect(line(result.profitAndLossAccount.debitLines, "Advertisement Expense")).toEqual({
+      account: "Advertisement Expense",
+      amount: 3000,
+    });
+  });
+
+  it("parses supported free sample goods wording patterns", () => {
+    [
+      "Goods distributed as free sample Rs.3000",
+      "Goods distributed as free samples Rs.3000",
+      "Goods worth Rs.3000 distributed as free sample",
+      "Goods worth Rs.3000 distributed as free samples",
+      "Goods given as free sample Rs.3000",
+      "Goods worth Rs.3000 given as free sample",
+      "Goods used as free sample Rs.3000",
+      "Goods distributed for advertisement Rs.3000",
+      "Goods used for advertisement Rs.3000",
+      "Goods distributed for promotion Rs.3000",
+      "Goods used for promotion Rs.3000",
+      "Free samples distributed Rs.3000",
+      "Promotional samples distributed Rs.3000",
+      "Goods given away as free sample Rs.3000",
+    ].forEach((adjustment) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "goods_distributed_free_sample",
+            account: "Goods Distributed as Free Sample",
+            amount: 3000,
+          }),
+        ]),
+      );
+      expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 47000 });
+      expect(line(result.profitAndLossAccount.debitLines, "Advertisement Expense")).toEqual({
+        account: "Advertisement Expense",
+        amount: 3000,
+      });
+      expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    });
+  });
+
   it("keeps unknown adjustments unclassified and warns", () => {
     const result = generateFinalAccounts(
       `Capital Cr 50000
