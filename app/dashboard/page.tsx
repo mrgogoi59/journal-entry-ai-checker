@@ -232,24 +232,12 @@ function WelcomeCard({ hasAttempts }: { hasAttempts: boolean }) {
               : "Start your first practice attempt to build your dashboard."}
           </p>
         </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex">
           <Link
             href="/learn"
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
           >
             Continue Learning
-          </Link>
-          <Link
-            href="/practice"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
-          >
-            {hasAttempts ? "Practice Recommended Topic" : "Start Practice"}
-          </Link>
-          <Link
-            href="/tools"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
-          >
-            Open Tools
           </Link>
         </div>
       </div>

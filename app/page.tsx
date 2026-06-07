@@ -50,18 +50,12 @@ export default function Home() {
             Learn journal entries, ledgers, trial balance, final accounts, and adjustments with beginner-friendly
             explanations built for commerce students.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex">
             <Link
               href="/dashboard"
               className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800"
             >
               Start Learning
-            </Link>
-            <Link
-              href="/learn"
-              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-900 transition hover:bg-blue-50"
-            >
-              Learn Concepts
             </Link>
           </div>
         </div>
