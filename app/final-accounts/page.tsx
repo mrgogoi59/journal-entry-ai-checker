@@ -43,7 +43,7 @@ const limitations = [
   "Only controlled provision for discount on creditors support",
   "Only controlled manager's commission support",
   "Only controlled further bad debts support",
-  "No goods lost adjustments yet",
+  "No insurance claim treatment for goods lost yet",
   "No detailed schedules",
   "No company/partnership balance sheet formats",
   "No opening balances workflow",

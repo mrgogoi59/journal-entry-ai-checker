@@ -82,12 +82,14 @@ export type FinalAccountAdjustment = {
     | "provision_for_discount_on_creditors"
     | "goods_withdrawn_by_proprietor"
     | "goods_distributed_free_sample"
-    | "goods_given_as_charity";
+    | "goods_given_as_charity"
+    | "goods_lost";
   account: string;
   relatedAccount?: string;
   amount?: number;
   percentage?: number;
   basis?: "fixed" | "before_commission" | "after_commission";
+  lossKind?: "fire" | "theft" | "general";
   rawText: string;
 };
 
@@ -179,6 +181,9 @@ const profitAndLossDebitAccounts = new Set([
   "loss on sale of asset",
   "charity expense",
   "donation expense",
+  "loss by fire",
+  "loss by theft",
+  "goods lost",
 ]);
 
 const profitAndLossCreditAccounts = new Set([
@@ -474,6 +479,14 @@ const commonMistakes = [
   "Add charity goods to Charity or Donation Expense in P&L.",
   "Do not show charity goods as Cash or Bank.",
   "Do not show charity goods as a Balance Sheet asset or liability.",
+  "Do not show goods lost as Sales.",
+  "Do not treat goods lost as Drawings.",
+  "Do not treat goods lost as Advertisement Expense.",
+  "Do not treat goods lost as Charity Expense.",
+  "Deduct goods lost from Purchases.",
+  "Add goods lost to Profit & Loss A/c as a loss.",
+  "Do not show goods lost as Cash or Bank.",
+  "Do not show goods lost as a Balance Sheet item unless insurance claim logic is added later.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -528,6 +541,11 @@ const adjustmentLogic = [
   "Charity goods are not treated as Sales because no selling price is received.",
   "Charity goods are not treated as Drawings because the owner did not take them for personal use.",
   "Charity goods are not treated as Advertisement Expense because they were given as charity or donation, not for promotion.",
+  "Goods lost by fire, theft, or accident are deducted from Purchases because goods are taken out of business stock.",
+  "Goods lost by fire or theft are treated as a loss and debited to Profit & Loss A/c.",
+  "Goods lost are not treated as Sales because no sale takes place.",
+  "Goods lost are not treated as Drawings because the owner did not take them for personal use.",
+  "Insurance claim treatment for goods lost is not included in this MVP.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -619,6 +637,7 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
     managerCommissionResult.working,
   );
   const balanceSheetWarnings = buildBalanceSheetWarnings(balanceSheet, classified.balanceSheetItems, classified.unclassifiedItems);
+  const unsupportedAdjustmentWarnings = adjustmentResult.warnings;
   const unclassifiedAdjustmentWarnings = adjustmentResult.unclassifiedAdjustments.length
     ? ["Some adjustments could not be classified."]
     : [];
@@ -638,11 +657,17 @@ export function generateFinalAccounts(input: string, adjustmentsInput = ""): Fin
       ...warnings,
       ...adjustmentWarnings,
       ...managerCommissionResult.warnings,
+      ...unsupportedAdjustmentWarnings,
       ...unclassifiedAdjustmentWarnings,
       ...balanceSheetWarnings,
     ],
     balanceSheetWarnings,
-    adjustmentWarnings: [...adjustmentWarnings, ...managerCommissionResult.warnings, ...unclassifiedAdjustmentWarnings],
+    adjustmentWarnings: [
+      ...adjustmentWarnings,
+      ...managerCommissionResult.warnings,
+      ...unsupportedAdjustmentWarnings,
+      ...unclassifiedAdjustmentWarnings,
+    ],
     adjustmentLogic,
     logic,
     commonMistakes,
@@ -763,6 +788,7 @@ function classifyAccount(account: string): AccountCategory | "unclassified" {
 function parseAdjustments(input: string): {
   parsedAdjustments: FinalAccountAdjustment[];
   unclassifiedAdjustments: string[];
+  warnings: string[];
 } {
   const lines = input
     .split(/\r?\n/)
@@ -770,8 +796,15 @@ function parseAdjustments(input: string): {
     .filter(Boolean);
   const parsedAdjustments: FinalAccountAdjustment[] = [];
   const unclassifiedAdjustments: string[] = [];
+  const warnings: string[] = [];
 
   lines.forEach((line) => {
+    if (isUnsupportedGoodsLostInsuranceAdjustment(line)) {
+      unclassifiedAdjustments.push(line);
+      warnings.push("Goods lost with insurance claim is not supported yet.");
+      return;
+    }
+
     const parsed = parseAdjustmentLine(line);
     if (parsed) {
       parsedAdjustments.push(parsed);
@@ -780,7 +813,16 @@ function parseAdjustments(input: string): {
     }
   });
 
-  return { parsedAdjustments, unclassifiedAdjustments };
+  return { parsedAdjustments, unclassifiedAdjustments, warnings };
+}
+
+function isUnsupportedGoodsLostInsuranceAdjustment(line: string): boolean {
+  const text = cleanDisplayAccountName(line);
+  return (
+    /\bgoods\b/.test(text) &&
+    /\b(lost|destroyed|damaged|burnt|stolen|theft|fire)\b/.test(text) &&
+    /\b(insurance|claim|claimed|admitted|accepted|pending|received|recoverable)\b/.test(text)
+  );
 }
 
 function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
@@ -789,6 +831,39 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
   if (!amount && percentage === null) return null;
 
   const text = cleanDisplayAccountName(percentage !== null ? line : amount ? removeFirstAmount(line) : line);
+
+  if (/\b(goods lost by fire|goods worth lost by fire|goods destroyed by fire|goods worth destroyed by fire|goods damaged by fire|goods burnt by fire|goods worth burnt in fire|goods burnt in fire|fire destroyed goods worth|goods lost due to fire)\b/.test(text)) {
+    if (!amount) return null;
+    return {
+      type: "goods_lost",
+      account: "Loss by Fire",
+      amount,
+      lossKind: "fire",
+      rawText: line,
+    };
+  }
+
+  if (/\b(goods lost by theft|goods worth lost by theft|goods stolen|goods worth stolen|goods stolen by thief|goods lost due to theft|theft of goods|goods stolen from business)\b/.test(text)) {
+    if (!amount) return null;
+    return {
+      type: "goods_lost",
+      account: "Loss by Theft",
+      amount,
+      lossKind: "theft",
+      rawText: line,
+    };
+  }
+
+  if (/\b(goods lost|goods worth lost|goods damaged|goods worth damaged|goods lost due to accident|goods worth lost due to accident|goods lost due to damage|goods destroyed|goods worth destroyed)\b/.test(text)) {
+    if (!amount) return null;
+    return {
+      type: "goods_lost",
+      account: "Goods Lost",
+      amount,
+      lossKind: "general",
+      rawText: line,
+    };
+  }
 
   if (
     /\b(goods given as charity|goods given to charity|goods worth given as charity|goods worth given to charity|goods donated|goods worth donated|goods donated to charity|goods worth donated to charity|goods given as donation|goods worth given as donation|goods donated to poor people|goods given to poor people|goods donated to orphanage|goods given to orphanage|goods used for charity|goods used for donation)\b/.test(
@@ -1109,6 +1184,16 @@ function applyAdjustments(
         warnings.push(purchaseWarning);
       }
       addCharityExpense(classified.profitAndLossDebitLines, amount);
+      return;
+    }
+
+    if (adjustment.type === "goods_lost") {
+      const amount = adjustment.amount ?? 0;
+      const purchaseWarning = reducePurchasesForGoodsLost(classified.tradingDebitLines, amount);
+      if (purchaseWarning) {
+        warnings.push(purchaseWarning);
+      }
+      addAmount(classified.profitAndLossDebitLines, adjustment.account, amount);
       return;
     }
 
@@ -1742,6 +1827,21 @@ function reducePurchasesForCharity(lines: FinalAccountLine[], amount: number): s
   return null;
 }
 
+function reducePurchasesForGoodsLost(lines: FinalAccountLine[], amount: number): string | null {
+  const purchases = lines.find((line) => accountMatches(line.account, "Purchases"));
+  if (!purchases) {
+    return "Purchases balance not found, so goods lost could not be deducted from purchases.";
+  }
+
+  if (amount > purchases.amount) {
+    purchases.amount = 0;
+    return "Goods lost amount is more than Purchases, so Purchases was reduced to zero.";
+  }
+
+  purchases.amount -= amount;
+  return null;
+}
+
 function addCharityExpense(lines: FinalAccountLine[], amount: number): void {
   const donation = lines.find((line) => accountMatches(line.account, "Donation Expense"));
   if (donation) {
@@ -1789,6 +1889,18 @@ function accountMatchKey(account: string): string {
 
   if (["donation", "donation expense"].includes(key)) {
     return "donation expense";
+  }
+
+  if (["loss by fire", "fire loss", "loss due to fire"].includes(key)) {
+    return "loss by fire";
+  }
+
+  if (["loss by theft", "theft loss", "loss due to theft"].includes(key)) {
+    return "loss by theft";
+  }
+
+  if (["goods lost", "loss of goods", "goods loss"].includes(key)) {
+    return "goods lost";
   }
 
   return key;

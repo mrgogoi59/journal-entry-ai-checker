@@ -905,6 +905,221 @@ Cash A/c Dr Rs.130000`,
     });
   });
 
+  it("deducts goods lost by fire from purchases and debits loss by fire", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods lost by fire Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_lost",
+          account: "Loss by Fire",
+          amount: 5000,
+          lossKind: "fire",
+        }),
+      ]),
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+      account: "Loss by Fire",
+      amount: 5000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ account: "Advertisement Expense" }),
+        expect.objectContaining({ account: "Charity Expense" }),
+      ]),
+    );
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Loss by Fire" })]),
+    );
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Loss by Fire" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("adds goods lost by fire to existing loss by fire", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Loss by Fire A/c Dr Rs.1000
+Cash A/c Dr Rs.129000`,
+      "Goods lost by fire Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Loss By Fire")).toEqual({
+      account: "Loss By Fire",
+      amount: 6000,
+    });
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("deducts goods lost by theft from purchases and debits loss by theft", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods stolen Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_lost",
+          account: "Loss by Theft",
+          amount: 5000,
+          lossKind: "theft",
+        }),
+      ]),
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Theft")).toEqual({
+      account: "Loss by Theft",
+      amount: 5000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("deducts general goods lost from purchases and debits goods lost", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods damaged Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_lost",
+          account: "Goods Lost",
+          amount: 5000,
+          lossKind: "general",
+        }),
+      ]),
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Goods Lost")).toEqual({
+      account: "Goods Lost",
+      amount: 5000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("parses supported goods lost wording patterns", () => {
+    [
+      ["Goods lost by fire Rs.5000", "Loss by Fire", "fire"],
+      ["Goods worth Rs.5000 lost by fire", "Loss by Fire", "fire"],
+      ["Goods worth Rs.5000 destroyed by fire", "Loss by Fire", "fire"],
+      ["Fire destroyed goods worth Rs.5000", "Loss by Fire", "fire"],
+      ["Goods lost by theft Rs.5000", "Loss by Theft", "theft"],
+      ["Goods worth Rs.5000 stolen", "Loss by Theft", "theft"],
+      ["Goods lost due to accident Rs.5000", "Goods Lost", "general"],
+      ["Goods worth Rs.5000 damaged", "Goods Lost", "general"],
+    ].forEach(([adjustment, account, lossKind]) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "goods_lost",
+            account,
+            amount: 5000,
+            lossKind,
+          }),
+        ]),
+      );
+      expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 45000 });
+      expect(line(result.profitAndLossAccount.debitLines, account)).toEqual({
+        account,
+        amount: 5000,
+      });
+    });
+  });
+
+  it("warns when purchases are missing but still debits loss by fire", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000`,
+      "Goods lost by fire Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Purchases balance not found, so goods lost could not be deducted from purchases.",
+    );
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+      account: "Loss by Fire",
+      amount: 5000,
+    });
+  });
+
+  it("does not make purchases negative when goods lost exceeds purchases", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.1000
+Cash A/c Dr Rs.99000`,
+      "Goods lost by fire Rs.5000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Goods lost amount is more than Purchases, so Purchases was reduced to zero.",
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 0 });
+    expect(line(result.profitAndLossAccount.debitLines, "Loss by Fire")).toEqual({
+      account: "Loss by Fire",
+      amount: 5000,
+    });
+  });
+
+  it("keeps goods lost insurance claim adjustments unsupported", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods lost by fire Rs.5000, insurance claim admitted Rs.3000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ type: "goods_lost" })]),
+    );
+    expect(result.unclassifiedAdjustments).toContain(
+      "Goods lost by fire Rs.5000, insurance claim admitted Rs.3000",
+    );
+    expect(result.adjustmentWarnings).toContain("Goods lost with insurance claim is not supported yet.");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 50000 });
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Loss by Fire" })]),
+    );
+  });
+
   it("keeps unknown adjustments unclassified and warns", () => {
     const result = generateFinalAccounts(
       `Capital Cr 50000
