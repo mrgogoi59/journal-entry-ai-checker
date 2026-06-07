@@ -12,6 +12,12 @@ body {
   color: #172033;
 }
 
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+}
+
 textarea,
 button {
   font: inherit;
