@@ -12,11 +12,14 @@ import type {
 
 const examples = [
   "Bought goods for cash Rs.10000",
-  "Sold goods to Ram on credit Rs.5000",
-  "Paid rent by UPI Rs.2000",
-  "Started business with cash Rs.50000",
-  "Set off Input GST Rs.5000 against Output GST Rs.8000 and paid balance through bank",
+  "Paid rent Rs.5000",
+  "Sold machinery Rs.40000 plus GST 18%",
+  "Set off Input GST Rs.5000 against Output GST Rs.8000",
 ];
+
+const heroBadges = ["Beginner friendly", "Step-by-step logic", "Debit & Credit rules", "Commerce students"];
+
+const loadingSteps = ["Analyzing transaction...", "Identifying affected accounts...", "Applying debit-credit rules..."];
 
 export default function JournalEntrySolverPage() {
   const [transaction, setTransaction] = useState("");
@@ -57,33 +60,58 @@ export default function JournalEntrySolverPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-5 sm:px-6 sm:py-9">
-      <section className="mx-auto flex w-full max-w-[920px] flex-col gap-4 sm:gap-5">
-        <header>
-          <Link href="/" className="text-sm font-semibold text-accent hover:text-blue-700">
-            Back to checker
-          </Link>
-          <p className="mt-4 text-sm font-semibold text-accent">Explain Transaction</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-normal text-ink sm:text-4xl">
-            AI Journal Entry Explainer
-          </h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Enter a transaction and understand the exact debit-credit logic.
-          </p>
-          <p className="mt-2 rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-soft">
-            This tool teaches the logic. It is not just an answer shortcut.
-          </p>
+    <main className="min-h-screen bg-white px-4 py-5 text-ink sm:px-6 sm:py-8">
+      <section className="mx-auto flex w-full max-w-[1080px] flex-col gap-5 sm:gap-6">
+        <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
+          <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+            <Link href="/" className="text-blue-800 transition hover:text-blue-950">
+              Back to Home
+            </Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/supported-transactions" className="text-blue-800 transition hover:text-blue-950">
+              Supported Topics
+            </Link>
+          </nav>
+          <div className="mt-7 max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Explain Transaction</p>
+            <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">
+              AI Journal Entry Explainer
+            </h1>
+            <p className="mt-4 text-lg leading-8 text-slate-700">
+              Enter a transaction and understand the exact debit-credit logic step by step.
+            </p>
+            <p className="mt-4 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
+              This tool teaches the logic behind the entry, not just the answer.
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {heroBadges.map((badge) => (
+              <span
+                key={badge}
+                className="rounded-full border border-blue-100 bg-white/90 px-3 py-2 text-sm font-semibold text-blue-900 shadow-sm"
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
         </header>
 
-        <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-          <div className="flex flex-col gap-4">
+        <section className="rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6">
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-xl font-bold text-blue-950">Enter a business transaction</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Write the transaction clearly with amount and payment mode when possible.
+              </p>
+            </div>
+
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-ink">Transaction</span>
+              <span className="text-sm font-bold text-slate-800">Business Transaction</span>
               <textarea
                 value={transaction}
                 onChange={(event) => setTransaction(event.target.value)}
                 placeholder="Example: Bought goods for cash Rs.10000"
-                className="min-h-32 resize-y rounded-lg border border-line bg-white px-4 py-3 text-base leading-6 outline-none transition placeholder:text-slate-400 focus:border-accent focus:ring-4 focus:ring-blue-100"
+                className="min-h-36 resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base leading-7 text-blue-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
               />
             </label>
 
@@ -97,7 +125,7 @@ export default function JournalEntrySolverPage() {
                     setResult(null);
                     setError("");
                   }}
-                  className="rounded-full border border-line bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-accent hover:text-accent"
+                  className="rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-left text-sm font-semibold text-blue-900 transition hover:border-blue-300 hover:bg-white"
                 >
                   {example}
                 </button>
@@ -105,16 +133,15 @@ export default function JournalEntrySolverPage() {
             </div>
 
             {error ? <MessageBox message={error} /> : null}
+            {isLoading ? <LoadingPanel /> : null}
 
             <button
               type="button"
               onClick={explainTransaction}
               disabled={isLoading}
-              className="min-h-12 rounded-lg bg-accent px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="min-h-12 rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isLoading
-                ? "Analyzing transaction... Identifying affected accounts... Applying debit-credit rules..."
-                : "Explain Journal Entry"}
+              {isLoading ? "Explaining..." : "Explain Journal Entry"}
             </button>
           </div>
         </section>
@@ -135,13 +162,15 @@ function SolverResult({ result }: { result: JournalEntrySolverResponse }) {
   }
 
   return (
-    <section className="grid gap-4">
+    <section className="grid gap-5">
       <ResultSection title="Final Journal Entry" emphasis>
         <JournalEntryTable lines={result.journalEntry} />
       </ResultSection>
 
       <ResultSection title="Narration">
-        <p className="text-sm leading-6 text-slate-700">{result.narration}</p>
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-medium leading-7 text-emerald-950">
+          {result.narration || "Narration not available for this transaction."}
+        </div>
       </ResultSection>
 
       <ResultSection title="Affected Accounts">
@@ -152,68 +181,97 @@ function SolverResult({ result }: { result: JournalEntrySolverResponse }) {
         <StepList steps={result.stepByStepExplanation} />
       </ResultSection>
 
-      <ResultSection title="Common Mistakes">
-        <ul className="grid gap-2 text-sm leading-6 text-slate-700">
+      <ResultSection title="Common Mistakes" tone="warning">
+        <ul className="grid gap-2 text-sm leading-6 text-amber-950">
           {result.commonMistakes.map((mistake, index) => (
-            <li key={`mistake-${mistake}-${index}`}>{mistake}</li>
+            <li
+              key={`mistake-${mistake}-${index}`}
+              className="rounded-xl border border-amber-200 bg-white/80 px-4 py-3"
+            >
+              {mistake}
+            </li>
           ))}
         </ul>
       </ResultSection>
 
       <ResultSection title="Practice Next">
-        <p className="text-sm font-semibold text-ink">{result.practiceQuestion.question}</p>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{result.practiceQuestion.expectedPattern}</p>
+        <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
+          <p className="text-sm font-bold leading-6 text-blue-950">{result.practiceQuestion.question}</p>
+          <p className="mt-2 text-sm leading-6 text-slate-700">{result.practiceQuestion.expectedPattern}</p>
+          <Link
+            href="/"
+            className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+          >
+            Try in Checker
+          </Link>
+        </div>
       </ResultSection>
 
-      <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
+        <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
+      </section>
     </section>
   );
 }
 
 function EmptyPreview() {
   return (
-    <section className="rounded-lg border border-line bg-white p-4 shadow-soft sm:p-6">
-      <h2 className="text-sm font-bold text-ink">Sample preview</h2>
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">Preview</p>
+          <h2 className="mt-1 text-xl font-bold text-blue-950">Your explanation will appear here</h2>
+        </div>
+        <p className="max-w-md text-sm leading-6 text-slate-600">
+          The explainer will show the entry, narration, affected accounts, logic, common mistakes, and a practice prompt.
+        </p>
+      </div>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[420px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-line text-left text-slate-600">
-              <th className="py-2 pr-3 font-semibold">Particulars</th>
-              <th className="py-2 pr-3 text-right font-semibold">Debit ₹</th>
-              <th className="py-2 text-right font-semibold">Credit ₹</th>
+            <tr className="border-b border-blue-100 bg-white text-left text-slate-600">
+              <th className="px-3 py-3 font-semibold">Particulars</th>
+              <th className="px-3 py-3 text-right font-semibold">Debit ₹</th>
+              <th className="px-3 py-3 text-right font-semibold">Credit ₹</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-line">
-              <td className="py-3 pr-3 font-medium text-ink">Purchases A/c Dr.</td>
-              <td className="py-3 pr-3 text-right text-ink">10,000</td>
-              <td className="py-3 text-right text-slate-400">-</td>
+            <tr className="border-b border-blue-50 bg-white/70">
+              <td className="px-3 py-3 font-semibold text-blue-950">Purchases A/c Dr.</td>
+              <td className="px-3 py-3 text-right font-semibold text-blue-950">10,000</td>
+              <td className="px-3 py-3 text-right text-slate-400">-</td>
             </tr>
-            <tr>
-              <td className="py-3 pr-3 font-medium text-ink">To Cash A/c</td>
-              <td className="py-3 pr-3 text-right text-slate-400">-</td>
-              <td className="py-3 text-right text-ink">10,000</td>
+            <tr className="bg-white/70">
+              <td className="px-3 py-3 pl-7 font-semibold text-blue-950">To Cash A/c</td>
+              <td className="px-3 py-3 text-right text-slate-400">-</td>
+              <td className="px-3 py-3 text-right font-semibold text-blue-950">10,000</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-sm leading-6 text-slate-600">Being goods purchased for cash.</p>
+      <p className="mt-4 rounded-xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-emerald-950">
+        Being goods purchased for cash.
+      </p>
     </section>
   );
 }
 
 function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
   return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
-      <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
-      <p className="mt-2 whitespace-pre-line text-sm leading-6">{result.message}</p>
+    <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-soft sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-normal text-amber-700">Needs more context</p>
+      <h2 className="mt-2 text-2xl font-bold text-amber-950">I cannot safely solve this yet.</h2>
+      <div className="mt-4 grid gap-3">
+        <IssueInfo label="Reason" value={result.message || "The transaction can be read in more than one way."} />
+        <IssueInfo label="Try writing it like" value={suggestedRewrite(result)} />
+      </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <h3 className="text-sm font-bold">Questions to ask</h3>
+          <h3 className="text-sm font-bold text-amber-950">Questions to ask</h3>
           <ul className="mt-2 grid gap-2 text-sm leading-6">
             {result.ambiguityQuestions.map((question, index) => (
-              <li key={`question-${question}-${index}`} className="rounded-md bg-white px-3 py-2">
+              <li key={`question-${question}-${index}`} className="rounded-xl border border-amber-100 bg-white px-3 py-2">
                 {question}
               </li>
             ))}
@@ -221,7 +279,7 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
         </div>
 
         <div>
-          <h3 className="text-sm font-bold">Possible interpretations</h3>
+          <h3 className="text-sm font-bold text-amber-950">Possible interpretations</h3>
           <div className="mt-2 grid gap-2">
             {result.possibleInterpretations.map((interpretation, index) => (
               <InterpretationCard key={`interpretation-${interpretation.context}-${index}`} interpretation={interpretation} />
@@ -230,7 +288,7 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-4">
         <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
       </div>
     </section>
@@ -239,13 +297,18 @@ function AmbiguousResult({ result }: { result: JournalEntrySolverResponse }) {
 
 function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
   return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 shadow-soft sm:p-6">
-      <h2 className="text-lg font-bold">I cannot safely solve this yet.</h2>
-      <p className="mt-2 whitespace-pre-line text-sm leading-6">
-        {result.message ?? "Please rewrite with amount, payment mode, and account context."}
-      </p>
+    <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-soft sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-normal text-amber-700">Unsupported for now</p>
+      <h2 className="mt-2 text-2xl font-bold text-amber-950">I cannot safely solve this yet.</h2>
+      <div className="mt-4 grid gap-3">
+        <IssueInfo
+          label="Reason"
+          value={result.message ?? "This transaction is outside the current supported rule set."}
+        />
+        <IssueInfo label="Try writing it like" value={suggestedRewrite(result)} />
+      </div>
 
-      <div className="mt-4">
+      <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-4">
         <FeedbackReport buttonLabel="Report issue" details={buildSolverFeedbackDetails(result)} />
       </div>
     </section>
@@ -254,9 +317,9 @@ function UnsupportedResult({ result }: { result: JournalEntrySolverResponse }) {
 
 function InterpretationCard({ interpretation }: { interpretation: SolverPossibleInterpretation }) {
   return (
-    <div className="rounded-lg border border-amber-200 bg-white p-3 text-sm text-slate-800">
-      <div className="font-semibold">{interpretation.context}</div>
-      <pre className="mt-2 whitespace-pre-wrap font-mono text-xs leading-5">
+    <div className="rounded-xl border border-amber-100 bg-white p-3 text-sm text-slate-800 shadow-sm">
+      <div className="font-bold text-amber-950">{interpretation.context}</div>
+      <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 font-mono text-xs leading-5 text-slate-800">
         {interpretation.journalEntry.join("\n")}
       </pre>
       <p className="mt-2 leading-5 text-slate-600">{interpretation.note}</p>
@@ -264,43 +327,70 @@ function InterpretationCard({ interpretation }: { interpretation: SolverPossible
   );
 }
 
-function ResultSection({ title, children, emphasis = false }: { title: string; children: ReactNode; emphasis?: boolean }) {
+function ResultSection({
+  title,
+  children,
+  emphasis = false,
+  tone = "default",
+}: {
+  title: string;
+  children: ReactNode;
+  emphasis?: boolean;
+  tone?: "default" | "warning";
+}) {
+  const sectionClass =
+    tone === "warning"
+      ? "border-amber-200 bg-amber-50"
+      : emphasis
+        ? "border-blue-200 bg-gradient-to-br from-white via-blue-50 to-white ring-2 ring-blue-100"
+        : "border-slate-200 bg-white";
+
   return (
-    <section
-      className={`rounded-lg border bg-white p-4 shadow-soft sm:p-6 ${
-        emphasis ? "border-accent ring-2 ring-blue-100" : "border-line"
-      }`}
-    >
-      <h2 className={emphasis ? "text-base font-bold text-ink" : "text-sm font-bold text-ink"}>{title}</h2>
+    <section className={`rounded-2xl border p-4 shadow-soft sm:p-6 ${sectionClass}`}>
+      <h2 className={emphasis ? "text-xl font-bold text-blue-950" : "text-lg font-bold text-blue-950"}>{title}</h2>
       <div className="mt-3">{children}</div>
     </section>
   );
 }
 
 function JournalEntryTable({ lines }: { lines: SolverJournalEntryLine[] }) {
+  const debitTotal = lines.reduce((total, line) => total + line.debit, 0);
+  const creditTotal = lines.reduce((total, line) => total + line.credit, 0);
+
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-blue-100 bg-white">
       <table className="w-full min-w-[420px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line bg-paper text-left text-slate-700">
-            <th className="px-3 py-2 font-semibold">Particulars</th>
-            <th className="px-3 py-2 text-right font-semibold">Debit ₹</th>
-            <th className="px-3 py-2 text-right font-semibold">Credit ₹</th>
+          <tr className="border-b border-blue-100 bg-blue-950 text-left text-white">
+            <th className="px-4 py-3 font-semibold">Particulars</th>
+            <th className="px-4 py-3 text-right font-semibold">Debit ₹</th>
+            <th className="px-4 py-3 text-right font-semibold">Credit ₹</th>
           </tr>
         </thead>
         <tbody>
           {lines.map((line, index) => (
             <tr
               key={`journal-${line.account}-${line.debit}-${line.credit}-${index}`}
-              className="border-b border-line last:border-b-0"
+              className="border-b border-blue-50 last:border-b-0"
             >
-              <td className="px-3 py-3 font-medium text-ink">
+              <td className={`px-4 py-3 font-semibold text-blue-950 ${line.credit > 0 ? "pl-8" : ""}`}>
                 {line.debit > 0 ? `${line.account} Dr.` : `To ${line.account}`}
               </td>
-              <td className="px-3 py-3 text-right text-ink">{line.debit > 0 ? formatAmount(line.debit) : "-"}</td>
-              <td className="px-3 py-3 text-right text-ink">{line.credit > 0 ? formatAmount(line.credit) : "-"}</td>
+              <td className="px-4 py-3 text-right font-medium text-slate-900">
+                {line.debit > 0 ? formatAmount(line.debit) : "-"}
+              </td>
+              <td className="px-4 py-3 text-right font-medium text-slate-900">
+                {line.credit > 0 ? formatAmount(line.credit) : "-"}
+              </td>
             </tr>
           ))}
+          {debitTotal > 0 || creditTotal > 0 ? (
+            <tr className="border-t-2 border-blue-100 bg-blue-50 text-blue-950">
+              <td className="px-4 py-3 font-bold">Total</td>
+              <td className="px-4 py-3 text-right font-bold">{formatAmount(debitTotal)}</td>
+              <td className="px-4 py-3 text-right font-bold">{formatAmount(creditTotal)}</td>
+            </tr>
+          ) : null}
         </tbody>
       </table>
     </div>
@@ -309,28 +399,32 @@ function JournalEntryTable({ lines }: { lines: SolverJournalEntryLine[] }) {
 
 function AffectedAccountsTable({ accounts }: { accounts: SolverAffectedAccount[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-slate-200">
       <table className="w-full min-w-[680px] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line bg-paper text-left text-slate-700">
-            <th className="py-2 pr-3 font-semibold">Account</th>
-            <th className="py-2 pr-3 font-semibold">Nature</th>
-            <th className="py-2 pr-3 font-semibold">Effect</th>
-            <th className="py-2 pr-3 font-semibold">Debit/Credit</th>
-            <th className="py-2 font-semibold">Rule Applied</th>
+          <tr className="border-b border-slate-200 bg-slate-50 text-left text-slate-700">
+            <th className="px-3 py-3 font-semibold">Account</th>
+            <th className="px-3 py-3 font-semibold">Nature</th>
+            <th className="px-3 py-3 font-semibold">Effect</th>
+            <th className="px-3 py-3 font-semibold">Debit/Credit</th>
+            <th className="px-3 py-3 font-semibold">Rule Applied</th>
           </tr>
         </thead>
         <tbody>
           {accounts.map((account, index) => (
             <tr
               key={`affected-${account.account}-${account.debitOrCredit}-${index}`}
-              className="border-b border-line last:border-b-0"
+              className="border-b border-slate-100 last:border-b-0"
             >
-              <td className="py-3 pr-3 font-medium text-ink">{account.account}</td>
-              <td className="py-3 pr-3 text-slate-700">{account.modernType}</td>
-              <td className="py-3 pr-3 text-slate-700">{account.effect}</td>
-              <td className="py-3 pr-3 font-semibold text-ink">{account.debitOrCredit}</td>
-              <td className="py-3 text-slate-700">{account.ruleApplied}</td>
+              <td className="px-3 py-3 font-bold text-blue-950">{account.account}</td>
+              <td className="px-3 py-3">
+                <MetaBadge value={account.modernType} />
+              </td>
+              <td className="px-3 py-3 text-slate-700">{account.effect}</td>
+              <td className="px-3 py-3">
+                <MetaBadge value={account.debitOrCredit} />
+              </td>
+              <td className="px-3 py-3 text-slate-700">{account.ruleApplied}</td>
             </tr>
           ))}
         </tbody>
@@ -341,9 +435,14 @@ function AffectedAccountsTable({ accounts }: { accounts: SolverAffectedAccount[]
 
 function StepList({ steps }: { steps: string[] }) {
   return (
-    <ol className="grid list-decimal gap-2 pl-5 text-sm leading-6 text-slate-700">
+    <ol className="grid gap-3 text-sm leading-6 text-slate-700">
       {steps.map((step, index) => (
-        <li key={`step-${step}-${index}`}>{step}</li>
+        <li key={`step-${step}-${index}`} className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-900 text-xs font-bold text-white">
+            {index + 1}
+          </span>
+          <span className="pt-0.5">{step}</span>
+        </li>
       ))}
     </ol>
   );
@@ -351,10 +450,63 @@ function StepList({ steps }: { steps: string[] }) {
 
 function MessageBox({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-6 text-red-700">
+    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold leading-6 text-red-700">
       {message}
     </div>
   );
+}
+
+function LoadingPanel() {
+  return (
+    <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+      <div className="h-2 overflow-hidden rounded-full bg-white">
+        <div className="h-full w-2/3 rounded-full bg-blue-900" />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {loadingSteps.map((step, index) => (
+          <div
+            key={`loading-${step}-${index}`}
+            className="flex items-center gap-3 rounded-xl border border-blue-100 bg-white px-3 py-2 text-sm font-semibold text-blue-950"
+          >
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            {step}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MetaBadge({ value }: { value: string }) {
+  const normalizedValue = value.toLowerCase();
+  const tone = normalizedValue.includes("debit") || normalizedValue.includes("asset") || normalizedValue.includes("expense")
+    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+    : normalizedValue.includes("credit") || normalizedValue.includes("liability") || normalizedValue.includes("income")
+      ? "border-blue-200 bg-blue-50 text-blue-800"
+      : "border-slate-200 bg-slate-50 text-slate-700";
+
+  return (
+    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${tone}`}>
+      {value}
+    </span>
+  );
+}
+
+function IssueInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-amber-100 bg-white px-4 py-3">
+      <p className="text-xs font-bold uppercase tracking-normal text-amber-700">{label}</p>
+      <p className="mt-1 whitespace-pre-line text-sm font-medium leading-6 text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function suggestedRewrite(result: JournalEntrySolverResponse): string {
+  if (result.status === "ambiguous") {
+    return "Mention the account, party role, payment mode, and amount clearly.";
+  }
+
+  return "Include the amount, payment mode, and account context. Example: Paid rent by cash Rs.5000.";
 }
 
 function formatAmount(amount: number): string {
