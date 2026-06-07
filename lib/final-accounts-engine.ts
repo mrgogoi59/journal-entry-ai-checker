@@ -81,7 +81,8 @@ export type FinalAccountAdjustment = {
     | "provision_for_discount_on_debtors"
     | "provision_for_discount_on_creditors"
     | "goods_withdrawn_by_proprietor"
-    | "goods_distributed_free_sample";
+    | "goods_distributed_free_sample"
+    | "goods_given_as_charity";
   account: string;
   relatedAccount?: string;
   amount?: number;
@@ -176,6 +177,8 @@ const profitAndLossDebitAccounts = new Set([
   "printing and stationery",
   "discount allowed",
   "loss on sale of asset",
+  "charity expense",
+  "donation expense",
 ]);
 
 const profitAndLossCreditAccounts = new Set([
@@ -464,6 +467,13 @@ const commonMistakes = [
   "Add free samples to Advertisement Expense in P&L.",
   "Do not show free samples as Cash or Bank.",
   "Do not show free samples as a Balance Sheet asset or liability.",
+  "Do not show goods given as charity as Sales.",
+  "Do not treat charity goods as Drawings.",
+  "Do not treat charity goods as Advertisement Expense.",
+  "Deduct charity goods from Purchases.",
+  "Add charity goods to Charity or Donation Expense in P&L.",
+  "Do not show charity goods as Cash or Bank.",
+  "Do not show charity goods as a Balance Sheet asset or liability.",
   "Do not calculate 'after commission' commission as a simple percentage of profit before commission.",
   "Use formula Profit before commission x rate / (100 + rate) for commission after charging commission.",
   "Manager's commission is an expense, not a trading item.",
@@ -513,6 +523,11 @@ const adjustmentLogic = [
   "Goods distributed as free samples are treated as advertisement or promotion expense and debited to Profit & Loss A/c.",
   "Free samples are not treated as Sales because no selling price is received.",
   "Free samples are not treated as Drawings because the owner did not take them for personal use.",
+  "Goods given as charity are deducted from Purchases because goods are taken out of business stock.",
+  "Goods given as charity are treated as charity or donation expense and debited to Profit & Loss A/c.",
+  "Charity goods are not treated as Sales because no selling price is received.",
+  "Charity goods are not treated as Drawings because the owner did not take them for personal use.",
+  "Charity goods are not treated as Advertisement Expense because they were given as charity or donation, not for promotion.",
   "Manager's commission is treated as an expense and debited to Profit & Loss A/c.",
   "If commission is based on net profit before commission, it is calculated directly on profit before commission.",
   "If commission is based on net profit after commission, formula used is: Profit before commission x rate / (100 + rate).",
@@ -774,6 +789,20 @@ function parseAdjustmentLine(line: string): FinalAccountAdjustment | null {
   if (!amount && percentage === null) return null;
 
   const text = cleanDisplayAccountName(percentage !== null ? line : amount ? removeFirstAmount(line) : line);
+
+  if (
+    /\b(goods given as charity|goods given to charity|goods worth given as charity|goods worth given to charity|goods donated|goods worth donated|goods donated to charity|goods worth donated to charity|goods given as donation|goods worth given as donation|goods donated to poor people|goods given to poor people|goods donated to orphanage|goods given to orphanage|goods used for charity|goods used for donation)\b/.test(
+      text,
+    )
+  ) {
+    if (!amount) return null;
+    return {
+      type: "goods_given_as_charity",
+      account: "Goods Given as Charity",
+      amount,
+      rawText: line,
+    };
+  }
 
   if (
     /\b(goods distributed as free sample|goods distributed as free samples|goods worth distributed as free sample|goods worth distributed as free samples|goods given as free sample|goods worth given as free sample|goods used as free sample|goods distributed for advertisement|goods used for advertisement|goods distributed for promotion|goods used for promotion|free samples distributed|promotional samples distributed|goods given away as free sample)\b/.test(
@@ -1070,6 +1099,16 @@ function applyAdjustments(
         warnings.push(purchaseWarning);
       }
       addAmount(classified.profitAndLossDebitLines, "Advertisement Expense", amount);
+      return;
+    }
+
+    if (adjustment.type === "goods_given_as_charity") {
+      const amount = adjustment.amount ?? 0;
+      const purchaseWarning = reducePurchasesForCharity(classified.tradingDebitLines, amount);
+      if (purchaseWarning) {
+        warnings.push(purchaseWarning);
+      }
+      addCharityExpense(classified.profitAndLossDebitLines, amount);
       return;
     }
 
@@ -1688,6 +1727,31 @@ function reducePurchasesForFreeSample(lines: FinalAccountLine[], amount: number)
   return null;
 }
 
+function reducePurchasesForCharity(lines: FinalAccountLine[], amount: number): string | null {
+  const purchases = lines.find((line) => accountMatches(line.account, "Purchases"));
+  if (!purchases) {
+    return "Purchases balance not found, so charity goods could not be deducted from purchases.";
+  }
+
+  if (amount > purchases.amount) {
+    purchases.amount = 0;
+    return "Charity goods amount is more than Purchases, so Purchases was reduced to zero.";
+  }
+
+  purchases.amount -= amount;
+  return null;
+}
+
+function addCharityExpense(lines: FinalAccountLine[], amount: number): void {
+  const donation = lines.find((line) => accountMatches(line.account, "Donation Expense"));
+  if (donation) {
+    donation.amount += amount;
+    return;
+  }
+
+  addAmount(lines, "Charity Expense", amount);
+}
+
 function reduceBalanceSheetAsset(items: TrialBalanceBalance[], account: string, amount: number): boolean {
   const existing = items.find((item) => item.side === "debit" && accountMatches(item.account, account));
   if (!existing) return false;
@@ -1717,6 +1781,14 @@ function accountMatchKey(account: string): string {
 
   if (["advertisement", "advertisement expense", "advertising", "advertising expense"].includes(key)) {
     return "advertisement expense";
+  }
+
+  if (["charity", "charity expense"].includes(key)) {
+    return "charity expense";
+  }
+
+  if (["donation", "donation expense"].includes(key)) {
+    return "donation expense";
   }
 
   return key;

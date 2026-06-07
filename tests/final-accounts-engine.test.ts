@@ -712,6 +712,199 @@ Cash A/c Dr Rs.130000`,
     });
   });
 
+  it("deducts charity goods from purchases and debits charity expense", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods given as charity Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 48000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Charity Expense")).toEqual({
+      account: "Charity Expense",
+      amount: 2000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Advertisement Expense" })]),
+    );
+    expect(result.balanceSheet.assets).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Given as Charity" })]),
+    );
+    expect(result.balanceSheet.liabilities).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Goods Given as Charity" })]),
+    );
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("adds charity goods to existing charity expense", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Charity Expense A/c Dr Rs.3000
+Cash A/c Dr Rs.127000`,
+      "Goods given as charity Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 48000 });
+    expect(line(result.profitAndLossAccount.debitLines, "Charity Expense")).toEqual({
+      account: "Charity Expense",
+      amount: 5000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    expect(result.balanceSheet.agrees).toBe(true);
+  });
+
+  it("adds charity goods to existing donation expense", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Donation Expense A/c Dr Rs.3000
+Cash A/c Dr Rs.127000`,
+      "Goods given as charity Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(line(result.profitAndLossAccount.debitLines, "Donation Expense")).toEqual({
+      account: "Donation Expense",
+      amount: 5000,
+    });
+    expect(result.profitAndLossAccount.debitLines).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ account: "Charity Expense" })]),
+    );
+  });
+
+  it("parses donation wording for charity goods", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods donated to charity Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_given_as_charity",
+          account: "Goods Given as Charity",
+          amount: 2000,
+        }),
+      ]),
+    );
+  });
+
+  it("parses orphanage wording for charity goods", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+      "Goods worth Rs.2000 donated to orphanage",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.parsedAdjustments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "goods_given_as_charity",
+          account: "Goods Given as Charity",
+          amount: 2000,
+        }),
+      ]),
+    );
+  });
+
+  it("warns when purchases are missing but still debits charity expense", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Cash A/c Dr Rs.100000`,
+      "Goods given as charity Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Purchases balance not found, so charity goods could not be deducted from purchases.",
+    );
+    expect(line(result.profitAndLossAccount.debitLines, "Charity Expense")).toEqual({
+      account: "Charity Expense",
+      amount: 2000,
+    });
+    expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+  });
+
+  it("does not make purchases negative when charity goods exceed purchases", () => {
+    const result = generateFinalAccounts(
+      `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.1000
+Cash A/c Dr Rs.99000`,
+      "Goods given as charity Rs.2000",
+    );
+
+    expect(result.status).toBe("success");
+    expect(result.adjustmentWarnings).toContain(
+      "Charity goods amount is more than Purchases, so Purchases was reduced to zero.",
+    );
+    expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 0 });
+    expect(line(result.profitAndLossAccount.debitLines, "Charity Expense")).toEqual({
+      account: "Charity Expense",
+      amount: 2000,
+    });
+  });
+
+  it("parses supported charity goods wording patterns", () => {
+    [
+      "Goods given as charity Rs.2000",
+      "Goods given to charity Rs.2000",
+      "Goods worth Rs.2000 given as charity",
+      "Goods worth Rs.2000 given to charity",
+      "Goods donated Rs.2000",
+      "Goods worth Rs.2000 donated",
+      "Goods donated to charity Rs.2000",
+      "Goods worth Rs.2000 donated to charity",
+      "Goods given as donation Rs.2000",
+      "Goods worth Rs.2000 given as donation",
+      "Goods donated to poor people Rs.2000",
+      "Goods given to poor people Rs.2000",
+      "Goods donated to orphanage Rs.2000",
+      "Goods given to orphanage Rs.2000",
+      "Goods used for charity Rs.2000",
+      "Goods used for donation Rs.2000",
+    ].forEach((adjustment) => {
+      const result = generateFinalAccounts(
+        `Capital A/c Cr Rs.100000
+Purchases A/c Dr Rs.50000
+Sales A/c Cr Rs.80000
+Cash A/c Dr Rs.130000`,
+        adjustment,
+      );
+
+      expect(result.status).toBe("success");
+      expect(result.parsedAdjustments, adjustment).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "goods_given_as_charity",
+            account: "Goods Given as Charity",
+            amount: 2000,
+          }),
+        ]),
+      );
+      expect(line(result.tradingAccount.debitLines, "Purchases")).toEqual({ account: "Purchases", amount: 48000 });
+      expect(line(result.profitAndLossAccount.debitLines, "Charity Expense")).toEqual({
+        account: "Charity Expense",
+        amount: 2000,
+      });
+      expect(result.balanceSheet.capitalWorking?.goodsWithdrawnByProprietor).toBe(0);
+    });
+  });
+
   it("keeps unknown adjustments unclassified and warns", () => {
     const result = generateFinalAccounts(
       `Capital Cr 50000
