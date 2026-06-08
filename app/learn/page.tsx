@@ -92,7 +92,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/partnership-accounts-basic-concepts",
         status: "available",
       },
-      { title: "Profit and Loss Appropriation Account", status: "coming_soon" },
+      {
+        title: "Profit and Loss Appropriation Account",
+        href: "/learn/profit-and-loss-appropriation-account",
+        status: "available",
+      },
       { title: "Fixed and Fluctuating Capital Accounts", status: "coming_soon" },
       { title: "Admission of a Partner", status: "coming_soon" },
       { title: "Retirement or Death of a Partner", status: "coming_soon" },

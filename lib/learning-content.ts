@@ -19,7 +19,8 @@ export type LessonSlug =
   | "adjustments-in-final-accounts"
   | "accounts-from-incomplete-records"
   | "accounting-for-not-for-profit-organisations"
-  | "partnership-accounts-basic-concepts";
+  | "partnership-accounts-basic-concepts"
+  | "profit-and-loss-appropriation-account";
 
 export type SolvedLessonExample = {
   title: string;
@@ -219,6 +220,12 @@ export const lessonCards = [
     title: "Partnership Accounts: Basic Concepts",
     description: "Learn how accounting changes when two or more people run a business together.",
     href: "/learn/partnership-accounts-basic-concepts",
+  },
+  {
+    slug: "profit-and-loss-appropriation-account",
+    title: "Profit and Loss Appropriation Account",
+    description: "Learn how partnership profit is adjusted and distributed among partners.",
+    href: "/learn/profit-and-loss-appropriation-account",
   },
 ];
 
@@ -5280,10 +5287,356 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Final Accounts Tool", href: "/final-accounts" },
     ],
     nextLesson: {
-      label: "Review Final Accounts Basics",
-      href: "/learn/final-accounts-basics",
+      label: "Continue to Profit and Loss Appropriation Account",
+      href: "/learn/profit-and-loss-appropriation-account",
       description:
-        "After learning partnership basics, the next step is to learn how profit is distributed among partners. Review Final Accounts Basics while that lesson is not available yet.",
+        "After learning partnership basics, the next step is to learn how profit is adjusted and distributed among partners.",
+    },
+  },
+  "profit-and-loss-appropriation-account": {
+    slug: "profit-and-loss-appropriation-account",
+    title: "Profit and Loss Appropriation Account",
+    subtitle: "Learn how partnership profit is adjusted and distributed among partners.",
+    description:
+      "Understand how partnership net profit is adjusted for partner salary, interest, reserve, and then shared in the profit sharing ratio.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What Profit and Loss Appropriation Account means",
+      "Why it is prepared in partnership accounts",
+      "Difference between Profit and Loss Account and Profit and Loss Appropriation Account",
+      "How net profit is adjusted before distribution",
+      "Interest on capital",
+      "Partner salary",
+      "Partner commission",
+      "Interest on drawings",
+      "Transfer to reserve",
+      "Remaining profit",
+      "Profit sharing ratio",
+      "How profit is distributed between partners",
+      "What happens when there is a loss",
+      "Common mistakes in P&L Appropriation Account",
+    ],
+    conceptSections: [
+      {
+        title: "What is Profit and Loss Appropriation Account?",
+        body: [
+          "Profit and Loss Appropriation Account is prepared in partnership accounts to show how net profit is distributed among partners.",
+          "Profit and Loss Account tells us the net profit of the business.",
+          "But in partnership, that net profit does not belong to one person.",
+          "It must be divided among partners according to the partnership deed.",
+          "Before sharing profit, the firm may give interest on capital, partner salary, and partner commission.",
+          "The firm may also charge interest on drawings.",
+          "Then the remaining profit is shared in the profit sharing ratio.",
+          "Simple line: P&L Appropriation Account shows how partnership profit is adjusted and shared.",
+        ],
+      },
+      {
+        title: "Why this account is needed",
+        body: [
+          "In sole proprietorship, there is one owner and profit belongs to that owner.",
+          "In partnership, there are two or more partners.",
+          "So the firm must answer who gets how much profit.",
+          "It must check whether any partner gets salary or commission.",
+          "It must check whether interest on capital is allowed.",
+          "It must check whether interest on drawings is charged.",
+          "It must check whether some profit is kept as reserve.",
+          "Memory line: P&L Account finds profit. P&L Appropriation Account divides profit.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya and Amit run a small stationery shop together.",
+          "At the end of the year, the shop earns net profit of Rs.80,000.",
+          "Their partnership deed says Amit will get salary Rs.10,000 because he manages the shop daily.",
+          "Riya will get interest on capital Rs.6,000.",
+          "Amit will get interest on capital Rs.4,000.",
+          "Amit has drawings interest Rs.1,000.",
+          "Remaining profit will be shared equally.",
+          "Can they simply divide Rs.80,000 equally?",
+          "No. First, they must apply the rules in the partnership deed.",
+          "This is done through Profit and Loss Appropriation Account.",
+        ],
+      },
+      {
+        title: "Items shown in P&L Appropriation Account",
+        body: [
+          "The credit side usually includes Net Profit and Interest on Drawings.",
+          "The debit side usually includes Interest on Capital, Partner Salary, Partner Commission, Transfer to Reserve, and Share of Profit transferred to partners.",
+          "Interest on drawings increases the amount available for distribution because it is charged from partners.",
+          "Interest on capital, partner salary, partner commission, and reserve reduce the profit available for final sharing.",
+          "If there is a net loss, it may be shared among partners in the profit sharing ratio after applying relevant adjustments carefully.",
+          "Keep the idea simple: this account adjusts profit and then shares the balance.",
+        ],
+      },
+      {
+        title: "How profit is distributed",
+        body: [
+          "Step 1: Start with Net Profit.",
+          "Step 2: Add interest on drawings if any.",
+          "Step 3: Deduct interest on capital.",
+          "Step 4: Deduct partner salary or commission.",
+          "Step 5: Deduct transfer to reserve if any.",
+          "Step 6: Share remaining profit among partners in the profit sharing ratio.",
+          "Simple idea: Available profit for sharing starts with net profit, adds interest on drawings, and deducts partner benefits and reserve.",
+        ],
+      },
+      {
+        title: "Interest on capital",
+        body: [
+          "Interest on Capital is given to partners for investing capital in the business.",
+          "Example: Riya's capital is Rs.60,000 and interest on capital is 10%.",
+          "Interest is Rs.60,000 x 10% = Rs.6,000.",
+          "Treatment: debit P&L Appropriation Account and credit partner's capital or current account.",
+          "Simple line: Interest on capital is a benefit given to partner.",
+        ],
+      },
+      {
+        title: "Partner salary and commission",
+        body: [
+          "Sometimes one partner works more than others.",
+          "Example: Amit manages the shop every day.",
+          "The deed may say Amit gets salary Rs.10,000.",
+          "Treatment: debit P&L Appropriation Account and credit Amit's capital or current account.",
+          "Partner commission works similarly.",
+          "Simple line: Partner salary or commission rewards extra work by partner.",
+        ],
+      },
+      {
+        title: "Interest on drawings",
+        body: [
+          "Interest on Drawings is charged when a partner withdraws money or goods for personal use.",
+          "Example: Amit's drawings are Rs.20,000 and interest on drawings is 5%.",
+          "Interest is Rs.20,000 x 5% = Rs.1,000.",
+          "Treatment: credit P&L Appropriation Account and debit partner's capital or current account.",
+          "Simple line: Interest on drawings is charged from partner.",
+        ],
+      },
+      {
+        title: "Transfer to reserve",
+        body: [
+          "Sometimes the firm keeps part of profit aside for future use.",
+          "Example: transfer to reserve Rs.5,000.",
+          "Treatment: debit P&L Appropriation Account.",
+          "Reserve reduces the profit available for sharing now.",
+          "Simple line: Reserve means profit kept aside for future safety or growth.",
+        ],
+      },
+      {
+        title: "Profit sharing ratio",
+        body: [
+          "After all appropriations, remaining profit is shared among partners in their profit sharing ratio.",
+          "Example: remaining profit Rs.60,000 and Riya and Amit share equally.",
+          "Riya gets Rs.30,000 and Amit gets Rs.30,000.",
+          "Example: remaining profit Rs.50,000 shared in 3:2.",
+          "Total parts are 5. Partner A gets Rs.50,000 x 3/5 = Rs.30,000.",
+          "Partner B gets Rs.50,000 x 2/5 = Rs.20,000.",
+          "Simple line: Profit sharing ratio decides the final share of remaining profit.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "P&L Account vs P&L Appropriation Account",
+      leftHeading: "Profit and Loss Account",
+      rightHeading: "Profit and Loss Appropriation Account",
+      rows: [
+        {
+          left: "Finds net profit or net loss",
+          right: "Shows how net profit is distributed",
+        },
+        {
+          left: "Used in all businesses",
+          right: "Mainly important in partnership",
+        },
+        {
+          left: "Includes normal expenses and incomes",
+          right: "Includes partner-related adjustments",
+        },
+        {
+          left: "Example: rent, salary, depreciation",
+          right: "Example: interest on capital, partner salary, profit share",
+        },
+        {
+          left: "Ends with net profit",
+          right: "Starts with net profit",
+        },
+      ],
+      note: "Memory line: P&L Account finds the profit. P&L Appropriation Account shares the profit.",
+    },
+    impactTable: {
+      eyebrow: "Appropriation guide",
+      title: "How common items affect appropriation",
+      columns: ["Item", "Simple meaning", "Usual side / effect"],
+      rows: [
+        {
+          first: "Net Profit",
+          second: "Profit found by P&L Account",
+          third: "Credit side / starting point",
+        },
+        {
+          first: "Interest on Drawings",
+          second: "Charged from partner",
+          third: "Credit side / increases available profit",
+        },
+        {
+          first: "Interest on Capital",
+          second: "Benefit for capital invested",
+          third: "Debit side / deducted before sharing",
+        },
+        {
+          first: "Partner Salary",
+          second: "Reward for extra work",
+          third: "Debit side / deducted before sharing",
+        },
+        {
+          first: "Partner Commission",
+          second: "Reward for special work or sales",
+          third: "Debit side / deducted before sharing",
+        },
+        {
+          first: "Transfer to Reserve",
+          second: "Profit kept aside",
+          third: "Debit side / reduces remaining profit",
+        },
+        {
+          first: "Share of Profit",
+          second: "Final profit given to partners",
+          third: "Debit side / shared in ratio",
+        },
+      ],
+      note: "Read the partnership deed first; partner benefits are allowed only when the deed allows them.",
+    },
+    visualFlow: [
+      "Net Profit",
+      "Add Interest on Drawings",
+      "Less Interest on Capital",
+      "Less Partner Salary or Commission",
+      "Less Transfer to Reserve",
+      "Remaining Profit",
+      "Share among partners in ratio",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Net Profit Rs.60,000. Riya and Amit share equally.",
+        entry: [
+          "Net Profit Rs.60,000",
+          "Riya's share Rs.30,000",
+          "Amit's share Rs.30,000",
+        ],
+        logic: [
+          "Equal sharing means 1:1.",
+          "Each partner gets half of the profit.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Net Profit Rs.50,000. Riya and Amit share in 3:2.",
+        entry: [
+          "Total parts = 3 + 2 = 5",
+          "Riya = Rs.50,000 x 3/5 = Rs.30,000",
+          "Amit = Rs.50,000 x 2/5 = Rs.20,000",
+        ],
+        logic: [
+          "Profit is divided in the profit sharing ratio.",
+          "Riya gets three parts and Amit gets two parts.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Net Profit Rs.80,000. Interest on capital: Riya Rs.6,000, Amit Rs.4,000. Remaining profit shared equally.",
+        entry: [
+          "Total Interest on Capital Rs.10,000",
+          "Remaining Profit = Rs.80,000 - Rs.10,000 = Rs.70,000",
+          "Each partner's profit share Rs.35,000",
+          "Riya total = Rs.6,000 + Rs.35,000 = Rs.41,000",
+          "Amit total = Rs.4,000 + Rs.35,000 = Rs.39,000",
+        ],
+        logic: [
+          "Interest on capital is allowed before sharing remaining profit.",
+          "Then the remaining profit is shared equally.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Net Profit Rs.90,000. Amit salary Rs.20,000. Remaining profit shared equally.",
+        entry: [
+          "Remaining Profit = Rs.90,000 - Rs.20,000 = Rs.70,000",
+          "Each partner's profit share Rs.35,000",
+          "Amit total benefit = Salary Rs.20,000 + Profit Share Rs.35,000",
+          "Amit total benefit Rs.55,000",
+        ],
+        logic: [
+          "Partner salary is deducted before sharing profit.",
+          "The balance is shared equally.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Net Profit Rs.70,000. Interest on Amit's drawings Rs.2,000. Remaining profit shared equally.",
+        entry: [
+          "Available Profit = Rs.70,000 + Rs.2,000",
+          "Available Profit Rs.72,000",
+          "Each partner's profit share Rs.36,000",
+          "Amit is also charged interest on drawings in his capital/current account",
+        ],
+        logic: [
+          "Interest on drawings is charged from partner.",
+          "So it is added before sharing profit.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Complete simple appropriation.",
+        entry: [
+          "Net Profit Rs.1,00,000",
+          "Add Interest on Drawings Rs.3,000",
+          "Total Available Rs.1,03,000",
+          "Less Interest on Capital Rs.10,000",
+          "Less Amit Salary Rs.10,000",
+          "Less Reserve Rs.5,000",
+          "Remaining Profit Rs.78,000",
+          "Each partner's share Rs.39,000",
+        ],
+        logic: [
+          "First add interest charged from partners.",
+          "Then deduct partner benefits and reserve.",
+          "The remaining profit is shared fairly in the agreed ratio.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Sharing profit before giving partner salary or interest on capital",
+      "Forgetting to add interest on drawings",
+      "Treating interest on drawings as expense",
+      "Treating interest on capital as income",
+      "Confusing P&L Account with P&L Appropriation Account",
+      "Using capital ratio instead of profit sharing ratio",
+      "Forgetting transfer to reserve",
+      "Giving partner salary even when deed does not allow it",
+      "Forgetting that remaining profit is shared in ratio",
+      "Thinking salary to partner is same as salary to employee in normal P&L",
+    ],
+    tryPrompts: [
+      "Net profit Rs.40,000 shared equally between Riya and Amit. Expected: Rs.20,000 each.",
+      "Net profit Rs.60,000 shared in 2:1. Expected: Partner A Rs.40,000, Partner B Rs.20,000.",
+      "Net profit Rs.80,000. Interest on capital Rs.10,000 total. Remaining profit shared equally. Expected: remaining profit Rs.70,000, each gets Rs.35,000.",
+      "Net profit Rs.90,000. Partner salary Rs.30,000. Remaining profit shared equally. Expected: remaining profit Rs.60,000, each gets Rs.30,000.",
+      "Net profit Rs.50,000. Interest on drawings Rs.2,000. Does available profit increase or decrease? Expected: increase to Rs.52,000.",
+      "Remaining profit Rs.75,000 shared in 3:2. Expected: Partner A Rs.45,000, Partner B Rs.30,000.",
+      "Profit sharing ratio is 1:1 but capital ratio is 3:2. Which ratio is used for profit share? Expected: profit sharing ratio 1:1.",
+    ],
+    toolLinks: [
+      { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
+      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+    ],
+    nextLesson: {
+      label: "Review Partnership Basics",
+      href: "/learn/partnership-accounts-basic-concepts",
+      description:
+        "After learning how profit is distributed, the next step is to understand how partner capital accounts are maintained. Review Partnership Basics while that lesson is not available yet.",
     },
   },
 };
