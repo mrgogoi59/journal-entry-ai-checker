@@ -9,6 +9,7 @@ const quickActions = [
   { title: "Open Tools", href: "/tools" },
   { title: "Learn Concepts", href: "/learn" },
   { title: "Practice by Topic", href: "/practice" },
+  { title: "Ledger Practice", href: "/practice/ledger" },
   { title: "View History", href: "/history" },
   { title: "View Weak Areas", href: "/progress" },
   { title: "Explain a Transaction", href: "/journal-entry-solver" },

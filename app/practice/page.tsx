@@ -231,6 +231,8 @@ export default function PracticePage() {
       <section className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 sm:gap-6">
         <PageHeader />
 
+        <WorkflowPracticeCard />
+
         <section ref={topicSectionRef} className="scroll-mt-5">
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Topic Categories</p>
@@ -349,6 +351,28 @@ function ReviewLinks() {
           <p className="mt-1 text-xs leading-5 text-slate-600 sm:mt-2 sm:text-sm sm:leading-6">Review recent attempts saved on this browser.</p>
         </article>
       </Link>
+    </section>
+  );
+}
+
+function WorkflowPracticeCard() {
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Workflow Practice</p>
+          <h2 className="mt-2 text-2xl font-bold text-blue-950">Ledger Practice</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700">
+            Practice account-wise ledger balances after reading journal entries.
+          </p>
+        </div>
+        <Link
+          href="/practice/ledger"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+        >
+          Start Ledger Practice
+        </Link>
+      </div>
     </section>
   );
 }

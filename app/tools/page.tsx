@@ -45,6 +45,12 @@ const toolSections = [
         label: "Open Ledger",
       },
       {
+        title: "Ledger Practice",
+        description: "Practice finding ledger account balances from given journal entries.",
+        href: "/practice/ledger",
+        label: "Start Practice",
+      },
+      {
         title: "Trial Balance",
         description: "Prepare trial balance from journal entries and ledger balances.",
         href: "/trial-balance",
