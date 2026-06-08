@@ -89,12 +89,8 @@ function PageHeader() {
   return (
     <header className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-5 shadow-soft sm:p-8">
       <nav className="hidden flex-wrap items-center gap-3 text-sm font-semibold sm:flex">
-        <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
-          Dashboard
-        </Link>
-        <span className="text-slate-300">/</span>
         <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
-          Learn
+          Start
         </Link>
         <span className="text-slate-300">/</span>
         <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">

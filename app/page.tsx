@@ -18,11 +18,8 @@ export default function Home() {
             Accywise
           </Link>
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-700 md:flex">
-            <Link href="/dashboard" className="transition hover:text-blue-900">
-              Dashboard
-            </Link>
             <Link href="/learn" className="transition hover:text-blue-900">
-              Learn
+              Start
             </Link>
             <Link href="/practice" className="transition hover:text-blue-900">
               Practice
@@ -52,7 +49,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex">
             <Link
-              href="/dashboard"
+              href="/learn"
               className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800"
             >
               Start Learning
@@ -99,10 +96,10 @@ export default function Home() {
               Use the tools to check, understand, and practice accountancy step by step.
             </p>
             <Link
-              href="/dashboard"
+              href="/learn"
               className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-5 py-3 text-base font-bold text-blue-950 transition hover:bg-blue-50"
             >
-              Open Student Dashboard
+              Continue Learning
             </Link>
           </div>
         </div>
@@ -115,11 +112,8 @@ export default function Home() {
             <p className="mt-1">Built for commerce students</p>
           </div>
           <div className="flex flex-wrap gap-4 font-semibold text-slate-700">
-            <Link href="/dashboard" className="hover:text-blue-900">
-              Dashboard
-            </Link>
             <Link href="/learn" className="hover:text-blue-900">
-              Learn
+              Start
             </Link>
             <Link href="/practice" className="hover:text-blue-900">
               Practice

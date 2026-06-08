@@ -300,12 +300,8 @@ function PageHeader() {
           Home
         </Link>
         <span className="text-slate-300">/</span>
-        <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
-          Dashboard
-        </Link>
-        <span className="text-slate-300">/</span>
         <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
-          Learn
+          Start
         </Link>
         <span className="text-slate-300">/</span>
         <Link href="/practice" className="text-blue-950">

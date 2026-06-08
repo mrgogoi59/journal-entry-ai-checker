@@ -26,12 +26,8 @@ export default function ProgressPage() {
               Home
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
-              Dashboard
-            </Link>
-            <span className="text-slate-300">/</span>
             <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
-              Learn
+              Start
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
@@ -96,10 +92,10 @@ export default function ProgressPage() {
 
             <section className="grid gap-4 md:grid-cols-3">
               <ActionCard
-                title="Student Dashboard"
-                description="Open the central dashboard for progress, weak areas, recent attempts, and next steps."
-                href="/dashboard"
-                label="Open Dashboard"
+                title="Start Learning"
+                description="Return to the simple starting point when you want to continue learning."
+                href="/learn"
+                label="Continue Learning"
               />
               <ActionCard
                 title="Recent Attempts"

@@ -5,14 +5,9 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   {
-    label: "Dashboard",
-    href: "/dashboard",
-    isActive: (pathname: string) => pathname === "/dashboard",
-  },
-  {
-    label: "Learn",
+    label: "Start",
     href: "/learn",
-    isActive: (pathname: string) => pathname === "/learn" || pathname.startsWith("/learn/"),
+    isActive: (pathname: string) => pathname === "/dashboard" || pathname === "/learn" || pathname.startsWith("/learn/"),
   },
   {
     label: "Practice",
@@ -28,6 +23,11 @@ const navItems = [
       pathname === "/ledger" ||
       pathname === "/trial-balance" ||
       pathname === "/final-accounts",
+  },
+  {
+    label: "Home",
+    href: "/",
+    isActive: (pathname: string) => pathname === "/",
   },
 ];
 

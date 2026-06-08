@@ -59,12 +59,8 @@ export default function AttemptHistoryPage() {
               Home
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/dashboard" className="text-blue-800 transition hover:text-blue-950">
-              Dashboard
-            </Link>
-            <span className="text-slate-300">/</span>
             <Link href="/learn" className="text-blue-800 transition hover:text-blue-950">
-              Learn
+              Start
             </Link>
             <span className="text-slate-300">/</span>
             <Link href="/practice" className="text-blue-800 transition hover:text-blue-950">
@@ -119,16 +115,16 @@ export default function AttemptHistoryPage() {
           </section>
         </Link>
 
-        <Link href="/dashboard" className="group">
+        <Link href="/learn" className="group">
           <section className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-5 shadow-soft transition group-hover:border-emerald-200 group-hover:bg-emerald-50 sm:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-xl font-bold text-blue-950">Student Dashboard</h2>
+                <h2 className="text-xl font-bold text-blue-950">Start Learning</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Track progress, weak areas, recent attempts, and next steps.
+                  Return to the simple starting point when you want to continue learning.
                 </p>
               </div>
-              <span className="text-sm font-bold text-blue-800">Open Dashboard</span>
+              <span className="text-sm font-bold text-blue-800">Continue Learning</span>
             </div>
           </section>
         </Link>
