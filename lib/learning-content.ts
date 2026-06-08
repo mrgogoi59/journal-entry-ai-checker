@@ -32,7 +32,8 @@ export type LessonSlug =
   | "financial-statements-of-a-company"
   | "analysis-of-financial-statements"
   | "comparative-statements"
-  | "common-size-statements";
+  | "common-size-statements"
+  | "accounting-ratios";
 
 export type SolvedLessonExample = {
   title: string;
@@ -310,6 +311,12 @@ export const lessonCards = [
     title: "Common Size Statements",
     description: "Learn how to convert financial statement figures into percentages for easier comparison.",
     href: "/learn/common-size-statements",
+  },
+  {
+    slug: "accounting-ratios",
+    title: "Accounting Ratios",
+    description: "Learn how ratios help understand profit, liquidity, debt, and efficiency of a business.",
+    href: "/learn/accounting-ratios",
   },
 ];
 
@@ -9787,10 +9794,445 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
-      label: "Review Comparative Statements",
-      href: "/learn/comparative-statements",
+      label: "Continue to Accounting Ratios",
+      href: "/learn/accounting-ratios",
       description:
-        "After learning percentages through common size statements, the next step is to understand accounting ratios. That lesson is not available yet, so revise comparative statements for now.",
+        "After learning percentages through common size statements, the next step is to understand accounting ratios.",
+    },
+  },
+  "accounting-ratios": {
+    slug: "accounting-ratios",
+    title: "Accounting Ratios",
+    subtitle: "Learn how ratios help us understand profit, liquidity, debt, and efficiency of a business.",
+    description:
+      "Understand liquidity, solvency, profitability, and efficiency ratios with simple formulas, examples, and interpretations.",
+    difficulty: "Beginner",
+    estimatedTime: "15-18 min",
+    whatYouWillLearn: [
+      "What accounting ratios mean",
+      "Why ratios are useful",
+      "Difference between numbers and ratios",
+      "How ratios help compare companies",
+      "Liquidity ratios",
+      "Solvency ratios",
+      "Profitability ratios",
+      "Activity or efficiency ratios",
+      "Current Ratio",
+      "Quick Ratio",
+      "Debt-Equity Ratio",
+      "Gross Profit Ratio",
+      "Net Profit Ratio",
+      "Operating Ratio",
+      "Inventory Turnover Ratio at a basic level",
+      "Trade Receivables Turnover Ratio at a basic level",
+      "How to interpret ratios simply",
+      "Limitations of ratios",
+      "Common mistakes in accounting ratios",
+    ],
+    conceptSections: [
+      {
+        title: "What are Accounting Ratios?",
+        body: [
+          "Accounting ratios are simple comparisons between two accounting numbers.",
+          "Financial statements show many numbers.",
+          "Ratios help us understand the relationship between those numbers.",
+          "Example: Current Assets Rs.2,00,000 and Current Liabilities Rs.1,00,000.",
+          "Current Ratio = Rs.2,00,000 : Rs.1,00,000 = 2:1.",
+          "This means for every Rs.1 of short-term liability, the company has Rs.2 of current assets.",
+          "Simple line: Accounting ratios turn financial numbers into easy business signals.",
+        ],
+      },
+      {
+        title: "Why ratios are useful",
+        body: [
+          "Ratios help us know whether the company can pay short-term bills.",
+          "They show whether the company depends too much on loans.",
+          "They show whether the company earns enough profit.",
+          "They help us check whether stock, assets, and debtors are used properly.",
+          "They help us see whether the company is improving or weakening.",
+          "They help compare one company with another company.",
+          "Simple line: Ratios help us judge the financial health of a business.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya wants to invest in one of two companies.",
+          "Company A has profit Rs.2,00,000.",
+          "Company B has profit Rs.1,50,000.",
+          "At first, Company A looks better.",
+          "But after checking ratios, Riya sees the deeper picture.",
+          "Company A has high profit, but debt is also very high and current ratio is weak.",
+          "Company B has slightly lower profit, but debt is low, current ratio is strong, and cash position is better.",
+          "Now Riya understands that one number is not enough.",
+          "Simple line: Ratios help us see what is hidden behind big numbers.",
+        ],
+      },
+      {
+        title: "Numbers vs ratios",
+        body: [
+          "Numbers show amounts.",
+          "Ratios show relationships.",
+          "Example of a number: profit is Rs.1,00,000.",
+          "Example of a ratio: profit is 20% of sales.",
+          "Example of a number: current assets are Rs.2,00,000.",
+          "Example of a ratio: current ratio is 2:1.",
+          "Numbers alone can be hard to compare.",
+          "Ratios make comparison easier.",
+          "Memory line: Numbers give data. Ratios give meaning.",
+        ],
+      },
+      {
+        title: "Main types of ratios",
+        body: [
+          "Accounting ratios are usually grouped into four main types.",
+          "Liquidity ratios check short-term payment ability.",
+          "Solvency ratios check long-term financial strength and debt position.",
+          "Profitability ratios check profit earning ability.",
+          "Activity or efficiency ratios check how well resources are used.",
+          "Each type answers a different business question.",
+          "Simple line: Different ratios look at different parts of business health.",
+        ],
+      },
+      {
+        title: "Liquidity Ratios",
+        body: [
+          "Liquidity ratios show whether a company can pay short-term liabilities.",
+          "Current Ratio = Current Assets / Current Liabilities.",
+          "Example: Current Assets Rs.2,00,000 and Current Liabilities Rs.1,00,000.",
+          "Current Ratio = Rs.2,00,000 / Rs.1,00,000 = 2:1.",
+          "Meaning: company has Rs.2 current assets for every Rs.1 current liability.",
+          "Quick Ratio = Quick Assets / Current Liabilities.",
+          "Quick Assets usually means Current Assets - Inventory - Prepaid Expenses.",
+          "Example: Quick Assets Rs.1,50,000 and Current Liabilities Rs.1,00,000.",
+          "Quick Ratio = 1.5:1.",
+          "Simple line: Quick Ratio is stricter than Current Ratio because it does not depend heavily on selling stock.",
+        ],
+      },
+      {
+        title: "Solvency Ratios",
+        body: [
+          "Solvency ratios show long-term financial strength and debt position.",
+          "Debt-Equity Ratio = Debt / Equity.",
+          "Example: Debt Rs.3,00,000 and Equity Rs.2,00,000.",
+          "Debt-Equity Ratio = Rs.3,00,000 / Rs.2,00,000 = 1.5:1.",
+          "Meaning: for every Rs.1 of owner or shareholder funds, the company has Rs.1.50 debt.",
+          "Higher debt may mean higher risk.",
+          "Proprietary Ratio = Shareholders' Funds / Total Assets.",
+          "Example: Shareholders' Funds Rs.4,00,000 and Total Assets Rs.10,00,000.",
+          "Proprietary Ratio = 40%.",
+          "Simple line: Solvency ratios show how much the business depends on borrowed money.",
+        ],
+      },
+      {
+        title: "Profitability Ratios",
+        body: [
+          "Profitability ratios show how well a business earns profit.",
+          "Gross Profit Ratio = Gross Profit / Revenue from Operations x 100.",
+          "Example: Sales Rs.5,00,000 and Gross Profit Rs.2,00,000.",
+          "Gross Profit Ratio = Rs.2,00,000 / Rs.5,00,000 x 100 = 40%.",
+          "Meaning: for every Rs.100 sales, company earns Rs.40 gross profit.",
+          "Net Profit Ratio = Net Profit / Revenue from Operations x 100.",
+          "Example: Sales Rs.5,00,000 and Net Profit Rs.1,00,000.",
+          "Net Profit Ratio = Rs.1,00,000 / Rs.5,00,000 x 100 = 20%.",
+          "Operating Ratio = Operating Cost / Revenue from Operations x 100.",
+          "Example: Operating Cost Rs.4,00,000 and Sales Rs.5,00,000.",
+          "Operating Ratio = 80%.",
+          "Simple line: Profitability ratios show whether the business is earning enough from sales.",
+        ],
+      },
+      {
+        title: "Activity or Efficiency Ratios",
+        body: [
+          "Activity ratios show how efficiently the business uses stock, debtors, and assets.",
+          "Inventory Turnover Ratio shows how quickly stock is sold and replaced.",
+          "Inventory Turnover Ratio = Cost of Goods Sold / Average Inventory.",
+          "Example: Cost of Goods Sold Rs.4,00,000 and Average Inventory Rs.1,00,000.",
+          "Inventory Turnover Ratio = 4 times.",
+          "Trade Receivables Turnover Ratio shows how quickly debtors pay the company.",
+          "Trade Receivables Turnover Ratio = Credit Revenue from Operations / Average Trade Receivables.",
+          "Example: Credit Sales Rs.6,00,000 and Average Debtors Rs.1,00,000.",
+          "Trade Receivables Turnover Ratio = 6 times.",
+          "Simple line: Efficiency ratios show whether money is moving fast or getting stuck.",
+        ],
+      },
+      {
+        title: "How to interpret ratios",
+        body: [
+          "Ratio calculation is only the first step.",
+          "The real skill is interpretation.",
+          "Ask whether the ratio is better than last year.",
+          "Ask whether it is better than similar companies.",
+          "Ask whether liquidity is too low.",
+          "Ask whether debt is too high.",
+          "Ask whether profit margin is improving.",
+          "Ask whether stock is moving quickly.",
+          "Ask whether debtors are paying on time.",
+          "Simple line: Ratios should be compared and understood, not just calculated.",
+        ],
+      },
+      {
+        title: "Limitations of accounting ratios",
+        body: [
+          "Ratios are useful, but they have limits.",
+          "Ratios are based on accounting data.",
+          "Wrong data gives wrong ratios.",
+          "Ratios need comparison to be meaningful.",
+          "Different businesses may have different normal ratios.",
+          "Ratios do not show everything about the business.",
+          "Ratios do not explain the reason automatically.",
+          "Non-financial factors are also important.",
+          "Example: a company may have a good profit ratio, but customers may be unhappy.",
+          "Simple line: Ratios are helpful signals, not final judgement.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Numbers vs Ratios",
+      leftHeading: "Numbers",
+      rightHeading: "Ratios",
+      rows: [
+        {
+          left: "Show amount",
+          right: "Show relationship",
+        },
+        {
+          left: "Example: Profit Rs.1,00,000",
+          right: "Example: Profit is 20% of sales",
+        },
+        {
+          left: "Example: Current assets Rs.2,00,000",
+          right: "Example: Current ratio is 2:1",
+        },
+        {
+          left: "Hard to compare alone",
+          right: "Easier to compare",
+        },
+        {
+          left: "Tell how much",
+          right: "Tell how good or bad",
+        },
+      ],
+      note: "Memory line: Numbers give data. Ratios give meaning.",
+    },
+    memoryTable: [
+      {
+        principle: "Liquidity Ratios",
+        meaning: "Short-term payment ability",
+        example: "Can the business pay bills due soon?",
+      },
+      {
+        principle: "Solvency Ratios",
+        meaning: "Long-term financial strength",
+        example: "Is the business depending too much on debt?",
+      },
+      {
+        principle: "Profitability Ratios",
+        meaning: "Profit earning ability",
+        example: "Is the business earning enough profit?",
+      },
+      {
+        principle: "Activity / Efficiency Ratios",
+        meaning: "Use of stock, debtors, and assets",
+        example: "Is money moving fast or getting stuck?",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Simple ratio summary",
+      title: "Important ratios at a glance",
+      columns: ["Ratio", "Formula", "Simple meaning"],
+      rows: [
+        {
+          first: "Current Ratio",
+          second: "Current Assets / Current Liabilities",
+          third: "Can it pay short-term bills?",
+        },
+        {
+          first: "Quick Ratio",
+          second: "Quick Assets / Current Liabilities",
+          third: "Can it pay without selling stock?",
+        },
+        {
+          first: "Debt-Equity Ratio",
+          second: "Debt / Equity",
+          third: "Is debt too high?",
+        },
+        {
+          first: "Proprietary Ratio",
+          second: "Shareholders' Funds / Total Assets",
+          third: "How much assets are funded by owners?",
+        },
+        {
+          first: "Gross Profit Ratio",
+          second: "Gross Profit / Sales x 100",
+          third: "Gross profit from sales",
+        },
+        {
+          first: "Net Profit Ratio",
+          second: "Net Profit / Sales x 100",
+          third: "Final profit from sales",
+        },
+        {
+          first: "Operating Ratio",
+          second: "Operating Cost / Sales x 100",
+          third: "Cost used for operations",
+        },
+        {
+          first: "Inventory Turnover",
+          second: "COGS / Average Inventory",
+          third: "How fast stock moves",
+        },
+      ],
+      note: "Keep formulas readable, but always connect them to meaning.",
+    },
+    visualFlow: [
+      "Take financial statement numbers",
+      "Select two related numbers",
+      "Apply ratio formula",
+      "Compare with last year or another company",
+      "Interpret the result",
+      "Understand business health",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Current Assets Rs.2,00,000 and Current Liabilities Rs.1,00,000.",
+        entry: [
+          "Current Ratio = Rs.2,00,000 / Rs.1,00,000",
+          "Current Ratio = 2:1",
+          "Interpretation: short-term position looks comfortable.",
+        ],
+        logic: [
+          "Current assets are compared with current liabilities.",
+          "The company has Rs.2 current assets for every Rs.1 current liability.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Quick Assets Rs.1,20,000 and Current Liabilities Rs.1,00,000.",
+        entry: [
+          "Quick Ratio = Rs.1,20,000 / Rs.1,00,000",
+          "Quick Ratio = 1.2:1",
+          "Interpretation: company may be able to pay short-term dues without relying much on inventory.",
+        ],
+        logic: [
+          "Quick Ratio is stricter than Current Ratio.",
+          "It focuses on assets that can be converted into cash faster.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Debt Rs.4,00,000 and Equity Rs.2,00,000.",
+        entry: [
+          "Debt-Equity Ratio = Rs.4,00,000 / Rs.2,00,000",
+          "Debt-Equity Ratio = 2:1",
+          "Interpretation: company has high debt compared to equity. Risk should be checked.",
+        ],
+        logic: [
+          "Debt is compared with owner or shareholder funds.",
+          "Higher debt can increase solvency risk.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Sales Rs.5,00,000 and Gross Profit Rs.2,00,000.",
+        entry: [
+          "Gross Profit Ratio = Rs.2,00,000 / Rs.5,00,000 x 100",
+          "Gross Profit Ratio = 40%",
+          "Interpretation: company earns Rs.40 gross profit on every Rs.100 sales.",
+        ],
+        logic: [
+          "Gross profit is compared with sales.",
+          "This shows profit before many indirect expenses.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Sales Rs.5,00,000 and Net Profit Rs.75,000.",
+        entry: [
+          "Net Profit Ratio = Rs.75,000 / Rs.5,00,000 x 100",
+          "Net Profit Ratio = 15%",
+          "Interpretation: company keeps Rs.15 net profit from every Rs.100 sales.",
+        ],
+        logic: [
+          "Net profit is final profit after expenses.",
+          "This ratio shows final earning strength from sales.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Cost of Goods Sold Rs.6,00,000 and Average Inventory Rs.1,50,000.",
+        entry: [
+          "Inventory Turnover = Rs.6,00,000 / Rs.1,50,000",
+          "Inventory Turnover = 4 times",
+          "Interpretation: stock moved 4 times during the period.",
+        ],
+        logic: [
+          "Cost of goods sold is compared with average inventory.",
+          "It shows how quickly stock is sold and replaced.",
+        ],
+      },
+      {
+        title: "Example 7",
+        transaction: "Company A Net Profit Ratio is 20%. Company B Net Profit Ratio is 12%.",
+        entry: [
+          "Company A Net Profit Ratio = 20%",
+          "Company B Net Profit Ratio = 12%",
+          "Interpretation: Company A is more profitable in percentage terms.",
+        ],
+        logic: [
+          "Ratios make comparison easier.",
+          "A higher net profit ratio usually shows stronger profitability.",
+        ],
+      },
+      {
+        title: "Example 8",
+        transaction: "Net Profit Rs.1,00,000 but Current Ratio is 0.8:1.",
+        entry: [
+          "Profit exists",
+          "Current Ratio is weak",
+          "Interpretation: company earned profit, but short-term payment ability may be weak.",
+        ],
+        logic: [
+          "Profit alone is not enough.",
+          "Ratios give deeper understanding.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Memorising formulas without understanding meaning",
+      "Calculating ratios but not interpreting them",
+      "Judging business from one ratio only",
+      "Confusing liquidity and profitability",
+      "Thinking high profit means good liquidity",
+      "Using wrong numerator or denominator",
+      "Forgetting to multiply by 100 for percentage ratios",
+      "Comparing different types of businesses blindly",
+      "Ignoring last year's ratio",
+      "Ignoring debt risk when profit is high",
+    ],
+    tryPrompts: [
+      "Current Assets Rs.3,00,000 and Current Liabilities Rs.1,50,000. Find Current Ratio. Expected: 2:1.",
+      "Quick Assets Rs.1,20,000 and Current Liabilities Rs.80,000. Find Quick Ratio. Expected: 1.5:1.",
+      "Debt Rs.4,00,000 and Equity Rs.2,00,000. Find Debt-Equity Ratio. Expected: 2:1.",
+      "Sales Rs.5,00,000 and Gross Profit Rs.2,00,000. Find Gross Profit Ratio. Expected: 40%.",
+      "Sales Rs.8,00,000 and Net Profit Rs.1,20,000. Find Net Profit Ratio. Expected: 15%.",
+      "Operating Cost Rs.3,60,000 and Sales Rs.4,00,000. Find Operating Ratio. Expected: 90%.",
+      "COGS Rs.6,00,000 and Average Inventory Rs.1,50,000. Find Inventory Turnover Ratio. Expected: 4 times.",
+      "Current Ratio is 0.8:1. Short-term position looks strong or weak? Expected: weak / needs checking.",
+      "Net Profit Ratio increased from 10% to 18%. Profitability improved or declined? Expected: improved.",
+      "Debt-Equity Ratio is very high. Which risk should we check? Expected: solvency / debt risk.",
+    ],
+    toolLinks: [
+      { label: "Review Common Size Statements", href: "/learn/common-size-statements" },
+      { label: "Review Analysis", href: "/learn/analysis-of-financial-statements" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Review Common Size Statements",
+      href: "/learn/common-size-statements",
+      description:
+        "After ratios, the next step is to understand how cash moves in and out of a business. That lesson is not available yet, so revise common size statements for now.",
     },
   },
 };

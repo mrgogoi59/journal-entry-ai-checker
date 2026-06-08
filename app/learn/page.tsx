@@ -167,7 +167,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/common-size-statements",
         status: "available",
       },
-      { title: "Accounting Ratios", status: "coming_soon" },
+      {
+        title: "Accounting Ratios",
+        href: "/learn/accounting-ratios",
+        status: "available",
+      },
       { title: "Cash Flow Statement", status: "coming_soon" },
     ],
   },

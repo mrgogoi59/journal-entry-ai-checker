@@ -35,6 +35,7 @@ export const trackedLessonSlugs = [
   "analysis-of-financial-statements",
   "comparative-statements",
   "common-size-statements",
+  "accounting-ratios",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];
