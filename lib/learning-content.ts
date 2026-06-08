@@ -1,6 +1,7 @@
 export type LessonSlug =
   | "introduction-to-accounting"
   | "theory-base-of-accounting"
+  | "accounting-principles-and-concepts"
   | "rules-of-debit-and-credit"
   | "journal-entry-basics";
 
@@ -30,6 +31,11 @@ export type LessonContent = {
     increase: string;
     decrease?: string;
   }[];
+  memoryTable?: {
+    principle: string;
+    meaning: string;
+    example: string;
+  }[];
   visualFlow: string[];
   solvedExamples: SolvedLessonExample[];
   commonMistakes: string[];
@@ -57,6 +63,12 @@ export const lessonCards = [
     title: "Theory Base of Accounting",
     description: "Understand the basic rules and assumptions that make accounting reliable.",
     href: "/learn/theory-base-of-accounting",
+  },
+  {
+    slug: "accounting-principles-and-concepts",
+    title: "Accounting Principles and Concepts",
+    description: "Learn the simple rules that make accounting clear, fair, and reliable.",
+    href: "/learn/accounting-principles-and-concepts",
   },
   {
     slug: "rules-of-debit-and-credit",
@@ -402,6 +414,234 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       "Provision for doubtful debts is created. Expected idea: Conservatism / Prudence.",
     ],
     toolLinks: [
+      { label: "Next Lesson: Accounting Principles and Concepts", href: "/learn/accounting-principles-and-concepts" },
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Practice Basics", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Continue to Accounting Principles and Concepts",
+      href: "/learn/accounting-principles-and-concepts",
+      description: "Now that you understand the foundation of accounting rules, learn the main principles with simple examples.",
+    },
+  },
+  "accounting-principles-and-concepts": {
+    slug: "accounting-principles-and-concepts",
+    title: "Accounting Principles and Concepts",
+    subtitle: "Learn the simple rules that make accounting clear, fair, and reliable.",
+    description: "Understand important accounting principles with easy examples from small businesses.",
+    difficulty: "Beginner",
+    estimatedTime: "10-12 min",
+    whatYouWillLearn: [
+      "What accounting principles are",
+      "Why accounting needs principles",
+      "How principles keep accounts fair and clear",
+      "The simple difference between concepts and conventions",
+      "Important principles with easy examples",
+      "How principles connect to journal entries and final accounts",
+    ],
+    conceptSections: [
+      {
+        title: "What are accounting principles?",
+        body: [
+          "Accounting principles are simple rules that guide how business transactions should be recorded.",
+          "Just like traffic rules help everyone drive safely, accounting principles help everyone record business transactions clearly.",
+          "If every business records things in a different way, accounts become confusing.",
+          "Principles create a common way of recording.",
+          "Simple line: accounting principles make accounts reliable, fair, and easy to understand.",
+        ],
+      },
+      {
+        title: "Why accounting principles are needed",
+        body: [
+          "They help us record transactions correctly.",
+          "They keep business and owner separate.",
+          "They help compare one year with another year.",
+          "They avoid showing false profit.",
+          "They record income and expenses in the correct period.",
+          "They help prepare final accounts properly.",
+          "They make accounts understandable to owners, banks, teachers, students, and others.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a small mobile accessories shop.",
+          "In one month, she buys earphones for Rs.20,000 and sells goods worth Rs.30,000.",
+          "Some goods are sold on credit.",
+          "Shop rent of Rs.5,000 is unpaid.",
+          "She takes Rs.2,000 from business cash for personal use.",
+          "She buys a table for Rs.8,000.",
+          "If Riya records all this without rules, she may treat personal withdrawal as shop expense, ignore credit sales, forget unpaid rent, treat the table as a one-day expense, and show wrong profit.",
+          "Accounting principles help her avoid these mistakes.",
+        ],
+      },
+      {
+        title: "Important accounting concepts",
+        body: [
+          "Business Entity Concept: business and owner are treated separately. If Riya takes Rs.2,000 from business cash for personal use, treat it as Drawings, not shop expense.",
+          "Money Measurement Concept: only things that can be measured in money are recorded. Bought goods for Rs.20,000 is recorded, but Riya is hardworking is not recorded.",
+          "Going Concern Concept: business is assumed to continue in future. A table bought for Rs.8,000 is treated as an asset, not a one-day expense.",
+          "Accounting Period Concept: business life is divided into fixed periods to calculate profit or loss.",
+          "Cost Concept: assets are recorded at their purchase cost. Furniture bought for Rs.8,000 is recorded at Rs.8,000.",
+          "Dual Aspect Concept: every transaction has two sides. Started business with cash Rs.50,000 means cash increases and capital increases.",
+          "Accrual Concept: income and expenses are recorded when they become due, not only when cash is received or paid.",
+          "Matching Concept: expenses of a period should be matched with income of the same period.",
+          "Revenue Recognition Concept: revenue is recorded when it is earned, such as credit sales recorded when goods are sold.",
+        ],
+      },
+      {
+        title: "Important accounting conventions",
+        body: [
+          "Consistency: use the same accounting method every year unless there is a good reason to change.",
+          "Conservatism or Prudence: do not show profit too early or too high. Record possible losses carefully.",
+          "Materiality: important items should be shown properly. Very small items can be treated simply.",
+          "Full Disclosure: important information should be clearly shown, such as a big business loan.",
+        ],
+      },
+    ],
+    memoryTable: [
+      {
+        principle: "Business Entity",
+        meaning: "Business and owner are separate",
+        example: "Owner's personal withdrawal is Drawings",
+      },
+      {
+        principle: "Money Measurement",
+        meaning: "Record only money-measurable events",
+        example: "Bought goods Rs.20,000",
+      },
+      {
+        principle: "Going Concern",
+        meaning: "Business will continue",
+        example: "Furniture is asset",
+      },
+      {
+        principle: "Accounting Period",
+        meaning: "Accounts for fixed period",
+        example: "Profit for one year",
+      },
+      {
+        principle: "Cost Concept",
+        meaning: "Record asset at cost",
+        example: "Machine bought Rs.50,000",
+      },
+      {
+        principle: "Dual Aspect",
+        meaning: "Every transaction has two sides",
+        example: "Cash and Capital",
+      },
+      {
+        principle: "Accrual",
+        meaning: "Record due items",
+        example: "Outstanding salary",
+      },
+      {
+        principle: "Matching",
+        meaning: "Match income with related expense",
+        example: "Sales and related expenses",
+      },
+      {
+        principle: "Revenue Recognition",
+        meaning: "Record revenue when earned",
+        example: "Credit sales",
+      },
+      {
+        principle: "Consistency",
+        meaning: "Same method regularly",
+        example: "Same depreciation method",
+      },
+      {
+        principle: "Conservatism",
+        meaning: "Be careful with expected losses",
+        example: "Provision for doubtful debts",
+      },
+      {
+        principle: "Materiality",
+        meaning: "Focus on important items",
+        example: "Machine vs small pen",
+      },
+      {
+        principle: "Full Disclosure",
+        meaning: "Show important facts",
+        example: "Loan shown clearly",
+      },
+    ],
+    visualFlow: [
+      "Business transaction",
+      "Apply accounting principle",
+      "Record correctly",
+      "Prepare ledger/trial balance",
+      "Prepare final accounts",
+      "Show true business picture",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Owner uses business cash Rs.3,000 for personal shopping.",
+        entry: ["Principle: Business Entity", "Correct treatment: Drawings, not business expense."],
+        logic: [
+          "The owner and business are separate in accounting.",
+          "Personal shopping is not a shop expense.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Goods sold to Amit on credit Rs.12,000.",
+        entry: ["Principle: Revenue Recognition / Accrual", "Correct treatment: Record sales even though cash is not received."],
+        logic: [
+          "Revenue is recorded when earned.",
+          "Credit sales are still sales.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Salary due but not paid Rs.5,000.",
+        entry: ["Principle: Accrual", "Correct treatment: Record salary expense and outstanding salary."],
+        logic: [
+          "The salary belongs to the current period.",
+          "It is recorded even if cash is paid later.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Furniture bought Rs.10,000.",
+        entry: ["Principle: Going Concern / Cost Concept", "Correct treatment: Record furniture as asset at Rs.10,000."],
+        logic: [
+          "Furniture will be used for many days.",
+          "It is recorded at purchase cost.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Debtors may not pay Rs.2,000.",
+        entry: ["Principle: Conservatism", "Correct treatment: Create provision for doubtful debts."],
+        logic: [
+          "The business should be careful about expected losses.",
+          "It should not show profit too high by ignoring possible loss.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Treating owner's personal spending as business expense",
+      "Recording only cash transactions and ignoring credit transactions",
+      "Ignoring outstanding expenses",
+      "Thinking every purchase is an expense",
+      "Changing methods every year without reason",
+      "Showing profit too high by ignoring possible losses",
+      "Mixing capital with profit",
+      "Forgetting that every transaction has two sides",
+    ],
+    tryPrompts: [
+      "Owner takes goods for personal use. Expected: Business Entity; treat as Drawings.",
+      "Goods sold on credit Rs.15,000. Expected: Revenue Recognition / Accrual.",
+      "Salary outstanding Rs.4,000. Expected: Accrual Concept.",
+      "Machine bought for Rs.60,000. Expected: Cost Concept / Going Concern.",
+      "Same depreciation method used every year. Expected: Consistency.",
+      "Provision for doubtful debts created. Expected: Conservatism.",
+      "Very small stationery item treated as expense. Expected: Materiality.",
+      "Business loan shown clearly in Balance Sheet. Expected: Full Disclosure.",
+    ],
+    toolLinks: [
       { label: "Next Lesson: Rules of Debit and Credit", href: "/learn/rules-of-debit-and-credit" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
       { label: "Practice Basics", href: "/practice" },
@@ -409,7 +649,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     nextLesson: {
       label: "Continue to Rules of Debit and Credit",
       href: "/learn/rules-of-debit-and-credit",
-      description: "Now that you understand the foundation of accounting rules, learn how accounts are debited and credited.",
+      description: "Now that you understand the main accounting principles, learn how accounts are debited and credited.",
     },
   },
   "rules-of-debit-and-credit": {

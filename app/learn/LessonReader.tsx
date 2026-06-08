@@ -151,6 +151,33 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
           </section>
         ) : null}
 
+        {lesson.memoryTable ? (
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Easy memory table</p>
+            <h2 className="mt-2 text-2xl font-bold text-blue-950">Principle, meaning, and example</h2>
+            <div className="mt-5 overflow-x-auto rounded-xl border border-blue-100">
+              <table className="w-full min-w-[680px] border-collapse text-sm">
+                <thead>
+                  <tr className="bg-blue-950 text-left text-white">
+                    <th className="px-4 py-3 font-semibold">Principle / Concept</th>
+                    <th className="px-4 py-3 font-semibold">Simple Meaning</th>
+                    <th className="px-4 py-3 font-semibold">Easy Example</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lesson.memoryTable.map((row) => (
+                    <tr key={row.principle} className="border-b border-blue-50 last:border-b-0">
+                      <td className="px-4 py-3 font-bold text-blue-950">{row.principle}</td>
+                      <td className="px-4 py-3 font-semibold text-slate-800">{row.meaning}</td>
+                      <td className="px-4 py-3 font-semibold text-slate-800">{row.example}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
+
         <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-5 shadow-soft sm:p-6">
           <SectionHeader eyebrow="Visual flow" title="Mental model" />
           <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
