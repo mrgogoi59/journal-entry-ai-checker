@@ -5,7 +5,8 @@ export type LessonSlug =
   | "recording-of-transactions"
   | "source-documents-and-vouchers"
   | "rules-of-debit-and-credit"
-  | "journal-entry-basics";
+  | "journal-entry-basics"
+  | "ledger-posting-basics";
 
 export type SolvedLessonExample = {
   title: string;
@@ -107,10 +108,15 @@ export const lessonCards = [
     description: "Learn how to convert transactions into proper journal entries.",
     href: "/learn/journal-entry-basics",
   },
+  {
+    slug: "ledger-posting-basics",
+    title: "Ledger Posting Basics",
+    description: "Learn how journal entries are posted into individual accounts.",
+    href: "/learn/ledger-posting-basics",
+  },
 ];
 
 export const comingSoonLessons = [
-  "Ledger Posting Basics",
   "Trial Balance Basics",
   "Final Accounts Basics",
   "GST Journal Entries",
@@ -1461,9 +1467,255 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
-      label: "Practice Journal Entries",
-      href: "/practice",
-      description: "Now that you know the journal entry format, try solving beginner questions.",
+      label: "Continue to Ledger Posting Basics",
+      href: "/learn/ledger-posting-basics",
+      description: "Now that you know the journal entry format, learn how those entries move into ledger accounts.",
+    },
+  },
+  "ledger-posting-basics": {
+    slug: "ledger-posting-basics",
+    title: "Ledger Posting Basics",
+    subtitle: "Learn how journal entries are posted into individual accounts.",
+    description: "Understand how journal entries are grouped account-wise in the ledger.",
+    difficulty: "Beginner",
+    estimatedTime: "10-12 min",
+    whatYouWillLearn: [
+      "What a ledger is",
+      "Why ledger accounts are needed after journal entries",
+      "The difference between Journal and Ledger",
+      "What ledger posting means",
+      "Debit side and credit side of ledger account",
+      "How to post debit and credit accounts from a journal entry",
+      "How to find ledger balance",
+      "What balance c/d and balance b/d mean at a beginner level",
+      "How ledger connects to trial balance",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Ledger?",
+        body: [
+          "A ledger is a book or place where all transactions related to one account are collected together.",
+          "Journal records transactions date-wise.",
+          "Ledger arranges the same transactions account-wise.",
+          "Example: if Cash is used in many transactions, the Cash Account in the ledger shows all cash received and all cash paid in one place.",
+          "Simple line: Journal tells the story transaction by transaction. Ledger groups the story account by account.",
+        ],
+      },
+      {
+        title: "Why ledger is needed",
+        body: [
+          "Suppose Riya runs a stationery shop.",
+          "In one week, she starts business with cash Rs.50,000.",
+          "She buys goods for cash Rs.10,000.",
+          "She pays rent Rs.3,000.",
+          "She sells goods for cash Rs.5,000.",
+          "If we look only at journal entries, we can see each transaction one by one.",
+          "But if Riya asks, How much cash is left?, we need the Cash Account in the ledger.",
+          "Ledger helps us know total cash received, total cash paid, balance of each account, amount receivable from customers, amount payable to creditors, and balances for Trial Balance.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya starts a small stationery shop.",
+          "Entry 1: Cash A/c Dr. Rs.50,000 / To Capital A/c Rs.50,000.",
+          "Entry 2: Purchases A/c Dr. Rs.10,000 / To Cash A/c Rs.10,000.",
+          "Entry 3: Rent A/c Dr. Rs.3,000 / To Cash A/c Rs.3,000.",
+          "Entry 4: Cash A/c Dr. Rs.5,000 / To Sales A/c Rs.5,000.",
+          "Question: how much cash does Riya have now?",
+          "Cash received = Rs.50,000 + Rs.5,000 = Rs.55,000.",
+          "Cash paid = Rs.10,000 + Rs.3,000 = Rs.13,000.",
+          "Cash balance = Rs.55,000 - Rs.13,000 = Rs.42,000.",
+          "This is why ledger is useful. It groups all Cash transactions together.",
+        ],
+      },
+      {
+        title: "What is ledger posting?",
+        body: [
+          "Ledger posting means transferring information from journal entries to the correct ledger accounts.",
+          "If an account is debited in journal, post it on the debit side of that account.",
+          "If an account is credited in journal, post it on the credit side of that account.",
+          "Example: Purchases A/c Dr. Rs.10,000 / To Cash A/c Rs.10,000.",
+          "Purchases A/c is posted on the debit side for Rs.10,000.",
+          "Cash A/c is posted on the credit side for Rs.10,000.",
+          "Simple line: Debit in journal goes to debit side of ledger. Credit in journal goes to credit side of ledger.",
+        ],
+      },
+      {
+        title: "Debit side and credit side",
+        body: [
+          "A ledger account has two sides.",
+          "The left side is called the debit side.",
+          "The right side is called the credit side.",
+          "For Cash A/c, cash received appears on the debit side.",
+          "For Cash A/c, cash paid appears on the credit side.",
+          "Do not overthink it at first. Put debit entries on the debit side and credit entries on the credit side.",
+        ],
+      },
+      {
+        title: "How to post from journal to ledger",
+        body: [
+          "Step 1: read the journal entry.",
+          "Step 2: identify the account written with Dr.",
+          "Step 3: post that account on its debit side.",
+          "Step 4: identify the account written after To.",
+          "Step 5: post that account on its credit side.",
+          "Step 6: check that both accounts have been posted.",
+        ],
+      },
+      {
+        title: "How to find ledger balance",
+        body: [
+          "Step 1: add the debit side total.",
+          "Step 2: add the credit side total.",
+          "Step 3: compare both sides.",
+          "Step 4: higher side minus lower side equals balance.",
+          "If debit total is higher, the account has debit balance.",
+          "If credit total is higher, the account has credit balance.",
+          "If both sides are equal, the account is balanced and has no balance.",
+          "Example: Cash debit total Rs.55,000 and credit total Rs.13,000. Balance is Rs.42,000 debit balance.",
+        ],
+      },
+      {
+        title: "Balance c/d and balance b/d",
+        body: [
+          "Balance c/d means balance carried down.",
+          "It is written to close the ledger account for the period.",
+          "Balance b/d means balance brought down.",
+          "It is the same balance brought into the next period.",
+          "Very simple line: Balance c/d closes the account. Balance b/d opens it again in the next period.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Journal vs Ledger",
+      leftHeading: "Journal",
+      rightHeading: "Ledger",
+      rows: [
+        {
+          left: "Records transactions date-wise",
+          right: "Records transactions account-wise",
+        },
+        {
+          left: "First book of entry",
+          right: "Main book of accounts",
+        },
+        {
+          left: "Shows complete transaction in one place",
+          right: "Shows one account's activity in one place",
+        },
+        {
+          left: "Example: Bought goods for cash",
+          right: "Example: Cash A/c, Purchases A/c",
+        },
+      ],
+      note: "Memory line: Journal is transaction-wise. Ledger is account-wise.",
+    },
+    visualFlow: [
+      "Transaction",
+      "Journal Entry",
+      "Ledger Posting",
+      "Account Balance",
+      "Trial Balance",
+      "Final Accounts",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Started business with cash Rs.50,000.",
+        entry: [
+          "Journal: Cash A/c Dr. Rs.50,000",
+          "To Capital A/c Rs.50,000",
+          "Ledger posting: Cash A/c debit side Rs.50,000.",
+          "Capital A/c credit side Rs.50,000.",
+        ],
+        logic: [
+          "Cash is debited in the journal, so Cash is posted on debit side.",
+          "Capital is credited in the journal, so Capital is posted on credit side.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Bought goods for cash Rs.10,000.",
+        entry: [
+          "Journal: Purchases A/c Dr. Rs.10,000",
+          "To Cash A/c Rs.10,000",
+          "Ledger posting: Purchases A/c debit side Rs.10,000.",
+          "Cash A/c credit side Rs.10,000.",
+        ],
+        logic: [
+          "Purchases is debited in the journal.",
+          "Cash is credited because cash went out.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Paid rent Rs.3,000.",
+        entry: [
+          "Journal: Rent A/c Dr. Rs.3,000",
+          "To Cash A/c Rs.3,000",
+          "Ledger posting: Rent A/c debit side Rs.3,000.",
+          "Cash A/c credit side Rs.3,000.",
+        ],
+        logic: [
+          "Rent is debited in the journal.",
+          "Cash is credited because cash was paid.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Sold goods for cash Rs.5,000.",
+        entry: [
+          "Journal: Cash A/c Dr. Rs.5,000",
+          "To Sales A/c Rs.5,000",
+          "Ledger posting: Cash A/c debit side Rs.5,000.",
+          "Sales A/c credit side Rs.5,000.",
+        ],
+        logic: [
+          "Cash is debited because cash came in.",
+          "Sales is credited because income increased.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Find Cash balance.",
+        entry: [
+          "Cash debit: Rs.50,000 + Rs.5,000 = Rs.55,000.",
+          "Cash credit: Rs.10,000 + Rs.3,000 = Rs.13,000.",
+          "Cash balance: Rs.42,000 debit balance.",
+        ],
+        logic: [
+          "The debit side is higher than the credit side.",
+          "So Cash A/c has a debit balance.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Posting debit account on credit side",
+      "Posting credit account on debit side",
+      "Forgetting to post both accounts",
+      "Finding balance from one transaction only",
+      "Confusing journal entry with ledger account",
+      "Thinking every account has debit balance",
+      "Forgetting that liabilities and incomes usually have credit balances",
+      "Not checking debit total and credit total before finding balance",
+      "Confusing balance c/d and balance b/d",
+    ],
+    tryPrompts: [
+      "Cash A/c Dr. Rs.40,000 / To Capital A/c Rs.40,000 and Purchases A/c Dr. Rs.8,000 / To Cash A/c Rs.8,000. What is Cash A/c balance? Expected: Debit balance Rs.32,000.",
+      "Bank A/c Dr. Rs.20,000 / To Cash A/c Rs.20,000 and Salary A/c Dr. Rs.5,000 / To Bank A/c Rs.5,000. What is Bank A/c balance? Expected: Debit balance Rs.15,000.",
+      "Raju A/c Dr. Rs.10,000 / To Sales A/c Rs.10,000 and Cash A/c Dr. Rs.6,000 / To Raju A/c Rs.6,000. What is Raju A/c balance? Expected: Debit balance Rs.4,000.",
+      "Purchases A/c Dr. Rs.12,000 / To Amit A/c Rs.12,000 and Amit A/c Dr. Rs.5,000 / To Cash A/c Rs.5,000. What is Amit A/c balance? Expected: Credit balance Rs.7,000.",
+    ],
+    toolLinks: [
+      { label: "Open Ledger Tool", href: "/ledger" },
+      { label: "Practice Ledger", href: "/practice/ledger" },
+      { label: "Open Trial Balance", href: "/trial-balance" },
+    ],
+    nextLesson: {
+      label: "Open Trial Balance Tool",
+      href: "/trial-balance",
+      description: "After ledger balances are prepared, the next step is to use them to prepare a Trial Balance.",
     },
   },
 };

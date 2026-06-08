@@ -8,6 +8,7 @@ export const trackedLessonSlugs = [
   "source-documents-and-vouchers",
   "rules-of-debit-and-credit",
   "journal-entry-basics",
+  "ledger-posting-basics",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];
