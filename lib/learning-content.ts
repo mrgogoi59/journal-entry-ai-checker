@@ -7,6 +7,7 @@ export type LessonSlug =
   | "rules-of-debit-and-credit"
   | "journal-entry-basics"
   | "cash-book"
+  | "bank-reconciliation-statement"
   | "subsidiary-books"
   | "gst-journal-entries"
   | "ledger-posting-basics"
@@ -130,6 +131,12 @@ export const lessonCards = [
     title: "Cash Book",
     description: "Learn how cash and bank transactions are recorded in one special book.",
     href: "/learn/cash-book",
+  },
+  {
+    slug: "bank-reconciliation-statement",
+    title: "Bank Reconciliation Statement",
+    description: "Learn why Cash Book bank balance and Pass Book balance may differ, and how to match them.",
+    href: "/learn/bank-reconciliation-statement",
   },
   {
     slug: "subsidiary-books",
@@ -1749,12 +1756,253 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Try Explainer", href: "/journal-entry-solver" },
       { label: "Practice Basics", href: "/practice" },
+      { label: "Next Lesson: Bank Reconciliation Statement", href: "/learn/bank-reconciliation-statement" },
+    ],
+    nextLesson: {
+      label: "Continue to Bank Reconciliation Statement",
+      href: "/learn/bank-reconciliation-statement",
+      description: "After learning Cash Book, understand why Cash Book bank balance and bank statement balance may differ.",
+    },
+  },
+  "bank-reconciliation-statement": {
+    slug: "bank-reconciliation-statement",
+    title: "Bank Reconciliation Statement",
+    subtitle: "Learn why Cash Book bank balance and Pass Book balance may differ, and how to match them.",
+    description:
+      "Understand bank reconciliation with simple examples from Cash Book, bank statements, cheques, charges, and bank interest.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What Bank Reconciliation Statement means",
+      "What Cash Book means",
+      "What Pass Book or Bank Statement means",
+      "Why Cash Book bank balance and Pass Book balance may differ",
+      "Common reasons for differences",
+      "Cheques issued but not presented",
+      "Cheques deposited but not cleared",
+      "Bank charges and bank interest",
+      "Direct deposit by customer and direct payment by bank",
+      "Dishonoured cheque",
+      "How BRS helps match both balances",
+      "How to think: add or subtract",
+      "Common mistakes",
+    ],
+    conceptSections: [
+      {
+        title: "What is Bank Reconciliation Statement?",
+        body: [
+          "Bank Reconciliation Statement is a statement prepared to find out why the bank balance shown by Cash Book and the bank balance shown by Pass Book or Bank Statement are different.",
+          "A business records bank transactions in its Cash Book.",
+          "The bank records the same transactions in the Pass Book or bank statement.",
+          "Sometimes both balances do not match.",
+          "BRS helps us find the reasons and match them.",
+          "Simple line: BRS explains the difference between Cash Book bank balance and Pass Book balance.",
+        ],
+      },
+      {
+        title: "Cash Book vs Pass Book",
+        body: [
+          "Cash Book is prepared by the business.",
+          "It records cash and bank transactions from the business side.",
+          "Pass Book or Bank Statement is prepared by the bank.",
+          "It records bank transactions from the bank's side.",
+          "Example: if Riya deposits Rs.10,000 into bank, Riya records it in Cash Book and the bank records it in the bank statement.",
+          "But sometimes timing or bank actions create differences.",
+        ],
+      },
+      {
+        title: "Why balances differ",
+        body: [
+          "Balances differ because every bank transaction may not be recorded by both sides at the same time.",
+          "Example: Riya issues a cheque today.",
+          "She records it in Cash Book immediately.",
+          "But the bank will record it only when the cheque is presented and paid.",
+          "So Cash Book balance and Pass Book balance may be different for some time.",
+          "Simple line: Most BRS differences happen because of timing or bank-side entries.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a stationery shop.",
+          "Her Cash Book shows bank balance Rs.20,000.",
+          "But her bank statement shows Rs.22,500.",
+          "She is confused.",
+          "Then she checks and finds bank interest Rs.1,000 not recorded in Cash Book, bank charges Rs.500 not recorded in Cash Book, a customer directly deposited Rs.2,000 into bank, and one cheque of Rs.4,000 issued by Riya is not yet presented.",
+          "Now she understands why balances are different.",
+          "This checking process is called Bank Reconciliation.",
+        ],
+      },
+      {
+        title: "Common reasons for difference",
+        body: [
+          "Cheque issued but not presented: business gave cheque to someone, but the person has not deposited it in bank yet.",
+          "Cash Book has already recorded the payment, but bank has not reduced balance yet.",
+          "Simple line: Cash Book balance is lower, Pass Book balance is higher.",
+          "Cheque deposited but not cleared: business deposited cheque into bank, but bank has not cleared it yet.",
+          "Cash Book has already recorded the receipt, but bank has not increased balance yet.",
+          "Simple line: Cash Book balance is higher, Pass Book balance is lower.",
+        ],
+      },
+      {
+        title: "Bank-side entries",
+        body: [
+          "Bank charges mean bank deducts charges directly.",
+          "Pass Book reduces balance, but Cash Book may not record it immediately.",
+          "Interest credited by bank means bank adds interest.",
+          "Pass Book increases balance, but Cash Book may not record it immediately.",
+          "Direct deposit by customer means customer deposits money directly into bank.",
+          "Bank records receipt, but business may not know immediately.",
+          "Direct payment by bank means bank pays something directly, like insurance premium or loan instalment.",
+          "Bank reduces balance, but business may not record it immediately.",
+          "Dishonoured cheque means cheque deposited earlier is rejected by bank.",
+        ],
+      },
+      {
+        title: "How to decide add or subtract?",
+        body: [
+          "This lesson uses Cash Book balance as the starting point.",
+          "Add items that bank has added but Cash Book has not recorded, such as interest credited by bank and direct deposit by customer.",
+          "Subtract items that bank has deducted but Cash Book has not recorded, such as bank charges, direct payment by bank, and dishonoured cheque.",
+          "Cheque issued but not presented is added because Cash Book has already reduced balance but bank has not.",
+          "Cheque deposited but not cleared is subtracted because Cash Book has already increased balance but bank has not.",
+          "Important: add/subtract direction can change depending on whether you start with Cash Book balance or Pass Book balance.",
+          "Memory line: Always ask, which book has already recorded it, and which book has not?",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Cash Book vs Pass Book / Bank Statement",
+      leftHeading: "Cash Book",
+      rightHeading: "Pass Book / Bank Statement",
+      rows: [
+        {
+          left: "Prepared by business",
+          right: "Prepared by bank",
+        },
+        {
+          left: "Shows bank balance according to business",
+          right: "Shows balance according to bank",
+        },
+        {
+          left: "Records transactions when business records them",
+          right: "Records transactions when bank processes them",
+        },
+        {
+          left: "Example: cheque issued immediately recorded",
+          right: "Bank records when cheque is presented",
+        },
+      ],
+      note: "Memory line: Cash Book is business record. Pass Book is bank record.",
+    },
+    visualFlow: [
+      "Cash Book bank balance",
+      "Compare with Pass Book balance",
+      "Find missing/timing items",
+      "Add or subtract adjustments",
+      "Arrive at matching balance",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Cash Book bank balance Rs.20,000. Bank interest credited Rs.1,000 not recorded in Cash Book.",
+        entry: [
+          "Treatment: Add Rs.1,000",
+          "Pass Book balance = Rs.20,000 + Rs.1,000",
+          "Pass Book balance = Rs.21,000",
+        ],
+        logic: [
+          "Bank has added interest.",
+          "Cash Book has not recorded it yet.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Cash Book bank balance Rs.20,000. Bank charges Rs.500 not recorded in Cash Book.",
+        entry: [
+          "Treatment: Subtract Rs.500",
+          "Pass Book balance = Rs.20,000 - Rs.500",
+          "Pass Book balance = Rs.19,500",
+        ],
+        logic: [
+          "Bank has deducted charges.",
+          "Cash Book has not recorded it yet.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Cash Book bank balance Rs.20,000. Cheque issued Rs.4,000 not yet presented.",
+        entry: [
+          "Treatment: Add Rs.4,000",
+          "Pass Book balance = Rs.20,000 + Rs.4,000",
+          "Pass Book balance = Rs.24,000",
+        ],
+        logic: [
+          "Cash Book has reduced balance.",
+          "Bank has not reduced it yet.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Cash Book bank balance Rs.20,000. Cheque deposited Rs.3,000 not yet cleared.",
+        entry: [
+          "Treatment: Subtract Rs.3,000",
+          "Pass Book balance = Rs.20,000 - Rs.3,000",
+          "Pass Book balance = Rs.17,000",
+        ],
+        logic: [
+          "Cash Book has increased balance.",
+          "Bank has not increased it yet.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Cash Book bank balance Rs.30,000 with interest, charges, issued cheque, and uncleared cheque.",
+        entry: [
+          "Cash Book balance Rs.30,000",
+          "Add bank interest Rs.1,000",
+          "Add cheque issued but not presented Rs.4,000",
+          "Less bank charges Rs.500",
+          "Less cheque deposited but not cleared Rs.3,000",
+          "Pass Book balance = Rs.31,500",
+        ],
+        logic: [
+          "Items already added by bank are added to Cash Book balance.",
+          "Items already deducted by bank are deducted from Cash Book balance.",
+          "Timing differences are adjusted based on which book has recorded them.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking Cash Book and Pass Book always show same balance",
+      "Forgetting timing difference of cheques",
+      "Adding cheque deposited but not cleared when starting from Cash Book",
+      "Subtracting cheque issued but not presented when starting from Cash Book",
+      "Ignoring bank charges",
+      "Ignoring bank interest",
+      "Treating BRS as journal entry",
+      "Thinking BRS changes final accounts directly",
+      "Not checking whether starting balance is Cash Book or Pass Book",
+    ],
+    tryPrompts: [
+      "Starting with Cash Book balance, bank charges Rs.300. Expected: Subtract.",
+      "Starting with Cash Book balance, interest credited by bank Rs.500. Expected: Add.",
+      "Starting with Cash Book balance, cheque issued Rs.2,000 not presented. Expected: Add.",
+      "Starting with Cash Book balance, cheque deposited Rs.1,500 not cleared. Expected: Subtract.",
+      "Starting with Cash Book balance, customer directly deposited Rs.4,000 into bank. Expected: Add.",
+      "Starting with Cash Book balance, bank paid insurance premium Rs.1,200 directly. Expected: Subtract.",
+      "Starting with Cash Book balance, cheque deposited earlier dishonoured Rs.2,500. Expected: Subtract.",
+      "Cash Book balance Rs.25,000, bank charges Rs.500, interest credited Rs.1,000, cheque issued but not presented Rs.3,000, cheque deposited but not cleared Rs.2,000. Expected Pass Book balance: Rs.26,500.",
+    ],
+    toolLinks: [
+      { label: "Review Cash Book", href: "/learn/cash-book" },
       { label: "Next Lesson: Subsidiary Books", href: "/learn/subsidiary-books" },
+      { label: "Practice Basics", href: "/practice" },
     ],
     nextLesson: {
       label: "Continue to Subsidiary Books",
       href: "/learn/subsidiary-books",
-      description: "After learning Cash Book, learn how other repeated transactions are recorded in special books.",
+      description: "After understanding bank reconciliation, learn how similar transactions are recorded in special books.",
     },
   },
   "subsidiary-books": {

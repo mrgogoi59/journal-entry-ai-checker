@@ -9,6 +9,7 @@ export const trackedLessonSlugs = [
   "rules-of-debit-and-credit",
   "journal-entry-basics",
   "cash-book",
+  "bank-reconciliation-statement",
   "subsidiary-books",
   "gst-journal-entries",
   "ledger-posting-basics",
