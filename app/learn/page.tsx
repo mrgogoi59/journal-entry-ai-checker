@@ -82,7 +82,11 @@ const topicGroups: TopicGroup[] = [
   {
     title: "Non-Profit and Partnership",
     topics: [
-      { title: "Accounting for Not-for-Profit Organisations", status: "coming_soon" },
+      {
+        title: "Accounting for Not-for-Profit Organisations",
+        href: "/learn/accounting-for-not-for-profit-organisations",
+        status: "available",
+      },
       { title: "Partnership Accounts: Basic Concepts", status: "coming_soon" },
       { title: "Profit and Loss Appropriation Account", status: "coming_soon" },
       { title: "Fixed and Fluctuating Capital Accounts", status: "coming_soon" },

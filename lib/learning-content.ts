@@ -17,7 +17,8 @@ export type LessonSlug =
   | "depreciation-provisions-and-reserves"
   | "final-accounts-basics"
   | "adjustments-in-final-accounts"
-  | "accounts-from-incomplete-records";
+  | "accounts-from-incomplete-records"
+  | "accounting-for-not-for-profit-organisations";
 
 export type SolvedLessonExample = {
   title: string;
@@ -205,6 +206,12 @@ export const lessonCards = [
     description:
       "Learn how profit, capital, and missing figures are found when full accounting records are not available.",
     href: "/learn/accounts-from-incomplete-records",
+  },
+  {
+    slug: "accounting-for-not-for-profit-organisations",
+    title: "Accounting for Not-for-Profit Organisations",
+    description: "Learn how clubs, societies, and non-profit organisations prepare accounts without focusing on profit.",
+    href: "/learn/accounting-for-not-for-profit-organisations",
   },
 ];
 
@@ -4604,10 +4611,320 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Final Accounts Tool", href: "/final-accounts" },
     ],
     nextLesson: {
+      label: "Continue to Accounting for Not-for-Profit Organisations",
+      href: "/learn/accounting-for-not-for-profit-organisations",
+      description:
+        "After learning how accounts are prepared from incomplete records, learn how clubs, societies, and non-profit organisations prepare accounts.",
+    },
+  },
+  "accounting-for-not-for-profit-organisations": {
+    slug: "accounting-for-not-for-profit-organisations",
+    title: "Accounting for Not-for-Profit Organisations",
+    subtitle:
+      "Learn how clubs, societies, and non-profit organisations prepare accounts without focusing on profit.",
+    description:
+      "Understand how organisations like sports clubs, libraries, societies, temples, and student associations record money and show surplus, deficit, assets, liabilities, and capital fund.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What a Not-for-Profit Organisation is",
+      "How it is different from a business",
+      "Why profit is not the main aim",
+      "What Receipts and Payments Account means",
+      "What Income and Expenditure Account means",
+      "What Balance Sheet means in NPO accounts",
+      "What Capital Fund means",
+      "What subscription means",
+      "Treatment of outstanding subscription and advance subscription",
+      "Donations, legacy, entrance fees, and life membership fees",
+      "Sale of old assets",
+      "Difference between revenue and capital items",
+      "Common mistakes in NPO accounts",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Not-for-Profit Organisation?",
+        body: [
+          "A Not-for-Profit Organisation is formed to provide service, not mainly to earn profit.",
+          "A business sells goods or services mainly to earn profit.",
+          "But some organisations are made for social, cultural, educational, religious, sports, or welfare purposes.",
+          "Examples include sports clubs, libraries, school societies, temple committees, welfare societies, and cultural clubs.",
+          "Simple line: A Not-for-Profit Organisation works for service, not mainly for profit.",
+          "It may earn surplus, but the surplus is used for the organisation's purpose. It is not distributed as business profit.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya is the treasurer of a small sports club.",
+          "The club receives subscription from members, donation from supporters, entry fees from new members, and interest from bank.",
+          "The club spends money on sports equipment, ground rent, coach salary, electricity, repairs, and tournament expenses.",
+          "At the end of the year, Riya wants to know how much cash was received and paid.",
+          "She also wants to know whether the club had surplus or deficit.",
+          "She needs to know what assets the club owns and what liabilities the club has.",
+          "For this, the club prepares Not-for-Profit Organisation accounts.",
+        ],
+      },
+      {
+        title: "Receipts and Payments Account",
+        body: [
+          "Receipts and Payments Account is a summary of cash and bank receipts and payments.",
+          "It records actual cash and bank money received and paid during the year.",
+          "It includes cash receipts, bank receipts, cash payments, and bank payments.",
+          "It records both capital and revenue items.",
+          "It records only actual cash and bank transactions.",
+          "Examples of receipts are subscription received, donation received, sale of old furniture, and bank interest received.",
+          "Examples of payments are salary paid, rent paid, purchase of sports equipment, and electricity paid.",
+          "Simple line: Receipts and Payments Account is like a cash book summary.",
+        ],
+      },
+      {
+        title: "Income and Expenditure Account",
+        body: [
+          "Income and Expenditure Account shows surplus or deficit for the year.",
+          "It is like Profit and Loss Account, but for a Not-for-Profit Organisation.",
+          "It includes income of the current year and expenses of the current year.",
+          "It does not include capital receipts, capital payments, opening cash balance, or closing cash balance.",
+          "Surplus means income is more than expenditure.",
+          "Deficit means expenditure is more than income.",
+          "Simple line: Income and Expenditure Account shows surplus or deficit.",
+        ],
+      },
+      {
+        title: "Balance Sheet and Capital Fund",
+        rule: "Capital Fund = Assets - Liabilities",
+        body: [
+          "A Not-for-Profit Organisation also prepares a Balance Sheet.",
+          "It shows assets, liabilities, and capital fund.",
+          "Capital Fund is like capital in a business, but it belongs to the organisation, not to one owner.",
+          "If assets are Rs.1,00,000 and liabilities are Rs.20,000, capital fund is Rs.80,000.",
+          "Calculation: Rs.1,00,000 - Rs.20,000 = Rs.80,000.",
+          "Simple line: Capital Fund is the organisation's accumulated fund.",
+        ],
+      },
+      {
+        title: "Subscription",
+        rule: "Current year subscription = received + outstanding - advance",
+        body: [
+          "Subscription is the amount paid by members to the organisation.",
+          "Example: Members of a sports club pay Rs.1,000 each every year.",
+          "Subscription of the current year is treated as income.",
+          "Subscription received for the current year is income.",
+          "Outstanding subscription means subscription due but not yet received. It is added to income and shown as asset.",
+          "Subscription received in advance means money received now for next year. It is deducted from current year income and shown as liability.",
+          "Example: subscription received Rs.50,000, outstanding subscription Rs.5,000, advance subscription Rs.3,000.",
+          "Current year subscription income = Rs.50,000 + Rs.5,000 - Rs.3,000 = Rs.52,000.",
+        ],
+      },
+      {
+        title: "Donations, legacy, entrance fees, and life membership fees",
+        body: [
+          "Donation is money received from supporters.",
+          "Small or general donation is usually treated as income.",
+          "Specific donation is treated as a fund or liability because it must be used for a special purpose.",
+          "Example: donation for building fund should be used for building.",
+          "Legacy is money received through a will after someone's death. It is usually treated as capital receipt if it is large or specific.",
+          "Entrance fees are paid by new members when joining. They may be treated as income or capital depending on the question instruction.",
+          "Life membership fees are one-time fees paid for lifetime membership. They are usually treated carefully as capital/fund or spread over years depending on instruction.",
+          "Simple line: For special receipts, read the instruction carefully.",
+        ],
+      },
+      {
+        title: "Revenue and capital items",
+        body: [
+          "Revenue items are related to regular income or expense of the year.",
+          "Examples are subscription, salary, rent, electricity, and sports expenses.",
+          "Capital items are related to assets, funds, or long-term benefit.",
+          "Examples are building fund, purchase of furniture, purchase of sports equipment, and specific donation.",
+          "Sale of an old asset is a cash receipt, but it is not ordinary income like subscription.",
+          "Simple line: Revenue affects Income and Expenditure. Capital affects Balance Sheet.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Business vs Not-for-Profit Organisation",
+      leftHeading: "Business",
+      rightHeading: "Not-for-Profit Organisation",
+      rows: [
+        {
+          left: "Main aim is profit",
+          right: "Main aim is service",
+        },
+        {
+          left: "Owners invest capital",
+          right: "Members contribute funds",
+        },
+        {
+          left: "Profit belongs to owners",
+          right: "Surplus is used for organisation",
+        },
+        {
+          left: "Prepares Profit and Loss Account",
+          right: "Prepares Income and Expenditure Account",
+        },
+        {
+          left: "Capital belongs to owner",
+          right: "Capital Fund belongs to organisation",
+        },
+      ],
+      note: "Memory line: Business earns profit. NPO provides service.",
+    },
+    impactTable: {
+      eyebrow: "NPO account guide",
+      title: "Where common NPO items usually go",
+      columns: ["Item", "Simple meaning", "Usual treatment"],
+      rows: [
+        {
+          first: "Subscription",
+          second: "Member fee for the year",
+          third: "Income and Expenditure Account income",
+        },
+        {
+          first: "Outstanding Subscription",
+          second: "Due but not received",
+          third: "Add to income and show as asset",
+        },
+        {
+          first: "Advance Subscription",
+          second: "Received for next year",
+          third: "Deduct from income and show as liability",
+        },
+        {
+          first: "General Donation",
+          second: "Support money without special purpose",
+          third: "Usually income",
+        },
+        {
+          first: "Specific Donation",
+          second: "Donation for a special purpose",
+          third: "Fund or liability in Balance Sheet",
+        },
+        {
+          first: "Sports Equipment",
+          second: "Asset used by club",
+          third: "Balance Sheet asset",
+        },
+        {
+          first: "Salary or Rent",
+          second: "Regular expense",
+          third: "Income and Expenditure Account expense",
+        },
+      ],
+      note: "Always follow the question instruction when it gives a special treatment.",
+    },
+    visualFlow: [
+      "Cash and bank records",
+      "Receipts and Payments Account",
+      "Adjust income and expenses",
+      "Income and Expenditure Account",
+      "Surplus or deficit",
+      "Balance Sheet and Capital Fund",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Find subscription income.",
+        entry: [
+          "Subscription received Rs.40,000",
+          "Add Outstanding Subscription Rs.5,000",
+          "Less Advance Subscription Rs.2,000",
+          "Subscription Income = Rs.43,000",
+        ],
+        logic: [
+          "Outstanding subscription belongs to the current year, so it is added.",
+          "Advance subscription belongs to next year, so it is deducted.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Find Capital Fund.",
+        entry: [
+          "Assets Rs.1,20,000",
+          "Liabilities Rs.30,000",
+          "Capital Fund = Assets - Liabilities",
+          "Capital Fund = Rs.90,000",
+        ],
+        logic: [
+          "Capital Fund is found like capital.",
+          "Deduct liabilities from assets.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Find surplus or deficit.",
+        entry: [
+          "Subscription Rs.50,000",
+          "Donation Rs.10,000",
+          "Total Income Rs.60,000",
+          "Salary Rs.25,000",
+          "Rent Rs.10,000",
+          "Electricity Rs.5,000",
+          "Total Expenses Rs.40,000",
+          "Surplus = Rs.60,000 - Rs.40,000 = Rs.20,000",
+        ],
+        logic: [
+          "Income is more than expenditure.",
+          "So the organisation has surplus.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Sports equipment purchased Rs.15,000.",
+        entry: [
+          "Sports Equipment Rs.15,000",
+          "Show as asset in Balance Sheet",
+          "Do not treat as normal expense in Income and Expenditure Account",
+        ],
+        logic: [
+          "Sports equipment gives long-term benefit.",
+          "So it is a capital item.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Rent outstanding Rs.3,000.",
+        entry: [
+          "Add Rs.3,000 to Rent expense",
+          "Show Outstanding Rent Rs.3,000 as liability",
+        ],
+        logic: [
+          "The rent belongs to the current year.",
+          "It is unpaid, so it is also a liability.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking NPO cannot have surplus",
+      "Calling surplus profit like a business",
+      "Putting opening cash balance in Income and Expenditure Account",
+      "Putting purchase of asset as normal expense",
+      "Forgetting outstanding subscription",
+      "Forgetting advance subscription",
+      "Treating specific donation as normal income",
+      "Confusing Receipts and Payments Account with Income and Expenditure Account",
+      "Ignoring Capital Fund",
+      "Thinking all donations have the same treatment",
+    ],
+    tryPrompts: [
+      "Subscription received Rs.30,000, outstanding Rs.4,000, advance Rs.2,000. Find subscription income. Expected: Rs.32,000.",
+      "Assets Rs.90,000 and liabilities Rs.25,000. Find Capital Fund. Expected: Rs.65,000.",
+      "Income Rs.70,000 and expenditure Rs.55,000. Surplus or deficit? Expected: Surplus Rs.15,000.",
+      "Expenditure Rs.60,000 and income Rs.50,000. Surplus or deficit? Expected: Deficit Rs.10,000.",
+      "Purchased sports equipment Rs.20,000. Income and Expenditure or Balance Sheet? Expected: Balance Sheet asset.",
+      "Donation received for building fund Rs.50,000. Normal income or special fund? Expected: Special fund / capital item.",
+      "Outstanding rent Rs.5,000. What is the treatment? Expected: Add to rent expense and show liability.",
+      "Advance subscription Rs.3,000. What is the treatment? Expected: Deduct from current year subscription income and show liability.",
+    ],
+    toolLinks: [
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+      { label: "Practice Final Accounts", href: "/practice/final-accounts" },
+      { label: "Open Final Accounts Tool", href: "/final-accounts" },
+    ],
+    nextLesson: {
       label: "Review Final Accounts Basics",
       href: "/learn/final-accounts-basics",
       description:
-        "After learning how accounts are prepared from incomplete records, the next topic is accounting for organisations that are not mainly formed for profit. Review Final Accounts Basics while that lesson is not available yet.",
+        "After learning Not-for-Profit Organisation accounts, the next major area is Partnership Accounts. Review Final Accounts Basics while that lesson is not available yet.",
     },
   },
 };

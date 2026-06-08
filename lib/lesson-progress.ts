@@ -20,6 +20,7 @@ export const trackedLessonSlugs = [
   "final-accounts-basics",
   "adjustments-in-final-accounts",
   "accounts-from-incomplete-records",
+  "accounting-for-not-for-profit-organisations",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];
