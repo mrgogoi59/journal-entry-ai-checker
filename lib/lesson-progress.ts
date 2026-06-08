@@ -13,6 +13,7 @@ export const trackedLessonSlugs = [
   "gst-journal-entries",
   "ledger-posting-basics",
   "trial-balance-basics",
+  "depreciation-provisions-and-reserves",
   "final-accounts-basics",
   "adjustments-in-final-accounts",
 ] as const;

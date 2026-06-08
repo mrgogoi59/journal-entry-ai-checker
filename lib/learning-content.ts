@@ -11,6 +11,7 @@ export type LessonSlug =
   | "gst-journal-entries"
   | "ledger-posting-basics"
   | "trial-balance-basics"
+  | "depreciation-provisions-and-reserves"
   | "final-accounts-basics"
   | "adjustments-in-final-accounts";
 
@@ -153,6 +154,12 @@ export const lessonCards = [
     title: "Trial Balance Basics",
     description: "Learn how ledger balances are listed to check whether debit and credit totals agree.",
     href: "/learn/trial-balance-basics",
+  },
+  {
+    slug: "depreciation-provisions-and-reserves",
+    title: "Depreciation, Provisions and Reserves",
+    description: "Learn why asset value reduces, why expected losses are provided for, and why profit is kept aside.",
+    href: "/learn/depreciation-provisions-and-reserves",
   },
   {
     slug: "final-accounts-basics",
@@ -2690,9 +2697,291 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Final Accounts", href: "/final-accounts" },
     ],
     nextLesson: {
+      label: "Continue to Depreciation, Provisions and Reserves",
+      href: "/learn/depreciation-provisions-and-reserves",
+      description:
+        "After Trial Balance, learn why assets lose value, why expected losses are provided for, and why profit may be kept aside.",
+    },
+  },
+  "depreciation-provisions-and-reserves": {
+    slug: "depreciation-provisions-and-reserves",
+    title: "Depreciation, Provisions and Reserves",
+    subtitle:
+      "Learn why asset value reduces, why expected losses are provided for, and why profits are sometimes kept aside.",
+    description:
+      "Understand depreciation, provisions, and reserves with simple business examples before moving into Final Accounts.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What depreciation means",
+      "Why fixed assets lose value",
+      "Difference between expense and asset",
+      "How depreciation affects Profit & Loss Account and Balance Sheet",
+      "Simple idea of Straight Line Method",
+      "Simple idea of Written Down Value Method",
+      "What provision means",
+      "Why provision is created",
+      "What provision for doubtful debts means",
+      "What reserve means",
+      "Difference between provision and reserve",
+      "Why businesses keep some profit aside",
+      "Common mistakes in this topic",
+    ],
+    conceptSections: [
+      {
+        title: "What is Depreciation?",
+        body: [
+          "Depreciation means reduction in the value of a fixed asset because of use, time, wear and tear, or becoming old.",
+          "If a business buys a laptop today, after one year the laptop will not have the same value.",
+          "It becomes older and less valuable.",
+          "This fall in value is called depreciation.",
+          "Simple line: Depreciation means the value of an asset goes down over time.",
+          "Example: Riya buys a laptop for her shop for Rs.40,000. After using it for one year, its value may reduce. This reduction is depreciation.",
+        ],
+      },
+      {
+        title: "Why depreciation is needed",
+        body: [
+          "Fixed assets are used for many years.",
+          "Assets lose value every year.",
+          "The loss in value is part of business expense.",
+          "Profit will be overstated if depreciation is ignored.",
+          "Balance Sheet will show wrong asset value if depreciation is ignored.",
+          "Simple example: if machinery is used to earn income, some part of its cost should be treated as expense every year.",
+          "Memory line: Depreciation helps show correct profit and correct asset value.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a small mobile accessories shop.",
+          "She buys a computer for billing for Rs.50,000.",
+          "She uses it every day to make bills, check stock, record sales, and print invoices.",
+          "After one year, the computer is older and less valuable.",
+          "Should Riya show the computer at Rs.50,000 forever?",
+          "No. Its value has reduced.",
+          "The reduction in value is called depreciation.",
+          "If depreciation is Rs.5,000, Profit and Loss Account shows Depreciation Expense Rs.5,000 and Balance Sheet shows Computer value reduced by Rs.5,000.",
+        ],
+      },
+      {
+        title: "Causes of depreciation",
+        body: [
+          "Use: a delivery bike used every day loses value.",
+          "Passage of time: furniture becomes old even if used carefully.",
+          "Wear and tear: machines wear out after regular use.",
+          "Obsolescence: an old computer becomes outdated when new technology comes.",
+          "Accident or damage: a machine may lose value after damage.",
+          "Simple line: assets reduce in value because they are used, become old, or become less useful.",
+        ],
+      },
+      {
+        title: "Depreciation in accounts",
+        body: [
+          "Depreciation has two effects.",
+          "Profit & Loss Account: depreciation is shown as an expense.",
+          "Balance Sheet: depreciation is deducted from the asset.",
+          "Example: Machinery Rs.50,000 and depreciation Rs.5,000.",
+          "Profit & Loss Account shows Depreciation Rs.5,000.",
+          "Balance Sheet shows Machinery Rs.50,000 less Depreciation Rs.5,000, so value is Rs.45,000.",
+          "Simple line: Depreciation reduces profit and reduces asset value.",
+          "Journal entry: Depreciation A/c Dr. Rs.5,000 / To Machinery A/c Rs.5,000.",
+        ],
+      },
+      {
+        title: "Straight Line Method",
+        body: [
+          "Under Straight Line Method, the same amount of depreciation is charged every year.",
+          "Example: Computer cost Rs.50,000 and depreciation every year is Rs.5,000.",
+          "Year 1 depreciation is Rs.5,000.",
+          "Year 2 depreciation is Rs.5,000.",
+          "Year 3 depreciation is Rs.5,000.",
+          "Simple line: same depreciation every year.",
+          "Very simple formula: Depreciation = Cost of asset x Rate / 100.",
+          "Example: Machine Rs.40,000 and depreciation rate 10%. Depreciation is Rs.40,000 x 10% = Rs.4,000 every year.",
+        ],
+      },
+      {
+        title: "Written Down Value Method",
+        body: [
+          "Under Written Down Value Method, depreciation is calculated on the reduced value of the asset every year.",
+          "Example: Machine cost Rs.40,000 and rate is 10%.",
+          "Year 1 depreciation is 10% of Rs.40,000 = Rs.4,000.",
+          "Value after Year 1 depreciation is Rs.36,000.",
+          "Year 2 depreciation is 10% of Rs.36,000 = Rs.3,600.",
+          "Value after Year 2 depreciation is Rs.32,400.",
+          "Simple line: depreciation becomes smaller because it is calculated on reduced value.",
+        ],
+      },
+      {
+        title: "What is a Provision?",
+        body: [
+          "A provision is an amount kept aside for a known or expected loss or liability, but the exact amount may not be fully certain.",
+          "Sometimes the business knows that a loss or expense may happen, but the exact amount is uncertain.",
+          "So it creates a provision.",
+          "Example: Riya sold goods on credit to many customers. Some customers may not pay.",
+          "So she creates Provision for Doubtful Debts.",
+          "Simple line: Provision is made for expected loss or liability.",
+        ],
+      },
+      {
+        title: "Provision for doubtful debts",
+        body: [
+          "Debtors are customers who owe money to the business.",
+          "But not all debtors may pay.",
+          "So the business creates a provision for doubtful debts.",
+          "Example: Debtors Rs.20,000 and Provision for Doubtful Debts Rs.1,000.",
+          "Balance Sheet shows Debtors Rs.20,000 less Provision Rs.1,000, so Net Debtors are Rs.19,000.",
+          "Profit & Loss Account may show provision as an expense if it is created or increased.",
+          "Simple line: Provision for doubtful debts reduces debtors.",
+        ],
+      },
+      {
+        title: "What is a Reserve?",
+        body: [
+          "A reserve is an amount kept aside from profit for future use.",
+          "If a business earns profit, it may not use all the profit immediately.",
+          "It may keep some profit aside for future needs.",
+          "This is called reserve.",
+          "Example: Riya's shop earns profit Rs.50,000. She keeps Rs.10,000 aside for future expansion. This is a reserve.",
+          "Simple line: Reserve is profit kept aside for future.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Provision vs Reserve",
+      leftHeading: "Provision",
+      rightHeading: "Reserve",
+      rows: [
+        {
+          left: "Made for expected loss or liability",
+          right: "Made from profit for future use",
+        },
+        {
+          left: "Created even if profit is low",
+          right: "Created only when profit is available",
+        },
+        {
+          left: "Reduces profit",
+          right: "Appropriation of profit",
+        },
+        {
+          left: "Example: Provision for doubtful debts",
+          right: "Example: General Reserve",
+        },
+      ],
+      note: "Memory line: Provision is for expected loss. Reserve is profit kept aside.",
+    },
+    visualFlow: [
+      "Fixed asset used",
+      "Value reduces",
+      "Depreciation expense",
+      "Asset value reduces",
+      "Expected debtor loss",
+      "Provision made",
+      "Profit kept aside",
+      "Reserve",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Machinery Rs.50,000, depreciation Rs.5,000.",
+        entry: [
+          "Profit & Loss Account: Depreciation expense Rs.5,000",
+          "Balance Sheet: Machinery shown at Rs.45,000",
+          "Depreciation A/c Dr. Rs.5,000",
+          "To Machinery A/c Rs.5,000",
+        ],
+        logic: [
+          "Depreciation is an expense.",
+          "It also reduces the value of machinery.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Furniture Rs.30,000, depreciation @ 10% using Straight Line Method.",
+        entry: [
+          "Depreciation = Rs.30,000 x 10%",
+          "Depreciation = Rs.3,000",
+          "Value after depreciation = Rs.30,000 - Rs.3,000",
+          "Value after depreciation = Rs.27,000",
+        ],
+        logic: [
+          "Straight Line Method charges the same depreciation each year.",
+          "Here 10% of cost is Rs.3,000.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Machine Rs.40,000, WDV depreciation @ 10%.",
+        entry: [
+          "Year 1 depreciation = Rs.4,000",
+          "Value after Year 1 = Rs.36,000",
+          "Year 2 depreciation = 10% of Rs.36,000 = Rs.3,600",
+          "Value after Year 2 = Rs.32,400",
+        ],
+        logic: [
+          "Written Down Value depreciation is calculated on reduced value.",
+          "That is why Year 2 depreciation is lower than Year 1.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Debtors Rs.20,000, provision for doubtful debts Rs.1,000.",
+        entry: [
+          "Debtors Rs.20,000",
+          "Less Provision Rs.1,000",
+          "Net Debtors Rs.19,000",
+        ],
+        logic: [
+          "Provision for doubtful debts reduces the amount expected from debtors.",
+          "Balance Sheet shows net debtors.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Profit Rs.50,000, transfer Rs.10,000 to General Reserve.",
+        entry: [
+          "Profit earned Rs.50,000",
+          "General Reserve Rs.10,000",
+          "Meaning: business keeps Rs.10,000 aside from profit for future.",
+        ],
+        logic: [
+          "Reserve is made from profit.",
+          "It helps the business stay prepared for future needs.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking depreciation means cash paid",
+      "Forgetting to show depreciation in Profit & Loss Account",
+      "Forgetting to reduce asset value in Balance Sheet",
+      "Calculating WDV depreciation on original cost every year",
+      "Treating provision as reserve",
+      "Thinking provision is optional profit saving",
+      "Showing debtors without deducting provision",
+      "Creating reserve when there is no profit",
+      "Confusing asset value with cash balance",
+      "Thinking depreciation is charged only when asset is sold",
+    ],
+    tryPrompts: [
+      "Machinery Rs.60,000, depreciation Rs.6,000. What is machinery value after depreciation? Expected: Rs.54,000.",
+      "Furniture Rs.40,000, depreciation @ 10%. Find depreciation. Expected: Rs.4,000.",
+      "Machine Rs.50,000, WDV @ 10%. What is value after first year? Expected: Rs.45,000.",
+      "Debtors Rs.30,000, provision for doubtful debts Rs.1,500. Find net debtors. Expected: Rs.28,500.",
+      "Profit Rs.80,000, reserve created Rs.20,000. What does reserve mean? Expected: Profit kept aside for future.",
+      "Laptop bought Rs.50,000 and used for one year. Why depreciation is needed? Expected: Because the laptop loses value with use/time.",
+    ],
+    toolLinks: [
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Open Final Accounts Tool", href: "/final-accounts" },
+      { label: "Practice Final Accounts", href: "/practice/final-accounts" },
+    ],
+    nextLesson: {
       label: "Continue to Final Accounts Basics",
       href: "/learn/final-accounts-basics",
-      description: "After Trial Balance, learn how Trading A/c, Profit & Loss A/c, and Balance Sheet are prepared.",
+      description:
+        "After learning depreciation and provisions, understand how final accounts show business results and position.",
     },
   },
   "final-accounts-basics": {
