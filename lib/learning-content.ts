@@ -18,7 +18,8 @@ export type LessonSlug =
   | "final-accounts-basics"
   | "adjustments-in-final-accounts"
   | "accounts-from-incomplete-records"
-  | "accounting-for-not-for-profit-organisations";
+  | "accounting-for-not-for-profit-organisations"
+  | "partnership-accounts-basic-concepts";
 
 export type SolvedLessonExample = {
   title: string;
@@ -212,6 +213,12 @@ export const lessonCards = [
     title: "Accounting for Not-for-Profit Organisations",
     description: "Learn how clubs, societies, and non-profit organisations prepare accounts without focusing on profit.",
     href: "/learn/accounting-for-not-for-profit-organisations",
+  },
+  {
+    slug: "partnership-accounts-basic-concepts",
+    title: "Partnership Accounts: Basic Concepts",
+    description: "Learn how accounting changes when two or more people run a business together.",
+    href: "/learn/partnership-accounts-basic-concepts",
   },
 ];
 
@@ -4921,10 +4928,362 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Final Accounts Tool", href: "/final-accounts" },
     ],
     nextLesson: {
+      label: "Continue to Partnership Accounts: Basic Concepts",
+      href: "/learn/partnership-accounts-basic-concepts",
+      description:
+        "After learning Not-for-Profit Organisation accounts, learn how accounting changes when two or more people run a business together.",
+    },
+  },
+  "partnership-accounts-basic-concepts": {
+    slug: "partnership-accounts-basic-concepts",
+    title: "Partnership Accounts: Basic Concepts",
+    subtitle: "Learn how accounting changes when two or more people run a business together.",
+    description:
+      "Understand the simple ideas behind partnership accounts: partners, capital, drawings, profit sharing, interest, salary, commission, and appropriation of profit.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What partnership means",
+      "Who partners are",
+      "What a partnership firm is",
+      "Why partnership accounts are different from sole proprietorship accounts",
+      "What partnership deed means",
+      "What profit sharing ratio means",
+      "What capital contribution means",
+      "What drawings mean in partnership",
+      "What interest on capital means",
+      "What interest on drawings means",
+      "What partner salary and commission mean",
+      "What Profit and Loss Appropriation Account means at a basic level",
+      "Difference between fixed capital and fluctuating capital",
+      "Common mistakes in partnership basics",
+    ],
+    conceptSections: [
+      {
+        title: "What is Partnership?",
+        body: [
+          "Partnership means two or more people agree to run a business together and share its profit or loss.",
+          "In a sole proprietorship, one owner runs the business.",
+          "In a partnership, two or more owners run the business together.",
+          "Example: Riya and Amit start a stationery shop together. Riya brings money. Amit manages daily sales. Both agree to share profit.",
+          "Simple line: Partnership means business by two or more people together.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya and Amit are friends.",
+          "They start a small mobile accessories shop.",
+          "Riya brings Rs.60,000 capital.",
+          "Amit brings Rs.40,000 capital.",
+          "They agree that profit will be shared equally.",
+          "Amit will get salary Rs.5,000 per month because he manages the shop daily.",
+          "Riya will get interest on capital.",
+          "If any partner withdraws money for personal use, interest on drawings may be charged.",
+          "At the end of the year, the shop earns profit.",
+          "Now the question is: how should the profit be divided between Riya and Amit?",
+          "This is where partnership accounts are needed.",
+        ],
+      },
+      {
+        title: "Important words in partnership",
+        body: [
+          "Partner means a person who is part-owner of the partnership business.",
+          "Partnership firm means the business run by partners, such as Riya & Amit Mobile Accessories.",
+          "Partnership deed means a written agreement between partners.",
+          "Profit sharing ratio means the ratio in which partners share profit or loss.",
+          "Capital means money or assets brought by partners into the business.",
+          "Drawings means money or goods taken by a partner for personal use.",
+          "Interest on capital means interest allowed to partners on the capital they invested.",
+          "Interest on drawings means interest charged from partners when they withdraw money or goods.",
+          "Partner salary or commission means amount given to a partner for special work or responsibility.",
+        ],
+      },
+      {
+        title: "Why partnership accounts are special",
+        body: [
+          "In sole proprietorship, there is only one owner.",
+          "But in partnership, there are multiple partners.",
+          "Each partner may bring different capital.",
+          "Profit must be shared among partners.",
+          "Partners may get salary or commission.",
+          "Partners may get interest on capital.",
+          "Partners may be charged interest on drawings.",
+          "Simple line: Partnership accounts show how profit is shared among partners.",
+        ],
+      },
+      {
+        title: "What is a Partnership Deed?",
+        body: [
+          "A Partnership Deed is a written agreement between partners.",
+          "It reduces confusion because it clearly says how the partnership will work.",
+          "It may include the name of firm, names of partners, capital of each partner, and profit sharing ratio.",
+          "It may also include interest on capital, interest on drawings, partner salary, partner commission, and duties of partners.",
+          "It may include rules for admission or retirement later.",
+          "Simple line: Partnership deed is the rulebook of the partnership.",
+          "If the deed is silent, normal partnership rules are followed as per the law and basic accounting rules taught later.",
+        ],
+      },
+      {
+        title: "Profit Sharing Ratio",
+        body: [
+          "Profit Sharing Ratio is the ratio in which partners share profit or loss.",
+          "Example: Riya and Amit share profit equally. Ratio = 1:1.",
+          "If profit is Rs.40,000, Riya gets Rs.20,000 and Amit gets Rs.20,000.",
+          "Example: Riya and Amit share profit in 3:2.",
+          "If profit is Rs.50,000, total parts are 3 + 2 = 5.",
+          "Riya's share is Rs.50,000 x 3/5 = Rs.30,000.",
+          "Amit's share is Rs.50,000 x 2/5 = Rs.20,000.",
+          "Simple line: Profit sharing ratio decides each partner's share of profit or loss.",
+        ],
+      },
+      {
+        title: "Capital Contribution",
+        body: [
+          "Capital contribution means money or assets brought by partners into the business.",
+          "Example: Riya brings Rs.60,000 and Amit brings Rs.40,000.",
+          "Total capital is Rs.1,00,000.",
+          "Capital ratio and profit sharing ratio may be different.",
+          "Example: Riya brings more capital, but partners may still share profit equally if the deed says so.",
+          "Simple line: Capital shows investment. Profit sharing ratio shows profit division.",
+        ],
+      },
+      {
+        title: "Drawings by partners",
+        body: [
+          "Drawings mean money or goods taken by partners for personal use.",
+          "Example: Amit withdraws Rs.5,000 from business for personal expenses.",
+          "Drawings reduce the partner's capital.",
+          "If the partnership deed says interest on drawings will be charged, then the partner has to pay interest for using business money personally.",
+          "Simple line: Drawings reduce partner's claim in the business.",
+        ],
+      },
+      {
+        title: "Interest on capital and interest on drawings",
+        body: [
+          "Interest on capital means the business gives interest to a partner for investing capital.",
+          "Example: Riya's capital is Rs.60,000 and interest on capital is 10%. Interest is Rs.6,000.",
+          "This is allowed to Riya before sharing profit if the deed allows it.",
+          "Interest on drawings means the business charges interest when a partner withdraws money for personal use.",
+          "Example: Amit's drawings are Rs.10,000 and interest on drawings is 5%. Interest is Rs.500.",
+          "Memory line: Interest on capital is given to partner.",
+          "Memory line: Interest on drawings is charged from partner.",
+        ],
+      },
+      {
+        title: "Partner salary and commission",
+        body: [
+          "Sometimes one partner works more than others.",
+          "Example: Amit manages the shop every day, while Riya is not involved daily.",
+          "The deed may say that Amit will get salary Rs.5,000 per month.",
+          "This salary is given before profit is shared.",
+          "A partner may also get commission for special work, such as managing sales.",
+          "Simple line: Partner salary or commission is reward for extra work.",
+        ],
+      },
+      {
+        title: "Profit and Loss Appropriation Account",
+        body: [
+          "Profit and Loss Appropriation Account shows how net profit is distributed among partners.",
+          "It is prepared after Profit and Loss Account.",
+          "It may include net profit, interest on capital, partner salary, partner commission, interest on drawings, and profit shared among partners.",
+          "Simple flow: Net Profit, less interest on capital, less partner salary or commission, add interest on drawings, then share remaining profit in profit sharing ratio.",
+          "Simple line: P&L Appropriation Account shows division of profit between partners.",
+          "This lesson only introduces the idea. The detailed account is a later topic.",
+        ],
+      },
+      {
+        title: "Fixed capital and fluctuating capital",
+        body: [
+          "Under fixed capital method, a partner's capital account usually remains fixed.",
+          "Changes like salary, interest, drawings, and profit are recorded in Current Account.",
+          "Under fluctuating capital method, all changes are recorded in the partner's Capital Account itself.",
+          "So the capital balance keeps changing.",
+          "Simple line: Fixed capital keeps capital and adjustments separate. Fluctuating capital keeps them together.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Fixed Capital vs Fluctuating Capital",
+      leftHeading: "Fixed Capital",
+      rightHeading: "Fluctuating Capital",
+      rows: [
+        {
+          left: "Capital stays mostly fixed",
+          right: "Capital changes frequently",
+        },
+        {
+          left: "Current Account is used",
+          right: "Current Account usually not used",
+        },
+        {
+          left: "Capital and adjustments are separate",
+          right: "Capital and adjustments are together",
+        },
+      ],
+      note: "Memory line: fixed capital separates changes; fluctuating capital includes changes in capital itself.",
+    },
+    impactTable: {
+      eyebrow: "Partnership basics guide",
+      title: "How common partnership items work",
+      columns: ["Item", "Simple meaning", "Basic treatment"],
+      rows: [
+        {
+          first: "Capital",
+          second: "Money or assets brought by partner",
+          third: "Shows partner's investment",
+        },
+        {
+          first: "Drawings",
+          second: "Money or goods taken for personal use",
+          third: "Reduces partner's claim",
+        },
+        {
+          first: "Interest on Capital",
+          second: "Reward for capital invested",
+          third: "Allowed before profit sharing if deed allows",
+        },
+        {
+          first: "Interest on Drawings",
+          second: "Charge for personal withdrawal",
+          third: "Added before profit sharing if deed allows",
+        },
+        {
+          first: "Partner Salary",
+          second: "Reward for extra work",
+          third: "Allowed before profit sharing if deed allows",
+        },
+        {
+          first: "Profit Sharing Ratio",
+          second: "Ratio for sharing profit or loss",
+          third: "Used to divide remaining profit",
+        },
+      ],
+      note: "Always read the partnership deed first because it decides the treatment.",
+    },
+    visualFlow: [
+      "Partners start business",
+      "Bring capital",
+      "Business earns profit",
+      "Apply partnership deed",
+      "Give interest, salary, or commission if allowed",
+      "Charge interest on drawings if applicable",
+      "Share remaining profit in ratio",
+      "Update partner capital or current accounts",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Riya and Amit share profit equally. Profit Rs.40,000.",
+        entry: [
+          "Profit Rs.40,000",
+          "Riya's share Rs.20,000",
+          "Amit's share Rs.20,000",
+        ],
+        logic: [
+          "Equal sharing means 1:1.",
+          "Each partner gets half of the profit.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Riya and Amit share profit in 3:2. Profit Rs.50,000.",
+        entry: [
+          "Total parts = 3 + 2 = 5",
+          "Riya = Rs.50,000 x 3/5 = Rs.30,000",
+          "Amit = Rs.50,000 x 2/5 = Rs.20,000",
+        ],
+        logic: [
+          "Profit is divided by the profit sharing ratio.",
+          "Riya gets three parts and Amit gets two parts.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Riya's capital Rs.60,000. Interest on capital 10%.",
+        entry: [
+          "Interest = Rs.60,000 x 10%",
+          "Interest on Capital = Rs.6,000",
+        ],
+        logic: [
+          "Interest on capital is allowed on the capital invested.",
+          "It is given before sharing profit if the deed allows it.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Amit's drawings Rs.10,000. Interest on drawings 5%.",
+        entry: [
+          "Interest = Rs.10,000 x 5%",
+          "Interest on Drawings = Rs.500",
+        ],
+        logic: [
+          "Interest on drawings is charged from the partner.",
+          "It is charged because the partner used business money personally.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Amit gets salary Rs.5,000 per month.",
+        entry: [
+          "Monthly salary Rs.5,000",
+          "Annual salary = Rs.5,000 x 12",
+          "Annual salary = Rs.60,000",
+        ],
+        logic: [
+          "Partner salary is reward for special work.",
+          "It is given before sharing remaining profit if the deed allows it.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Net profit Rs.80,000, Amit salary Rs.20,000, remaining profit shared equally.",
+        entry: [
+          "Net Profit Rs.80,000",
+          "Less Amit Salary Rs.20,000",
+          "Remaining Profit Rs.60,000",
+          "Riya's share Rs.30,000",
+          "Amit's profit share Rs.30,000",
+          "Amit also gets salary Rs.20,000",
+          "Total benefit to Amit Rs.50,000",
+        ],
+        logic: [
+          "Salary is given before sharing remaining profit.",
+          "The balance profit is shared equally.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking capital ratio and profit sharing ratio are always same",
+      "Forgetting to read partnership deed",
+      "Treating partner salary like normal employee salary in basic partnership appropriation context",
+      "Forgetting interest on drawings",
+      "Confusing interest on capital and interest on drawings",
+      "Sharing profit before deducting partner salary or commission when deed allows it",
+      "Thinking drawings are business expenses",
+      "Thinking all partners must bring equal capital",
+      "Confusing fixed capital and fluctuating capital",
+      "Forgetting that loss is also shared in profit sharing ratio",
+    ],
+    tryPrompts: [
+      "Riya and Amit share profit equally. Profit is Rs.30,000. How much does each get? Expected: Rs.15,000 each.",
+      "Profit Rs.60,000 is shared in 2:1. Find each partner's share. Expected: Partner A Rs.40,000, Partner B Rs.20,000.",
+      "Riya's capital is Rs.50,000. Interest on capital is 10%. Find interest on capital. Expected: Rs.5,000.",
+      "Amit's drawings are Rs.8,000. Interest on drawings is 5%. Find interest on drawings. Expected: Rs.400.",
+      "Partner salary is Rs.4,000 per month. Find yearly salary. Expected: Rs.48,000.",
+      "Net profit Rs.70,000. Partner salary Rs.10,000. Remaining profit shared equally. Find each partner's profit share. Expected: Rs.30,000 each.",
+      "Riya brings capital Rs.80,000 and Amit brings Rs.20,000. Deed says profit is shared equally. Should profit be shared by capital ratio or equally? Expected: Equally, because deed says so.",
+    ],
+    toolLinks: [
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Open Final Accounts Tool", href: "/final-accounts" },
+    ],
+    nextLesson: {
       label: "Review Final Accounts Basics",
       href: "/learn/final-accounts-basics",
       description:
-        "After learning Not-for-Profit Organisation accounts, the next major area is Partnership Accounts. Review Final Accounts Basics while that lesson is not available yet.",
+        "After learning partnership basics, the next step is to learn how profit is distributed among partners. Review Final Accounts Basics while that lesson is not available yet.",
     },
   },
 };
