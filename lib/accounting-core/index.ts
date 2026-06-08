@@ -22,3 +22,14 @@ export type {
   TrialBalance,
   TrialBalanceRow,
 } from "./types";
+
+export {
+  correctJournalEntryToCoreJournalEntry,
+  inferAccountClass,
+  inferAccountRef,
+  inferAccountRole,
+  inferNormalBalance,
+  journalEntriesToCoreJournalEntries,
+  parsedJournalEntryToCoreJournalEntry,
+} from "./adapters/journal-entry-adapters";
+export type { JournalEntryAdapterOptions } from "./adapters/journal-entry-adapters";
