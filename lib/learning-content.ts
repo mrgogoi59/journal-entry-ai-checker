@@ -29,7 +29,8 @@ export type LessonSlug =
   | "calls-in-arrears-and-calls-in-advance"
   | "forfeiture-and-reissue-of-shares"
   | "issue-and-redemption-of-debentures"
-  | "financial-statements-of-a-company";
+  | "financial-statements-of-a-company"
+  | "analysis-of-financial-statements";
 
 export type SolvedLessonExample = {
   title: string;
@@ -289,6 +290,12 @@ export const lessonCards = [
     title: "Financial Statements of a Company",
     description: "Learn how companies show profit, position, assets, liabilities, and shareholders' funds.",
     href: "/learn/financial-statements-of-a-company",
+  },
+  {
+    slug: "analysis-of-financial-statements",
+    title: "Analysis of Financial Statements",
+    description: "Learn how to read financial statements and judge business strength, profit, cash, and risk.",
+    href: "/learn/analysis-of-financial-statements",
   },
 ];
 
@@ -8545,10 +8552,391 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
-      label: "Review Final Accounts Basics",
-      href: "/learn/final-accounts-basics",
+      label: "Continue to Analysis of Financial Statements",
+      href: "/learn/analysis-of-financial-statements",
       description:
         "After learning how company financial statements are prepared, the next step is to learn how to analyse them.",
+    },
+  },
+  "analysis-of-financial-statements": {
+    slug: "analysis-of-financial-statements",
+    title: "Analysis of Financial Statements",
+    subtitle:
+      "Learn how to read financial statements and understand whether a company is strong, weak, profitable, or risky.",
+    description:
+      "Understand how analysis turns financial statement numbers into useful meaning about profit, cash, liquidity, solvency, efficiency, and trends.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What analysis of financial statements means",
+      "Why analysis is needed",
+      "Difference between preparing statements and analysing statements",
+      "Who uses financial statement analysis",
+      "What questions analysis answers",
+      "Profitability",
+      "Liquidity",
+      "Solvency",
+      "Efficiency",
+      "Trend and comparison",
+      "Comparative statements at a basic level",
+      "Common size statements at a basic level",
+      "Accounting ratios at a basic level",
+      "Cash flow analysis at a basic level",
+      "Limitations of financial statement analysis",
+      "Common mistakes in analysis",
+    ],
+    conceptSections: [
+      {
+        title: "What is Analysis of Financial Statements?",
+        body: [
+          "Analysis of financial statements means studying financial statements to understand the real condition of a business.",
+          "Financial statements give numbers.",
+          "Analysis helps us understand the meaning behind those numbers.",
+          "Example: a company earned profit of Rs.1,00,000. This number alone is not enough.",
+          "We should ask whether profit is increasing, whether the company can pay short-term bills, whether loans are too high, whether cash is coming in, and whether the company is better than last year.",
+          "Simple line: Financial statement analysis means reading the story behind the numbers.",
+        ],
+      },
+      {
+        title: "Why analysis is needed",
+        body: [
+          "Financial statements are useful, but they are only the starting point.",
+          "Analysis helps understand whether the business is profitable.",
+          "It shows whether the company can pay short-term liabilities.",
+          "It shows whether the company has too much debt.",
+          "It helps compare this year with last year.",
+          "It helps compare one company with another company.",
+          "It helps investors, banks, owners, and managers make decisions.",
+          "Simple line: Financial statement analysis helps people make better decisions.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya wants to invest in a company.",
+          "Company A has profit Rs.1,00,000.",
+          "Company B has profit Rs.80,000.",
+          "At first, Company A looks better.",
+          "But after analysis, Riya finds Company A has high profit, very high loans, and low cash balance.",
+          "Company B has slightly lower profit, low debt, strong cash balance, and growing sales.",
+          "Now Riya understands that only profit is not enough.",
+          "Simple line: Analysis helps us avoid judging a company by one number only.",
+        ],
+      },
+      {
+        title: "Preparing statements vs analysing statements",
+        body: [
+          "Preparing financial statements means making reports.",
+          "Analysing financial statements means studying those reports.",
+          "Preparation shows numbers.",
+          "Analysis explains the meaning of numbers.",
+          "Example: preparation says profit is Rs.1,00,000. Analysis asks whether this profit is good or bad.",
+          "Example: preparation says loan is Rs.5,00,000. Analysis asks whether debt is too high.",
+          "Memory line: Preparation gives numbers. Analysis gives understanding.",
+        ],
+      },
+      {
+        title: "What analysis tries to find",
+        body: [
+          "Financial statement analysis asks whether the company is earning profit.",
+          "It asks whether profit is increasing.",
+          "It asks whether the company can pay short-term dues.",
+          "It asks whether the company has too much debt.",
+          "It asks whether the company is using assets properly.",
+          "It asks whether cash is coming in.",
+          "It asks whether the company is improving or declining.",
+          "It asks whether the company is better than competitors.",
+          "Simple line: Analysis checks the health of a company.",
+        ],
+      },
+      {
+        title: "Main users of financial statement analysis",
+        body: [
+          "Owners and shareholders want to know whether the company is earning profit.",
+          "Investors want to decide whether to invest.",
+          "Banks and lenders want to know whether the company can repay loans.",
+          "Management wants to improve business decisions.",
+          "Suppliers want to know whether the company can pay them.",
+          "Employees may want to know whether the company is stable.",
+          "Simple line: Different users ask different questions from the same financial statements.",
+        ],
+      },
+      {
+        title: "Main tools of analysis",
+        body: [
+          "Comparative Statements compare two or more years.",
+          "Example: sales increased from Rs.5,00,000 to Rs.6,00,000.",
+          "Common Size Statements convert numbers into percentages.",
+          "Example: expenses are 60% of sales.",
+          "Ratio Analysis uses ratios to understand profit, liquidity, debt, and efficiency.",
+          "Example: Current Ratio shows short-term payment ability.",
+          "Cash Flow Analysis shows where cash came from and where cash went.",
+          "Simple line: These tools help us understand financial statements better.",
+        ],
+      },
+      {
+        title: "Profitability",
+        body: [
+          "Profitability means the ability of a business to earn profit.",
+          "Example: Riya Stationery Ltd. has sales Rs.5,00,000 and expenses Rs.4,00,000.",
+          "Profit is Rs.1,00,000.",
+          "Profitability asks whether the company is earning enough profit from its sales.",
+          "Simple line: Profitability tells whether the company is earning well.",
+        ],
+      },
+      {
+        title: "Liquidity",
+        body: [
+          "Liquidity means the ability of a company to pay short-term liabilities.",
+          "Example: the company has to pay suppliers Rs.50,000 soon.",
+          "It has cash Rs.20,000, debtors Rs.40,000, and stock Rs.30,000.",
+          "The company may be able to pay because it has current assets.",
+          "Simple line: Liquidity tells whether the company can pay short-term bills.",
+        ],
+      },
+      {
+        title: "Solvency",
+        body: [
+          "Solvency means the ability of a company to survive and pay long-term debts.",
+          "Example: a company has high loans and debentures.",
+          "Analysis asks whether the company can repay these long-term debts.",
+          "Simple line: Liquidity is short-term payment ability. Solvency is long-term financial strength.",
+        ],
+      },
+      {
+        title: "Efficiency",
+        body: [
+          "Efficiency means how well the company uses its resources.",
+          "Example: two companies both have machines worth Rs.5,00,000.",
+          "Company A earns sales of Rs.10,00,000.",
+          "Company B earns sales of Rs.4,00,000.",
+          "Company A is using its machines more efficiently.",
+          "Simple line: Efficiency tells how well the business uses assets, stock, and money.",
+        ],
+      },
+      {
+        title: "Trend and comparison",
+        body: [
+          "One year's number may not tell the full story.",
+          "We should compare this year with last year.",
+          "We should compare one company with another company.",
+          "We can also compare actual performance with expected performance.",
+          "Example: profit this year is Rs.1,00,000, but last year profit was Rs.2,00,000.",
+          "So profit has decreased.",
+          "Simple line: Comparison helps us understand whether performance is improving or falling.",
+        ],
+      },
+      {
+        title: "Limitations of financial statement analysis",
+        body: [
+          "Financial statement analysis is useful, but it has limits.",
+          "It uses past data.",
+          "It may not show future problems.",
+          "Different companies may use different accounting policies.",
+          "Numbers alone do not show everything.",
+          "Non-financial factors are also important.",
+          "Window dressing may make statements look better than reality.",
+          "Example: a company may show profit, but customers may be unhappy.",
+          "Simple line: Analysis is powerful, but it should be used with common sense.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Preparing Statements vs Analysing Statements",
+      leftHeading: "Preparing Financial Statements",
+      rightHeading: "Analysing Financial Statements",
+      rows: [
+        {
+          left: "Making reports",
+          right: "Studying reports",
+        },
+        {
+          left: "Shows numbers",
+          right: "Explains meaning of numbers",
+        },
+        {
+          left: "Example: Profit Rs.1,00,000",
+          right: "Is this profit good or bad?",
+        },
+        {
+          left: "Example: Loan Rs.5,00,000",
+          right: "Is debt too high?",
+        },
+        {
+          left: "Done after recording transactions",
+          right: "Done after statements are prepared",
+        },
+      ],
+      note: "Memory line: Preparation gives numbers. Analysis gives understanding.",
+    },
+    memoryTable: [
+      {
+        principle: "Profitability",
+        meaning: "Profit earning ability",
+        example: "Is the company earning well?",
+      },
+      {
+        principle: "Liquidity",
+        meaning: "Short-term payment ability",
+        example: "Can it pay bills soon?",
+      },
+      {
+        principle: "Solvency",
+        meaning: "Long-term strength",
+        example: "Can it survive long-term debt?",
+      },
+      {
+        principle: "Efficiency",
+        meaning: "Use of resources",
+        example: "Is it using assets well?",
+      },
+      {
+        principle: "Trend",
+        meaning: "Change over time",
+        example: "Is it improving?",
+      },
+      {
+        principle: "Cash Flow",
+        meaning: "Cash movement",
+        example: "Is cash coming in?",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Analysis checklist",
+      title: "Questions to ask while analysing",
+      columns: ["Question", "What it checks", "Why it matters"],
+      rows: [
+        {
+          first: "Is sales increasing?",
+          second: "Growth",
+          third: "Shows whether business activity is rising",
+        },
+        {
+          first: "Is profit increasing?",
+          second: "Profitability",
+          third: "Shows whether the company earns better over time",
+        },
+        {
+          first: "Is cash enough?",
+          second: "Liquidity",
+          third: "Shows whether short-term bills can be paid",
+        },
+        {
+          first: "Is debt too high?",
+          second: "Solvency",
+          third: "Shows long-term financial risk",
+        },
+        {
+          first: "Are assets used properly?",
+          second: "Efficiency",
+          third: "Shows whether resources are being used well",
+        },
+        {
+          first: "Are there warning signs?",
+          second: "Risk",
+          third: "Helps avoid judging by one good number",
+        },
+      ],
+      note: "Good analysis means asking the right questions.",
+    },
+    visualFlow: [
+      "Financial statements prepared",
+      "Numbers are available",
+      "Compare years",
+      "Convert numbers into percentages",
+      "Calculate simple ratios",
+      "Study cash flow",
+      "Understand profit, liquidity, solvency, and efficiency",
+      "Make better decisions",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Last year sales Rs.5,00,000. This year sales Rs.6,00,000.",
+        entry: ["Increase = Rs.1,00,000", "Simple interpretation: sales increased. This may be a good sign."],
+        logic: [
+          "Comparison with last year shows direction.",
+          "Sales growth is usually a positive signal.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Last year profit Rs.1,50,000. This year profit Rs.1,00,000.",
+        entry: ["Decrease = Rs.50,000", "Simple interpretation: profit decreased."],
+        logic: [
+          "The company should check expenses or sales.",
+          "A lower profit may be a warning sign.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Current assets Rs.2,00,000. Current liabilities Rs.1,00,000.",
+        entry: ["Simple interpretation: current assets are higher than current liabilities."],
+        logic: [
+          "Short-term position may be comfortable.",
+          "The company appears able to pay near-term dues.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Shareholders' funds Rs.2,00,000. Loan and debentures Rs.6,00,000.",
+        entry: ["Simple interpretation: company depends heavily on borrowed money."],
+        logic: [
+          "High debt can increase long-term risk.",
+          "This is a solvency concern.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Profit Rs.1,00,000. Cash balance Rs.5,000.",
+        entry: ["Simple interpretation: profit is there, but cash is low."],
+        logic: [
+          "The company may have credit sales or blocked money.",
+          "Profit and cash are not always the same.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Company A sales Rs.10,00,000. Company B sales Rs.5,00,000. Both use similar assets.",
+        entry: ["Simple interpretation: Company A may be using its assets better."],
+        logic: [
+          "Same level of assets but higher sales can show better efficiency.",
+          "Comparison helps reveal performance quality.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Judging a company only by profit",
+      "Ignoring cash position",
+      "Ignoring debt",
+      "Comparing companies without understanding size",
+      "Thinking high sales always means high profit",
+      "Ignoring expenses",
+      "Confusing liquidity and profitability",
+      "Thinking one year's data is enough",
+      "Ignoring notes to accounts",
+      "Believing every number without asking questions",
+    ],
+    tryPrompts: [
+      "Sales increased from Rs.4,00,000 to Rs.5,00,000. Is sales improving or falling? Expected: improving.",
+      "Profit decreased from Rs.1,00,000 to Rs.70,000. What should we check? Expected: expenses, sales, cost, or business performance.",
+      "Current assets Rs.1,50,000 and current liabilities Rs.50,000. Short-term position looks comfortable or weak? Expected: comfortable.",
+      "Cash is only Rs.5,000 but profit is Rs.80,000. Are profit and cash always same? Expected: no.",
+      "Loan is very high compared to shareholders' funds. Which area should we analyse? Expected: solvency/debt position.",
+      "Company has high sales but very low profit. What may be the issue? Expected: high expenses or low margin.",
+      "Analysis of financial statements gives numbers or meaning behind numbers? Expected: meaning behind numbers.",
+      "One year's profit is enough to judge a company. True or false? Expected: false.",
+    ],
+    toolLinks: [
+      { label: "Review Financial Statements", href: "/learn/financial-statements-of-a-company" },
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Review Financial Statements",
+      href: "/learn/financial-statements-of-a-company",
+      description:
+        "After understanding the purpose of analysis, the next step is to compare two years of financial statements.",
     },
   },
 };

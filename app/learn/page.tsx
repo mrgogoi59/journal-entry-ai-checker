@@ -152,7 +152,11 @@ const topicGroups: TopicGroup[] = [
   {
     title: "Analysis and Cash Flow",
     topics: [
-      { title: "Analysis of Financial Statements", status: "coming_soon" },
+      {
+        title: "Analysis of Financial Statements",
+        href: "/learn/analysis-of-financial-statements",
+        status: "available",
+      },
       { title: "Comparative Statements", status: "coming_soon" },
       { title: "Common Size Statements", status: "coming_soon" },
       { title: "Accounting Ratios", status: "coming_soon" },
