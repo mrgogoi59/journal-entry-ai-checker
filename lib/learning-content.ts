@@ -22,7 +22,8 @@ export type LessonSlug =
   | "partnership-accounts-basic-concepts"
   | "profit-and-loss-appropriation-account"
   | "fixed-and-fluctuating-capital-accounts"
-  | "admission-of-a-partner";
+  | "admission-of-a-partner"
+  | "retirement-or-death-of-a-partner";
 
 export type SolvedLessonExample = {
   title: string;
@@ -240,6 +241,12 @@ export const lessonCards = [
     title: "Admission of a Partner",
     description: "Learn what happens when a new partner joins an existing partnership firm.",
     href: "/learn/admission-of-a-partner",
+  },
+  {
+    slug: "retirement-or-death-of-a-partner",
+    title: "Retirement or Death of a Partner",
+    description: "Learn what happens when a partner leaves the firm or passes away.",
+    href: "/learn/retirement-or-death-of-a-partner",
   },
 ];
 
@@ -6259,10 +6266,330 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
+      label: "Continue to Retirement or Death of a Partner",
+      href: "/learn/retirement-or-death-of-a-partner",
+      description:
+        "After learning admission of a partner, learn what happens when a partner leaves the firm or passes away.",
+    },
+  },
+  "retirement-or-death-of-a-partner": {
+    slug: "retirement-or-death-of-a-partner",
+    title: "Retirement or Death of a Partner",
+    subtitle: "Learn what happens in accounts when a partner leaves the firm or passes away.",
+    description:
+      "Understand new profit sharing ratio, gaining ratio, goodwill, revaluation, old reserves, and final settlement of the outgoing partner.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What retirement of a partner means",
+      "What death of a partner means in accounting",
+      "What changes when a partner leaves",
+      "New profit sharing ratio among remaining partners",
+      "Gaining ratio",
+      "Goodwill adjustment",
+      "Revaluation of assets and liabilities",
+      "Accumulated profits and losses",
+      "Retiring or deceased partner's capital balance",
+      "Amount due to the outgoing partner",
+      "Payment or transfer to loan account",
+      "Executor's account in case of death",
+      "Share of profit up to date of retirement or death",
+      "Common mistakes in settlement questions",
+    ],
+    conceptSections: [
+      {
+        title: "What is Retirement of a Partner?",
+        body: [
+          "Retirement of a Partner means one partner leaves the partnership firm, while the remaining partners continue the business.",
+          "If a partner does not want to continue in the business, that partner may retire.",
+          "Example: Riya, Amit, and Neha run a stationery shop. Amit decides to leave the firm. Riya and Neha continue the business.",
+          "Simple line: Retirement means one partner leaves and the business continues.",
+        ],
+      },
+      {
+        title: "What happens when a partner dies?",
+        body: [
+          "If a partner dies, that partner's relationship with the firm ends.",
+          "The remaining partners may continue the business.",
+          "The deceased partner's share of capital, profit, goodwill, and other dues is calculated.",
+          "The amount due is transferred to the deceased partner's executor or legal representative.",
+          "Example: Riya, Amit, and Neha are partners. Amit passes away. Amit's share is calculated and transferred to Amit's Executor A/c.",
+          "Simple line: In case of death, the amount due is paid to the deceased partner's executor or legal representative.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya, Amit, and Neha run a mobile accessories shop.",
+          "Their profit sharing ratio is Riya : Amit : Neha = 2 : 2 : 1.",
+          "Amit wants to retire because he wants to start another business.",
+          "Before Amit leaves, the firm must calculate Amit's capital balance, goodwill share, revaluation share, old reserve share, and profit up to the retirement date.",
+          "After Amit leaves, Riya and Neha continue the business.",
+          "Now Riya and Neha need a new profit sharing ratio.",
+          "This is why retirement accounting is needed.",
+        ],
+      },
+      {
+        title: "What changes when a partner leaves",
+        body: [
+          "Old profit sharing ratio changes.",
+          "Remaining partners get a larger share of future profit.",
+          "Gaining ratio is calculated.",
+          "Goodwill is adjusted.",
+          "Assets and liabilities may be revalued.",
+          "Old reserves, profits, and losses are distributed.",
+          "Amount due to the outgoing partner is calculated.",
+          "The outgoing partner may be paid immediately or later.",
+          "In case of death, the amount is transferred to executor.",
+          "Simple line: Retirement or death accounting makes sure the outgoing partner gets the correct amount.",
+        ],
+      },
+      {
+        title: "New Profit Sharing Ratio",
+        body: [
+          "After one partner leaves, the remaining partners share future profits in a new ratio.",
+          "Example: Riya, Amit, and Neha share profit in 2:2:1.",
+          "Amit retires.",
+          "Riya and Neha agree to share future profit equally.",
+          "New ratio is Riya : Neha = 1:1.",
+          "Simple line: New ratio is used for future profit after the partner leaves.",
+        ],
+      },
+      {
+        title: "Gaining Ratio",
+        rule: "Gain = New Share - Old Share",
+        body: [
+          "When one partner leaves, the remaining partners usually gain that partner's share.",
+          "Gaining Ratio shows how much extra share each remaining partner gets.",
+          "Old ratio is Riya : Amit : Neha = 2:2:1.",
+          "So Riya = 2/5, Amit = 2/5, and Neha = 1/5.",
+          "Amit retires and the new ratio between Riya and Neha is 1:1.",
+          "So Riya = 1/2 and Neha = 1/2.",
+          "Riya's gain = 1/2 - 2/5 = 1/10.",
+          "Neha's gain = 1/2 - 1/5 = 3/10.",
+          "Gaining ratio is Riya : Neha = 1 : 3.",
+          "Simple line: Gaining ratio shows who gains how much after a partner leaves.",
+        ],
+      },
+      {
+        title: "Goodwill adjustment",
+        body: [
+          "When a partner retires or dies, that partner should get compensation for their share in the firm's goodwill.",
+          "Why? Because the firm's reputation was built while that partner was also part of the business.",
+          "Example: goodwill of firm is Rs.50,000 and Amit's old share is 2/5.",
+          "Amit's share of goodwill = Rs.50,000 x 2/5 = Rs.20,000.",
+          "This amount is compensated by the gaining partners in their gaining ratio.",
+          "Simple line: Outgoing partner gets their share of goodwill.",
+        ],
+      },
+      {
+        title: "Revaluation of assets and liabilities",
+        body: [
+          "Before the partner leaves, the firm may update the value of assets and liabilities.",
+          "Example: furniture is recorded at Rs.20,000, but actual value is Rs.25,000.",
+          "Increase in value is Rs.5,000.",
+          "This profit belongs to all old partners, including the retiring partner.",
+          "Another example: a liability increases by Rs.3,000. This loss also belongs to old partners.",
+          "Revaluation profit or loss is shared by old partners in the old profit sharing ratio.",
+          "Simple line: Revaluation profit or loss belongs to old partners.",
+        ],
+      },
+      {
+        title: "Accumulated profits and losses",
+        body: [
+          "The firm may have old profits or losses not yet distributed.",
+          "Examples are General Reserve, Profit and Loss balance, Advertisement Suspense, and accumulated loss.",
+          "These belong to old partners because they were created before retirement or death.",
+          "So they are distributed among old partners in the old ratio.",
+          "Simple line: Old profits and losses belong to old partners.",
+        ],
+      },
+      {
+        title: "Amount due to retiring or deceased partner",
+        body: [
+          "The outgoing partner's amount is calculated carefully before final settlement.",
+          "Add capital balance, share of goodwill, share of revaluation profit, share of old reserves or profits, share of profit till retirement or death date, and salary or interest due if applicable.",
+          "Less drawings, interest on drawings, share of revaluation loss, share of accumulated losses, and any amount owed by partner to firm.",
+          "Simple line: Amount due = what partner should receive minus what partner owes.",
+        ],
+      },
+      {
+        title: "Payment or loan account",
+        body: [
+          "After calculating the amount due, the firm may pay the partner immediately.",
+          "If paid immediately, the entry idea is: Amit's Capital A/c Dr. Rs.80,000, To Bank A/c Rs.80,000.",
+          "If not paid immediately, the amount may be transferred to Amit's Loan A/c.",
+          "Example: Amit's Capital A/c Dr. Rs.80,000, To Amit's Loan A/c Rs.80,000.",
+          "Simple line: If the firm cannot pay now, the amount becomes loan payable to the retiring partner.",
+        ],
+      },
+      {
+        title: "Executor's account in case of death",
+        body: [
+          "In case of death, amount due is not paid to the partner directly.",
+          "It is transferred to the deceased partner's executor or legal representative.",
+          "Example: amount due to Amit after death is Rs.90,000.",
+          "Entry idea: Amit's Capital A/c Dr. Rs.90,000, To Amit's Executor A/c Rs.90,000.",
+          "If paid later, the entry idea is: Amit's Executor A/c Dr., To Bank A/c.",
+          "Simple line: Executor's Account is used for amount payable after a partner's death.",
+        ],
+      },
+      {
+        title: "Share of profit up to date",
+        body: [
+          "A partner may retire or die during the year, before final profit is known.",
+          "The outgoing partner may still be entitled to profit up to the date of retirement or death.",
+          "This profit may be estimated using past profit or sales basis, depending on the question.",
+          "Simple line: The outgoing partner should get profit earned while they were still a partner.",
+        ],
+      },
+    ],
+    impactTable: {
+      eyebrow: "Settlement guide",
+      title: "What usually changes on retirement or death",
+      columns: ["Item", "Simple meaning", "Who is affected"],
+      rows: [
+        {
+          first: "New Ratio",
+          second: "Future profit sharing among remaining partners",
+          third: "Remaining partners",
+        },
+        {
+          first: "Gaining Ratio",
+          second: "Extra share gained by remaining partners",
+          third: "Remaining partners",
+        },
+        {
+          first: "Goodwill",
+          second: "Compensation for reputation built earlier",
+          third: "Outgoing partner and gaining partners",
+        },
+        {
+          first: "Revaluation",
+          second: "Update assets and liabilities before settlement",
+          third: "All old partners",
+        },
+        {
+          first: "Old Reserves",
+          second: "Past profits or losses",
+          third: "All old partners in old ratio",
+        },
+        {
+          first: "Final Amount",
+          second: "Amount payable to retiring partner or executor",
+          third: "Outgoing partner or legal representative",
+        },
+      ],
+      note: "The goal is fairness between the outgoing partner and the remaining partners.",
+    },
+    visualFlow: [
+      "Partner retires or dies",
+      "Calculate new profit sharing ratio",
+      "Calculate gaining ratio",
+      "Adjust goodwill",
+      "Revalue assets and liabilities",
+      "Distribute old profits or losses",
+      "Calculate outgoing partner's capital balance",
+      "Pay or transfer to loan or executor account",
+      "Remaining partners continue business",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Riya, Amit, and Neha share profit in 2:2:1. Amit retires. Riya and Neha agree to share equally.",
+        entry: ["New ratio: Riya : Neha = 1:1"],
+        logic: [
+          "Amit is no longer part of future profits.",
+          "Riya and Neha will share future profits equally.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Old shares are Riya 2/5, Amit 2/5, Neha 1/5. New shares are Riya 1/2 and Neha 1/2.",
+        entry: [
+          "Riya's gain = 1/2 - 2/5 = 1/10",
+          "Neha's gain = 1/2 - 1/5 = 3/10",
+          "Gaining Ratio = 1:3",
+        ],
+        logic: [
+          "Gain means new share minus old share.",
+          "Neha gains more, so the gaining ratio is 1:3.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Goodwill Rs.50,000. Amit's old share is 2/5.",
+        entry: ["Amit's share of goodwill = Rs.50,000 x 2/5", "Amit's share of goodwill = Rs.20,000"],
+        logic: [
+          "Amit helped build the firm's reputation.",
+          "So Amit receives his share of goodwill.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Machinery value increases by Rs.15,000. Old ratio is Riya : Amit : Neha = 2:2:1.",
+        entry: ["Amit's share = Rs.15,000 x 2/5", "Amit's share = Rs.6,000"],
+        logic: [
+          "The gain happened before retirement.",
+          "So it belongs to all old partners in old ratio.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "General Reserve Rs.25,000. Old ratio is 2:2:1.",
+        entry: ["Amit's share = Rs.25,000 x 2/5", "Amit's share = Rs.10,000"],
+        logic: [
+          "General Reserve is an old profit.",
+          "Old profits are shared by old partners in old ratio.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction:
+          "Amount due to Amit after retirement is Rs.80,000. Firm pays Rs.30,000 immediately and transfers the balance to Amit's Loan A/c.",
+        entry: [
+          "Bank paid immediately Rs.30,000",
+          "Balance transferred to Amit's Loan A/c Rs.50,000",
+          "Simple idea: loan payable to Amit Rs.50,000",
+        ],
+        logic: [
+          "The unpaid amount is still payable to Amit.",
+          "So it becomes a loan liability of the firm.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Confusing sacrificing ratio with gaining ratio",
+      "Using new ratio to distribute old reserves",
+      "Giving old reserves only to remaining partners",
+      "Forgetting outgoing partner's goodwill share",
+      "Forgetting revaluation profit or loss belongs to old partners",
+      "Ignoring partner's drawings before final settlement",
+      "Treating retiring partner's loan as capital",
+      "Forgetting executor's account in case of death",
+      "Thinking retirement means the firm always closes",
+      "Thinking death or retirement accounting is only about capital",
+    ],
+    tryPrompts: [
+      "Riya, Amit, and Neha share profits in 2:2:1. Amit retires. Riya and Neha share future profit equally. What is the new ratio? Expected: 1:1.",
+      "Old share of Riya is 2/5. New share is 1/2. Find Riya's gain. Expected: 1/10.",
+      "Goodwill is Rs.60,000. Retiring partner's share is 1/3. Find retiring partner's goodwill share. Expected: Rs.20,000.",
+      "General Reserve Rs.30,000 exists before retirement. Who gets it? Expected: old partners in old ratio.",
+      "Revaluation profit Rs.20,000 arises before retirement. Which ratio is used? Expected: old profit sharing ratio.",
+      "Amount due to retiring partner Rs.70,000 is not paid immediately. Where is it transferred? Expected: Retiring Partner's Loan Account.",
+      "Amount due to deceased partner is calculated. Which account receives it? Expected: Deceased Partner's Executor Account.",
+      "Remaining partners gain retiring partner's share. Which ratio shows this gain? Expected: gaining ratio.",
+    ],
+    toolLinks: [
+      { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
+      { label: "Review Admission of a Partner", href: "/learn/admission-of-a-partner" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
       label: "Review Partnership Basics",
       href: "/learn/partnership-accounts-basic-concepts",
       description:
-        "After learning admission of a partner, the next partnership change is retirement or death of a partner. Review Partnership Basics while that lesson is not available yet.",
+        "After learning retirement or death of a partner, the next partnership topic is dissolution of the firm.",
     },
   },
 };

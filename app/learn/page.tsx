@@ -107,7 +107,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/admission-of-a-partner",
         status: "available",
       },
-      { title: "Retirement or Death of a Partner", status: "coming_soon" },
+      {
+        title: "Retirement or Death of a Partner",
+        href: "/learn/retirement-or-death-of-a-partner",
+        status: "available",
+      },
       { title: "Dissolution of Partnership Firm", status: "coming_soon" },
     ],
   },
