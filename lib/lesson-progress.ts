@@ -28,6 +28,7 @@ export const trackedLessonSlugs = [
   "retirement-or-death-of-a-partner",
   "dissolution-of-partnership-firm",
   "accounting-for-share-capital",
+  "calls-in-arrears-and-calls-in-advance",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];

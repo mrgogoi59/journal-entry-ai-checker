@@ -25,7 +25,8 @@ export type LessonSlug =
   | "admission-of-a-partner"
   | "retirement-or-death-of-a-partner"
   | "dissolution-of-partnership-firm"
-  | "accounting-for-share-capital";
+  | "accounting-for-share-capital"
+  | "calls-in-arrears-and-calls-in-advance";
 
 export type SolvedLessonExample = {
   title: string;
@@ -261,6 +262,12 @@ export const lessonCards = [
     title: "Accounting for Share Capital",
     description: "Learn how a company raises money by issuing shares and records share capital.",
     href: "/learn/accounting-for-share-capital",
+  },
+  {
+    slug: "calls-in-arrears-and-calls-in-advance",
+    title: "Calls in Arrears and Calls in Advance",
+    description: "Learn what happens when shareholders pay less or more than the amount called.",
+    href: "/learn/calls-in-arrears-and-calls-in-advance",
   },
 ];
 
@@ -7249,10 +7256,247 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
     ],
     nextLesson: {
-      label: "Practice Journal Entries",
-      href: "/practice",
+      label: "Continue to Calls in Arrears and Calls in Advance",
+      href: "/learn/calls-in-arrears-and-calls-in-advance",
       description:
         "After learning how share capital is issued, the next step is to understand what happens when shareholders pay less or more than the amount called.",
+    },
+  },
+  "calls-in-arrears-and-calls-in-advance": {
+    slug: "calls-in-arrears-and-calls-in-advance",
+    title: "Calls in Arrears and Calls in Advance",
+    subtitle: "Learn what happens when shareholders pay less or more than the amount called by the company.",
+    description:
+      "Understand call money, calls in arrears, calls in advance, paid-up capital, and simple accounting treatment with easy examples.",
+    difficulty: "Beginner",
+    estimatedTime: "10-12 min",
+    whatYouWillLearn: [
+      "What call money means",
+      "What calls in arrears means",
+      "What calls in advance means",
+      "Difference between called-up capital and paid-up capital",
+      "Why a shareholder may fail to pay call money",
+      "Why a shareholder may pay future call money early",
+      "Accounting idea of calls in arrears",
+      "Accounting idea of calls in advance",
+      "Interest on calls in arrears at a basic level",
+      "Interest on calls in advance at a basic level",
+      "Common mistakes in calls questions",
+    ],
+    conceptSections: [
+      {
+        title: "What is a call?",
+        body: [
+          "When a company asks shareholders to pay part of the share money, it is called a call.",
+          "Example: a share has face value Rs.10.",
+          "The company may ask application Rs.3, allotment Rs.4, and first call Rs.3.",
+          "Total amount collected becomes Rs.10.",
+          "Simple line: A call means the company asks shareholders to pay money due on shares.",
+        ],
+      },
+      {
+        title: "What are Calls in Arrears?",
+        body: [
+          "Calls in arrears means the company asked shareholders to pay money, but some shareholders did not pay.",
+          "Example: company made first call of Rs.3 per share.",
+          "Raju has 100 shares.",
+          "Amount due from Raju = 100 x Rs.3 = Rs.300.",
+          "But Raju did not pay.",
+          "This Rs.300 is Calls in Arrears.",
+          "Simple line: Calls in arrears = amount called by company but not paid by shareholder.",
+          "Accounting idea: it reduces paid-up capital because the company has not actually received the money.",
+        ],
+      },
+      {
+        title: "What are Calls in Advance?",
+        body: [
+          "Calls in advance means a shareholder pays money before the company officially asks for it.",
+          "Example: company has called only Rs.7 per share so far.",
+          "But Amit pays the remaining Rs.3 per share early.",
+          "If Amit has 100 shares, advance amount = 100 x Rs.3 = Rs.300.",
+          "This Rs.300 is Calls in Advance.",
+          "Simple line: Calls in advance = money received before it is called by the company.",
+          "Accounting idea: it is a liability for the company until the call becomes due.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya Stationery Ltd. issues shares of Rs.10 each.",
+          "The company asks shareholders to pay in parts: application Rs.3, allotment Rs.4, and first call Rs.3.",
+          "Raju owns 100 shares.",
+          "When the company asks for first call of Rs.3 per share, Raju should pay Rs.300.",
+          "But Raju does not pay, so Rs.300 is Calls in Arrears.",
+          "Amit also owns 100 shares.",
+          "Before the company asks for first call, Amit pays Rs.300 early, so Rs.300 is Calls in Advance.",
+          "Simple line: Raju paid less than called. Amit paid more than called.",
+        ],
+      },
+      {
+        title: "Calls in arrears accounting idea",
+        body: [
+          "When call money is due, the entry idea is: Share First Call A/c Dr., To Share Capital A/c.",
+          "When money is received, the entry idea is: Bank A/c Dr., To Share First Call A/c.",
+          "If some shareholder does not pay, Calls in Arrears represents the unpaid amount.",
+          "Example: first call due on 1,000 shares at Rs.3 = Rs.3,000.",
+          "Only Rs.2,700 is received.",
+          "Calls in arrears = Rs.300.",
+          "Entry idea: Bank A/c Dr. Rs.2,700, Calls in Arrears A/c Dr. Rs.300, To Share First Call A/c Rs.3,000.",
+          "Simple line: Bank shows amount received. Calls in Arrears shows amount not received.",
+        ],
+      },
+      {
+        title: "Calls in advance accounting idea",
+        body: [
+          "If company receives money before making the call, it is calls in advance.",
+          "Example: Amit pays Rs.300 before first call is made.",
+          "Entry idea: Bank A/c Dr. Rs.300, To Calls in Advance A/c Rs.300.",
+          "Bank increases because money is received.",
+          "Calls in Advance is liability because company has received money before it is due.",
+          "When call becomes due later, Calls in Advance is adjusted.",
+          "Simple line: Calls in Advance is money received early and adjusted later.",
+        ],
+      },
+      {
+        title: "Called-up capital and paid-up capital",
+        body: [
+          "Called-up capital is the amount the company has asked shareholders to pay.",
+          "Paid-up capital is the amount shareholders have actually paid.",
+          "If the company calls Rs.5,000 but receives Rs.4,600, paid-up money is less than called-up money.",
+          "The difference Rs.400 is calls in arrears.",
+          "Simple line: Called-up means asked. Paid-up means actually paid.",
+        ],
+      },
+      {
+        title: "Interest on calls in arrears and advance",
+        body: [
+          "The company may charge interest from shareholders who pay late.",
+          "Example: Raju did not pay Rs.300 on time. The company may charge interest on this unpaid amount.",
+          "Simple line: Late payer may pay interest.",
+          "The company may pay interest to shareholders who paid early if rules allow.",
+          "Example: Amit paid Rs.300 before due date. The company may give interest on this advance amount.",
+          "Simple line: Early payer may receive interest.",
+          "At this beginner level, focus on the idea. Legal rates and detailed rules can be studied later.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Calls in Arrears vs Calls in Advance",
+      leftHeading: "Calls in Arrears",
+      rightHeading: "Calls in Advance",
+      rows: [
+        {
+          left: "Money not received though called",
+          right: "Money received before being called",
+        },
+        {
+          left: "Amount receivable from shareholder",
+          right: "Liability until call becomes due",
+        },
+        {
+          left: "Reduces actual paid-up money",
+          right: "Extra money received early",
+        },
+        {
+          left: "Example: Raju did not pay call",
+          right: "Example: Amit paid future call early",
+        },
+      ],
+      note: "Memory line: Arrears = late payment. Advance = early payment.",
+    },
+    visualFlow: [
+      "Company calls share money",
+      "Shareholder should pay",
+      "If not paid: Calls in Arrears",
+      "If paid early: Calls in Advance",
+      "Adjust later when call becomes due",
+      "Charge or pay interest if applicable",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Company makes first call Rs.3 per share. Raju holds 100 shares and pays nothing.",
+        entry: ["Amount due = 100 x Rs.3 = Rs.300", "Calls in arrears = Rs.300"],
+        logic: [
+          "The company asked for Rs.300.",
+          "Raju did not pay, so the full amount is calls in arrears.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Company makes first call Rs.3 per share. Raju holds 100 shares and pays Rs.200.",
+        entry: ["Amount due = Rs.300", "Amount paid = Rs.200", "Calls in arrears = Rs.100"],
+        logic: [
+          "Raju paid only part of the amount due.",
+          "The unpaid part is calls in arrears.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Amit holds 100 shares. Final call of Rs.2 per share is not yet made. Amit pays it early.",
+        entry: ["Calls in advance = 100 x Rs.2", "Calls in advance = Rs.200"],
+        logic: [
+          "The company has not called this money yet.",
+          "Because Amit paid early, it is calls in advance.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "First call due on 1,000 shares at Rs.3. Amount received Rs.2,700.",
+        entry: [
+          "Total due = Rs.3,000",
+          "Calls in arrears = Rs.300",
+          "Bank A/c Dr. Rs.2,700",
+          "Calls in Arrears A/c Dr. Rs.300",
+          "To Share First Call A/c Rs.3,000",
+        ],
+        logic: [
+          "Bank records the amount actually received.",
+          "Calls in Arrears records the amount still unpaid.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "A shareholder pays future call Rs.500 early.",
+        entry: ["Bank A/c Dr. Rs.500", "To Calls in Advance A/c Rs.500"],
+        logic: [
+          "The company received money before it was due.",
+          "Calls in Advance is a liability until adjusted.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Confusing calls in arrears with calls in advance",
+      "Thinking arrears means extra money received",
+      "Thinking advance means unpaid money",
+      "Forgetting calls in arrears means money not received",
+      "Treating calls in advance as income",
+      "Forgetting calls in advance is liability until call is made",
+      "Recording full called amount as bank received",
+      "Ignoring partial payment",
+      "Confusing called-up capital with paid-up capital",
+      "Thinking every shareholder pays exactly on time",
+    ],
+    tryPrompts: [
+      "First call is Rs.4 per share. Raju has 100 shares and pays nothing. Find calls in arrears. Expected: Rs.400.",
+      "First call is Rs.4 per share. Raju has 100 shares and pays Rs.250. Find calls in arrears. Expected: Rs.150.",
+      "Amit has 200 shares. Future call is Rs.2 per share and Amit pays early. Find calls in advance. Expected: Rs.400.",
+      "Company called Rs.5,000 and received Rs.4,600. Find calls in arrears. Expected: Rs.400.",
+      "Shareholder paid Rs.1,000 before call was made. Calls in arrears or calls in advance? Expected: calls in advance.",
+      "Shareholder did not pay Rs.800 after call was made. Calls in arrears or calls in advance? Expected: calls in arrears.",
+      "Calls in advance is income or liability? Expected: liability until adjusted.",
+      "Calls in arrears means money received or not received? Expected: not received.",
+    ],
+    toolLinks: [
+      { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
+      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Open Tools", href: "/tools" },
+    ],
+    nextLesson: {
+      label: "Review Share Capital",
+      href: "/learn/accounting-for-share-capital",
+      description:
+        "After learning calls in arrears and advance, the next topic is what happens when a shareholder fails to pay and shares are forfeited.",
     },
   },
 };

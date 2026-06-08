@@ -127,7 +127,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/accounting-for-share-capital",
         status: "available",
       },
-      { title: "Calls in Arrears and Calls in Advance", status: "coming_soon" },
+      {
+        title: "Calls in Arrears and Calls in Advance",
+        href: "/learn/calls-in-arrears-and-calls-in-advance",
+        status: "available",
+      },
       { title: "Forfeiture and Reissue of Shares", status: "coming_soon" },
       { title: "Issue and Redemption of Debentures", status: "coming_soon" },
       { title: "Financial Statements of a Company", status: "coming_soon" },
