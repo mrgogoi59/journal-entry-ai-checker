@@ -11,6 +11,7 @@ const quickActions = [
   { title: "Practice by Topic", href: "/practice" },
   { title: "Ledger Practice", href: "/practice/ledger" },
   { title: "Trial Balance Practice", href: "/practice/trial-balance" },
+  { title: "Final Accounts Practice", href: "/practice/final-accounts" },
   { title: "View History", href: "/history" },
   { title: "View Weak Areas", href: "/progress" },
   { title: "Explain a Transaction", href: "/journal-entry-solver" },

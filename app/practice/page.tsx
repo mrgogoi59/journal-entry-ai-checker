@@ -369,6 +369,12 @@ function WorkflowPracticeCard() {
       href: "/practice/trial-balance",
       label: "Start Trial Balance Practice",
     },
+    {
+      title: "Final Accounts Practice",
+      description: "Practice key final accounts results from trial balance and adjustments.",
+      href: "/practice/final-accounts",
+      label: "Start Final Accounts Practice",
+    },
   ];
 
   return (
@@ -380,7 +386,7 @@ function WorkflowPracticeCard() {
           Move beyond journal entries with focused ledger and trial balance practice.
         </p>
       </div>
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
         {workflowPracticeItems.map((item) => (
           <article key={item.href} className="rounded-xl border border-blue-100 bg-white p-4 shadow-sm">
             <h3 className="text-lg font-bold text-blue-950">{item.title}</h3>

@@ -68,6 +68,12 @@ const toolSections = [
         href: "/final-accounts",
         label: "Open Final Accounts",
       },
+      {
+        title: "Final Accounts Practice",
+        description: "Practice key final accounts results from trial balance and adjustments.",
+        href: "/practice/final-accounts",
+        label: "Start Practice",
+      },
     ],
   },
   {
