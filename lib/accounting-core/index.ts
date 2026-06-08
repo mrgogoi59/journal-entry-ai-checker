@@ -33,3 +33,13 @@ export {
   parsedJournalEntryToCoreJournalEntry,
 } from "./adapters/journal-entry-adapters";
 export type { JournalEntryAdapterOptions } from "./adapters/journal-entry-adapters";
+
+export {
+  assertSerializableCoreJournalEntry,
+  coreJournalEntriesToJournalText,
+  coreJournalEntryToJournalText,
+  formatCoreAmount,
+  getCoreJournalEntryTotals,
+  isCoreJournalEntryBalanced,
+} from "./serializers/journal-text-serializer";
+export type { CoreJournalEntryTotals } from "./serializers/journal-text-serializer";
