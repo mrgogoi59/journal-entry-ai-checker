@@ -6,7 +6,8 @@ export type LessonSlug =
   | "source-documents-and-vouchers"
   | "rules-of-debit-and-credit"
   | "journal-entry-basics"
-  | "ledger-posting-basics";
+  | "ledger-posting-basics"
+  | "trial-balance-basics";
 
 export type SolvedLessonExample = {
   title: string;
@@ -114,10 +115,15 @@ export const lessonCards = [
     description: "Learn how journal entries are posted into individual accounts.",
     href: "/learn/ledger-posting-basics",
   },
+  {
+    slug: "trial-balance-basics",
+    title: "Trial Balance Basics",
+    description: "Learn how ledger balances are listed to check whether debit and credit totals agree.",
+    href: "/learn/trial-balance-basics",
+  },
 ];
 
 export const comingSoonLessons = [
-  "Trial Balance Basics",
   "Final Accounts Basics",
   "GST Journal Entries",
   "Adjustments in Final Accounts",
@@ -1713,9 +1719,216 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Trial Balance", href: "/trial-balance" },
     ],
     nextLesson: {
-      label: "Open Trial Balance Tool",
-      href: "/trial-balance",
-      description: "After ledger balances are prepared, the next step is to use them to prepare a Trial Balance.",
+      label: "Continue to Trial Balance Basics",
+      href: "/learn/trial-balance-basics",
+      description: "After ledger balances are prepared, learn how they are listed in a Trial Balance.",
+    },
+  },
+  "trial-balance-basics": {
+    slug: "trial-balance-basics",
+    title: "Trial Balance Basics",
+    subtitle: "Learn how ledger balances are listed to check whether debit and credit totals agree.",
+    description: "Understand how debit and credit balances from the ledger are checked in one statement.",
+    difficulty: "Beginner",
+    estimatedTime: "10-12 min",
+    whatYouWillLearn: [
+      "What Trial Balance means",
+      "Why Trial Balance is prepared",
+      "How it uses ledger balances",
+      "Debit balance and credit balance",
+      "Why assets and expenses usually appear on debit side",
+      "Why liabilities, capital, and incomes usually appear on credit side",
+      "How debit total and credit total are compared",
+      "What it means when Trial Balance agrees",
+      "What it means when Trial Balance does not agree",
+      "Why Trial Balance is not the same as final accounts",
+      "How Trial Balance connects to Final Accounts",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Trial Balance?",
+        body: [
+          "A Trial Balance is a statement that lists all ledger balances in one place.",
+          "After journal entries are posted to ledger accounts, each ledger account has a balance.",
+          "Trial Balance collects those balances and checks whether total debit balances equal total credit balances.",
+          "Simple line: Trial Balance checks whether debit total and credit total are equal.",
+          "Trial Balance does not directly show profit or loss. It only checks the arithmetical accuracy of ledger balances.",
+        ],
+      },
+      {
+        title: "Why Trial Balance is needed",
+        body: [
+          "Suppose Riya runs a stationery shop.",
+          "She has many ledger accounts: Cash A/c, Capital A/c, Purchases A/c, Sales A/c, Rent A/c, Debtors A/c, and Creditors A/c.",
+          "If she wants to check whether her ledger postings are balanced, she prepares a Trial Balance.",
+          "Trial Balance helps list all ledger balances.",
+          "It separates debit balances and credit balances.",
+          "It checks whether total debit equals total credit.",
+          "It helps find possible posting or totaling mistakes.",
+          "It also helps prepare final accounts later.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a small stationery shop.",
+          "Her ledger balances at the end of the month are Cash A/c debit balance Rs.42,000, Purchases A/c debit balance Rs.10,000, and Rent A/c debit balance Rs.3,000.",
+          "She also has Capital A/c credit balance Rs.50,000 and Sales A/c credit balance Rs.5,000.",
+          "Now she prepares a Trial Balance.",
+          "Debit side: Cash Rs.42,000, Purchases Rs.10,000, Rent Rs.3,000.",
+          "Total debit = Rs.55,000.",
+          "Credit side: Capital Rs.50,000, Sales Rs.5,000.",
+          "Total credit = Rs.55,000.",
+          "Because both totals are equal, the Trial Balance agrees.",
+          "This gives confidence that ledger balances are arithmetically balanced.",
+        ],
+      },
+      {
+        title: "Ledger balances and Trial Balance",
+        body: [
+          "Ledger balances are transferred to Trial Balance.",
+          "If an account has debit balance, put it on debit side of Trial Balance.",
+          "If an account has credit balance, put it on credit side of Trial Balance.",
+          "Cash A/c debit balance goes to debit side.",
+          "Purchases A/c debit balance goes to debit side.",
+          "Rent A/c debit balance goes to debit side.",
+          "Capital A/c credit balance goes to credit side.",
+          "Sales A/c credit balance goes to credit side.",
+          "Creditors A/c credit balance goes to credit side.",
+          "Memory line: Debit balance goes to debit column. Credit balance goes to credit column.",
+        ],
+      },
+      {
+        title: "Debit side and credit side",
+        body: [
+          "Usually debit side includes assets, expenses, losses, drawings, and purchases.",
+          "Examples are Cash, Bank, Furniture, Purchases, Rent, Salary, and Debtors.",
+          "Usually credit side includes liabilities, capital, incomes, gains, and sales.",
+          "Examples are Capital, Loan, Creditors, Sales, and Commission Received.",
+          "This is a general guide. The exact side depends on the ledger balance.",
+        ],
+      },
+      {
+        title: "How to prepare Trial Balance",
+        body: [
+          "Step 1: prepare ledger accounts.",
+          "Step 2: find balance of each ledger account.",
+          "Step 3: write debit balances in the debit column.",
+          "Step 4: write credit balances in the credit column.",
+          "Step 5: add debit column total.",
+          "Step 6: add credit column total.",
+          "Step 7: compare both totals.",
+          "If both totals are equal, Trial Balance agrees.",
+          "If totals are not equal, there may be an error in journal, ledger posting, balance calculation, or totaling.",
+        ],
+      },
+      {
+        title: "What Trial Balance can and cannot prove",
+        body: [
+          "Trial Balance can show that debit and credit totals agree.",
+          "It can show that ledger balances are arithmetically balanced.",
+          "It can help detect some errors.",
+          "Trial Balance cannot guarantee that every transaction is recorded.",
+          "It cannot guarantee that every account is correct.",
+          "It cannot always catch a wrong account, an error of principle, or compensating errors.",
+          "Example: if rent is wrongly recorded as salary but debit and credit amounts are equal, Trial Balance may still agree.",
+          "Memory line: Trial Balance checks totals, but it cannot catch every mistake.",
+        ],
+      },
+    ],
+    visualFlow: [
+      "Transaction",
+      "Journal Entry",
+      "Ledger Posting",
+      "Ledger Balance",
+      "Trial Balance",
+      "Final Accounts",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Ledger balances: Cash Dr Rs.37,000, Purchases Dr Rs.10,000, Rent Dr Rs.3,000, Capital Cr Rs.50,000.",
+        entry: [
+          "Debit side: Cash Rs.37,000, Purchases Rs.10,000, Rent Rs.3,000.",
+          "Credit side: Capital Rs.50,000.",
+          "Debit total: Rs.50,000.",
+          "Credit total: Rs.50,000.",
+          "Result: Trial Balance agrees.",
+        ],
+        logic: [
+          "Debit balances go to the debit column.",
+          "Credit balances go to the credit column.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Ledger balances: Bank Dr Rs.15,000, Furniture Dr Rs.10,000, Capital Cr Rs.25,000.",
+        entry: [
+          "Bank and Furniture go to debit side.",
+          "Capital goes to credit side.",
+          "Debit total: Rs.25,000.",
+          "Credit total: Rs.25,000.",
+          "Result: Trial Balance agrees.",
+        ],
+        logic: [
+          "Bank and Furniture are debit balances.",
+          "Capital is a credit balance.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Ledger balances: Debtors Dr Rs.8,000, Cash Dr Rs.12,000, Sales Cr Rs.20,000.",
+        entry: [
+          "Debtors and Cash go to debit side.",
+          "Sales goes to credit side.",
+          "Debit total: Rs.20,000.",
+          "Credit total: Rs.20,000.",
+          "Result: Trial Balance agrees.",
+        ],
+        logic: [
+          "Debtors and Cash are debit balances.",
+          "Sales is a credit balance.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Debit total Rs.40,000 and credit total Rs.38,000.",
+        entry: [
+          "Result: Trial Balance does not agree.",
+          "Difference: Rs.2,000.",
+        ],
+        logic: [
+          "There may be a mistake in posting, balancing, or totaling.",
+          "The totals must be checked again.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Putting a debit balance in credit column",
+      "Putting a credit balance in debit column",
+      "Forgetting to include one ledger balance",
+      "Writing the wrong amount",
+      "Totaling debit or credit column incorrectly",
+      "Thinking Trial Balance means Final Accounts",
+      "Thinking Trial Balance agreement means no mistakes at all",
+      "Confusing Cash balance with Sales or Profit",
+      "Including the same account twice",
+    ],
+    tryPrompts: [
+      "Cash Dr Rs.30,000, Purchases Dr Rs.10,000, Rent Dr Rs.5,000, Capital Cr Rs.45,000. Expected: Debit total Rs.45,000, Credit total Rs.45,000, Trial Balance agrees.",
+      "Bank Dr Rs.20,000, Debtors Dr Rs.8,000, Sales Cr Rs.28,000. Expected: Debit total Rs.28,000, Credit total Rs.28,000, Trial Balance agrees.",
+      "Furniture Dr Rs.15,000, Cash Dr Rs.5,000, Loan Cr Rs.10,000, Capital Cr Rs.10,000. Expected: Debit total Rs.20,000, Credit total Rs.20,000, Trial Balance agrees.",
+      "Debit total Rs.50,000 and Credit total Rs.48,000. Does Trial Balance agree? Expected: No. Difference Rs.2,000.",
+    ],
+    toolLinks: [
+      { label: "Open Trial Balance Tool", href: "/trial-balance" },
+      { label: "Practice Trial Balance", href: "/practice/trial-balance" },
+      { label: "Open Final Accounts", href: "/final-accounts" },
+    ],
+    nextLesson: {
+      label: "Open Final Accounts Tool",
+      href: "/final-accounts",
+      description: "After Trial Balance, the next step is to prepare Trading A/c, Profit & Loss A/c, and Balance Sheet.",
     },
   },
 };
