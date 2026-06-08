@@ -9,7 +9,8 @@ export type LessonSlug =
   | "cash-book"
   | "subsidiary-books"
   | "ledger-posting-basics"
-  | "trial-balance-basics";
+  | "trial-balance-basics"
+  | "final-accounts-basics";
 
 export type SolvedLessonExample = {
   title: string;
@@ -135,10 +136,15 @@ export const lessonCards = [
     description: "Learn how ledger balances are listed to check whether debit and credit totals agree.",
     href: "/learn/trial-balance-basics",
   },
+  {
+    slug: "final-accounts-basics",
+    title: "Final Accounts Basics",
+    description: "Learn how Trading A/c, Profit & Loss A/c, and Balance Sheet show business results.",
+    href: "/learn/final-accounts-basics",
+  },
 ];
 
 export const comingSoonLessons = [
-  "Final Accounts Basics",
   "GST Journal Entries",
   "Adjustments in Final Accounts",
 ];
@@ -2390,9 +2396,279 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Final Accounts", href: "/final-accounts" },
     ],
     nextLesson: {
+      label: "Continue to Final Accounts Basics",
+      href: "/learn/final-accounts-basics",
+      description: "After Trial Balance, learn how Trading A/c, Profit & Loss A/c, and Balance Sheet are prepared.",
+    },
+  },
+  "final-accounts-basics": {
+    slug: "final-accounts-basics",
+    title: "Final Accounts Basics",
+    subtitle: "Learn how Trading A/c, Profit & Loss A/c, and Balance Sheet show business results.",
+    description:
+      "Understand the basic structure of Final Accounts without jumping into difficult adjustments too early.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What Final Accounts mean",
+      "Why Final Accounts are prepared",
+      "Difference between Trial Balance and Final Accounts",
+      "Trading Account, Profit and Loss Account, and Balance Sheet",
+      "Gross Profit and Gross Loss",
+      "Net Profit and Net Loss",
+      "Assets and liabilities in Balance Sheet",
+      "How capital is adjusted",
+      "Why adjustments are needed later",
+      "How Final Accounts connect with Trial Balance",
+    ],
+    conceptSections: [
+      {
+        title: "What are Final Accounts?",
+        body: [
+          "Final Accounts are statements prepared at the end of an accounting period to know the result and position of a business.",
+          "After transactions are recorded, posted to ledger, and listed in Trial Balance, the business wants to know two big things.",
+          "Did we make profit or loss?",
+          "What do we own and what do we owe?",
+          "Final Accounts answer these questions.",
+          "Simple line: Final Accounts show business result and business position.",
+        ],
+      },
+      {
+        title: "Why Final Accounts are needed",
+        body: [
+          "Suppose Riya runs a small shop.",
+          "At the end of the year, she wants to know total sales, total purchases, profit or loss, cash balance, money receivable from customers, money payable to suppliers, assets, and liabilities.",
+          "Trial Balance gives her ledger balances.",
+          "Final Accounts convert those balances into useful statements.",
+          "They help the owner understand whether the business is earning profit, where money was spent, what assets the business owns, and what liabilities must be paid.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya records sales Rs.80,000, purchases Rs.50,000, rent Rs.5,000, salary Rs.8,000, cash Rs.20,000, debtors Rs.10,000, creditors Rs.12,000, capital Rs.30,000, and closing stock Rs.15,000.",
+          "Trading Account helps her find gross profit or gross loss from buying and selling goods.",
+          "Profit and Loss Account helps her find final net profit or net loss after expenses and incomes.",
+          "Balance Sheet helps her see what the business owns and what the business owes.",
+          "This is the basic journey from Trial Balance to Final Accounts.",
+        ],
+      },
+      {
+        title: "Three parts of Final Accounts",
+        body: [
+          "Trading Account is prepared first.",
+          "It shows gross profit or gross loss from goods trading.",
+          "Profit and Loss Account is prepared after Trading Account.",
+          "It shows net profit or net loss after indirect expenses and incomes.",
+          "Balance Sheet is prepared at the end.",
+          "It shows assets, liabilities, and capital position.",
+          "Simple flow: Trading Account -> Profit and Loss Account -> Balance Sheet.",
+        ],
+      },
+      {
+        title: "Trading Account",
+        body: [
+          "Trading Account shows the result from buying and selling goods.",
+          "It usually includes sales, sales return, purchases, purchase return, opening stock, closing stock, and direct expenses.",
+          "If the credit side is higher, the result is Gross Profit.",
+          "If the debit side is higher, the result is Gross Loss.",
+          "Example: Sales Rs.80,000 plus Closing Stock Rs.10,000 minus Purchases Rs.50,000 gives Gross Profit Rs.40,000.",
+          "Memory line: Trading Account finds gross result before indirect expenses.",
+        ],
+      },
+      {
+        title: "Profit and Loss Account",
+        body: [
+          "Profit and Loss Account starts with Gross Profit or Gross Loss.",
+          "It includes indirect expenses such as rent, salary, advertisement, insurance, depreciation, and bad debts.",
+          "It also includes incomes such as commission received and interest received.",
+          "After all these items, the final result is Net Profit or Net Loss.",
+          "Example: Gross Profit Rs.40,000 minus Rent Rs.5,000 minus Salary Rs.8,000 gives Net Profit Rs.27,000.",
+          "Memory line: Profit and Loss Account finds final business result.",
+        ],
+      },
+      {
+        title: "Balance Sheet",
+        body: [
+          "Balance Sheet shows the financial position of the business on a particular date.",
+          "It shows assets such as cash, bank, debtors, stock, furniture, machinery, and building.",
+          "It shows liabilities such as creditors, loan, and outstanding expenses.",
+          "It also shows capital, which is the owner's claim in the business.",
+          "Memory line: Assets are what the business owns. Liabilities are what the business owes. Capital is the owner's claim.",
+          "Balance Sheet is not an account. It is a statement.",
+        ],
+      },
+      {
+        title: "Gross Profit and Net Profit",
+        body: [
+          "Gross Profit comes from Trading Account.",
+          "Net Profit comes from Profit and Loss Account.",
+          "Gross Profit is calculated before indirect expenses like rent and salary.",
+          "Net Profit is calculated after indirect expenses and other incomes.",
+          "Example: If Gross Profit is Rs.40,000 and rent and salary together are Rs.13,000, Net Profit is Rs.27,000.",
+          "Simple line: Gross Profit is before office expenses. Net Profit is after office expenses.",
+        ],
+      },
+      {
+        title: "Capital working and adjustments",
+        body: [
+          "Net Profit is added to capital because it increases the owner's claim.",
+          "Net Loss is deducted from capital because it decreases the owner's claim.",
+          "Drawings are deducted from capital because the owner has taken money or goods for personal use.",
+          "Example: Capital Rs.50,000 plus Net Profit Rs.27,000 gives Adjusted Capital Rs.77,000.",
+          "Later, adjustments such as closing stock, outstanding expenses, prepaid expenses, accrued income, depreciation, and bad debts make Final Accounts more accurate.",
+          "This lesson only explains the basic structure.",
+        ],
+      },
+      {
+        title: "What Final Accounts can show",
+        body: [
+          "Final Accounts can show gross profit, gross loss, net profit, net loss, assets, liabilities, and capital.",
+          "They help the owner understand business performance and business position.",
+          "They are prepared after Trial Balance.",
+          "Trial Balance checks balances. Final Accounts explain what those balances mean.",
+          "Simple line: Trial Balance is a checking statement. Final Accounts are result and position statements.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Trial Balance vs Final Accounts",
+      leftHeading: "Trial Balance",
+      rightHeading: "Final Accounts",
+      rows: [
+        {
+          left: "Lists ledger balances",
+          right: "Uses balances to prepare business statements",
+        },
+        {
+          left: "Checks debit total and credit total",
+          right: "Shows profit/loss and financial position",
+        },
+        {
+          left: "Prepared before Final Accounts",
+          right: "Prepared after Trial Balance",
+        },
+        {
+          left: "Does not directly show profit",
+          right: "Shows gross profit, net profit, assets, and liabilities",
+        },
+        {
+          left: "Example: Cash Dr, Sales Cr",
+          right: "Example: Trading A/c, P&L A/c, Balance Sheet",
+        },
+      ],
+      note: "Memory line: Trial Balance checks balances. Final Accounts explain the business result.",
+    },
+    visualFlow: [
+      "Trial Balance",
+      "Trading Account",
+      "Gross Profit / Gross Loss",
+      "Profit and Loss Account",
+      "Net Profit / Net Loss",
+      "Capital Working",
+      "Balance Sheet",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Find Gross Profit.",
+        entry: [
+          "Sales Rs.60,000",
+          "Add Closing Stock Rs.10,000",
+          "Less Purchases Rs.30,000",
+          "Gross Profit Rs.40,000",
+        ],
+        logic: [
+          "Trading Account finds the result from goods trading.",
+          "Gross Profit is calculated before indirect expenses.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Find Net Profit.",
+        entry: [
+          "Gross Profit Rs.40,000",
+          "Less Rent Rs.5,000",
+          "Less Salary Rs.8,000",
+          "Net Profit Rs.27,000",
+        ],
+        logic: [
+          "Profit and Loss Account starts with Gross Profit.",
+          "Indirect expenses are deducted to find Net Profit.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Adjust capital using Net Profit.",
+        entry: [
+          "Capital Rs.50,000",
+          "Add Net Profit Rs.27,000",
+          "Adjusted Capital Rs.77,000",
+        ],
+        logic: [
+          "Net Profit belongs to the owner.",
+          "So Net Profit increases capital.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Understand the Balance Sheet idea.",
+        entry: [
+          "Assets Rs.1,00,000",
+          "Liabilities Rs.30,000",
+          "Capital Rs.70,000",
+          "Assets = Capital + Liabilities",
+        ],
+        logic: [
+          "This is a simple balanced position.",
+          "Balance Sheet shows what the business owns and owes.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Remember the Final Accounts order.",
+        entry: [
+          "Trial Balance",
+          "Trading Account",
+          "Profit and Loss Account",
+          "Balance Sheet",
+        ],
+        logic: [
+          "Trial Balance gives balances.",
+          "Final Accounts use those balances to show result and position.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking Trial Balance is the final answer",
+      "Putting assets in Profit and Loss Account",
+      "Putting expenses in Balance Sheet",
+      "Forgetting closing stock in Trading Account",
+      "Confusing Gross Profit with Net Profit",
+      "Forgetting to transfer Gross Profit to Profit and Loss Account",
+      "Showing drawings as an expense",
+      "Forgetting to add Net Profit to capital",
+      "Thinking Balance Sheet is an account",
+      "Thinking Balance Sheet shows profit directly",
+    ],
+    tryPrompts: [
+      "Sales Rs.50,000, Purchases Rs.30,000, Closing Stock Rs.5,000. Find Gross Profit. Expected: Rs.25,000.",
+      "Gross Profit Rs.25,000, Rent Rs.4,000, Salary Rs.6,000. Find Net Profit. Expected: Rs.15,000.",
+      "Capital Rs.60,000, Net Profit Rs.15,000, Drawings Rs.5,000. Find Adjusted Capital. Expected: Rs.70,000.",
+      "Assets Rs.1,00,000 and Liabilities Rs.30,000. Find Capital. Expected: Rs.70,000.",
+      "Debit side of Trading A/c is higher than credit side. What does it mean? Expected: Gross Loss.",
+      "P&L credit side is higher than debit side. What does it mean? Expected: Net Profit.",
+    ],
+    toolLinks: [
+      { label: "Open Final Accounts Tool", href: "/final-accounts" },
+      { label: "Practice Final Accounts", href: "/practice/final-accounts" },
+      { label: "Practice Trial Balance", href: "/practice/trial-balance" },
+    ],
+    nextLesson: {
       label: "Open Final Accounts Tool",
       href: "/final-accounts",
-      description: "After Trial Balance, the next step is to prepare Trading A/c, Profit & Loss A/c, and Balance Sheet.",
+      description:
+        "Next, learn adjustments such as closing stock, outstanding expenses, prepaid expenses, and depreciation. For now, practise the basic structure in the Final Accounts tool.",
     },
   },
 };

@@ -37,6 +37,7 @@ const topicGroups: TopicGroup[] = [
       { title: "Subsidiary Books", href: "/learn/subsidiary-books", status: "available" },
       { title: "Ledger Posting Basics", href: "/learn/ledger-posting-basics", status: "available" },
       { title: "Trial Balance Basics", href: "/learn/trial-balance-basics", status: "available" },
+      { title: "Final Accounts Basics", href: "/learn/final-accounts-basics", status: "available" },
       { title: "Bank Reconciliation Statement", status: "coming_soon" },
       { title: "Rectification of Errors", status: "coming_soon" },
       { title: "Depreciation, Provisions and Reserves", status: "coming_soon" },

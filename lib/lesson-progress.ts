@@ -12,6 +12,7 @@ export const trackedLessonSlugs = [
   "subsidiary-books",
   "ledger-posting-basics",
   "trial-balance-basics",
+  "final-accounts-basics",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];
