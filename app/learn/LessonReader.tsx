@@ -216,7 +216,9 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
 
         {lesson.impactTable ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
-            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Adjustment impact table</p>
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">
+              {lesson.impactTable.eyebrow ?? "Simple table"}
+            </p>
             <h2 className="mt-2 text-2xl font-bold text-blue-950">{lesson.impactTable.title}</h2>
             <div className="mt-5 overflow-x-auto rounded-xl border border-blue-100">
               <table className="w-full min-w-[720px] border-collapse text-sm">

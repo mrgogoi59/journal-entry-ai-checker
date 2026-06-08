@@ -13,6 +13,7 @@ export type LessonSlug =
   | "ledger-posting-basics"
   | "trial-balance-basics"
   | "rectification-of-errors"
+  | "bills-of-exchange"
   | "depreciation-provisions-and-reserves"
   | "final-accounts-basics"
   | "adjustments-in-final-accounts";
@@ -60,6 +61,7 @@ export type LessonContent = {
     note?: string;
   };
   impactTable?: {
+    eyebrow?: string;
     title: string;
     columns: [string, string, string];
     rows: {
@@ -168,6 +170,12 @@ export const lessonCards = [
     title: "Rectification of Errors",
     description: "Learn how accounting mistakes are found and corrected in a simple way.",
     href: "/learn/rectification-of-errors",
+  },
+  {
+    slug: "bills-of-exchange",
+    title: "Bills of Exchange",
+    description: "Learn how a written promise to pay later is recorded in accounting.",
+    href: "/learn/bills-of-exchange",
   },
   {
     slug: "depreciation-provisions-and-reserves",
@@ -3180,9 +3188,299 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
+      label: "Continue to Bills of Exchange",
+      href: "/learn/bills-of-exchange",
+      description: "After learning how mistakes are corrected, learn how written promises to pay later are recorded.",
+    },
+  },
+  "bills-of-exchange": {
+    slug: "bills-of-exchange",
+    title: "Bills of Exchange",
+    subtitle: "Learn how a written promise to pay later is recorded in accounting.",
+    description:
+      "Understand Bills Receivable, Bills Payable, acceptance, maturity, honour, dishonour, discounting, endorsement, and renewal at a beginner level.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What a Bill of Exchange means",
+      "Why businesses use Bills of Exchange",
+      "Drawer, Drawee, and Payee",
+      "Bills Receivable and Bills Payable",
+      "Acceptance of bill",
+      "Due date and maturity",
+      "Bill retained till maturity",
+      "Bill discounted with bank",
+      "Bill endorsed to creditor",
+      "Bill sent for collection",
+      "Bill honoured",
+      "Bill dishonoured",
+      "Noting charges",
+      "Renewal of bill at a beginner level",
+      "Common journal entries",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Bill of Exchange?",
+        body: [
+          "A Bill of Exchange is a written document in which one person orders another person to pay a certain amount on a future date.",
+          "Sometimes goods are sold on credit.",
+          "The seller wants written proof that the buyer will pay later.",
+          "So the seller prepares a Bill of Exchange and the buyer accepts it.",
+          "Example: Riya sells goods to Raju for Rs.10,000 on credit.",
+          "Instead of waiting without proof, Riya draws a bill on Raju.",
+          "Raju accepts the bill and promises to pay Rs.10,000 after 3 months.",
+          "Simple line: Bill of Exchange is a written promise for future payment.",
+        ],
+      },
+      {
+        title: "Why Bills of Exchange are used",
+        body: [
+          "Bills of Exchange give written proof of credit sale.",
+          "They fix the amount payable.",
+          "They fix the date of payment.",
+          "They make the buyer's promise stronger.",
+          "The seller can use the bill to get money earlier from bank.",
+          "The bill can be endorsed to another person.",
+          "It helps businesses manage credit transactions.",
+          "Memory line: A bill makes credit payment more clear and secure.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a stationery shop.",
+          "She sells goods to Raju for Rs.20,000 on credit.",
+          "Riya wants to be sure that Raju will pay after 2 months.",
+          "So Riya prepares a Bill of Exchange.",
+          "The bill says Raju will pay Rs.20,000 after 2 months.",
+          "Raju signs and accepts the bill.",
+          "For Riya, this bill is Bills Receivable because she will receive money.",
+          "For Raju, this bill is Bills Payable because he has to pay money.",
+          "This makes the credit transaction clearer.",
+        ],
+      },
+      {
+        title: "Important parties",
+        body: [
+          "Drawer is the person who prepares the bill.",
+          "Example: Riya sells goods and draws the bill.",
+          "Simple line: Drawer is the person who will receive money.",
+          "Drawee is the person who accepts the bill and has to pay.",
+          "Example: Raju accepts the bill.",
+          "Simple line: Drawee is the person who has to pay.",
+          "Payee is the person who receives the money.",
+          "Usually the drawer is the payee, but sometimes the bill may be payable to another person.",
+          "Simple line: Payee is the person who gets the payment.",
+        ],
+      },
+      {
+        title: "Bills Receivable and Bills Payable",
+        body: [
+          "For the seller, the bill is Bills Receivable because the seller will receive money.",
+          "For the buyer, the bill is Bills Payable because the buyer has to pay money.",
+          "Example: Riya sells goods to Raju Rs.10,000 and Raju accepts a bill.",
+          "In Riya's books, it is Bills Receivable A/c.",
+          "In Raju's books, it is Bills Payable A/c.",
+          "Simple memory line: Receivable means money will come. Payable means money has to go.",
+        ],
+      },
+      {
+        title: "Important terms",
+        body: [
+          "Term of bill means the time after which the bill will be paid.",
+          "Example: bill payable after 3 months.",
+          "Due date means the date on which payment should be made.",
+          "Maturity means the bill becomes due for payment.",
+          "Acceptance means the drawee signs the bill and agrees to pay.",
+          "Dishonour means the drawee does not pay on maturity.",
+          "Noting charges are charges paid to prove that the bill was dishonoured.",
+        ],
+      },
+      {
+        title: "Main situations in Bills of Exchange",
+        body: [
+          "Bill accepted: buyer accepts the bill.",
+          "Bill retained till maturity: seller keeps the bill until due date.",
+          "Bill discounted with bank: seller gives bill to bank and receives money before due date after bank deducts discount.",
+          "Bill endorsed: seller transfers bill to a creditor.",
+          "Bill sent for collection: seller sends bill to bank to collect money on due date.",
+          "Bill honoured: drawee pays on due date.",
+          "Bill dishonoured: drawee fails to pay on due date.",
+          "Bill renewed: old bill is cancelled and new bill is accepted.",
+        ],
+      },
+    ],
+    impactTable: {
+      eyebrow: "Simple comparison table",
+      title: "Bills of Exchange situations",
+      columns: ["Situation", "Meaning", "Main Account"],
+      rows: [
+        { first: "Bill received", second: "Seller will receive money", third: "Bills Receivable" },
+        { first: "Bill accepted", second: "Buyer promises to pay", third: "Bills Payable" },
+        { first: "Bill honoured", second: "Payment made on due date", third: "Bank/Cash" },
+        { first: "Bill discounted", second: "Bill used to get money early", third: "Bank + Discounting Charges" },
+        { first: "Bill endorsed", second: "Bill transferred to creditor", third: "Creditor A/c" },
+        { first: "Bill dishonoured", second: "Payment not made", third: "Drawee/Debtor A/c" },
+        { first: "Bill renewed", second: "Old bill cancelled, new bill accepted", third: "Bills Receivable/Bills Payable" },
+      ],
+      note: "Memory line: Bills Receivable is used by the person who will receive money. Bills Payable is used by the person who has to pay.",
+    },
+    visualFlow: [
+      "Credit sale",
+      "Bill drawn by seller",
+      "Bill accepted by buyer",
+      "Bills Receivable for seller",
+      "Bills Payable for buyer",
+      "Honoured or dishonoured on due date",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Riya sells goods to Raju Rs.10,000 on credit.",
+        entry: [
+          "In Riya's books:",
+          "Raju A/c Dr. Rs.10,000",
+          "To Sales A/c Rs.10,000",
+        ],
+        logic: [
+          "Raju becomes debtor.",
+          "Sales income is credited.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Raju accepts a bill drawn by Riya for Rs.10,000.",
+        entry: [
+          "In Riya's books:",
+          "Bills Receivable A/c Dr. Rs.10,000",
+          "To Raju A/c Rs.10,000",
+          "In Raju's books:",
+          "Riya A/c Dr. Rs.10,000",
+          "To Bills Payable A/c Rs.10,000",
+        ],
+        logic: [
+          "Raju's debt is converted into Bills Receivable for Riya.",
+          "Raju now has a Bills Payable liability.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Bill is honoured on maturity and money is received by Riya.",
+        entry: [
+          "In Riya's books:",
+          "Bank A/c Dr. Rs.10,000",
+          "To Bills Receivable A/c Rs.10,000",
+          "In Raju's books:",
+          "Bills Payable A/c Dr. Rs.10,000",
+          "To Bank A/c Rs.10,000",
+        ],
+        logic: [
+          "Riya receives money.",
+          "Raju pays the bill.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Riya discounts a Rs.10,000 bill with bank. Bank discount Rs.500, cash received Rs.9,500.",
+        entry: [
+          "Bank A/c Dr. Rs.9,500",
+          "Discounting Charges A/c Dr. Rs.500",
+          "To Bills Receivable A/c Rs.10,000",
+        ],
+        logic: [
+          "Riya receives money early.",
+          "The bank charges discount.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Riya endorses the bill to Amit, a creditor.",
+        entry: [
+          "Amit A/c Dr. Rs.10,000",
+          "To Bills Receivable A/c Rs.10,000",
+        ],
+        logic: [
+          "Riya uses the bill to settle Amit's amount.",
+          "Bills Receivable is transferred away.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Bill is dishonoured.",
+        entry: [
+          "Raju A/c Dr. Rs.10,000",
+          "To Bills Receivable A/c Rs.10,000",
+        ],
+        logic: [
+          "Raju did not pay.",
+          "His personal account becomes receivable again.",
+        ],
+      },
+      {
+        title: "Example 7",
+        transaction: "Noting charges Rs.200 paid by Riya on dishonour.",
+        entry: [
+          "Raju A/c Dr. Rs.200",
+          "To Bank A/c Rs.200",
+        ],
+        logic: [
+          "Raju is responsible for the bill dishonour cost.",
+          "Riya paid the charges through bank.",
+        ],
+      },
+      {
+        title: "Example 8",
+        transaction: "Old bill Rs.10,000 is cancelled, Raju pays interest Rs.500 in cash, and a new bill is accepted.",
+        entry: [
+          "Cancel old bill:",
+          "Raju A/c Dr. Rs.10,000",
+          "To Bills Receivable A/c Rs.10,000",
+          "Interest received:",
+          "Cash A/c Dr. Rs.500",
+          "To Interest Income A/c Rs.500",
+          "New bill accepted:",
+          "Bills Receivable A/c Dr. Rs.10,000",
+          "To Raju A/c Rs.10,000",
+        ],
+        logic: [
+          "The old bill is cancelled first.",
+          "Interest is received separately.",
+          "A new Bills Receivable is created.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Confusing Bills Receivable and Bills Payable",
+      "Thinking bill is cash immediately",
+      "Forgetting acceptance entry",
+      "Forgetting to cancel Bills Receivable on dishonour",
+      "Treating discounting charges as income",
+      "Confusing endorsement with payment by cash",
+      "Forgetting noting charges",
+      "Thinking renewal means old bill remains active",
+      "Confusing drawer and drawee",
+      "Recording only seller's entry but not understanding buyer's side",
+    ],
+    tryPrompts: [
+      "Riya draws a bill on Raju for Rs.10,000 and Raju accepts. Expected: Riya records Bills Receivable. Raju records Bills Payable.",
+      "Bill of Rs.10,000 is honoured. Expected: Seller receives Bank/Cash and Bills Receivable is credited.",
+      "Bill of Rs.10,000 is discounted with bank for Rs.9,600. Expected: Bank Dr Rs.9,600, Discounting Charges Dr Rs.400, To Bills Receivable Rs.10,000.",
+      "Bill is endorsed to Amit. Expected: Amit A/c Dr / To Bills Receivable A/c.",
+      "Bill is dishonoured. Expected: Drawee/Debtor A/c Dr / To Bills Receivable A/c.",
+      "Noting charges Rs.300 paid by drawer. Expected: Drawee/Debtor A/c Dr / To Bank/Cash A/c.",
+      "Old bill is cancelled and new bill accepted. Expected: Cancel old Bills Receivable and create new Bills Receivable.",
+      "Who is the drawer? Expected: Person who draws/prepares the bill.",
+      "Who is the drawee? Expected: Person who accepts and pays the bill.",
+    ],
+    toolLinks: [
+      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Next Lesson: Depreciation, Provisions and Reserves", href: "/learn/depreciation-provisions-and-reserves" },
+    ],
+    nextLesson: {
       label: "Continue to Depreciation, Provisions and Reserves",
       href: "/learn/depreciation-provisions-and-reserves",
-      description: "After learning how mistakes are corrected, continue with depreciation, provisions, and reserves.",
+      description: "After learning Bills of Exchange, continue with depreciation, provisions, and reserves.",
     },
   },
   "depreciation-provisions-and-reserves": {
@@ -3875,6 +4173,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       },
     ],
     impactTable: {
+      eyebrow: "Adjustment impact table",
       title: "How common adjustments affect Final Accounts",
       columns: ["Adjustment", "Profit effect", "Balance Sheet effect"],
       rows: [

@@ -15,6 +15,7 @@ export const trackedLessonSlugs = [
   "ledger-posting-basics",
   "trial-balance-basics",
   "rectification-of-errors",
+  "bills-of-exchange",
   "depreciation-provisions-and-reserves",
   "final-accounts-basics",
   "adjustments-in-final-accounts",
