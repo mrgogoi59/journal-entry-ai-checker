@@ -52,7 +52,6 @@ const topicGroups: TopicGroup[] = [
       },
       { title: "Final Accounts Basics", href: "/learn/final-accounts-basics", status: "available" },
       { title: "Financial Statements of Sole Proprietorship", status: "coming_soon" },
-      { title: "Accounts from Incomplete Records", status: "coming_soon" },
     ],
   },
   {
@@ -61,6 +60,11 @@ const topicGroups: TopicGroup[] = [
       {
         title: "Adjustments in Final Accounts",
         href: "/learn/adjustments-in-final-accounts",
+        status: "available",
+      },
+      {
+        title: "Accounts from Incomplete Records",
+        href: "/learn/accounts-from-incomplete-records",
         status: "available",
       },
       { title: "Trading Account", status: "coming_soon" },

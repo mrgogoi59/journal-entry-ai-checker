@@ -19,6 +19,7 @@ export const trackedLessonSlugs = [
   "depreciation-provisions-and-reserves",
   "final-accounts-basics",
   "adjustments-in-final-accounts",
+  "accounts-from-incomplete-records",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];

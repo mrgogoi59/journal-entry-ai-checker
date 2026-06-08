@@ -16,13 +16,25 @@ export type LessonSlug =
   | "bills-of-exchange"
   | "depreciation-provisions-and-reserves"
   | "final-accounts-basics"
-  | "adjustments-in-final-accounts";
+  | "adjustments-in-final-accounts"
+  | "accounts-from-incomplete-records";
 
 export type SolvedLessonExample = {
   title: string;
   transaction: string;
   entry: string[];
   logic: string[];
+};
+
+export type LessonComparisonTable = {
+  title: string;
+  leftHeading: string;
+  rightHeading: string;
+  rows: {
+    left: string;
+    right: string;
+  }[];
+  note?: string;
 };
 
 export type LessonContent = {
@@ -50,16 +62,8 @@ export type LessonContent = {
     meaning: string;
     example: string;
   }[];
-  comparisonTable?: {
-    title: string;
-    leftHeading: string;
-    rightHeading: string;
-    rows: {
-      left: string;
-      right: string;
-    }[];
-    note?: string;
-  };
+  comparisonTable?: LessonComparisonTable;
+  extraComparisonTables?: LessonComparisonTable[];
   impactTable?: {
     eyebrow?: string;
     title: string;
@@ -194,6 +198,13 @@ export const lessonCards = [
     title: "Adjustments in Final Accounts",
     description: "Learn how extra information changes profit, assets, liabilities, and capital.",
     href: "/learn/adjustments-in-final-accounts",
+  },
+  {
+    slug: "accounts-from-incomplete-records",
+    title: "Accounts from Incomplete Records",
+    description:
+      "Learn how profit, capital, and missing figures are found when full accounting records are not available.",
+    href: "/learn/accounts-from-incomplete-records",
   },
 ];
 
@@ -4311,9 +4322,292 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
     ],
     nextLesson: {
-      label: "Practice Final Accounts",
-      href: "/practice/final-accounts",
-      description: "Now that you understand adjustments, try preparing Final Accounts with adjustments.",
+      label: "Continue to Accounts from Incomplete Records",
+      href: "/learn/accounts-from-incomplete-records",
+      description:
+        "After learning Final Accounts adjustments, learn how profit and capital are found when full records are not available.",
+    },
+  },
+  "accounts-from-incomplete-records": {
+    slug: "accounts-from-incomplete-records",
+    title: "Accounts from Incomplete Records",
+    subtitle:
+      "Learn how profit, capital, and missing figures are found when full accounting records are not available.",
+    description:
+      "Understand how small businesses can find profit or loss even when they do not maintain full journal, ledger, and trial balance records.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What incomplete records mean",
+      "Why some businesses do not maintain full double-entry records",
+      "Difference between complete records and incomplete records",
+      "What single-entry system means at a beginner level",
+      "How opening capital and closing capital are found",
+      "How profit or loss is calculated from capital comparison",
+      "How drawings and additional capital affect profit calculation",
+      "What Statement of Affairs means",
+      "Difference between Statement of Affairs and Balance Sheet",
+      "How missing figures are found",
+      "Common mistakes in incomplete records questions",
+    ],
+    conceptSections: [
+      {
+        title: "What are Incomplete Records?",
+        body: [
+          "Incomplete records mean accounting records that are not fully maintained according to the double-entry system.",
+          "In a proper accounting system, every transaction has two sides: debit and credit.",
+          "But some small businesses do not record every transaction properly.",
+          "They may keep only a cash book, bank details, bills, customer notes, supplier notes, and rough notebooks.",
+          "When full records are not available, we call them incomplete records.",
+          "Simple line: Incomplete records means the business records are not complete.",
+        ],
+        example:
+          "A small shopkeeper may know cash, customer dues, supplier dues, and stock value, but may not have full journal, ledger, and trial balance.",
+      },
+      {
+        title: "Why incomplete records happen",
+        body: [
+          "Small businesses may not have a trained accountant.",
+          "The owner may record only cash and bank transactions.",
+          "Some purchase bills or sales bills may be missing.",
+          "Credit transactions may not be recorded properly.",
+          "Full ledger may not be maintained.",
+          "Personal and business transactions may be mixed.",
+          "The owner may think full accounts are unnecessary.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Raju runs a small tea and snacks stall.",
+          "He does not maintain full accounting books.",
+          "He only keeps a cash notebook, bank passbook, some purchase bills, notes of customers who owe money, and notes of suppliers he has to pay.",
+          "At the end of the year, Raju wants to know whether he made profit or loss.",
+          "But he does not have a proper journal, full ledger, or trial balance.",
+          "So the accountant uses the incomplete records method.",
+          "The accountant finds opening capital, closing capital, drawings, and additional capital.",
+          "Then profit or loss is calculated.",
+        ],
+      },
+      {
+        title: "What is Single-Entry System?",
+        body: [
+          "Single-entry system is a system where only some aspects of transactions are recorded.",
+          "It is not a complete accounting system.",
+          "It usually records cash, bank, debtors, creditors, and some personal accounts.",
+          "It does not record every debit and credit properly.",
+          "Simple line: Single-entry system means incomplete double-entry records.",
+          "Important: It does not mean exactly one entry is made for every transaction. It means the record keeping is incomplete.",
+        ],
+      },
+      {
+        title: "What is Statement of Affairs?",
+        rule: "Capital = Assets - Liabilities",
+        body: [
+          "Statement of Affairs is prepared to find capital when full records are not available.",
+          "It lists assets and liabilities on a particular date.",
+          "If assets are Rs.80,000 and liabilities are Rs.30,000, capital is Rs.50,000.",
+          "Calculation: Rs.80,000 - Rs.30,000 = Rs.50,000.",
+          "Simple line: Statement of Affairs helps find capital.",
+          "It looks similar to a Balance Sheet, but it is prepared from incomplete records.",
+        ],
+      },
+      {
+        title: "How to find profit or loss",
+        rule: "Profit = Closing Capital + Drawings - Additional Capital - Opening Capital",
+        body: [
+          "When a full Profit and Loss Account is not available, profit can be found by comparing capital.",
+          "Opening capital means capital at the beginning of the year.",
+          "Closing capital means capital at the end of the year.",
+          "Drawings means money or goods taken by the owner for personal use.",
+          "Additional capital means extra money or assets brought by the owner during the year.",
+          "If the final result is negative, it is a loss.",
+          "Simple logic: if capital increased, the business may have earned profit, but drawings and additional capital must be adjusted first.",
+        ],
+      },
+      {
+        title: "Drawings and additional capital",
+        body: [
+          "Drawings reduce capital because the owner takes money or goods out of the business.",
+          "So drawings are added back while finding profit.",
+          "Example: If the owner took Rs.10,000 from business, closing capital is lower. To find real profit, add drawings back.",
+          "Additional capital increases capital because the owner brings extra money into the business.",
+          "But additional capital is not profit, so it is deducted while finding profit.",
+          "Example: If the owner brought Rs.20,000 extra, closing capital increased because of owner's money, not business profit. So deduct it.",
+          "Memory line: Drawings are added back.",
+          "Memory line: Additional capital is deducted.",
+        ],
+      },
+      {
+        title: "How to find missing figures",
+        body: [
+          "Sometimes some information is missing, but it can be found using the information already available.",
+          "Common missing figures are opening capital, closing capital, profit, drawings, additional capital, creditors, and debtors.",
+          "If assets are Rs.1,00,000 and liabilities are Rs.40,000, capital must be Rs.60,000.",
+          "If opening capital, closing capital, drawings, and additional capital are known, profit can be found using the profit formula.",
+          "Incomplete records means using available clues to find missing figures.",
+          "A grocery shop or mobile repair shop may have only cash records and a few notes, but we can still use those clues carefully.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Complete Records vs Incomplete Records",
+      leftHeading: "Complete Records",
+      rightHeading: "Incomplete Records",
+      rows: [
+        {
+          left: "Follows double-entry system",
+          right: "Does not fully follow double-entry system",
+        },
+        {
+          left: "Journal, ledger, and trial balance are maintained",
+          right: "Only some records are available",
+        },
+        {
+          left: "More reliable",
+          right: "Less reliable",
+        },
+        {
+          left: "Profit can be found from Profit and Loss A/c",
+          right: "Profit is often found by comparing capital",
+        },
+        {
+          left: "Errors are easier to detect",
+          right: "Errors are harder to detect",
+        },
+      ],
+      note: "Memory line: Complete records are systematic. Incomplete records are partial.",
+    },
+    extraComparisonTables: [
+      {
+        title: "Statement of Affairs vs Balance Sheet",
+        leftHeading: "Statement of Affairs",
+        rightHeading: "Balance Sheet",
+        rows: [
+          {
+            left: "Prepared from incomplete records",
+            right: "Prepared from complete records",
+          },
+          {
+            left: "Used to find capital",
+            right: "Shows financial position",
+          },
+          {
+            left: "May be less reliable",
+            right: "More reliable",
+          },
+          {
+            left: "Based on available information",
+            right: "Based on proper ledger balances",
+          },
+        ],
+        note: "Memory line: Statement of Affairs is used when full records are missing.",
+      },
+    ],
+    visualFlow: [
+      "Opening assets and liabilities",
+      "Find opening capital",
+      "Closing assets and liabilities",
+      "Find closing capital",
+      "Add drawings",
+      "Deduct additional capital",
+      "Find profit or loss",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Find capital from Statement of Affairs.",
+        entry: [
+          "Assets Rs.90,000",
+          "Liabilities Rs.40,000",
+          "Capital = Assets - Liabilities",
+          "Capital = Rs.90,000 - Rs.40,000 = Rs.50,000",
+        ],
+        logic: [
+          "Capital is the owner's interest in the business.",
+          "First list assets and liabilities, then deduct liabilities from assets.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Find profit from capital comparison.",
+        entry: [
+          "Opening Capital Rs.50,000",
+          "Closing Capital Rs.80,000",
+          "Drawings Rs.10,000",
+          "Additional Capital Rs.20,000",
+          "Profit = Rs.80,000 + Rs.10,000 - Rs.20,000 - Rs.50,000",
+          "Profit = Rs.20,000",
+        ],
+        logic: [
+          "Drawings are added back because they reduced capital.",
+          "Additional capital is deducted because it is not profit.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Find loss from capital comparison.",
+        entry: [
+          "Opening Capital Rs.60,000",
+          "Closing Capital Rs.50,000",
+          "Drawings Rs.5,000",
+          "Additional Capital Rs.10,000",
+          "Profit/Loss = Rs.50,000 + Rs.5,000 - Rs.10,000 - Rs.60,000",
+          "Result = - Rs.15,000",
+          "Loss Rs.15,000",
+        ],
+        logic: [
+          "The formula gives a negative result.",
+          "A negative result means loss.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Find Raju's closing capital.",
+        entry: [
+          "Cash Rs.20,000",
+          "Stock Rs.30,000",
+          "Debtors Rs.10,000",
+          "Total Assets Rs.60,000",
+          "Creditors Rs.15,000",
+          "Closing Capital = Rs.60,000 - Rs.15,000 = Rs.45,000",
+        ],
+        logic: [
+          "Raju's closing assets are added first.",
+          "Then liabilities are deducted to find closing capital.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking incomplete records means no records at all",
+      "Forgetting to deduct liabilities from assets to find capital",
+      "Forgetting to add drawings while finding profit",
+      "Forgetting to deduct additional capital",
+      "Treating additional capital as profit",
+      "Treating drawings as expense",
+      "Confusing Statement of Affairs with Trial Balance",
+      "Thinking Statement of Affairs is always fully reliable",
+      "Using closing capital only as profit",
+      "Forgetting that incomplete records are less reliable than complete records",
+    ],
+    tryPrompts: [
+      "Assets Rs.80,000 and liabilities Rs.30,000. Find capital. Expected: Rs.50,000.",
+      "Opening capital Rs.40,000, closing capital Rs.70,000, drawings Rs.5,000, additional capital Rs.10,000. Find profit. Expected: Rs.25,000.",
+      "Opening capital Rs.60,000, closing capital Rs.55,000, drawings Rs.8,000, additional capital Rs.15,000. Find profit/loss. Expected: Loss Rs.12,000.",
+      "Owner brought extra cash Rs.20,000 during the year. Is this profit? Expected: No, it is additional capital.",
+      "Owner withdrew Rs.5,000 for personal use. Is this business expense? Expected: No, it is drawings.",
+      "Statement of Affairs shows assets Rs.1,20,000 and liabilities Rs.50,000. Find capital. Expected: Rs.70,000.",
+    ],
+    toolLinks: [
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+      { label: "Practice Final Accounts", href: "/practice/final-accounts" },
+      { label: "Open Final Accounts Tool", href: "/final-accounts" },
+    ],
+    nextLesson: {
+      label: "Review Final Accounts Basics",
+      href: "/learn/final-accounts-basics",
+      description:
+        "After learning how accounts are prepared from incomplete records, the next topic is accounting for organisations that are not mainly formed for profit. Review Final Accounts Basics while that lesson is not available yet.",
     },
   },
 };
