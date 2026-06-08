@@ -43,3 +43,13 @@ export {
   isCoreJournalEntryBalanced,
 } from "./serializers/journal-text-serializer";
 export type { CoreJournalEntryTotals } from "./serializers/journal-text-serializer";
+
+export {
+  ADVANCED_SCENARIO_REGISTRY_VERSION,
+  advancedAccountingScenarios,
+  advancedCompanyScenarios,
+  advancedPartnershipScenarios,
+  getAdvancedScenarioById,
+  getAdvancedScenarioIds,
+  getAdvancedScenariosByTopic,
+} from "./scenarios/advanced-scenario-registry";
