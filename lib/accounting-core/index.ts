@@ -53,3 +53,31 @@ export {
   getAdvancedScenarioIds,
   getAdvancedScenariosByTopic,
 } from "./scenarios/advanced-scenario-registry";
+
+export {
+  assertEntryBalanced,
+  createCompanyAccountRef,
+  createJournalLine,
+  generateCallsInAdvanceReceivedEntry,
+  generateCallsInArrearsReceiptEntry,
+  generateCompanyJournalScenario,
+  generateDebentureInterestPaidEntry,
+  generateDebentureIssueAtDiscountEntry,
+  generateReissueForfeitedSharesAtDiscountEntry,
+  generateShareFirstCallDueEntry,
+  generateShareForfeitureEntry,
+  generateShareIssueAtPremiumEntry,
+  getEntryTotals,
+} from "./generators/company-journal-generator";
+export type {
+  CallsInAdvanceReceivedInput,
+  CallsInArrearsReceiptInput,
+  CompanyJournalEntryTotals,
+  CompanyJournalScenarioInput,
+  DebentureInterestPaidInput,
+  DebentureIssueAtDiscountInput,
+  ReissueForfeitedSharesAtDiscountInput,
+  ShareFirstCallDueInput,
+  ShareForfeitureInput,
+  ShareIssueAtPremiumInput,
+} from "./generators/company-journal-generator";
