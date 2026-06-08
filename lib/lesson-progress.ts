@@ -23,6 +23,7 @@ export const trackedLessonSlugs = [
   "accounting-for-not-for-profit-organisations",
   "partnership-accounts-basic-concepts",
   "profit-and-loss-appropriation-account",
+  "fixed-and-fluctuating-capital-accounts",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];

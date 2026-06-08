@@ -20,7 +20,8 @@ export type LessonSlug =
   | "accounts-from-incomplete-records"
   | "accounting-for-not-for-profit-organisations"
   | "partnership-accounts-basic-concepts"
-  | "profit-and-loss-appropriation-account";
+  | "profit-and-loss-appropriation-account"
+  | "fixed-and-fluctuating-capital-accounts";
 
 export type SolvedLessonExample = {
   title: string;
@@ -226,6 +227,12 @@ export const lessonCards = [
     title: "Profit and Loss Appropriation Account",
     description: "Learn how partnership profit is adjusted and distributed among partners.",
     href: "/learn/profit-and-loss-appropriation-account",
+  },
+  {
+    slug: "fixed-and-fluctuating-capital-accounts",
+    title: "Fixed and Fluctuating Capital Accounts",
+    description: "Learn the two simple methods used to maintain partners' capital accounts.",
+    href: "/learn/fixed-and-fluctuating-capital-accounts",
   },
 ];
 
@@ -5633,10 +5640,302 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
     ],
     nextLesson: {
+      label: "Continue to Fixed and Fluctuating Capital Accounts",
+      href: "/learn/fixed-and-fluctuating-capital-accounts",
+      description:
+        "After learning how profit is distributed, learn how partner capital accounts are maintained under fixed and fluctuating methods.",
+    },
+  },
+  "fixed-and-fluctuating-capital-accounts": {
+    slug: "fixed-and-fluctuating-capital-accounts",
+    title: "Fixed and Fluctuating Capital Accounts",
+    subtitle: "Learn the two simple methods used to maintain partners' capital accounts.",
+    description:
+      "Understand how partner capital accounts and current accounts record capital, drawings, interest, salary, commission, and profit share.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What partner capital account means",
+      "Why partner capital accounts are maintained",
+      "Difference between capital account and current account",
+      "What fixed capital method means",
+      "What fluctuating capital method means",
+      "Which items go to current account in fixed capital method",
+      "Which items go to capital account in fluctuating capital method",
+      "How drawings, interest, salary, commission, and profit share are treated",
+      "How to decide whether capital will remain fixed or keep changing",
+      "Common mistakes in fixed and fluctuating capital accounts",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Partner's Capital Account?",
+        body: [
+          "A partner's capital account records the partner's investment and changes in the partner's claim in the firm.",
+          "When partners bring money into the firm, it is recorded in their capital accounts.",
+          "Example: Riya brings Rs.60,000 and Amit brings Rs.40,000.",
+          "The firm records Riya's Capital A/c Rs.60,000 and Amit's Capital A/c Rs.40,000.",
+          "Simple line: Partner's Capital Account shows how much the partner's money is in the firm.",
+        ],
+      },
+      {
+        title: "Why capital accounts are needed",
+        body: [
+          "In partnership, there are two or more owners.",
+          "So the firm must know how much capital each partner brought.",
+          "It must know how much each partner withdrew.",
+          "It must know how much interest on capital is allowed.",
+          "It must know how much salary or commission is given.",
+          "It must know how much profit share belongs to each partner.",
+          "It must know each partner's final balance.",
+          "Simple line: Capital accounts help track each partner's claim in the partnership.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya and Amit start a stationery shop.",
+          "Riya brings Rs.60,000 and Amit brings Rs.40,000.",
+          "During the year, Riya withdraws Rs.5,000 for personal use and Amit withdraws Rs.4,000.",
+          "Riya gets interest on capital Rs.6,000 and Amit gets interest on capital Rs.4,000.",
+          "Amit gets salary Rs.10,000.",
+          "Profit share is Rs.20,000 each.",
+          "Should all these items change the original capital account?",
+          "It depends on the method used.",
+          "There are two methods: Fixed Capital Method and Fluctuating Capital Method.",
+        ],
+      },
+      {
+        title: "Fixed Capital Method",
+        body: [
+          "Under fixed capital method, the partner's capital account usually remains fixed.",
+          "Only permanent capital changes are recorded in Capital Account.",
+          "Regular items are recorded in a separate Current Account.",
+          "Capital Account records opening capital, additional capital, and permanent withdrawal of capital.",
+          "Current Account records drawings, interest on capital, interest on drawings, partner salary, partner commission, profit share, and loss share.",
+          "Simple line: In fixed capital method, capital account stays mostly fixed and current account records regular changes.",
+          "Example: Riya's capital is Rs.60,000. If no additional capital or permanent withdrawal happens, her Capital Account remains Rs.60,000.",
+        ],
+      },
+      {
+        title: "What is Current Account?",
+        body: [
+          "Current Account is used in fixed capital method to record day-to-day partner adjustments.",
+          "Items credited to partner's Current Account include interest on capital, partner salary, partner commission, and profit share.",
+          "Items debited to partner's Current Account include drawings, interest on drawings, and loss share.",
+          "Salary, interest, drawings, and profit share go to Current Account when the fixed capital method is used.",
+          "Simple memory line: Fixed Capital Method = Capital Account + Current Account.",
+        ],
+      },
+      {
+        title: "Fluctuating Capital Method",
+        body: [
+          "Under fluctuating capital method, all partner-related items are recorded in the Capital Account itself.",
+          "There is usually no separate Current Account.",
+          "Capital Account records opening capital, additional capital, drawings, interest on capital, interest on drawings, salary, commission, profit share, and loss share.",
+          "Because all these items go into Capital Account, the balance keeps changing.",
+          "Simple line: In fluctuating capital method, the capital account keeps changing.",
+          "Example: Riya's capital starts at Rs.60,000. Add interest on capital Rs.6,000 and profit share Rs.20,000. Less drawings Rs.5,000. Closing capital is Rs.81,000.",
+        ],
+      },
+      {
+        title: "Items affecting partner accounts",
+        body: [
+          "Additional capital increases a partner's balance.",
+          "Interest on capital increases a partner's balance.",
+          "Partner salary and commission increase a partner's balance.",
+          "Profit share increases a partner's balance.",
+          "Drawings decrease a partner's balance.",
+          "Interest on drawings decreases a partner's balance.",
+          "Loss share decreases a partner's balance.",
+          "Withdrawal of capital decreases a partner's balance.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Fixed Capital Method vs Fluctuating Capital Method",
+      leftHeading: "Fixed Capital Method",
+      rightHeading: "Fluctuating Capital Method",
+      rows: [
+        {
+          left: "Capital account stays mostly fixed",
+          right: "Capital account changes frequently",
+        },
+        {
+          left: "Current Account is prepared",
+          right: "Usually no Current Account",
+        },
+        {
+          left: "Drawings go to Current Account",
+          right: "Drawings go to Capital Account",
+        },
+        {
+          left: "Interest, salary, and profit share go to Current Account",
+          right: "Interest, salary, and profit share go to Capital Account",
+        },
+        {
+          left: "Useful when firm wants stable capital record",
+          right: "Useful when firm wants all partner changes in one account",
+        },
+      ],
+      note: "Memory line: Fixed method separates capital and adjustments. Fluctuating method keeps everything in capital account.",
+    },
+    impactTable: {
+      eyebrow: "Partner account effects",
+      title: "Items affecting partner balance",
+      columns: ["Item", "Effect on partner balance", "Simple reason"],
+      rows: [
+        {
+          first: "Additional Capital",
+          second: "Increase",
+          third: "Partner brings more money or assets",
+        },
+        {
+          first: "Interest on Capital",
+          second: "Increase",
+          third: "Benefit given to partner",
+        },
+        {
+          first: "Partner Salary",
+          second: "Increase",
+          third: "Reward for extra work",
+        },
+        {
+          first: "Partner Commission",
+          second: "Increase",
+          third: "Reward for special work",
+        },
+        {
+          first: "Profit Share",
+          second: "Increase",
+          third: "Partner's share of profit",
+        },
+        {
+          first: "Drawings",
+          second: "Decrease",
+          third: "Partner takes money or goods personally",
+        },
+        {
+          first: "Interest on Drawings",
+          second: "Decrease",
+          third: "Charge from partner",
+        },
+        {
+          first: "Loss Share",
+          second: "Decrease",
+          third: "Partner's share of loss",
+        },
+      ],
+      note: "In fixed capital method, regular effects usually go to Current Account. In fluctuating capital method, they go to Capital Account.",
+    },
+    visualFlow: [
+      "Partner brings capital",
+      "Choose method",
+      "Fixed method: capital stays fixed, current account changes",
+      "Fluctuating method: capital account changes",
+      "Add partner benefits",
+      "Deduct drawings or charges",
+      "Find closing balance",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Fixed Capital Method: Riya's Capital Rs.60,000. No additional capital or permanent withdrawal.",
+        entry: [
+          "Capital Account balance Rs.60,000",
+          "Current Account: Interest on Capital Rs.6,000",
+          "Current Account: Profit Share Rs.20,000",
+          "Less Drawings Rs.5,000",
+          "Current Account balance = Rs.21,000 credit",
+        ],
+        logic: [
+          "Capital stays fixed.",
+          "Current Account shows regular adjustments.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Fluctuating Capital Method: opening capital Rs.60,000, interest Rs.6,000, profit share Rs.20,000, drawings Rs.5,000.",
+        entry: [
+          "Opening Capital Rs.60,000",
+          "Add Interest on Capital Rs.6,000",
+          "Add Profit Share Rs.20,000",
+          "Less Drawings Rs.5,000",
+          "Closing Capital Rs.81,000",
+        ],
+        logic: [
+          "All items go to Capital Account.",
+          "So the capital balance changes.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Two partners using fluctuating method.",
+        entry: [
+          "Riya opening capital Rs.60,000 + profit share Rs.20,000 - drawings Rs.5,000 = Rs.75,000",
+          "Amit opening capital Rs.40,000 + profit share Rs.20,000 - drawings Rs.4,000 = Rs.56,000",
+        ],
+        logic: [
+          "Profit share increases capital.",
+          "Drawings reduce capital.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Amit's drawings Rs.10,000. Interest on drawings Rs.500.",
+        entry: [
+          "Interest on Drawings Rs.500",
+          "Amit's balance decreases by Rs.500",
+        ],
+        logic: [
+          "Interest on drawings is charged from partner.",
+          "So it reduces the partner's balance.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Amit gets partner salary Rs.12,000.",
+        entry: [
+          "Partner Salary Rs.12,000",
+          "Amit's balance increases by Rs.12,000",
+        ],
+        logic: [
+          "Salary is payable to Amit as partner benefit.",
+          "So it increases Amit's balance.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking fixed capital means capital can never change",
+      "Forgetting Current Account in fixed capital method",
+      "Putting drawings in Capital Account under fixed capital method",
+      "Putting profit share in Capital Account under fixed capital method",
+      "Forgetting that fluctuating capital changes every year",
+      "Treating interest on drawings as partner income",
+      "Treating drawings as business expense",
+      "Confusing partner salary with employee salary",
+      "Forgetting to deduct loss share",
+      "Mixing fixed and fluctuating methods in one answer",
+    ],
+    tryPrompts: [
+      "Riya's fixed capital is Rs.50,000. No additional capital or permanent withdrawal. What happens to Capital Account? Expected: It remains Rs.50,000.",
+      "In fixed capital method, Riya's drawings are Rs.5,000. Capital Account or Current Account? Expected: Current Account.",
+      "In fixed capital method, Riya's interest on capital is Rs.4,000. Capital Account or Current Account? Expected: Current Account.",
+      "In fluctuating method, opening capital Rs.40,000, profit share Rs.10,000, drawings Rs.3,000. Find closing capital. Expected: Rs.47,000.",
+      "Amit gets salary Rs.8,000. Does Amit's balance increase or decrease? Expected: Increase.",
+      "Interest on drawings Rs.500. Does partner's balance increase or decrease? Expected: Decrease.",
+      "Which method usually uses Current Account? Expected: Fixed Capital Method.",
+      "Which method records all partner adjustments in Capital Account? Expected: Fluctuating Capital Method.",
+    ],
+    toolLinks: [
+      { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
+      { label: "Review P&L Appropriation", href: "/learn/profit-and-loss-appropriation-account" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
       label: "Review Partnership Basics",
       href: "/learn/partnership-accounts-basic-concepts",
       description:
-        "After learning how profit is distributed, the next step is to understand how partner capital accounts are maintained. Review Partnership Basics while that lesson is not available yet.",
+        "After understanding partner capital accounts, the next major topic is admission of a new partner. Review Partnership Basics while that lesson is not available yet.",
     },
   },
 };

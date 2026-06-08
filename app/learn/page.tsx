@@ -97,7 +97,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/profit-and-loss-appropriation-account",
         status: "available",
       },
-      { title: "Fixed and Fluctuating Capital Accounts", status: "coming_soon" },
+      {
+        title: "Fixed and Fluctuating Capital Accounts",
+        href: "/learn/fixed-and-fluctuating-capital-accounts",
+        status: "available",
+      },
       { title: "Admission of a Partner", status: "coming_soon" },
       { title: "Retirement or Death of a Partner", status: "coming_soon" },
       { title: "Dissolution of Partnership Firm", status: "coming_soon" },
