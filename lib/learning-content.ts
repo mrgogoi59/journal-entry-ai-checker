@@ -24,7 +24,8 @@ export type LessonSlug =
   | "fixed-and-fluctuating-capital-accounts"
   | "admission-of-a-partner"
   | "retirement-or-death-of-a-partner"
-  | "dissolution-of-partnership-firm";
+  | "dissolution-of-partnership-firm"
+  | "accounting-for-share-capital";
 
 export type SolvedLessonExample = {
   title: string;
@@ -254,6 +255,12 @@ export const lessonCards = [
     title: "Dissolution of Partnership Firm",
     description: "Learn what happens when a partnership business is closed and all accounts are settled.",
     href: "/learn/dissolution-of-partnership-firm",
+  },
+  {
+    slug: "accounting-for-share-capital",
+    title: "Accounting for Share Capital",
+    description: "Learn how a company raises money by issuing shares and records share capital.",
+    href: "/learn/accounting-for-share-capital",
   },
 ];
 
@@ -6913,10 +6920,339 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
-      label: "Review Partnership Basics",
-      href: "/learn/partnership-accounts-basic-concepts",
+      label: "Continue to Accounting for Share Capital",
+      href: "/learn/accounting-for-share-capital",
       description:
         "After partnership accounts, the next major area is company accounts, starting with share capital.",
+    },
+  },
+  "accounting-for-share-capital": {
+    slug: "accounting-for-share-capital",
+    title: "Accounting for Share Capital",
+    subtitle: "Learn how a company raises money by issuing shares and how share capital is recorded.",
+    description:
+      "Understand company capital, shareholders, face value, premium, application, allotment, calls, and basic share issue journal entries.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What a company is",
+      "Why companies issue shares",
+      "What share capital means",
+      "Who shareholders are",
+      "Difference between owner capital and share capital",
+      "Equity shares and preference shares at a basic level",
+      "Authorised, issued, subscribed, called-up, and paid-up capital",
+      "Face value and premium",
+      "Issue of shares at par",
+      "Issue of shares at premium",
+      "Application, allotment, and calls",
+      "Basic journal entry ideas",
+      "Common mistakes in share capital questions",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Company?",
+        body: [
+          "A company is a business organisation that is separate from its owners.",
+          "In a sole proprietorship, one owner brings capital.",
+          "In a partnership, partners bring capital.",
+          "In a company, many people can invest money by buying shares.",
+          "The people who buy shares become shareholders.",
+          "Example: Accy Mobile Accessories Ltd. wants to expand its business. Instead of taking money from one owner only, it issues shares to many people.",
+          "Simple line: A company raises capital by issuing shares to shareholders.",
+        ],
+      },
+      {
+        title: "What is Share Capital?",
+        body: [
+          "Share capital is the money raised by a company by issuing shares.",
+          "Example: a company issues 10,000 shares of Rs.10 each.",
+          "Share capital = 10,000 x Rs.10 = Rs.1,00,000.",
+          "Simple line: Share capital is the company's capital collected from shareholders.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya starts a small company called Riya Stationery Ltd.",
+          "She wants to open 5 stationery stores.",
+          "She needs Rs.1,00,000.",
+          "Instead of asking one person for the full amount, the company issues shares.",
+          "The company issues 10,000 shares of Rs.10 each.",
+          "Many people buy these shares.",
+          "Now the company receives money, buyers become shareholders, and the amount received becomes share capital.",
+          "This is the beginning of share capital accounting.",
+        ],
+      },
+      {
+        title: "Why companies issue shares",
+        body: [
+          "Companies issue shares because they need money to start or expand business.",
+          "Many people can invest small amounts.",
+          "The company can raise large capital.",
+          "Shareholders become owners of the company.",
+          "The company does not have to repay share capital like a normal loan.",
+          "Simple line: Shares help a company collect capital from many people.",
+        ],
+      },
+      {
+        title: "Shareholder and share",
+        body: [
+          "A share is a small part of the company's capital.",
+          "A shareholder is a person who owns shares of the company.",
+          "Example: if Riya buys 100 shares of Rs.10 each, she invests Rs.1,000 and becomes a shareholder.",
+          "Simple memory line: Share = small part of company capital. Shareholder = person who owns shares.",
+        ],
+      },
+      {
+        title: "Types of shares in simple words",
+        body: [
+          "Equity shareholders are the real owners of the company.",
+          "They may receive dividend if the company earns profit and decides to distribute it.",
+          "Simple line: Equity shareholders take more risk and may get more reward.",
+          "Preference shareholders get preference in dividend and repayment of capital.",
+          "Simple line: Preference shareholders get priority over equity shareholders in some matters.",
+        ],
+      },
+      {
+        title: "Important share capital terms",
+        body: [
+          "Authorised Capital is the maximum capital the company is allowed to issue.",
+          "Issued Capital is the part of authorised capital actually offered to the public.",
+          "Subscribed Capital is the part of issued capital actually taken by people.",
+          "Called-up Capital is the amount the company has asked shareholders to pay.",
+          "Paid-up Capital is the amount shareholders have actually paid.",
+          "Face Value is the value written on the share, such as Rs.10 each.",
+          "Premium is extra amount charged above face value.",
+          "Simple memory line: Face value is basic value. Premium is extra amount.",
+        ],
+      },
+      {
+        title: "Issue of Shares at Par",
+        body: [
+          "At par means shares are issued at face value.",
+          "Example: company issues 1,000 shares of Rs.10 each at Rs.10.",
+          "Amount received = 1,000 x Rs.10 = Rs.10,000.",
+          "Journal entry idea: Bank A/c Dr. Rs.10,000, To Share Capital A/c Rs.10,000.",
+          "Bank increases and share capital increases.",
+          "Simple line: At par means issue price = face value.",
+        ],
+      },
+      {
+        title: "Issue of Shares at Premium",
+        body: [
+          "Premium means shares are issued above face value.",
+          "Example: company issues 1,000 shares of Rs.10 each at Rs.12.",
+          "Face value = 1,000 x Rs.10 = Rs.10,000.",
+          "Premium = 1,000 x Rs.2 = Rs.2,000.",
+          "Total received = Rs.12,000.",
+          "Journal entry idea: Bank A/c Dr. Rs.12,000, To Share Capital A/c Rs.10,000, To Securities Premium A/c Rs.2,000.",
+          "Simple line: Premium is extra money received above face value.",
+        ],
+      },
+      {
+        title: "Application, allotment, and calls",
+        body: [
+          "Sometimes a company does not collect full share money at once.",
+          "Application Money is received when people apply for shares.",
+          "Allotment Money becomes due when shares are allotted.",
+          "Call Money is money called later by the company.",
+          "Example: share value is Rs.10. The company asks application Rs.3, allotment Rs.4, and first call Rs.3.",
+          "Total collected = Rs.3 + Rs.4 + Rs.3 = Rs.10.",
+          "Simple line: Application, allotment, and calls are stages of collecting share money.",
+        ],
+      },
+      {
+        title: "Basic journal entry ideas",
+        body: [
+          "Application money received on 1,000 shares at Rs.3 each: Bank A/c Dr. Rs.3,000, To Share Application A/c Rs.3,000.",
+          "Application money transferred to capital: Share Application A/c Dr. Rs.3,000, To Share Capital A/c Rs.3,000.",
+          "Allotment money due on 1,000 shares at Rs.4 each: Share Allotment A/c Dr. Rs.4,000, To Share Capital A/c Rs.4,000.",
+          "Allotment money received: Bank A/c Dr. Rs.4,000, To Share Allotment A/c Rs.4,000.",
+          "First call due on 1,000 shares at Rs.3 each: Share First Call A/c Dr. Rs.3,000, To Share Capital A/c Rs.3,000.",
+          "First call money received: Bank A/c Dr. Rs.3,000, To Share First Call A/c Rs.3,000.",
+          "Simple line: Share money may move through application, allotment, and call accounts before becoming share capital.",
+        ],
+      },
+    ],
+    memoryTable: [
+      {
+        principle: "Share",
+        meaning: "Small part of company capital",
+        example: "One share of Rs.10",
+      },
+      {
+        principle: "Shareholder",
+        meaning: "Person who owns shares",
+        example: "Riya owns 100 shares",
+      },
+      {
+        principle: "Share Capital",
+        meaning: "Money raised by issuing shares",
+        example: "10,000 shares x Rs.10",
+      },
+      {
+        principle: "Face Value",
+        meaning: "Value written on share",
+        example: "Rs.10",
+      },
+      {
+        principle: "Premium",
+        meaning: "Extra above face value",
+        example: "Issued at Rs.12, premium Rs.2",
+      },
+      {
+        principle: "Application",
+        meaning: "Money paid while applying",
+        example: "Rs.3 per share",
+      },
+      {
+        principle: "Allotment",
+        meaning: "Money due after shares are allotted",
+        example: "Rs.4 per share",
+      },
+      {
+        principle: "Call",
+        meaning: "Money asked later",
+        example: "Rs.3 per share",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Share capital terms",
+      title: "Important terms at a glance",
+      columns: ["Term", "Simple meaning", "Example"],
+      rows: [
+        {
+          first: "Authorised Capital",
+          second: "Maximum capital the company is allowed to issue",
+          third: "Company allowed to issue up to Rs.5,00,000",
+        },
+        {
+          first: "Issued Capital",
+          second: "Part of authorised capital offered to people",
+          third: "Company offers shares worth Rs.2,00,000",
+        },
+        {
+          first: "Subscribed Capital",
+          second: "Part of issued capital taken by people",
+          third: "People apply for shares worth Rs.1,80,000",
+        },
+        {
+          first: "Called-up Capital",
+          second: "Amount company has asked shareholders to pay",
+          third: "Share is Rs.10, company asks Rs.6 first",
+        },
+        {
+          first: "Paid-up Capital",
+          second: "Amount shareholders have actually paid",
+          third: "Company called Rs.6, shareholder paid Rs.5",
+        },
+        {
+          first: "Premium",
+          second: "Extra amount above face value",
+          third: "Rs.10 share issued at Rs.12",
+        },
+      ],
+      note: "At the beginner level, first understand what money is asked, what money is received, and how much becomes Share Capital.",
+    },
+    visualFlow: [
+      "Company needs capital",
+      "Issues shares",
+      "Receives application money",
+      "Allots shares",
+      "Calls remaining money",
+      "Receives share money",
+      "Records Share Capital",
+      "Uses capital for business",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Company issues 5,000 shares of Rs.10 each.",
+        entry: ["Share capital = 5,000 x Rs.10", "Share capital = Rs.50,000"],
+        logic: [
+          "Share capital is number of shares multiplied by face value.",
+          "Here each share has face value Rs.10.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "1,000 shares of Rs.10 each issued at Rs.10.",
+        entry: ["Bank A/c Dr. Rs.10,000", "To Share Capital A/c Rs.10,000"],
+        logic: [
+          "Issue price equals face value.",
+          "So this is issue at par.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "1,000 shares of Rs.10 each issued at Rs.12.",
+        entry: [
+          "Bank A/c Dr. Rs.12,000",
+          "To Share Capital A/c Rs.10,000",
+          "To Securities Premium A/c Rs.2,000",
+        ],
+        logic: [
+          "Rs.10 per share goes to Share Capital.",
+          "Extra Rs.2 per share goes to Securities Premium.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "1,000 shares of Rs.10 each. Application Rs.3, allotment Rs.4, first call Rs.3.",
+        entry: [
+          "Application money = 1,000 x Rs.3 = Rs.3,000",
+          "Allotment money = 1,000 x Rs.4 = Rs.4,000",
+          "First call = 1,000 x Rs.3 = Rs.3,000",
+          "Total = Rs.10,000",
+        ],
+        logic: [
+          "The company collects the share money in parts.",
+          "All parts together equal the face value of the shares.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Share face value Rs.10. Issue price Rs.15. 2,000 shares issued.",
+        entry: ["Premium per share = Rs.15 - Rs.10 = Rs.5", "Total premium = 2,000 x Rs.5 = Rs.10,000"],
+        logic: [
+          "Premium is the extra amount above face value.",
+          "It is recorded separately from Share Capital.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Confusing share capital with loan",
+      "Thinking shareholders are creditors",
+      "Confusing face value and issue price",
+      "Forgetting premium is recorded separately",
+      "Recording full share capital when only application money is received",
+      "Confusing application, allotment, and call",
+      "Treating premium as normal sales income",
+      "Forgetting that company is separate from shareholders",
+      "Thinking preference shares and equity shares are exactly same",
+      "Mixing company accounts with partnership capital accounts",
+    ],
+    tryPrompts: [
+      "Company issues 2,000 shares of Rs.10 each. Find share capital. Expected: Rs.20,000.",
+      "1,000 shares of Rs.10 issued at Rs.12. Find premium per share. Expected: Rs.2.",
+      "1,000 shares of Rs.10 issued at Rs.12. Find total amount received. Expected: Rs.12,000.",
+      "1,000 shares. Application money Rs.3 per share. Find application money. Expected: Rs.3,000.",
+      "Share face value Rs.10, issue price Rs.15. Is it at par or premium? Expected: premium.",
+      "Share face value Rs.10, issue price Rs.10. Is it at par or premium? Expected: at par.",
+      "Company asks Rs.4 on allotment for 2,000 shares. Find allotment money due. Expected: Rs.8,000.",
+      "Person owning company shares is called? Expected: shareholder.",
+    ],
+    toolLinks: [
+      { label: "Review Journal Entry Basics", href: "/learn/journal-entry-basics" },
+      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+    ],
+    nextLesson: {
+      label: "Practice Journal Entries",
+      href: "/practice",
+      description:
+        "After learning how share capital is issued, the next step is to understand what happens when shareholders pay less or more than the amount called.",
     },
   },
 };

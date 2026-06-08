@@ -122,7 +122,11 @@ const topicGroups: TopicGroup[] = [
   {
     title: "Company Accounts",
     topics: [
-      { title: "Accounting for Share Capital", status: "coming_soon" },
+      {
+        title: "Accounting for Share Capital",
+        href: "/learn/accounting-for-share-capital",
+        status: "available",
+      },
       { title: "Calls in Arrears and Calls in Advance", status: "coming_soon" },
       { title: "Forfeiture and Reissue of Shares", status: "coming_soon" },
       { title: "Issue and Redemption of Debentures", status: "coming_soon" },
