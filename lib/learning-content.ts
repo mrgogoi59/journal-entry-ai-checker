@@ -26,7 +26,8 @@ export type LessonSlug =
   | "retirement-or-death-of-a-partner"
   | "dissolution-of-partnership-firm"
   | "accounting-for-share-capital"
-  | "calls-in-arrears-and-calls-in-advance";
+  | "calls-in-arrears-and-calls-in-advance"
+  | "forfeiture-and-reissue-of-shares";
 
 export type SolvedLessonExample = {
   title: string;
@@ -268,6 +269,12 @@ export const lessonCards = [
     title: "Calls in Arrears and Calls in Advance",
     description: "Learn what happens when shareholders pay less or more than the amount called.",
     href: "/learn/calls-in-arrears-and-calls-in-advance",
+  },
+  {
+    slug: "forfeiture-and-reissue-of-shares",
+    title: "Forfeiture and Reissue of Shares",
+    description: "Learn what happens when unpaid shares are cancelled and issued again.",
+    href: "/learn/forfeiture-and-reissue-of-shares",
   },
 ];
 
@@ -7493,10 +7500,326 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Tools", href: "/tools" },
     ],
     nextLesson: {
+      label: "Continue to Forfeiture and Reissue of Shares",
+      href: "/learn/forfeiture-and-reissue-of-shares",
+      description:
+        "After learning calls in arrears and advance, the next topic is what happens when a shareholder fails to pay and shares are forfeited.",
+    },
+  },
+  "forfeiture-and-reissue-of-shares": {
+    slug: "forfeiture-and-reissue-of-shares",
+    title: "Forfeiture and Reissue of Shares",
+    subtitle: "Learn what happens when shareholders fail to pay call money and their shares are cancelled and reissued.",
+    description:
+      "Understand forfeiture, Share Forfeiture Account, reissue at par, discount, premium, and Capital Reserve with simple examples.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What forfeiture of shares means",
+      "Why shares are forfeited",
+      "Connection between calls in arrears and forfeiture",
+      "What amount is unpaid by shareholder",
+      "What Share Forfeiture Account means",
+      "What reissue of forfeited shares means",
+      "Reissue at par",
+      "Reissue at discount",
+      "Reissue at premium at a basic level",
+      "Maximum discount allowed on reissue",
+      "Capital Reserve in simple words",
+      "Common journal entry ideas",
+      "Common mistakes in forfeiture and reissue questions",
+    ],
+    conceptSections: [
+      {
+        title: "What is Forfeiture of Shares?",
+        body: [
+          "Forfeiture of shares means cancelling shares because the shareholder did not pay the required call money.",
+          "Example: Raju has 100 shares of Rs.10 each.",
+          "The company asks him to pay the final call of Rs.3 per share.",
+          "Amount due = 100 x Rs.3 = Rs.300.",
+          "Raju does not pay.",
+          "After giving notice, the company cancels his shares.",
+          "Simple line: Forfeiture means shares are cancelled because call money was not paid.",
+        ],
+      },
+      {
+        title: "Why shares are forfeited",
+        body: [
+          "A company may forfeit shares because the shareholder failed to pay allotment money.",
+          "A company may forfeit shares because the shareholder failed to pay call money.",
+          "The company usually gives notice, but payment is still not made.",
+          "The company may then cancel unpaid shares and issue them again.",
+          "Simple line: Forfeiture happens when the shareholder does not pay money due on shares.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya Stationery Ltd. issues shares of Rs.10 each.",
+          "Raju buys 100 shares.",
+          "He pays application Rs.3 per share and allotment Rs.4 per share.",
+          "But he does not pay final call Rs.3 per share.",
+          "Unpaid amount = 100 x Rs.3 = Rs.300.",
+          "The company asks Raju to pay, but he still does not pay.",
+          "So the company forfeits his shares.",
+          "Later, the company reissues those shares to Amit.",
+          "This is called forfeiture and reissue of shares.",
+        ],
+      },
+      {
+        title: "Link with calls in arrears",
+        body: [
+          "Calls in arrears means call money has not been paid.",
+          "If the shareholder still does not pay after notice, the company may forfeit the shares.",
+          "Simple flow: Call money due -> shareholder does not pay -> calls in arrears -> company gives notice -> still unpaid -> shares forfeited.",
+          "Simple line: Calls in arrears can lead to forfeiture.",
+        ],
+      },
+      {
+        title: "Accounting idea of forfeiture",
+        body: [
+          "When shares are forfeited, Share Capital is reduced because the shares are cancelled.",
+          "Calls in Arrears is removed because the company will not collect that unpaid amount from the old shareholder.",
+          "Amount already received from the shareholder is transferred to Share Forfeiture Account.",
+          "Example: Raju had 100 shares of Rs.10 each.",
+          "Face value = 100 x Rs.10 = Rs.1,000.",
+          "He paid application Rs.300 and allotment Rs.400, so total paid = Rs.700.",
+          "He did not pay final call Rs.300.",
+          "On forfeiture, Share Capital is reduced by Rs.1,000, Calls in Arrears Rs.300 is cancelled, and Rs.700 goes to Share Forfeiture Account.",
+          "Simple line: Share Forfeiture Account holds the amount already received on forfeited shares.",
+        ],
+      },
+      {
+        title: "What is Share Forfeiture Account?",
+        body: [
+          "Share Forfeiture Account records the amount already received on shares that are forfeited.",
+          "Example: Raju paid Rs.700 before his shares were forfeited.",
+          "This Rs.700 goes to Share Forfeiture Account.",
+          "When shares are reissued, part of this amount may be used to give discount.",
+          "Remaining amount may become Capital Reserve.",
+          "Simple line: Share Forfeiture Account shows money kept by the company from forfeited shares.",
+        ],
+      },
+      {
+        title: "What is Reissue of Forfeited Shares?",
+        body: [
+          "Reissue means selling forfeited shares again to another person.",
+          "Example: Raju's 100 shares were forfeited.",
+          "Later, the company gives those 100 shares to Amit.",
+          "This is reissue of forfeited shares.",
+          "Simple line: Reissue means forfeited shares are issued again.",
+        ],
+      },
+      {
+        title: "Reissue at par, discount, and premium",
+        body: [
+          "Reissue at par means shares are reissued at face value.",
+          "Example: Rs.10 share reissued at Rs.10.",
+          "Reissue at discount means shares are reissued below face value.",
+          "Example: Rs.10 share reissued at Rs.8. Discount is Rs.2 per share.",
+          "Discount on reissue cannot be more than the amount already received on those shares.",
+          "Reissue at premium means shares are reissued above face value.",
+          "Example: Rs.10 share reissued at Rs.12. Premium is Rs.2 per share.",
+          "Simple line: Reissue may happen at face value, below face value, or above face value.",
+        ],
+      },
+      {
+        title: "Capital Reserve in simple words",
+        body: [
+          "After forfeited shares are reissued, any remaining profit in Share Forfeiture Account is transferred to Capital Reserve.",
+          "Example: amount already received from Raju is Rs.700.",
+          "Shares are reissued to Amit at discount of Rs.200.",
+          "Remaining amount = Rs.700 - Rs.200 = Rs.500.",
+          "This Rs.500 becomes Capital Reserve.",
+          "Simple line: Capital Reserve is the profit kept after reissuing forfeited shares.",
+        ],
+      },
+      {
+        title: "Basic journal entry ideas",
+        body: [
+          "Forfeiture example: 100 shares of Rs.10 each forfeited. Raju paid Rs.7 per share and failed to pay Rs.3 per share.",
+          "Entry idea: Share Capital A/c Dr. Rs.1,000, To Calls in Arrears A/c Rs.300, To Share Forfeiture A/c Rs.700.",
+          "Reissue at discount example: 100 shares of Rs.10 each reissued at Rs.8.",
+          "Entry idea: Bank A/c Dr. Rs.800, Share Forfeiture A/c Dr. Rs.200, To Share Capital A/c Rs.1,000.",
+          "Transfer to Capital Reserve example: Share Forfeiture balance Rs.700, discount used Rs.200, balance Rs.500.",
+          "Entry idea: Share Forfeiture A/c Dr. Rs.500, To Capital Reserve A/c Rs.500.",
+          "Simple line: Share Capital is cancelled on forfeiture and restored on reissue.",
+        ],
+      },
+    ],
+    memoryTable: [
+      {
+        principle: "Calls in Arrears",
+        meaning: "Money called but not paid",
+        example: "Raju did not pay final call",
+      },
+      {
+        principle: "Forfeiture",
+        meaning: "Shares cancelled",
+        example: "Raju's shares cancelled",
+      },
+      {
+        principle: "Share Forfeiture",
+        meaning: "Amount already received on forfeited shares",
+        example: "Raju paid Rs.700",
+      },
+      {
+        principle: "Reissue",
+        meaning: "Forfeited shares issued again",
+        example: "Shares given to Amit",
+      },
+      {
+        principle: "Discount on Reissue",
+        meaning: "Reissued below face value",
+        example: "Rs.10 share at Rs.8",
+      },
+      {
+        principle: "Capital Reserve",
+        meaning: "Remaining gain after reissue",
+        example: "Share forfeiture balance left",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Forfeiture guide",
+      title: "What changes during forfeiture and reissue",
+      columns: ["Item", "Simple meaning", "Effect"],
+      rows: [
+        {
+          first: "Share Capital",
+          second: "Face value of shares",
+          third: "Reduced on forfeiture and restored on reissue",
+        },
+        {
+          first: "Calls in Arrears",
+          second: "Unpaid call money",
+          third: "Removed when shares are forfeited",
+        },
+        {
+          first: "Share Forfeiture",
+          second: "Amount already received",
+          third: "Used for discount and remaining balance",
+        },
+        {
+          first: "Bank",
+          second: "Money received on reissue",
+          third: "Increases when shares are reissued",
+        },
+        {
+          first: "Securities Premium",
+          second: "Extra above face value",
+          third: "Recorded separately if shares are reissued at premium",
+        },
+        {
+          first: "Capital Reserve",
+          second: "Final gain after reissue",
+          third: "Receives remaining Share Forfeiture balance",
+        },
+      ],
+      note: "Discount on reissue cannot be more than the amount already received on the forfeited shares.",
+    },
+    visualFlow: [
+      "Company issues shares",
+      "Shareholder fails to pay call money",
+      "Calls in arrears",
+      "Shares forfeited",
+      "Amount already received goes to Share Forfeiture",
+      "Shares reissued",
+      "Discount adjusted if any",
+      "Balance transferred to Capital Reserve",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Raju has 100 shares. Final call Rs.3 per share. Raju does not pay.",
+        entry: ["Calls in arrears = 100 x Rs.3", "Calls in arrears = Rs.300"],
+        logic: [
+          "The company asked Raju to pay Rs.300.",
+          "Because Raju did not pay, the amount is calls in arrears.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "100 shares of Rs.10 each. Raju paid Rs.7 per share and did not pay Rs.3 per share.",
+        entry: [
+          "Share capital cancelled = 100 x Rs.10 = Rs.1,000",
+          "Amount already received = 100 x Rs.7 = Rs.700",
+          "Calls in arrears = 100 x Rs.3 = Rs.300",
+          "Share Forfeiture = Rs.700",
+        ],
+        logic: [
+          "The company cancels the full face value of shares.",
+          "The amount already received is kept in Share Forfeiture Account.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Forfeited shares of Rs.10 each are reissued at Rs.10.",
+        entry: ["Meaning: no discount, no premium"],
+        logic: [
+          "Issue price equals face value.",
+          "So the reissue is at par.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "100 forfeited shares of Rs.10 each are reissued at Rs.8.",
+        entry: ["Discount = Rs.2 per share", "Total discount = 100 x Rs.2 = Rs.200"],
+        logic: [
+          "The shares are reissued below face value.",
+          "The discount is adjusted from Share Forfeiture Account.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Share Forfeiture balance Rs.700. Discount on reissue Rs.200.",
+        entry: ["Capital Reserve = Rs.700 - Rs.200", "Capital Reserve = Rs.500"],
+        logic: [
+          "The unused Share Forfeiture balance becomes Capital Reserve.",
+          "This is the gain after reissue.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "100 forfeited shares of Rs.10 each are reissued at Rs.12.",
+        entry: ["Premium = Rs.2 per share", "Total premium = 100 x Rs.2 = Rs.200"],
+        logic: [
+          "The shares are reissued above face value.",
+          "Premium is recorded separately.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Confusing calls in arrears with forfeiture",
+      "Thinking shares are forfeited immediately without unpaid call",
+      "Forgetting to reduce Share Capital on forfeiture",
+      "Forgetting Share Forfeiture Account",
+      "Treating calls in arrears as income",
+      "Giving reissue discount more than amount forfeited",
+      "Forgetting to transfer remaining Share Forfeiture to Capital Reserve",
+      "Confusing reissue at discount with issue at discount",
+      "Thinking forfeited shares cannot be reissued",
+      "Forgetting premium is recorded separately when reissued at premium",
+    ],
+    tryPrompts: [
+      "Raju has 100 shares. Final call Rs.3 per share is unpaid. Find calls in arrears. Expected: Rs.300.",
+      "100 shares of Rs.10 each. Rs.7 per share was paid before forfeiture. Find Share Forfeiture amount. Expected: 100 x Rs.7 = Rs.700.",
+      "100 shares of Rs.10 reissued at Rs.8. Find discount on reissue. Expected: Rs.200.",
+      "Share Forfeiture balance Rs.700. Discount on reissue Rs.200. Find Capital Reserve. Expected: Rs.500.",
+      "Rs.10 share reissued at Rs.10. At par, discount, or premium? Expected: at par.",
+      "Rs.10 share reissued at Rs.12. Find premium per share. Expected: Rs.2.",
+      "Calls in arrears means money paid early or not paid? Expected: not paid.",
+      "Reissue means what? Expected: forfeited shares are issued again.",
+    ],
+    toolLinks: [
+      { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
+      { label: "Review Calls in Arrears", href: "/learn/calls-in-arrears-and-calls-in-advance" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
       label: "Review Share Capital",
       href: "/learn/accounting-for-share-capital",
       description:
-        "After learning calls in arrears and advance, the next topic is what happens when a shareholder fails to pay and shares are forfeited.",
+        "After learning forfeiture and reissue of shares, the next company accounts topic is debentures.",
     },
   },
 };

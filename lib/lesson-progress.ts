@@ -29,6 +29,7 @@ export const trackedLessonSlugs = [
   "dissolution-of-partnership-firm",
   "accounting-for-share-capital",
   "calls-in-arrears-and-calls-in-advance",
+  "forfeiture-and-reissue-of-shares",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];

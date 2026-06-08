@@ -132,7 +132,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/calls-in-arrears-and-calls-in-advance",
         status: "available",
       },
-      { title: "Forfeiture and Reissue of Shares", status: "coming_soon" },
+      {
+        title: "Forfeiture and Reissue of Shares",
+        href: "/learn/forfeiture-and-reissue-of-shares",
+        status: "available",
+      },
       { title: "Issue and Redemption of Debentures", status: "coming_soon" },
       { title: "Financial Statements of a Company", status: "coming_soon" },
     ],

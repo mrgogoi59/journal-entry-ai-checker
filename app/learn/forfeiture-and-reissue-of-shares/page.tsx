@@ -1,0 +1,6 @@
+import { LessonReader } from "@/app/learn/LessonReader";
+import { lessons } from "@/lib/learning-content";
+
+export default function ForfeitureAndReissueOfSharesPage() {
+  return <LessonReader lesson={lessons["forfeiture-and-reissue-of-shares"]} />;
+}
