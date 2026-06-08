@@ -57,6 +57,12 @@ const toolSections = [
         label: "Open Trial Balance",
       },
       {
+        title: "Trial Balance Practice",
+        description: "Practice debit and credit totals from journal entries.",
+        href: "/practice/trial-balance",
+        label: "Start Practice",
+      },
+      {
         title: "Final Accounts",
         description: "Prepare Trading A/c, Profit & Loss A/c, Balance Sheet, and adjustments.",
         href: "/final-accounts",

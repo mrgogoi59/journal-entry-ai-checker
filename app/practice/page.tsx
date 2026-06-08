@@ -356,22 +356,43 @@ function ReviewLinks() {
 }
 
 function WorkflowPracticeCard() {
+  const workflowPracticeItems = [
+    {
+      title: "Ledger Practice",
+      description: "Practice account-wise ledger balances after reading journal entries.",
+      href: "/practice/ledger",
+      label: "Start Ledger Practice",
+    },
+    {
+      title: "Trial Balance Practice",
+      description: "Practice debit and credit totals from journal entries.",
+      href: "/practice/trial-balance",
+      label: "Start Trial Balance Practice",
+    },
+  ];
+
   return (
     <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 shadow-soft sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Workflow Practice</p>
-          <h2 className="mt-2 text-2xl font-bold text-blue-950">Ledger Practice</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-700">
-            Practice account-wise ledger balances after reading journal entries.
-          </p>
-        </div>
-        <Link
-          href="/practice/ledger"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
-        >
-          Start Ledger Practice
-        </Link>
+      <div>
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Workflow Practice</p>
+        <h2 className="mt-2 text-2xl font-bold text-blue-950">Practice accounting workflow steps</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-700">
+          Move beyond journal entries with focused ledger and trial balance practice.
+        </p>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        {workflowPracticeItems.map((item) => (
+          <article key={item.href} className="rounded-xl border border-blue-100 bg-white p-4 shadow-sm">
+            <h3 className="text-lg font-bold text-blue-950">{item.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
+            <Link
+              href={item.href}
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
+            >
+              {item.label}
+            </Link>
+          </article>
+        ))}
       </div>
     </section>
   );
