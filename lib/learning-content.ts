@@ -10,7 +10,8 @@ export type LessonSlug =
   | "subsidiary-books"
   | "ledger-posting-basics"
   | "trial-balance-basics"
-  | "final-accounts-basics";
+  | "final-accounts-basics"
+  | "adjustments-in-final-accounts";
 
 export type SolvedLessonExample = {
   title: string;
@@ -51,6 +52,16 @@ export type LessonContent = {
     rows: {
       left: string;
       right: string;
+    }[];
+    note?: string;
+  };
+  impactTable?: {
+    title: string;
+    columns: [string, string, string];
+    rows: {
+      first: string;
+      second: string;
+      third: string;
     }[];
     note?: string;
   };
@@ -142,11 +153,16 @@ export const lessonCards = [
     description: "Learn how Trading A/c, Profit & Loss A/c, and Balance Sheet show business results.",
     href: "/learn/final-accounts-basics",
   },
+  {
+    slug: "adjustments-in-final-accounts",
+    title: "Adjustments in Final Accounts",
+    description: "Learn how extra information changes profit, assets, liabilities, and capital.",
+    href: "/learn/adjustments-in-final-accounts",
+  },
 ];
 
 export const comingSoonLessons = [
   "GST Journal Entries",
-  "Adjustments in Final Accounts",
 ];
 
 export const lessons: Record<LessonSlug, LessonContent> = {
@@ -2665,10 +2681,291 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Trial Balance", href: "/practice/trial-balance" },
     ],
     nextLesson: {
-      label: "Open Final Accounts Tool",
-      href: "/final-accounts",
+      label: "Continue to Adjustments in Final Accounts",
+      href: "/learn/adjustments-in-final-accounts",
       description:
-        "Next, learn adjustments such as closing stock, outstanding expenses, prepaid expenses, and depreciation. For now, practise the basic structure in the Final Accounts tool.",
+        "After the basic structure, learn how closing stock, outstanding expenses, prepaid expenses, and depreciation change Final Accounts.",
+    },
+  },
+  "adjustments-in-final-accounts": {
+    slug: "adjustments-in-final-accounts",
+    title: "Adjustments in Final Accounts",
+    subtitle:
+      "Learn how extra information like closing stock, outstanding expenses, prepaid expenses, and depreciation changes Final Accounts.",
+    description:
+      "Understand why adjustments are added after Trial Balance and how they affect profit and financial position.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What adjustments mean",
+      "Why adjustments are needed after Trial Balance",
+      "Why Trial Balance alone is not enough",
+      "How adjustments affect Trading A/c, Profit and Loss A/c, and Balance Sheet",
+      "The two-effect rule for adjustments",
+      "Closing stock, outstanding expenses, and prepaid expenses",
+      "Accrued income and income received in advance",
+      "Depreciation, further bad debts, and provision for doubtful debts",
+      "Goods withdrawn, free samples, charity, and goods lost by fire",
+      "Manager's commission, interest on capital, drawings, and loan",
+    ],
+    conceptSections: [
+      {
+        title: "What are Adjustments in Final Accounts?",
+        body: [
+          "Adjustments are extra information given after the Trial Balance that must be included before preparing correct Final Accounts.",
+          "Trial Balance gives account balances, but sometimes some important information is still missing.",
+          "Salary may be unpaid.",
+          "Insurance may be paid in advance.",
+          "Closing stock may not be shown in Trial Balance.",
+          "Machinery may have lost value due to depreciation.",
+          "These extra details are called adjustments.",
+          "Simple line: Adjustments help us make Final Accounts correct and complete.",
+        ],
+      },
+      {
+        title: "Why adjustments are needed",
+        body: [
+          "Suppose Riya runs a stationery shop.",
+          "At the end of the year, her Trial Balance is ready.",
+          "Then she finds that some salary is still unpaid, some insurance is paid for next year, some goods are still unsold, machinery has reduced in value, and some debtors may not pay.",
+          "If she ignores these details, her profit and Balance Sheet will be wrong.",
+          "Adjustments are needed to show correct profit or loss, correct assets, correct liabilities, and a fair Balance Sheet.",
+          "They also help match income and expenses with the correct period.",
+          "Simple line: Adjustments stop profit from being overstated or understated.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a small stationery shop.",
+          "Her Trial Balance shows Purchases Rs.50,000, Sales Rs.80,000, Salary Rs.10,000, Insurance Rs.6,000, Machinery Rs.40,000, and Debtors Rs.20,000.",
+          "Before preparing Final Accounts, she finds closing stock Rs.15,000, salary outstanding Rs.2,000, prepaid insurance Rs.1,000, depreciation on machinery Rs.4,000, and provision for doubtful debts Rs.1,000.",
+          "Can Riya prepare correct Final Accounts without these details?",
+          "No.",
+          "These adjustments affect both profit and financial position.",
+        ],
+      },
+      {
+        title: "Every adjustment usually has two effects",
+        body: [
+          "Most adjustments affect two places.",
+          "Closing stock is shown on the credit side of Trading A/c and also shown as an asset in Balance Sheet.",
+          "Outstanding salary is added to salary expense in Profit and Loss A/c and also shown as a liability in Balance Sheet.",
+          "Prepaid insurance is deducted from insurance expense in Profit and Loss A/c and also shown as an asset in Balance Sheet.",
+          "Depreciation is shown as an expense in Profit and Loss A/c and deducted from the asset in Balance Sheet.",
+          "Simple memory line: One adjustment usually affects one account statement and one Balance Sheet item.",
+        ],
+      },
+      {
+        title: "Closing stock",
+        body: [
+          "Closing stock means goods left unsold at the end of the year.",
+          "It is shown on the credit side of Trading A/c.",
+          "It is also shown as an asset in Balance Sheet.",
+          "Example: Closing stock Rs.10,000 means Trading A/c credit Rs.10,000 and Balance Sheet asset Rs.10,000.",
+          "Simple line: Closing stock is unsold goods, so it is an asset.",
+        ],
+      },
+      {
+        title: "Outstanding and prepaid expenses",
+        body: [
+          "Outstanding expense means expense is due but not yet paid.",
+          "Example: Salary outstanding Rs.2,000 is added to salary expense and shown as liability.",
+          "Simple line: Outstanding means payable.",
+          "Prepaid expense means expense is paid in advance for the next period.",
+          "Example: Prepaid insurance Rs.1,000 is deducted from insurance expense and shown as asset.",
+          "Simple line: Prepaid means benefit is still left, so it is an asset.",
+        ],
+      },
+      {
+        title: "Accrued income and income received in advance",
+        body: [
+          "Accrued income means income is earned but not yet received.",
+          "Example: Interest accrued Rs.500 is added to income and shown as asset.",
+          "Simple line: Accrued income means receivable income.",
+          "Income received in advance means income is received now but belongs to a future period.",
+          "Example: Rent received in advance Rs.2,000 is deducted from income and shown as liability.",
+          "Simple line: Advance income means service is still to be given, so it is liability.",
+        ],
+      },
+      {
+        title: "Depreciation, bad debts, and provision",
+        body: [
+          "Depreciation means reduction in value of a fixed asset due to use or time.",
+          "Example: Depreciation on machinery Rs.5,000 is shown as expense and deducted from machinery.",
+          "Further bad debts means more debtors become bad after Trial Balance.",
+          "Example: Further bad debts Rs.1,000 is a loss in Profit and Loss A/c and reduces debtors.",
+          "Provision for doubtful debts means expected loss from debtors who may not pay.",
+          "Provision affects Profit and Loss A/c when it is created or increased, and it is deducted from debtors in Balance Sheet.",
+        ],
+      },
+      {
+        title: "Goods adjustments",
+        body: [
+          "Goods withdrawn by proprietor means owner takes goods for personal use.",
+          "Treatment: deduct from purchases and deduct from capital as drawings.",
+          "Goods distributed as free sample means goods are given free for promotion.",
+          "Treatment: deduct from purchases and add to advertisement expense.",
+          "Goods given as charity means goods are donated.",
+          "Treatment: deduct from purchases and add to charity expense.",
+          "Goods lost by fire means goods are destroyed or lost.",
+          "Treatment: deduct from purchases and show loss in Profit and Loss A/c. If insurance claim is admitted, show claim receivable as asset and only uninsured loss in Profit and Loss A/c.",
+        ],
+      },
+      {
+        title: "Commission and interest adjustments",
+        body: [
+          "Manager's commission is commission payable to manager.",
+          "It is debited to Profit and Loss A/c as expense and shown as liability if unpaid.",
+          "Interest on capital is interest allowed to owner on capital.",
+          "It is debited to Profit and Loss A/c and added to capital.",
+          "Interest on drawings is interest charged to owner on drawings.",
+          "It is credited to Profit and Loss A/c as income and deducted from capital.",
+          "Interest on loan is an expense and is shown as liability if outstanding.",
+        ],
+      },
+    ],
+    impactTable: {
+      title: "How common adjustments affect Final Accounts",
+      columns: ["Adjustment", "Profit effect", "Balance Sheet effect"],
+      rows: [
+        { first: "Closing Stock", second: "Increases gross profit", third: "Asset" },
+        { first: "Outstanding Expense", second: "Increases expense", third: "Liability" },
+        { first: "Prepaid Expense", second: "Reduces expense", third: "Asset" },
+        { first: "Accrued Income", second: "Increases income", third: "Asset" },
+        { first: "Income Received in Advance", second: "Reduces income", third: "Liability" },
+        { first: "Depreciation", second: "Increases expense", third: "Reduces asset" },
+        { first: "Further Bad Debts", second: "Increases loss", third: "Reduces debtors" },
+        { first: "Provision for Doubtful Debts", second: "May increase/decrease P&L", third: "Reduces debtors" },
+        { first: "Goods Withdrawn", second: "Reduces purchases", third: "Reduces capital" },
+        { first: "Free Samples", second: "Advertisement expense", third: "No separate asset" },
+        { first: "Charity Goods", second: "Charity expense", third: "No separate asset" },
+        { first: "Goods Lost", second: "Loss expense", third: "May show insurance claim asset" },
+        { first: "Manager's Commission", second: "Expense", third: "Liability if unpaid" },
+        { first: "Interest on Capital", second: "Expense", third: "Added to capital" },
+        { first: "Interest on Drawings", second: "Income", third: "Deducted from capital" },
+        { first: "Interest on Loan", second: "Expense", third: "Liability if outstanding" },
+      ],
+      note: "Memory line: read each adjustment carefully and apply both effects.",
+    },
+    visualFlow: [
+      "Trial Balance",
+      "Read adjustments",
+      "Apply two effects",
+      "Prepare Trading A/c",
+      "Prepare P&L A/c",
+      "Prepare Capital Working",
+      "Prepare Balance Sheet",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Closing stock Rs.10,000",
+        entry: [
+          "Trading A/c credit Rs.10,000",
+          "Balance Sheet asset Rs.10,000",
+        ],
+        logic: [
+          "Closing stock means unsold goods.",
+          "Unsold goods still belong to the business.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Salary outstanding Rs.2,000",
+        entry: [
+          "Add Rs.2,000 to Salary in Profit and Loss A/c",
+          "Show Outstanding Salary Rs.2,000 as liability",
+        ],
+        logic: [
+          "Salary belongs to this period.",
+          "It is not yet paid, so it is also payable.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Prepaid insurance Rs.1,000",
+        entry: [
+          "Deduct Rs.1,000 from Insurance expense",
+          "Show Prepaid Insurance Rs.1,000 as asset",
+        ],
+        logic: [
+          "The benefit belongs to a future period.",
+          "So current year expense is reduced.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Depreciation on machinery Rs.5,000",
+        entry: [
+          "Show Depreciation Rs.5,000 in Profit and Loss A/c",
+          "Deduct Rs.5,000 from Machinery in Balance Sheet",
+        ],
+        logic: [
+          "Machinery value has reduced.",
+          "The reduction is treated as an expense.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Goods withdrawn by owner Rs.3,000",
+        entry: [
+          "Deduct Rs.3,000 from Purchases",
+          "Deduct Rs.3,000 from Capital as drawings",
+        ],
+        logic: [
+          "Owner took goods for personal use.",
+          "It is not a sale; it is drawings.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Goods lost by fire Rs.5,000, insurance claim admitted Rs.3,000",
+        entry: [
+          "Deduct Rs.5,000 from Purchases",
+          "Show Loss by Fire Rs.2,000 in Profit and Loss A/c",
+          "Show Insurance Claim Receivable Rs.3,000 as asset",
+        ],
+        logic: [
+          "Only uninsured loss affects Profit and Loss A/c.",
+          "The admitted insurance claim is receivable, so it is an asset.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Applying only one effect of an adjustment",
+      "Forgetting closing stock in Balance Sheet",
+      "Treating outstanding expense as asset",
+      "Treating prepaid expense as liability",
+      "Forgetting to reduce asset value after depreciation",
+      "Calculating provision before deducting further bad debts",
+      "Showing goods withdrawn as sales",
+      "Showing free samples as drawings",
+      "Debiting full goods lost when insurance claim exists",
+      "Forgetting to add net profit to capital",
+      "Mixing Trading A/c items and Profit and Loss A/c items",
+    ],
+    tryPrompts: [
+      "Closing stock Rs.12,000. What are the two effects? Expected: Trading A/c credit and Balance Sheet asset.",
+      "Salary outstanding Rs.3,000. What are the two effects? Expected: Add to salary expense and show liability.",
+      "Prepaid rent Rs.2,000. What are the two effects? Expected: Deduct from rent expense and show asset.",
+      "Interest accrued Rs.500. What are the two effects? Expected: Add to interest income and show asset.",
+      "Rent received in advance Rs.4,000. What are the two effects? Expected: Deduct from rent income and show liability.",
+      "Depreciation on furniture Rs.2,000. What are the two effects? Expected: Profit and Loss A/c expense and reduce furniture.",
+      "Goods withdrawn by owner Rs.5,000. What are the two effects? Expected: Deduct from purchases and deduct from capital/drawings.",
+      "Goods distributed as free sample Rs.3,000. What are the two effects? Expected: Deduct from purchases and add advertisement expense.",
+      "Further bad debts Rs.1,000. What are the two effects? Expected: Profit and Loss A/c loss and reduce debtors.",
+      "Interest on loan outstanding Rs.2,000. What are the two effects? Expected: Profit and Loss A/c expense and liability.",
+    ],
+    toolLinks: [
+      { label: "Open Final Accounts Tool", href: "/final-accounts" },
+      { label: "Practice Final Accounts", href: "/practice/final-accounts" },
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+    ],
+    nextLesson: {
+      label: "Practice Final Accounts",
+      href: "/practice/final-accounts",
+      description: "Now that you understand adjustments, try preparing Final Accounts with adjustments.",
     },
   },
 };

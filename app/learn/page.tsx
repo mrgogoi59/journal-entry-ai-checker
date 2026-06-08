@@ -49,6 +49,11 @@ const topicGroups: TopicGroup[] = [
   {
     title: "Final Accounts and Adjustments",
     topics: [
+      {
+        title: "Adjustments in Final Accounts",
+        href: "/learn/adjustments-in-final-accounts",
+        status: "available",
+      },
       { title: "Trading Account", status: "coming_soon" },
       { title: "Profit and Loss Account", status: "coming_soon" },
       { title: "Balance Sheet", status: "coming_soon" },
