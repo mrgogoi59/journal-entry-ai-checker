@@ -2,6 +2,7 @@ export const lessonProgressStorageKey = "accywise_lesson_progress_v1";
 
 export const trackedLessonSlugs = [
   "introduction-to-accounting",
+  "theory-base-of-accounting",
   "rules-of-debit-and-credit",
   "journal-entry-basics",
 ] as const;

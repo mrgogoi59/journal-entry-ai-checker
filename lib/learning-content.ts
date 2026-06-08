@@ -1,4 +1,8 @@
-export type LessonSlug = "introduction-to-accounting" | "rules-of-debit-and-credit" | "journal-entry-basics";
+export type LessonSlug =
+  | "introduction-to-accounting"
+  | "theory-base-of-accounting"
+  | "rules-of-debit-and-credit"
+  | "journal-entry-basics";
 
 export type SolvedLessonExample = {
   title: string;
@@ -47,6 +51,12 @@ export const lessonCards = [
     title: "Introduction to Accounting",
     description: "Understand what accounting means and why businesses record transactions.",
     href: "/learn/introduction-to-accounting",
+  },
+  {
+    slug: "theory-base-of-accounting",
+    title: "Theory Base of Accounting",
+    description: "Understand the basic rules and assumptions that make accounting reliable.",
+    href: "/learn/theory-base-of-accounting",
   },
   {
     slug: "rules-of-debit-and-credit",
@@ -224,6 +234,174 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       "Expected idea: 1, 2, 4, and 6 are recorded. 3 and 5 are not recorded yet.",
     ],
     toolLinks: [
+      { label: "Next Lesson: Theory Base of Accounting", href: "/learn/theory-base-of-accounting" },
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Practice Basics", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Continue to Theory Base of Accounting",
+      href: "/learn/theory-base-of-accounting",
+      description: "Now that you know what accounting records, learn why accounting follows common rules.",
+    },
+  },
+  "theory-base-of-accounting": {
+    slug: "theory-base-of-accounting",
+    title: "Theory Base of Accounting",
+    subtitle: "Accounting follows common rules so that business records are reliable, comparable, and easy to understand.",
+    description: "Understand the basic rules and assumptions that make accounting reliable.",
+    difficulty: "Beginner",
+    estimatedTime: "10-12 min",
+    whatYouWillLearn: [
+      "Why accounting needs rules",
+      "What theory base means",
+      "Why common accounting principles are useful",
+      "What assumptions, concepts, and conventions mean",
+      "Why accounting should be reliable, comparable, consistent, and understandable",
+      "How theory base supports journal entries and final accounts",
+    ],
+    conceptSections: [
+      {
+        title: "Simple meaning of Theory Base of Accounting",
+        body: [
+          "Theory Base of Accounting means the basic rules, assumptions, concepts, and principles that guide how accounting is done.",
+          "Imagine every shopkeeper records business differently. One records sales today, another records sales next month, and another mixes personal spending with business spending.",
+          "Then nobody can understand or compare accounts properly.",
+          "So accounting needs a common base. That common base is called the Theory Base of Accounting.",
+        ],
+      },
+      {
+        title: "Why accounting needs a theory base",
+        body: [
+          "Accounting rules make accounts reliable, so people can trust them.",
+          "They bring consistency, so the same method is followed every year.",
+          "They allow comparability, so one year can be compared with another year.",
+          "They bring clarity, so students, owners, banks, and others can understand accounts.",
+          "They help accounts show a fair picture of the business.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Raju runs a stationery shop.",
+          "He buys notebooks for Rs.10,000.",
+          "He sells goods for Rs.5,000.",
+          "He pays house electricity from business cash.",
+          "He also gives goods to a friend and says he will record it later.",
+          "If Raju records everything without rules, will his accounts show the real picture? No.",
+          "Accounting rules help him decide what should be recorded, when it should be recorded, whether it belongs to business or personal life, how value should be measured, and how accounts should be prepared consistently.",
+        ],
+      },
+      {
+        title: "Basic accounting assumptions",
+        body: [
+          "Business Entity Assumption: business and owner are treated separately. If the owner uses business cash for personal use, it is Drawings, not a business expense.",
+          "Money Measurement Assumption: only things that can be measured in money are recorded. Bought goods for Rs.10,000 is recorded, but owner is hardworking is not recorded.",
+          "Going Concern Assumption: business is assumed to continue in the future. Machinery is used for many years, so its cost is not treated as one-day expense.",
+          "Accounting Period Assumption: business life is divided into periods such as month, quarter, or year to calculate profit or loss.",
+        ],
+      },
+      {
+        title: "Basic accounting principles and concepts",
+        body: [
+          "Cost Concept: assets are recorded at purchase cost. Furniture bought for Rs.20,000 is recorded at Rs.20,000.",
+          "Dual Aspect Concept: every transaction has two sides. Started business with cash Rs.50,000 means cash increases and capital increases.",
+          "Matching Concept: expenses of a period should be matched with income of the same period.",
+          "Accrual Concept: income and expenses are recorded when they become due, not only when cash is received or paid.",
+          "Revenue Recognition Concept: revenue is recorded when it is earned. Goods sold on credit are recorded as sales even if cash is not received yet.",
+        ],
+      },
+      {
+        title: "Basic accounting conventions",
+        body: [
+          "Consistency: use the same accounting method every year unless there is a good reason to change.",
+          "Conservatism or Prudence: do not overstate profit. Record expected losses carefully.",
+          "Materiality: important items should be recorded properly. Very small items may be treated simply.",
+          "Full Disclosure: important information should be clearly shown.",
+        ],
+      },
+      {
+        title: "Accounting standards in simple words",
+        body: [
+          "Accounting standards are official rules or guidelines.",
+          "They help businesses prepare accounts in a common way.",
+          "They make accounts more reliable and comparable.",
+          "You do not need to learn a full standards list here. First, understand why common rules are needed.",
+        ],
+      },
+    ],
+    visualFlow: [
+      "Business transaction",
+      "Apply assumptions",
+      "Apply concepts",
+      "Record correctly",
+      "Prepare reliable accounts",
+      "Understand business position",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Owner used business cash Rs.5,000 for personal expenses.",
+        entry: ["Concept: Business Entity", "Accounting idea: Treat it as Drawings."],
+        logic: [
+          "This is not a business expense.",
+          "Owner and business are separate in accounting.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Goods sold to Raju Rs.10,000 on credit.",
+        entry: ["Concept: Accrual / Revenue Recognition", "Accounting idea: Record sales when goods are sold."],
+        logic: [
+          "Sales are recorded when earned.",
+          "Cash does not need to be received immediately for sales to be recorded.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Furniture bought for Rs.20,000.",
+        entry: ["Concept: Cost Concept", "Accounting idea: Record furniture at Rs.20,000."],
+        logic: [
+          "Furniture is recorded at purchase cost.",
+          "The recorded value starts with the amount paid to buy it.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Salary for March Rs.8,000 is unpaid.",
+        entry: ["Concept: Accrual Concept", "Accounting idea: Record salary expense even if unpaid."],
+        logic: [
+          "The salary belongs to March.",
+          "It is recorded as an expense even if cash is paid later.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Business creates provision for doubtful debts.",
+        entry: ["Convention: Conservatism / Prudence", "Accounting idea: Record possible loss carefully."],
+        logic: [
+          "Some debtors may not pay.",
+          "The business does not assume every amount will be collected perfectly.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Mixing owner's personal expenses with business expenses",
+      "Thinking only cash transactions are recorded",
+      "Not recording credit sales or credit purchases",
+      "Changing accounting method every year without reason",
+      "Recording things that cannot be measured in money",
+      "Thinking capital and profit are the same",
+      "Ignoring outstanding expenses and accrued income",
+    ],
+    tryPrompts: [
+      "Owner takes Rs.3,000 cash from business for personal use. Expected idea: Business Entity; treat it as Drawings.",
+      "Goods sold on credit Rs.12,000. Expected idea: revenue is recorded when earned; accrual/revenue recognition.",
+      "Machinery bought for Rs.50,000. Expected idea: Cost Concept.",
+      "Salary outstanding Rs.5,000. Expected idea: Accrual Concept.",
+      "Business uses the same depreciation method every year. Expected idea: Consistency.",
+      "Provision for doubtful debts is created. Expected idea: Conservatism / Prudence.",
+    ],
+    toolLinks: [
       { label: "Next Lesson: Rules of Debit and Credit", href: "/learn/rules-of-debit-and-credit" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
       { label: "Practice Basics", href: "/practice" },
@@ -231,7 +409,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     nextLesson: {
       label: "Continue to Rules of Debit and Credit",
       href: "/learn/rules-of-debit-and-credit",
-      description: "Now that you understand what accounting records, learn how accounts are debited and credited.",
+      description: "Now that you understand the foundation of accounting rules, learn how accounts are debited and credited.",
     },
   },
   "rules-of-debit-and-credit": {
