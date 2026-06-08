@@ -26,6 +26,7 @@ export const trackedLessonSlugs = [
   "fixed-and-fluctuating-capital-accounts",
   "admission-of-a-partner",
   "retirement-or-death-of-a-partner",
+  "dissolution-of-partnership-firm",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];

@@ -23,7 +23,8 @@ export type LessonSlug =
   | "profit-and-loss-appropriation-account"
   | "fixed-and-fluctuating-capital-accounts"
   | "admission-of-a-partner"
-  | "retirement-or-death-of-a-partner";
+  | "retirement-or-death-of-a-partner"
+  | "dissolution-of-partnership-firm";
 
 export type SolvedLessonExample = {
   title: string;
@@ -247,6 +248,12 @@ export const lessonCards = [
     title: "Retirement or Death of a Partner",
     description: "Learn what happens when a partner leaves the firm or passes away.",
     href: "/learn/retirement-or-death-of-a-partner",
+  },
+  {
+    slug: "dissolution-of-partnership-firm",
+    title: "Dissolution of Partnership Firm",
+    description: "Learn what happens when a partnership business is closed and all accounts are settled.",
+    href: "/learn/dissolution-of-partnership-firm",
   },
 ];
 
@@ -6586,10 +6593,330 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
+      label: "Continue to Dissolution of Partnership Firm",
+      href: "/learn/dissolution-of-partnership-firm",
+      description:
+        "After learning retirement or death of a partner, learn what happens when the partnership firm itself is closed.",
+    },
+  },
+  "dissolution-of-partnership-firm": {
+    slug: "dissolution-of-partnership-firm",
+    title: "Dissolution of Partnership Firm",
+    subtitle: "Learn what happens when a partnership business is closed and all accounts are settled.",
+    description:
+      "Understand Realisation Account, sale of assets, payment of liabilities, realisation profit or loss, and final settlement of partners.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What dissolution of partnership firm means",
+      "Difference between dissolution of partnership and dissolution of firm",
+      "Why a firm may be dissolved",
+      "What happens to assets and liabilities",
+      "What Realisation Account means",
+      "What Partner's Capital Accounts do during dissolution",
+      "What Bank or Cash Account does during dissolution",
+      "How assets are sold",
+      "How liabilities are paid",
+      "How realisation profit or loss is shared",
+      "How partner capital balances are settled",
+      "What happens if a partner is unable to pay",
+      "Common mistakes in dissolution questions",
+    ],
+    conceptSections: [
+      {
+        title: "What is Dissolution of Partnership Firm?",
+        body: [
+          "Dissolution of partnership firm means the partnership business is closed and all accounts are settled.",
+          "When a firm is dissolved, the business stops.",
+          "Assets are sold, liabilities are paid, and whatever remains is settled among partners.",
+          "Example: Riya and Amit run a stationery shop together. They decide to close the shop. They sell furniture and stock, pay creditors, and settle their capital accounts.",
+          "Simple line: Dissolution of firm means closing the partnership business.",
+        ],
+      },
+      {
+        title: "Dissolution of partnership vs dissolution of firm",
+        body: [
+          "Dissolution of partnership means the relationship between partners changes, but the business may continue.",
+          "Example: Amit retires, but Riya and Neha continue the business.",
+          "Dissolution of firm means the business itself is closed.",
+          "Example: all partners decide to close the shop.",
+          "Memory line: Dissolution of partnership changes partners. Dissolution of firm closes the business.",
+        ],
+      },
+      {
+        title: "Why a firm may be dissolved",
+        body: [
+          "Partners may agree to close the business.",
+          "The business may be making continuous losses.",
+          "The main purpose of the business may be completed.",
+          "A partner may become unable to continue.",
+          "There may be serious disagreement among partners.",
+          "The business may become illegal.",
+          "A court may order dissolution.",
+          "Simple line: A firm is dissolved when the partnership business should not or cannot continue.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya and Amit run a small stationery shop.",
+          "After a few years, they decide to close the business because both want to start different careers.",
+          "The firm has cash, stock, furniture, debtors, creditors, a loan, and partner capital balances.",
+          "Now they must sell assets, collect money from debtors, pay creditors and loans, calculate profit or loss, share that profit or loss, and pay partners their final amounts.",
+          "This process is called dissolution.",
+        ],
+      },
+      {
+        title: "What happens during dissolution",
+        body: [
+          "Assets are transferred to Realisation Account.",
+          "Liabilities are transferred to Realisation Account.",
+          "Assets are sold.",
+          "Liabilities are paid.",
+          "Dissolution expenses are paid.",
+          "Realisation profit or loss is calculated.",
+          "Profit or loss is shared by partners in their profit sharing ratio.",
+          "Partner capital accounts are settled.",
+          "Bank or Cash Account is closed.",
+          "Simple line: Dissolution means converting everything into cash, paying dues, and settling partners.",
+        ],
+      },
+      {
+        title: "What is Realisation Account?",
+        body: [
+          "Realisation Account is prepared during dissolution to find profit or loss from selling assets and paying liabilities.",
+          "When the firm closes, assets may not be sold at book value.",
+          "Liabilities may also be settled at different amounts.",
+          "Realisation Account records these changes.",
+          "Example: furniture book value is Rs.20,000 and it is sold for Rs.18,000. Loss is Rs.2,000.",
+          "Example: stock book value is Rs.30,000 and it is sold for Rs.35,000. Gain is Rs.5,000.",
+          "Simple line: Realisation Account finds profit or loss on closing the firm.",
+        ],
+      },
+      {
+        title: "Treatment of assets",
+        body: [
+          "At dissolution, assets are sold or taken over.",
+          "If furniture is sold for Rs.15,000, Cash or Bank increases.",
+          "If Riya takes over furniture at Rs.12,000, Riya's Capital Account is debited.",
+          "If debtors Rs.20,000 are realised for Rs.18,000, Cash or Bank receives Rs.18,000.",
+          "Simple line: Assets are converted into cash or taken by partners.",
+        ],
+      },
+      {
+        title: "Treatment of liabilities",
+        body: [
+          "At dissolution, liabilities must be paid or taken over.",
+          "If creditors Rs.10,000 are paid by bank, Bank decreases.",
+          "If Amit takes over loan Rs.20,000, Amit's Capital Account is credited.",
+          "If creditors Rs.10,000 are settled for Rs.9,000, the firm gains Rs.1,000.",
+          "Simple line: Liabilities are paid or taken over before partners receive their final amounts.",
+        ],
+      },
+      {
+        title: "Realisation profit or loss",
+        body: [
+          "After selling assets and paying liabilities, Realisation Account shows profit or loss.",
+          "If the final result is profit, it is shared by partners in their profit sharing ratio.",
+          "If the final result is loss, it is also shared by partners in their profit sharing ratio.",
+          "Example: Realisation profit Rs.20,000 shared equally gives Riya Rs.10,000 and Amit Rs.10,000.",
+          "Example: Realisation loss Rs.12,000 shared in 2:1 gives Riya Rs.8,000 and Amit Rs.4,000.",
+          "Simple line: Realisation profit or loss is shared in profit sharing ratio.",
+        ],
+      },
+      {
+        title: "Partner's Capital Accounts",
+        body: [
+          "Partner's Capital Accounts are used to settle final amounts payable to or receivable from partners.",
+          "The credit side may record opening capital balance, realisation profit share, partner taking over liability, and additional cash brought by partner.",
+          "The debit side may record drawings, realisation loss share, partner taking over asset, and final payment to partner.",
+          "Simple line: Partner's Capital Account shows final settlement with each partner.",
+        ],
+      },
+      {
+        title: "Bank or Cash Account",
+        body: [
+          "Bank or Cash Account records actual money received and paid during dissolution.",
+          "Receipts include cash or bank balance, sale of assets, debtors realised, and cash brought by partner.",
+          "Payments include liabilities paid, dissolution expenses, and payment to partners.",
+          "At the end, Bank or Cash Account should close.",
+          "Simple line: Bank Account shows actual cash movement during dissolution.",
+        ],
+      },
+      {
+        title: "If a partner is unable to pay",
+        body: [
+          "Sometimes a partner may have a debit balance and may be unable to bring cash.",
+          "That means the firm expected money from the partner, but the partner cannot pay fully.",
+          "At a beginner level, remember that this creates an extra loss for the other partners according to the rule given in the question.",
+          "Simple line: If a partner cannot pay, the unpaid amount must still be settled fairly.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Dissolution of Partnership vs Dissolution of Firm",
+      leftHeading: "Dissolution of Partnership",
+      rightHeading: "Dissolution of Firm",
+      rows: [
+        {
+          left: "Relationship between partners changes",
+          right: "Business itself closes",
+        },
+        {
+          left: "Firm may continue",
+          right: "Firm does not continue",
+        },
+        {
+          left: "Example: admission or retirement",
+          right: "Example: business shutdown",
+        },
+        {
+          left: "Accounts are adjusted",
+          right: "Assets are sold, liabilities are paid, and partners are settled",
+        },
+      ],
+      note: "Memory line: Dissolution of partnership changes partners. Dissolution of firm closes the business.",
+    },
+    impactTable: {
+      eyebrow: "Dissolution guide",
+      title: "What happens to each item",
+      columns: ["Item", "Simple meaning", "Where it is handled"],
+      rows: [
+        {
+          first: "Assets",
+          second: "Sold for cash or taken by partner",
+          third: "Realisation Account and Bank/Cash",
+        },
+        {
+          first: "Liabilities",
+          second: "Paid by firm or taken by partner",
+          third: "Realisation Account and Bank/Cash",
+        },
+        {
+          first: "Expenses",
+          second: "Cost of closing the firm",
+          third: "Realisation Account and Bank/Cash",
+        },
+        {
+          first: "Realisation Profit/Loss",
+          second: "Final result of selling assets and settling liabilities",
+          third: "Partners' Capital Accounts",
+        },
+        {
+          first: "Capital Balances",
+          second: "Final amount payable to or receivable from partners",
+          third: "Partners' Capital Accounts",
+        },
+        {
+          first: "Cash Movement",
+          second: "Actual receipts and payments",
+          third: "Bank or Cash Account",
+        },
+      ],
+      note: "The aim is to close all accounts fairly.",
+    },
+    visualFlow: [
+      "Firm decides to close",
+      "Transfer assets and liabilities to Realisation Account",
+      "Sell assets",
+      "Pay liabilities",
+      "Pay dissolution expenses",
+      "Find realisation profit or loss",
+      "Share profit or loss between partners",
+      "Settle partner capital accounts",
+      "Close bank or cash account",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Furniture book value Rs.20,000. Sold for Rs.18,000.",
+        entry: ["Result: loss Rs.2,000 on realisation"],
+        logic: [
+          "The asset was sold for less than book value.",
+          "So the firm has a realisation loss on this asset.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Stock book value Rs.30,000. Sold for Rs.35,000.",
+        entry: ["Result: profit Rs.5,000 on realisation"],
+        logic: [
+          "The asset was sold for more than book value.",
+          "So the firm has a realisation profit on this asset.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Creditors Rs.10,000. Paid Rs.9,000.",
+        entry: ["Result: gain Rs.1,000"],
+        logic: [
+          "The firm paid less than the liability amount.",
+          "So the settlement creates a gain.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Riya takes over furniture at Rs.12,000.",
+        entry: ["Riya's Capital Account is debited by Rs.12,000"],
+        logic: [
+          "Riya received a firm asset personally.",
+          "So her capital account is reduced by the value of the asset taken.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Realisation loss Rs.15,000. Riya and Amit share profit or loss in 2:1.",
+        entry: [
+          "Riya's share = Rs.15,000 x 2/3 = Rs.10,000",
+          "Amit's share = Rs.15,000 x 1/3 = Rs.5,000",
+        ],
+        logic: [
+          "Realisation loss is shared in profit sharing ratio.",
+          "Riya bears two parts and Amit bears one part.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Realisation profit Rs.18,000. Riya and Amit share equally.",
+        entry: ["Riya = Rs.9,000", "Amit = Rs.9,000"],
+        logic: [
+          "Realisation profit is shared in profit sharing ratio.",
+          "Equal partners receive equal shares.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Confusing retirement with dissolution of firm",
+      "Thinking dissolution means only one partner leaves",
+      "Forgetting that business closes in dissolution of firm",
+      "Not transferring assets and liabilities to Realisation Account",
+      "Treating asset taken over by partner as cash sale",
+      "Forgetting to record dissolution expenses",
+      "Sharing realisation profit or loss in wrong ratio",
+      "Paying partners before paying outside liabilities",
+      "Forgetting partner capital settlement",
+      "Thinking Realisation Account and Revaluation Account are the same",
+    ],
+    tryPrompts: [
+      "Furniture book value Rs.25,000 sold for Rs.20,000. Profit or loss? Expected: loss Rs.5,000.",
+      "Stock book value Rs.30,000 sold for Rs.36,000. Profit or loss? Expected: profit Rs.6,000.",
+      "Creditors Rs.12,000 settled for Rs.10,000. Gain or loss? Expected: gain Rs.2,000.",
+      "Realisation loss Rs.18,000 shared by Riya and Amit in 2:1. Find each partner's share. Expected: Riya Rs.12,000, Amit Rs.6,000.",
+      "Realisation profit Rs.20,000 shared equally. Find each partner's share. Expected: Rs.10,000 each.",
+      "Partner takes over asset Rs.8,000. Which account is affected? Expected: Partner's Capital Account is debited.",
+      "Partner takes over liability Rs.15,000. Which account is affected? Expected: Partner's Capital Account is credited.",
+      "Firm closes and assets are sold, liabilities are paid. Is this retirement or dissolution of firm? Expected: dissolution of firm.",
+    ],
+    toolLinks: [
+      { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
+      { label: "Review Retirement or Death", href: "/learn/retirement-or-death-of-a-partner" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
       label: "Review Partnership Basics",
       href: "/learn/partnership-accounts-basic-concepts",
       description:
-        "After learning retirement or death of a partner, the next partnership topic is dissolution of the firm.",
+        "After partnership accounts, the next major area is company accounts, starting with share capital.",
     },
   },
 };

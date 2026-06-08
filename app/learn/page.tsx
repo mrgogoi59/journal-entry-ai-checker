@@ -112,7 +112,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/retirement-or-death-of-a-partner",
         status: "available",
       },
-      { title: "Dissolution of Partnership Firm", status: "coming_soon" },
+      {
+        title: "Dissolution of Partnership Firm",
+        href: "/learn/dissolution-of-partnership-firm",
+        status: "available",
+      },
     ],
   },
   {
