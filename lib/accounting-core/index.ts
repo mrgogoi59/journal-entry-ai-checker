@@ -109,3 +109,21 @@ export type {
   RealisationLiabilityTransferInput,
   RevaluationAssetInput,
 } from "./generators/partnership-journal-generator";
+
+export {
+  ADVANCED_PRACTICE_QUESTION_BANK_VERSION,
+  filterAdvancedPracticeQuestions,
+  getAdvancedPracticeQuestionBank,
+  getAdvancedPracticeQuestionById,
+  getAdvancedPracticeQuestionIds,
+  getAdvancedPracticeQuestionsByTopic,
+  getAllAdvancedPracticeQuestions,
+  getNextAdvancedPracticeQuestion,
+} from "./practice/advanced-practice-question-generator";
+export type {
+  AdvancedPracticeMode,
+  AdvancedPracticeQuestion,
+  AdvancedPracticeQuestionBank,
+  AdvancedPracticeQuestionFilter,
+  AdvancedPracticeTopic,
+} from "./practice/advanced-practice-question-generator";
