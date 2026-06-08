@@ -35,6 +35,7 @@ const topicGroups: TopicGroup[] = [
       { title: "Journal Entry Basics", href: "/learn/journal-entry-basics", status: "available" },
       { title: "Cash Book", href: "/learn/cash-book", status: "available" },
       { title: "Subsidiary Books", href: "/learn/subsidiary-books", status: "available" },
+      { title: "GST Journal Entries", href: "/learn/gst-journal-entries", status: "available" },
       { title: "Ledger Posting Basics", href: "/learn/ledger-posting-basics", status: "available" },
       { title: "Trial Balance Basics", href: "/learn/trial-balance-basics", status: "available" },
       { title: "Final Accounts Basics", href: "/learn/final-accounts-basics", status: "available" },

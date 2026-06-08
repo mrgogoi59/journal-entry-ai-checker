@@ -8,6 +8,7 @@ export type LessonSlug =
   | "journal-entry-basics"
   | "cash-book"
   | "subsidiary-books"
+  | "gst-journal-entries"
   | "ledger-posting-basics"
   | "trial-balance-basics"
   | "final-accounts-basics"
@@ -136,6 +137,12 @@ export const lessonCards = [
     href: "/learn/subsidiary-books",
   },
   {
+    slug: "gst-journal-entries",
+    title: "GST Journal Entries",
+    description: "Learn how GST is recorded in purchases, sales, returns, and GST set-off entries.",
+    href: "/learn/gst-journal-entries",
+  },
+  {
     slug: "ledger-posting-basics",
     title: "Ledger Posting Basics",
     description: "Learn how journal entries are posted into individual accounts.",
@@ -161,9 +168,7 @@ export const lessonCards = [
   },
 ];
 
-export const comingSoonLessons = [
-  "GST Journal Entries",
-];
+export const comingSoonLessons: string[] = [];
 
 export const lessons: Record<LessonSlug, LessonContent> = {
   "introduction-to-accounting": {
@@ -1955,13 +1960,286 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Practice Journal Entries", href: "/practice" },
-      { label: "Next Lesson: Ledger Posting Basics", href: "/learn/ledger-posting-basics" },
+      { label: "Next Lesson: GST Journal Entries", href: "/learn/gst-journal-entries" },
       { label: "Open Ledger Tool", href: "/ledger" },
+    ],
+    nextLesson: {
+      label: "Continue to GST Journal Entries",
+      href: "/learn/gst-journal-entries",
+      description: "After special books, learn how GST is recorded in purchase, sale, return, and set-off entries.",
+    },
+  },
+  "gst-journal-entries": {
+    slug: "gst-journal-entries",
+    title: "GST Journal Entries",
+    subtitle: "Learn how GST is recorded in purchases, sales, returns, and GST set-off entries.",
+    description:
+      "Understand the basic accounting treatment of GST in journal entries without going into tax-law depth.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What GST means in accounting entries",
+      "Difference between Input GST and Output GST",
+      "Why Input GST is debited",
+      "Why Output GST is credited",
+      "GST on purchases",
+      "GST on sales",
+      "Cash and credit GST entries",
+      "CGST and SGST in simple terms",
+      "IGST in simple terms",
+      "GST-inclusive amount calculation",
+      "GST set-off and payment",
+      "GST with purchase return and sales return at basic level",
+      "Common GST journal entry mistakes",
+    ],
+    conceptSections: [
+      {
+        title: "What is GST in accounting?",
+        body: [
+          "GST is tax added to the value of goods or services.",
+          "In accounting, we record GST separately so that the business can know how much GST it paid and how much GST it collected.",
+          "When a business buys goods, it pays GST.",
+          "When a business sells goods, it collects GST.",
+          "The GST paid on purchases is called Input GST.",
+          "The GST collected on sales is called Output GST.",
+          "Simple line: Input GST is GST paid. Output GST is GST collected.",
+        ],
+      },
+      {
+        title: "Input GST and Output GST",
+        body: [
+          "Input GST means GST paid on purchases or expenses.",
+          "Example: Riya buys goods worth Rs.10,000 plus GST Rs.1,800.",
+          "She paid GST, so Input GST increases.",
+          "Input GST is treated like an asset or claim because the business can adjust it against Output GST.",
+          "Simple line: Input GST is debited.",
+          "Output GST means GST collected on sales or income.",
+          "Example: Riya sells goods worth Rs.10,000 plus GST Rs.1,800.",
+          "She collected GST from the customer, so Output GST increases.",
+          "Output GST is a liability because the business has to pay it after adjusting Input GST.",
+          "Simple line: Output GST is credited.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a mobile accessories shop.",
+          "Day 1: she buys phone covers for Rs.10,000 plus GST 18%.",
+          "Goods value is Rs.10,000, GST is Rs.1,800, and total paid is Rs.11,800.",
+          "This GST Rs.1,800 is Input GST because she paid it on purchase.",
+          "Day 2: she sells accessories for Rs.20,000 plus GST 18%.",
+          "Sales value is Rs.20,000, GST is Rs.3,600, and total received is Rs.23,600.",
+          "This GST Rs.3,600 is Output GST because she collected it on sale.",
+          "At the end, Output GST Rs.3,600 minus Input GST Rs.1,800 gives GST payable Rs.1,800.",
+          "Riya sets off Input GST against Output GST and pays only the balance.",
+        ],
+      },
+      {
+        title: "GST on Purchase",
+        rule:
+          "Purchases is debited with goods value, Input GST is debited with GST amount, and Cash/Bank/Creditor is credited with total amount.",
+        body: [
+          "Example: Bought goods for cash Rs.10,000 plus GST 18%.",
+          "GST = Rs.10,000 x 18% = Rs.1,800.",
+          "Total = Rs.11,800.",
+          "Journal Entry: Purchases A/c Dr. Rs.10,000 / Input GST A/c Dr. Rs.1,800 / To Cash A/c Rs.11,800.",
+          "Purchases increased, so Purchases is debited.",
+          "Input GST is GST paid and claimable, so Input GST is debited.",
+          "Cash went out, so Cash is credited.",
+          "Credit purchase example: Bought goods from Amit Rs.10,000 plus GST 18%.",
+          "Journal Entry: Purchases A/c Dr. Rs.10,000 / Input GST A/c Dr. Rs.1,800 / To Amit A/c Rs.11,800.",
+        ],
+      },
+      {
+        title: "GST on Sale",
+        rule:
+          "Cash/Bank/Debtor is debited with total amount, Sales is credited with goods value, and Output GST is credited with GST amount.",
+        body: [
+          "Example: Sold goods for cash Rs.10,000 plus GST 18%.",
+          "GST = Rs.10,000 x 18% = Rs.1,800.",
+          "Total = Rs.11,800.",
+          "Journal Entry: Cash A/c Dr. Rs.11,800 / To Sales A/c Rs.10,000 / To Output GST A/c Rs.1,800.",
+          "Cash came in, so Cash is debited.",
+          "Sales income increased, so Sales is credited.",
+          "Output GST is GST collected and payable, so Output GST is credited.",
+          "Credit sale example: Sold goods to Raju Rs.10,000 plus GST 18%.",
+          "Journal Entry: Raju A/c Dr. Rs.11,800 / To Sales A/c Rs.10,000 / To Output GST A/c Rs.1,800.",
+        ],
+      },
+      {
+        title: "CGST, SGST and IGST in simple words",
+        body: [
+          "Sometimes GST is split into CGST and SGST.",
+          "Example: GST 18% may be split as CGST 9% and SGST 9%.",
+          "Purchase example: Bought goods Rs.10,000 plus CGST 9% and SGST 9%.",
+          "Journal Entry: Purchases A/c Dr. Rs.10,000 / Input CGST A/c Dr. Rs.900 / Input SGST A/c Dr. Rs.900 / To Cash A/c Rs.11,800.",
+          "Sale example: Sold goods Rs.10,000 plus CGST 9% and SGST 9%.",
+          "Journal Entry: Cash A/c Dr. Rs.11,800 / To Sales A/c Rs.10,000 / To Output CGST A/c Rs.900 / To Output SGST A/c Rs.900.",
+          "For some transactions, GST may be recorded as IGST.",
+          "Purchase with IGST: Purchases A/c Dr. Rs.10,000 / Input IGST A/c Dr. Rs.1,800 / To Cash A/c Rs.11,800.",
+          "Sale with IGST: Cash A/c Dr. Rs.11,800 / To Sales A/c Rs.10,000 / To Output IGST A/c Rs.1,800.",
+          "Keep the idea simple: input accounts are debited, output accounts are credited.",
+        ],
+      },
+      {
+        title: "When amount includes GST",
+        body: [
+          "Sometimes the total amount already includes GST.",
+          "Example: Purchased goods for Rs.11,800 including GST 18%.",
+          "Here Rs.11,800 is total, so we need to find goods value and GST amount.",
+          "Formula: Taxable value = Total amount x 100 / (100 + GST rate).",
+          "Taxable value = Rs.11,800 x 100 / 118 = Rs.10,000.",
+          "GST = Rs.11,800 - Rs.10,000 = Rs.1,800.",
+          "Journal Entry: Purchases A/c Dr. Rs.10,000 / Input GST A/c Dr. Rs.1,800 / To Cash A/c Rs.11,800.",
+          "Important: if the rate is not given, GST-inclusive amount cannot be split safely.",
+          "Simple line: For GST-inclusive amount, GST rate is needed.",
+        ],
+      },
+      {
+        title: "GST Set-off",
+        body: [
+          "At the end, the business compares Output GST and Input GST.",
+          "Output GST is GST collected on sales.",
+          "Input GST is GST paid on purchases.",
+          "If Output GST is more, the balance is paid.",
+          "Example: Input GST Rs.5,000 and Output GST Rs.8,000.",
+          "Set-off entry: Output GST A/c Dr. Rs.5,000 / To Input GST A/c Rs.5,000.",
+          "Balance payable is Rs.3,000.",
+          "Payment entry: Output GST A/c Dr. Rs.3,000 / To Bank A/c Rs.3,000.",
+          "Combined simple entry: Output GST A/c Dr. Rs.5,000 / Output GST A/c Dr. Rs.3,000 / To Input GST A/c Rs.5,000 / To Bank A/c Rs.3,000.",
+          "Simple line: Input GST reduces Output GST payable, and only the balance is paid.",
+        ],
+      },
+      {
+        title: "GST on returns",
+        body: [
+          "Purchase Return with GST means goods purchased earlier are returned to supplier, so Input GST also reduces.",
+          "Example: Returned goods to Amit Rs.5,000 plus GST 18%.",
+          "Journal Entry: Amit A/c Dr. Rs.5,900 / To Purchase Return A/c Rs.5,000 / To Input GST A/c Rs.900.",
+          "Liability to Amit reduces, purchase return is credited, and Input GST is reduced.",
+          "Sales Return with GST means customer returns goods, so Output GST also reduces.",
+          "Example: Raju returned goods Rs.5,000 plus GST 18%.",
+          "Journal Entry: Sales Return A/c Dr. Rs.5,000 / Output GST A/c Dr. Rs.900 / To Raju A/c Rs.5,900.",
+          "Sales return is debited, Output GST collected earlier reduces, and Raju's balance reduces.",
+        ],
+      },
+    ],
+    visualFlow: [
+      "Purchase with GST",
+      "Purchases + Input GST",
+      "Pay cash/bank/creditor",
+      "Sale with GST",
+      "Sales + Output GST",
+      "Set off Input GST",
+      "Pay balance GST",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Bought goods for cash Rs.20,000 plus GST 18%.",
+        entry: [
+          "GST = Rs.3,600",
+          "Total = Rs.23,600",
+          "Purchases A/c Dr. Rs.20,000",
+          "Input GST A/c Dr. Rs.3,600",
+          "To Cash A/c Rs.23,600",
+        ],
+        logic: [
+          "Purchases is debited with goods value.",
+          "Input GST is debited because GST was paid.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Sold goods for cash Rs.15,000 plus GST 18%.",
+        entry: [
+          "GST = Rs.2,700",
+          "Total = Rs.17,700",
+          "Cash A/c Dr. Rs.17,700",
+          "To Sales A/c Rs.15,000",
+          "To Output GST A/c Rs.2,700",
+        ],
+        logic: [
+          "Cash is debited with total received.",
+          "Output GST is credited because GST was collected.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Purchased goods Rs.11,800 including GST 18% for cash.",
+        entry: [
+          "Taxable value = Rs.10,000",
+          "GST = Rs.1,800",
+          "Purchases A/c Dr. Rs.10,000",
+          "Input GST A/c Dr. Rs.1,800",
+          "To Cash A/c Rs.11,800",
+        ],
+        logic: [
+          "The total includes GST.",
+          "The GST rate is needed to split value and tax.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Sold goods to Raju Rs.10,000 plus GST 18%.",
+        entry: [
+          "GST = Rs.1,800",
+          "Total = Rs.11,800",
+          "Raju A/c Dr. Rs.11,800",
+          "To Sales A/c Rs.10,000",
+          "To Output GST A/c Rs.1,800",
+        ],
+        logic: [
+          "Raju is debited because amount is receivable from customer.",
+          "Sales and Output GST are credited separately.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Set off Input GST Rs.5,000 against Output GST Rs.8,000 and paid balance through bank.",
+        entry: [
+          "Output GST A/c Dr. Rs.5,000",
+          "Output GST A/c Dr. Rs.3,000",
+          "To Input GST A/c Rs.5,000",
+          "To Bank A/c Rs.3,000",
+        ],
+        logic: [
+          "Input GST reduces Output GST payable.",
+          "The remaining GST payable is paid through bank.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Debiting Output GST on sales",
+      "Crediting Input GST on purchases",
+      "Adding GST to Purchases instead of recording Input GST separately",
+      "Forgetting GST in total amount",
+      "Treating Input GST as expense",
+      "Treating Output GST as income",
+      "Trying to split GST-inclusive amount without GST rate",
+      "Forgetting to reduce GST during returns",
+      "Confusing CGST/SGST with IGST",
+      "Paying full Output GST without setting off Input GST",
+    ],
+    tryPrompts: [
+      "Bought goods for cash Rs.10,000 plus GST 18%. Expected: Purchases Dr Rs.10,000, Input GST Dr Rs.1,800, To Cash Rs.11,800.",
+      "Sold goods for cash Rs.20,000 plus GST 18%. Expected: Cash Dr Rs.23,600, To Sales Rs.20,000, To Output GST Rs.3,600.",
+      "Purchased goods Rs.11,800 including GST 18% for cash. Expected: Purchases Dr Rs.10,000, Input GST Dr Rs.1,800, To Cash Rs.11,800.",
+      "Sold goods to Raju Rs.10,000 plus GST 18%. Expected: Raju Dr Rs.11,800, To Sales Rs.10,000, To Output GST Rs.1,800.",
+      "Bought goods from Amit Rs.5,000 plus GST 18%. Expected: Purchases Dr Rs.5,000, Input GST Dr Rs.900, To Amit Rs.5,900.",
+      "Goods returned by Raju Rs.5,000 plus GST 18%. Expected: Sales Return Dr Rs.5,000, Output GST Dr Rs.900, To Raju Rs.5,900.",
+      "Returned goods to Amit Rs.5,000 plus GST 18%. Expected: Amit Dr Rs.5,900, To Purchase Return Rs.5,000, To Input GST Rs.900.",
+      "Set off Input GST Rs.4,000 against Output GST Rs.6,000 and paid balance through bank. Expected: Output GST Dr Rs.4,000, Output GST Dr Rs.2,000, To Input GST Rs.4,000, To Bank Rs.2,000.",
+    ],
+    toolLinks: [
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Practice GST", href: "/practice" },
+      { label: "Next Lesson: Ledger Posting Basics", href: "/learn/ledger-posting-basics" },
     ],
     nextLesson: {
       label: "Continue to Ledger Posting Basics",
       href: "/learn/ledger-posting-basics",
-      description: "After transactions are recorded in the correct books, learn how they are posted into ledger accounts.",
+      description: "After learning GST journal entries, learn how journal entries are posted into ledger accounts.",
     },
   },
   "ledger-posting-basics": {

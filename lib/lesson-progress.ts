@@ -10,6 +10,7 @@ export const trackedLessonSlugs = [
   "journal-entry-basics",
   "cash-book",
   "subsidiary-books",
+  "gst-journal-entries",
   "ledger-posting-basics",
   "trial-balance-basics",
   "final-accounts-basics",
