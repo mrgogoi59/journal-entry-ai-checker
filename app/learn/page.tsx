@@ -172,7 +172,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/accounting-ratios",
         status: "available",
       },
-      { title: "Cash Flow Statement", status: "coming_soon" },
+      {
+        title: "Cash Flow Statement",
+        href: "/learn/cash-flow-statement",
+        status: "available",
+      },
     ],
   },
   {

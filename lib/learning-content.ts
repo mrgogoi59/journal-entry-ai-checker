@@ -33,7 +33,8 @@ export type LessonSlug =
   | "analysis-of-financial-statements"
   | "comparative-statements"
   | "common-size-statements"
-  | "accounting-ratios";
+  | "accounting-ratios"
+  | "cash-flow-statement";
 
 export type SolvedLessonExample = {
   title: string;
@@ -317,6 +318,12 @@ export const lessonCards = [
     title: "Accounting Ratios",
     description: "Learn how ratios help understand profit, liquidity, debt, and efficiency of a business.",
     href: "/learn/accounting-ratios",
+  },
+  {
+    slug: "cash-flow-statement",
+    title: "Cash Flow Statement",
+    description: "Learn how cash comes in, goes out, and why profit and cash can be different.",
+    href: "/learn/cash-flow-statement",
   },
 ];
 
@@ -10229,10 +10236,403 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
-      label: "Review Common Size Statements",
-      href: "/learn/common-size-statements",
+      label: "Continue to Cash Flow Statement",
+      href: "/learn/cash-flow-statement",
       description:
-        "After ratios, the next step is to understand how cash moves in and out of a business. That lesson is not available yet, so revise common size statements for now.",
+        "After ratios, the next step is to understand how cash moves in and out of a business.",
+    },
+  },
+  "cash-flow-statement": {
+    slug: "cash-flow-statement",
+    title: "Cash Flow Statement",
+    subtitle:
+      "Learn how cash comes into a business, how cash goes out, and why profit and cash are not always the same.",
+    description:
+      "Understand cash inflow, cash outflow, operating activities, investing activities, financing activities, and simple cash flow interpretation.",
+    difficulty: "Beginner",
+    estimatedTime: "15-18 min",
+    whatYouWillLearn: [
+      "What Cash Flow Statement means",
+      "Why Cash Flow Statement is prepared",
+      "Difference between profit and cash",
+      "Cash inflow and cash outflow",
+      "Operating activities",
+      "Investing activities",
+      "Financing activities",
+      "Cash from operating activities in simple words",
+      "Cash from investing activities in simple words",
+      "Cash from financing activities in simple words",
+      "Positive cash flow and negative cash flow",
+      "Why a company can have profit but low cash",
+      "Simple cash flow format",
+      "Common mistakes in Cash Flow Statement",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Cash Flow Statement?",
+        body: [
+          "A Cash Flow Statement shows how cash came into the business and how cash went out during a period.",
+          "Profit and Loss shows profit.",
+          "Balance Sheet shows position.",
+          "Cash Flow Statement shows cash movement.",
+          "Riya Stationery Ltd. may earn profit, but she still needs to know how much cash came from customers, how much cash was paid for rent and salary, how much cash was spent on machines, and how much cash came from loans or shares.",
+          "It also helps explain why cash balance is low even after earning profit.",
+          "Simple line: Cash Flow Statement shows the journey of cash.",
+        ],
+      },
+      {
+        title: "Why Cash Flow Statement is needed",
+        body: [
+          "Cash Flow Statement is needed because profit does not always mean cash is available.",
+          "It shows whether the business can pay bills.",
+          "It shows where cash came from.",
+          "It shows where cash was used.",
+          "It helps us understand whether cash came from business operations, loans, or asset sales.",
+          "It helps investors and lenders understand cash health.",
+          "Simple line: Cash Flow Statement tells whether the business has real cash movement, not just accounting profit.",
+        ],
+      },
+      {
+        title: "Profit and Cash are not always the same",
+        body: [
+          "Goods sold on credit for Rs.1,00,000 may increase profit, but cash is not received yet.",
+          "A company may buy a machine for Rs.50,000 cash. Cash decreases, but the full machine cost may not become expense immediately.",
+          "A company may take a loan of Rs.2,00,000. Cash increases, but this is not profit.",
+          "Profit is calculated using accounting rules.",
+          "Cash is actual money available.",
+          "A business can show profit and still struggle to pay bills if customers have not paid in cash.",
+          "Simple line: Profit is accounting result. Cash is actual money available.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya Stationery Ltd. sells notebooks, pens, and school bags.",
+          "During the year, cash received from customers was Rs.4,00,000.",
+          "Cash paid for rent and salary was Rs.1,50,000.",
+          "Cash paid to suppliers was Rs.1,80,000.",
+          "A machine was bought for cash Rs.70,000.",
+          "Loan taken from bank was Rs.1,00,000.",
+          "Loan repaid was Rs.30,000.",
+          "At the end, Riya wants to know whether cash increased or decreased, where cash came from, and where cash went.",
+          "The Cash Flow Statement answers these questions.",
+          "Simple line: Cash Flow Statement explains the movement of cash during the year.",
+        ],
+      },
+      {
+        title: "Cash inflow and cash outflow",
+        body: [
+          "Cash inflow means cash coming into the business.",
+          "Examples of cash inflow are cash sales, cash received from debtors, loan taken, shares issued, and asset sold.",
+          "Cash outflow means cash going out of the business.",
+          "Examples of cash outflow are rent paid, salary paid, suppliers paid, machine purchased, loan repaid, and dividend paid.",
+          "Every cash flow item should be checked as inflow or outflow.",
+          "Simple memory line: Inflow = cash comes in. Outflow = cash goes out.",
+        ],
+      },
+      {
+        title: "Three types of cash flows",
+        body: [
+          "Cash flows are divided into three activities.",
+          "Operating activities show cash from normal business work.",
+          "Investing activities show cash from buying or selling long-term assets.",
+          "Financing activities show cash from owners and lenders.",
+          "Example: cash received from customers is operating.",
+          "Example: machine purchased is investing.",
+          "Example: loan taken is financing.",
+          "Simple line: Operating = daily business. Investing = assets. Financing = capital and loans.",
+        ],
+      },
+      {
+        title: "Cash Flow from Operating Activities",
+        body: [
+          "Operating activities are related to the main business operations.",
+          "For a stationery company, operating cash inflows include cash received from customers and cash received from debtors.",
+          "Operating cash outflows include cash paid to suppliers, salary paid, rent paid, and electricity paid.",
+          "Example: cash received from customers Rs.4,00,000 and cash paid for expenses Rs.3,00,000.",
+          "Cash from operating activities = Rs.1,00,000 positive.",
+          "This means regular business work generated cash.",
+          "Simple line: Operating activities show cash from regular business work.",
+        ],
+      },
+      {
+        title: "Cash Flow from Investing Activities",
+        body: [
+          "Investing activities are related to long-term assets.",
+          "Examples of cash outflow are buying machine, buying furniture, and buying land or building.",
+          "Examples of cash inflow are selling machine, selling furniture, and selling investment.",
+          "Example: company buys machine for Rs.70,000.",
+          "This is cash outflow from investing activities.",
+          "Negative investing cash flow is not always bad because the company may be buying useful assets.",
+          "Simple line: Investing activities show cash used for or received from long-term assets.",
+        ],
+      },
+      {
+        title: "Cash Flow from Financing Activities",
+        body: [
+          "Financing activities are related to money from owners and lenders.",
+          "Examples of cash inflow are issue of shares, issue of debentures, and loan taken.",
+          "Examples of cash outflow are loan repaid, debentures redeemed, and dividend paid.",
+          "Example: company takes bank loan Rs.1,00,000.",
+          "This is cash inflow from financing activities.",
+          "Example: company repays loan Rs.30,000.",
+          "This is cash outflow from financing activities.",
+          "Simple line: Financing activities show cash from capital and borrowings.",
+        ],
+      },
+      {
+        title: "Positive and negative cash flow",
+        body: [
+          "Positive cash flow means cash inflow is more than cash outflow.",
+          "Example: cash inflow Rs.5,00,000 and cash outflow Rs.4,00,000.",
+          "Positive cash flow = Rs.1,00,000.",
+          "Negative cash flow means cash outflow is more than cash inflow.",
+          "Example: cash inflow Rs.3,00,000 and cash outflow Rs.4,00,000.",
+          "Negative cash flow = Rs.1,00,000.",
+          "Simple line: Positive cash flow means cash increased. Negative cash flow means cash decreased.",
+        ],
+      },
+      {
+        title: "Simple cash flow format",
+        body: [
+          "A simple Cash Flow Statement starts with Cash Flow from Operating Activities.",
+          "Operating section can show cash received from customers, less cash paid for expenses, equals net cash from operating activities.",
+          "Investing section can show cash received from sale of assets, less cash paid to buy assets, equals net cash from investing activities.",
+          "Financing section can show cash received from shares, loans, or debentures, less cash paid for loan repayment or dividend, equals net cash from financing activities.",
+          "Net Increase or Decrease in Cash = Operating + Investing + Financing.",
+          "Add opening cash balance to get closing cash balance.",
+          "This is a simplified learning format. Actual formats may be more detailed.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Profit and Loss vs Balance Sheet vs Cash Flow Statement",
+      leftHeading: "Statement",
+      rightHeading: "Main question answered",
+      rows: [
+        {
+          left: "Profit and Loss",
+          right: "Did business earn profit? Example: Profit Rs.1,00,000.",
+        },
+        {
+          left: "Balance Sheet",
+          right: "What does business own and owe? Example: assets and liabilities.",
+        },
+        {
+          left: "Cash Flow Statement",
+          right: "Where did cash come from and go? Example: cash increased by Rs.50,000.",
+        },
+      ],
+      note: "Memory line: P&L = profit. Balance Sheet = position. Cash Flow = cash movement.",
+    },
+    memoryTable: [
+      {
+        principle: "Operating Activities",
+        meaning: "Cash from normal business work",
+        example: "Cash received from customers, salary paid, rent paid",
+      },
+      {
+        principle: "Investing Activities",
+        meaning: "Cash from long-term assets",
+        example: "Machine purchased, old machine sold",
+      },
+      {
+        principle: "Financing Activities",
+        meaning: "Cash from owners and lenders",
+        example: "Loan taken, shares issued, loan repaid",
+      },
+      {
+        principle: "Positive Cash Flow",
+        meaning: "Cash inflow is more than cash outflow",
+        example: "Cash increased by Rs.1,00,000",
+      },
+      {
+        principle: "Negative Cash Flow",
+        meaning: "Cash outflow is more than cash inflow",
+        example: "Cash decreased by Rs.1,00,000",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Cash flow classification",
+      title: "Common transactions and activities",
+      columns: ["Transaction", "Activity", "Inflow / Outflow"],
+      rows: [
+        {
+          first: "Cash received from customers",
+          second: "Operating",
+          third: "Inflow",
+        },
+        {
+          first: "Cash paid to suppliers",
+          second: "Operating",
+          third: "Outflow",
+        },
+        {
+          first: "Salary paid",
+          second: "Operating",
+          third: "Outflow",
+        },
+        {
+          first: "Machine purchased",
+          second: "Investing",
+          third: "Outflow",
+        },
+        {
+          first: "Old machine sold",
+          second: "Investing",
+          third: "Inflow",
+        },
+        {
+          first: "Loan taken",
+          second: "Financing",
+          third: "Inflow",
+        },
+        {
+          first: "Loan repaid",
+          second: "Financing",
+          third: "Outflow",
+        },
+        {
+          first: "Shares issued",
+          second: "Financing",
+          third: "Inflow",
+        },
+        {
+          first: "Dividend paid",
+          second: "Financing",
+          third: "Outflow",
+        },
+        {
+          first: "Debentures redeemed",
+          second: "Financing",
+          third: "Outflow",
+        },
+      ],
+      note: "First classify the activity, then decide whether cash comes in or goes out.",
+    },
+    visualFlow: [
+      "Start with opening cash",
+      "Add operating cash flows",
+      "Add investing cash flows",
+      "Add financing cash flows",
+      "Find net increase or decrease in cash",
+      "Add to opening cash",
+      "Get closing cash",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Cash received from customers Rs.4,00,000 and cash paid to suppliers and expenses Rs.3,20,000.",
+        entry: [
+          "Net cash from operating activities = Rs.4,00,000 - Rs.3,20,000",
+          "Net cash from operating activities = Rs.80,000 inflow",
+          "Interpretation: business generated Rs.80,000 cash from regular operations.",
+        ],
+        logic: [
+          "Customer receipts and supplier or expense payments are operating activities.",
+          "Operating cash is positive because receipts are more than payments.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Machine purchased Rs.70,000 and old furniture sold Rs.20,000.",
+        entry: [
+          "Net cash from investing activities = Rs.20,000 - Rs.70,000",
+          "Net cash from investing activities = Rs.50,000 outflow",
+          "Interpretation: company spent more cash on assets than it received from asset sale.",
+        ],
+        logic: [
+          "Buying and selling long-term assets are investing activities.",
+          "The net effect is outflow because purchase is larger than sale.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Loan taken Rs.1,00,000 and loan repaid Rs.30,000.",
+        entry: [
+          "Net cash from financing activities = Rs.1,00,000 - Rs.30,000",
+          "Net cash from financing activities = Rs.70,000 inflow",
+          "Interpretation: company received net cash from financing.",
+        ],
+        logic: [
+          "Loan taken brings cash in.",
+          "Loan repayment sends cash out.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Operating cash inflow Rs.80,000, investing cash outflow Rs.50,000, financing cash inflow Rs.70,000.",
+        entry: [
+          "Net increase in cash = Rs.80,000 - Rs.50,000 + Rs.70,000",
+          "Net increase in cash = Rs.1,00,000",
+        ],
+        logic: [
+          "Add inflows and subtract outflows.",
+          "The final result shows cash increased during the period.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Opening cash Rs.40,000 and net increase Rs.1,00,000.",
+        entry: [
+          "Closing cash = Opening cash + Net increase",
+          "Closing cash = Rs.40,000 + Rs.1,00,000",
+          "Closing cash = Rs.1,40,000",
+        ],
+        logic: [
+          "Cash Flow Statement connects opening cash with closing cash.",
+          "Net increase is added to opening cash.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Profit Rs.1,00,000, credit sales not collected Rs.80,000, machine bought for cash Rs.50,000.",
+        entry: [
+          "Profit exists",
+          "But Rs.80,000 credit sales have not brought cash yet",
+          "Machine purchase used Rs.50,000 cash",
+          "Interpretation: company has profit, but cash may still be low.",
+        ],
+        logic: [
+          "Profit and cash can move differently.",
+          "Credit sales and asset purchases explain why cash may be low.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking profit and cash are the same",
+      "Treating loan taken as profit",
+      "Treating machine purchase as operating activity",
+      "Treating share issue as sales income",
+      "Forgetting to separate operating, investing, and financing activities",
+      "Ignoring credit sales",
+      "Ignoring cash received from debtors",
+      "Thinking negative investing cash flow is always bad",
+      "Forgetting opening and closing cash balance",
+      "Calculating numbers but not interpreting cash health",
+    ],
+    tryPrompts: [
+      "Cash received from customers Rs.2,00,000 and cash expenses Rs.1,50,000. Find operating cash flow. Expected: Rs.50,000 inflow.",
+      "Machine purchased for Rs.80,000. Operating, investing, or financing? Expected: Investing activity.",
+      "Bank loan taken Rs.1,00,000. Operating, investing, or financing? Expected: Financing activity.",
+      "Salary paid Rs.30,000. Operating, investing, or financing? Expected: Operating activity.",
+      "Old machine sold for Rs.20,000. Cash inflow or outflow? Expected: Inflow.",
+      "Loan repaid Rs.40,000. Cash inflow or outflow? Expected: Outflow.",
+      "Operating cash inflow Rs.70,000, investing cash outflow Rs.30,000, financing cash inflow Rs.20,000. Find net increase in cash. Expected: Rs.60,000.",
+      "Opening cash Rs.25,000 and net increase Rs.60,000. Find closing cash. Expected: Rs.85,000.",
+      "Goods sold on credit Rs.1,00,000. Does cash increase immediately? Expected: No.",
+      "Loan taken increases cash. Is it profit? Expected: No.",
+    ],
+    toolLinks: [
+      { label: "Review Accounting Ratios", href: "/learn/accounting-ratios" },
+      { label: "Review Financial Statements", href: "/learn/financial-statements-of-a-company" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Review Analysis",
+      href: "/learn/analysis-of-financial-statements",
+      description:
+        "You have now covered the main tools used to understand financial statements: analysis, comparative statements, common size statements, ratios, and cash flow.",
     },
   },
 };
