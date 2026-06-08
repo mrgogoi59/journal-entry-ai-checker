@@ -24,6 +24,7 @@ export const trackedLessonSlugs = [
   "partnership-accounts-basic-concepts",
   "profit-and-loss-appropriation-account",
   "fixed-and-fluctuating-capital-accounts",
+  "admission-of-a-partner",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];

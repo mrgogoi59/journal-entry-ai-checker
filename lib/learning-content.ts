@@ -21,7 +21,8 @@ export type LessonSlug =
   | "accounting-for-not-for-profit-organisations"
   | "partnership-accounts-basic-concepts"
   | "profit-and-loss-appropriation-account"
-  | "fixed-and-fluctuating-capital-accounts";
+  | "fixed-and-fluctuating-capital-accounts"
+  | "admission-of-a-partner";
 
 export type SolvedLessonExample = {
   title: string;
@@ -233,6 +234,12 @@ export const lessonCards = [
     title: "Fixed and Fluctuating Capital Accounts",
     description: "Learn the two simple methods used to maintain partners' capital accounts.",
     href: "/learn/fixed-and-fluctuating-capital-accounts",
+  },
+  {
+    slug: "admission-of-a-partner",
+    title: "Admission of a Partner",
+    description: "Learn what happens when a new partner joins an existing partnership firm.",
+    href: "/learn/admission-of-a-partner",
   },
 ];
 
@@ -5932,10 +5939,330 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
+      label: "Continue to Admission of a Partner",
+      href: "/learn/admission-of-a-partner",
+      description:
+        "After understanding partner capital accounts, learn what happens when a new partner joins an existing partnership firm.",
+    },
+  },
+  "admission-of-a-partner": {
+    slug: "admission-of-a-partner",
+    title: "Admission of a Partner",
+    subtitle: "Learn what happens when a new partner joins an existing partnership firm.",
+    description:
+      "Understand new profit sharing ratio, sacrificing ratio, goodwill, revaluation, old reserves, and capital when a new partner enters the firm.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What admission of a partner means",
+      "Why a new partner is admitted",
+      "What changes when a new partner enters",
+      "New profit sharing ratio",
+      "Sacrificing ratio",
+      "Goodwill in simple words",
+      "Revaluation of assets and liabilities",
+      "Accumulated profits and losses",
+      "New partner's capital",
+      "Capital adjustment at a beginner level",
+      "Common journal entry ideas",
+      "Common mistakes in admission questions",
+    ],
+    conceptSections: [
+      {
+        title: "What does Admission of a Partner mean?",
+        body: [
+          "Admission of a Partner means a new person joins an existing partnership firm as a partner.",
+          "When two or more partners are already running a business and another person joins them as a new partner, it is called admission of a partner.",
+          "Example: Riya and Amit are running a stationery shop. Later, Neha joins the firm and becomes a partner.",
+          "Simple line: Admission means a new partner enters the partnership firm.",
+        ],
+      },
+      {
+        title: "Why a new partner is admitted",
+        body: [
+          "A new partner may be admitted because the firm needs more capital.",
+          "The firm may need more skills or experience.",
+          "The old partners may want to expand the business.",
+          "The new partner may have good contacts.",
+          "The new partner may manage a new branch.",
+          "The old partners may want to share work and risk.",
+          "Example: Riya and Amit want to open another stationery shop near a college. They admit Neha because she brings money and knows the college market well.",
+          "Simple line: A new partner brings capital, skill, experience, or business support.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya and Amit run a stationery shop.",
+          "Their profit sharing ratio is 1:1.",
+          "The shop is doing well, but they want to open a second branch.",
+          "Neha wants to join the business.",
+          "Neha brings capital Rs.50,000, good business contacts, and experience in online sales.",
+          "Riya and Amit agree to admit Neha as a partner.",
+          "Now the firm must decide the new profit sharing ratio, Neha's capital, goodwill, revaluation, and treatment of old profits or losses.",
+          "This is why admission of a partner needs accounting.",
+        ],
+      },
+      {
+        title: "What changes when a partner is admitted",
+        body: [
+          "Profit sharing ratio changes.",
+          "Old partners sacrifice some share of profit.",
+          "The new partner may bring capital.",
+          "The new partner may bring goodwill.",
+          "Assets and liabilities may be revalued.",
+          "Old accumulated profits or losses are adjusted.",
+          "Partner capital accounts may be adjusted.",
+          "Simple line: Admission changes ownership, profit sharing, and capital of the firm.",
+        ],
+      },
+      {
+        title: "New Profit Sharing Ratio",
+        body: [
+          "New Profit Sharing Ratio is the ratio in which all partners will share future profits after admission.",
+          "Before admission, Riya and Amit share profit equally. Old ratio = 1:1.",
+          "After Neha joins, Riya, Amit, and Neha agree to share profit in 2:2:1.",
+          "If future profit is Rs.50,000, total parts are 2 + 2 + 1 = 5.",
+          "Riya gets Rs.50,000 x 2/5 = Rs.20,000.",
+          "Amit gets Rs.50,000 x 2/5 = Rs.20,000.",
+          "Neha gets Rs.50,000 x 1/5 = Rs.10,000.",
+          "Simple line: New ratio decides future profit sharing.",
+        ],
+      },
+      {
+        title: "Sacrificing Ratio",
+        rule: "Sacrifice = Old Share - New Share",
+        body: [
+          "When a new partner gets a share of profit, old partners give up some of their old profit share.",
+          "This given-up part is called sacrifice.",
+          "Riya and Amit earlier shared equally. Their old shares were 1/2 and 1/2.",
+          "After Neha joins, Riya = 2/5, Amit = 2/5, and Neha = 1/5.",
+          "Riya's sacrifice = 1/2 - 2/5 = 1/10.",
+          "Amit's sacrifice = 1/2 - 2/5 = 1/10.",
+          "Sacrificing ratio is Riya : Amit = 1:1.",
+          "Simple line: Sacrificing ratio shows how much old partners give up for the new partner.",
+        ],
+      },
+      {
+        title: "What is Goodwill?",
+        body: [
+          "Goodwill means the value of the firm's good name, reputation, loyal customers, and earning power.",
+          "Riya and Amit's shop is famous. Many students trust their shop, so it earns good profit.",
+          "When Neha joins, she gets the benefit of this already successful business.",
+          "So Neha may have to compensate old partners for goodwill.",
+          "Example: goodwill of firm is Rs.30,000 and Neha gets 1/5 share.",
+          "Neha's share of goodwill is Rs.30,000 x 1/5 = Rs.6,000.",
+          "If old partners sacrificed equally, Riya and Amit may get Rs.3,000 each.",
+          "Simple line: Goodwill is the value of a business's good reputation.",
+        ],
+      },
+      {
+        title: "Revaluation of assets and liabilities",
+        body: [
+          "Before admitting a new partner, the firm may check whether assets and liabilities are shown at correct values.",
+          "Example: furniture is recorded at Rs.20,000, but actual value is Rs.25,000.",
+          "This increase should belong to old partners because it happened before Neha joined.",
+          "Another example: a liability recorded as Rs.10,000 is now expected to be Rs.12,000.",
+          "This loss also belongs to old partners.",
+          "Revaluation Account is used to record such increases and decreases.",
+          "Simple line: Revaluation means updating old asset and liability values before the new partner joins.",
+        ],
+      },
+      {
+        title: "Accumulated profits and losses",
+        body: [
+          "Sometimes the firm has old profits or losses not yet distributed.",
+          "Examples are General Reserve, Profit and Loss balance, Advertisement Suspense, and accumulated loss.",
+          "These belong to old partners because they were created before the new partner joined.",
+          "So they should be distributed among old partners in the old profit sharing ratio.",
+          "Simple line: Old profits and old losses belong to old partners.",
+        ],
+      },
+      {
+        title: "New partner's capital",
+        body: [
+          "The new partner usually brings capital into the firm.",
+          "Example: Neha brings capital Rs.50,000.",
+          "Journal entry idea: Cash/Bank A/c Dr. Rs.50,000, To Neha's Capital A/c Rs.50,000.",
+          "Cash or bank increases.",
+          "Neha's capital increases.",
+          "Simple line: New partner's capital increases firm's money and records the new partner's claim.",
+        ],
+      },
+      {
+        title: "Capital adjustment at beginner level",
+        body: [
+          "Sometimes partners agree that their capitals should be in the new profit sharing ratio.",
+          "Example: new ratio is 2:2:1 and total capital required is Rs.1,00,000.",
+          "Capital should be Riya Rs.40,000, Amit Rs.40,000, and Neha Rs.20,000.",
+          "If any partner's actual capital is more or less, adjustment may be made through cash or current account.",
+          "Simple line: Capital adjustment makes partners' capital match the agreed ratio.",
+        ],
+      },
+    ],
+    impactTable: {
+      eyebrow: "Admission guide",
+      title: "What usually changes on admission",
+      columns: ["Item", "Simple meaning", "Who is affected"],
+      rows: [
+        {
+          first: "New Ratio",
+          second: "Future profit sharing ratio",
+          third: "All partners",
+        },
+        {
+          first: "Sacrificing Ratio",
+          second: "Old partners' given-up share",
+          third: "Old partners",
+        },
+        {
+          first: "Goodwill",
+          second: "Value of reputation",
+          third: "New partner compensates old partners",
+        },
+        {
+          first: "Revaluation",
+          second: "Update assets and liabilities",
+          third: "Old partners",
+        },
+        {
+          first: "Old Reserves",
+          second: "Past profits or losses",
+          third: "Old partners in old ratio",
+        },
+        {
+          first: "New Capital",
+          second: "Money brought by new partner",
+          third: "New partner's capital account",
+        },
+      ],
+      note: "Admission accounting tries to treat old partners and the new partner fairly.",
+    },
+    visualFlow: [
+      "New partner joins",
+      "Decide new profit sharing ratio",
+      "Calculate sacrificing ratio",
+      "Adjust goodwill",
+      "Revalue assets and liabilities",
+      "Distribute old profits or losses",
+      "New partner brings capital",
+      "Adjust capital if required",
+      "New partnership begins",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Riya, Amit, and Neha share profit in 2:2:1. Profit Rs.50,000.",
+        entry: [
+          "Total parts = 2 + 2 + 1 = 5",
+          "Riya = Rs.50,000 x 2/5 = Rs.20,000",
+          "Amit = Rs.50,000 x 2/5 = Rs.20,000",
+          "Neha = Rs.50,000 x 1/5 = Rs.10,000",
+        ],
+        logic: [
+          "The new ratio is used for future profits.",
+          "Neha receives one part out of five.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Old ratio 1:1. New ratio 2:2:1.",
+        entry: [
+          "Riya sacrifice = 1/2 - 2/5 = 1/10",
+          "Amit sacrifice = 1/2 - 2/5 = 1/10",
+          "Sacrificing Ratio = 1:1",
+        ],
+        logic: [
+          "Sacrifice means old share minus new share.",
+          "Both old partners sacrifice equally.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Goodwill Rs.30,000. Neha's share 1/5.",
+        entry: [
+          "Neha's share of goodwill = Rs.30,000 x 1/5",
+          "Neha's share of goodwill = Rs.6,000",
+          "Riya receives Rs.3,000",
+          "Amit receives Rs.3,000",
+        ],
+        logic: [
+          "New partner gets benefit of old reputation.",
+          "Old partners are compensated in sacrificing ratio.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Neha brings Rs.50,000 by bank.",
+        entry: [
+          "Bank A/c Dr. Rs.50,000",
+          "To Neha's Capital A/c Rs.50,000",
+        ],
+        logic: [
+          "Bank balance increases.",
+          "Neha's capital in the firm increases.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Furniture value increases by Rs.5,000 before Neha joins.",
+        entry: [
+          "Revaluation gain Rs.5,000",
+          "Riya's share Rs.2,500",
+          "Amit's share Rs.2,500",
+        ],
+        logic: [
+          "The gain happened before admission.",
+          "So it belongs to old partners in old ratio.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "General Reserve Rs.20,000 exists before Neha joins.",
+        entry: [
+          "General Reserve Rs.20,000",
+          "Riya's share Rs.10,000",
+          "Amit's share Rs.10,000",
+        ],
+        logic: [
+          "Old reserve belongs to old partners.",
+          "It is distributed in the old profit sharing ratio.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Confusing old ratio with new ratio",
+      "Forgetting to calculate sacrificing ratio",
+      "Giving old reserves to the new partner",
+      "Forgetting that old profits and losses belong to old partners",
+      "Treating goodwill as normal cash sale",
+      "Forgetting new partner's capital entry",
+      "Thinking new partner automatically shares old profits",
+      "Ignoring revaluation of assets and liabilities",
+      "Confusing sacrificing ratio with gaining ratio",
+      "Making the topic too complicated before understanding basics",
+    ],
+    tryPrompts: [
+      "Riya and Amit share profit equally. Neha joins. New ratio is 2:2:1. What is Neha's share? Expected: 1/5.",
+      "Old share of Riya is 1/2. New share is 2/5. Find Riya's sacrifice. Expected: 1/10.",
+      "Goodwill of firm is Rs.40,000. New partner gets 1/4 share. Find new partner's share of goodwill. Expected: Rs.10,000.",
+      "New partner brings capital Rs.60,000 by bank. What is the entry idea? Expected: Bank A/c Dr. To New Partner's Capital A/c.",
+      "General Reserve Rs.30,000 exists before admission. Who gets it? Expected: Old partners in old ratio.",
+      "Machinery value increases by Rs.10,000 before new partner joins. Who gets the gain? Expected: Old partners in old ratio.",
+      "New ratio is 3:2:1. How many total parts? Expected: 6 parts.",
+      "New partner gets share in future profit. Which ratio is used for future profit? Expected: New profit sharing ratio.",
+    ],
+    toolLinks: [
+      { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
+      { label: "Review P&L Appropriation", href: "/learn/profit-and-loss-appropriation-account" },
+      { label: "Review Capital Accounts", href: "/learn/fixed-and-fluctuating-capital-accounts" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
       label: "Review Partnership Basics",
       href: "/learn/partnership-accounts-basic-concepts",
       description:
-        "After understanding partner capital accounts, the next major topic is admission of a new partner. Review Partnership Basics while that lesson is not available yet.",
+        "After learning admission of a partner, the next partnership change is retirement or death of a partner. Review Partnership Basics while that lesson is not available yet.",
     },
   },
 };

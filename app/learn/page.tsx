@@ -102,7 +102,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/fixed-and-fluctuating-capital-accounts",
         status: "available",
       },
-      { title: "Admission of a Partner", status: "coming_soon" },
+      {
+        title: "Admission of a Partner",
+        href: "/learn/admission-of-a-partner",
+        status: "available",
+      },
       { title: "Retirement or Death of a Partner", status: "coming_soon" },
       { title: "Dissolution of Partnership Firm", status: "coming_soon" },
     ],
