@@ -14,6 +14,7 @@ export const trackedLessonSlugs = [
   "gst-journal-entries",
   "ledger-posting-basics",
   "trial-balance-basics",
+  "rectification-of-errors",
   "depreciation-provisions-and-reserves",
   "final-accounts-basics",
   "adjustments-in-final-accounts",

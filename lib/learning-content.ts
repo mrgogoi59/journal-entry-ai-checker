@@ -12,6 +12,7 @@ export type LessonSlug =
   | "gst-journal-entries"
   | "ledger-posting-basics"
   | "trial-balance-basics"
+  | "rectification-of-errors"
   | "depreciation-provisions-and-reserves"
   | "final-accounts-basics"
   | "adjustments-in-final-accounts";
@@ -161,6 +162,12 @@ export const lessonCards = [
     title: "Trial Balance Basics",
     description: "Learn how ledger balances are listed to check whether debit and credit totals agree.",
     href: "/learn/trial-balance-basics",
+  },
+  {
+    slug: "rectification-of-errors",
+    title: "Rectification of Errors",
+    description: "Learn how accounting mistakes are found and corrected in a simple way.",
+    href: "/learn/rectification-of-errors",
   },
   {
     slug: "depreciation-provisions-and-reserves",
@@ -2945,10 +2952,237 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open Final Accounts", href: "/final-accounts" },
     ],
     nextLesson: {
+      label: "Continue to Rectification of Errors",
+      href: "/learn/rectification-of-errors",
+      description: "After Trial Balance, learn how accounting mistakes are found and corrected.",
+    },
+  },
+  "rectification-of-errors": {
+    slug: "rectification-of-errors",
+    title: "Rectification of Errors",
+    subtitle: "Learn how accounting mistakes are found and corrected in a simple way.",
+    description:
+      "Understand common accounting errors, why they happen, and how rectification entries correct them.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What accounting errors are",
+      "Why errors happen",
+      "What rectification means",
+      "Which errors affect Trial Balance",
+      "Which errors do not affect Trial Balance",
+      "Error of omission",
+      "Error of commission",
+      "Error of principle",
+      "Compensating error",
+      "Error of original entry",
+      "Posting error",
+      "Casting or totaling error",
+      "What Suspense Account means at a beginner level",
+      "How rectification entries correct mistakes",
+    ],
+    conceptSections: [
+      {
+        title: "What is Rectification of Errors?",
+        body: [
+          "Rectification of Errors means finding accounting mistakes and correcting them.",
+          "Sometimes while recording, posting, or totaling accounts, mistakes can happen.",
+          "These mistakes must be corrected so that the accounts show the correct picture.",
+          "Example: Rent paid Rs.5,000 is wrongly recorded as Salary.",
+          "This mistake should be corrected.",
+          "Simple line: Rectification means correction of accounting mistakes.",
+        ],
+      },
+      {
+        title: "Why errors happen",
+        body: [
+          "A transaction may be forgotten.",
+          "A wrong account may be used.",
+          "Amount may be written wrongly.",
+          "Debit may be posted as credit.",
+          "Totaling may be wrong.",
+          "Transaction may be recorded in the wrong book.",
+          "Asset may be treated as expense.",
+          "Expense may be treated as asset.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a small stationery shop.",
+          "During the month, she pays shop rent Rs.5,000, buys furniture Rs.10,000, sells goods to Amit Rs.8,000, and pays salary Rs.6,000.",
+          "At the end, while checking accounts, she finds that rent was recorded as salary.",
+          "Furniture was recorded as purchases.",
+          "Amit's account was posted with Rs.800 instead of Rs.8,000.",
+          "One cash sale was not recorded at all.",
+          "Can Riya prepare correct accounts without fixing these mistakes?",
+          "No. She must rectify the errors first.",
+        ],
+      },
+      {
+        title: "Errors that affect Trial Balance",
+        body: [
+          "Some errors make debit total and credit total unequal.",
+          "Examples are posting an amount only on one side, posting debit amount wrongly, posting credit amount wrongly, wrong totaling of a ledger account, writing debit balance in credit column of Trial Balance, or writing wrong amount in Trial Balance.",
+          "Simple example: Purchases A/c Dr Rs.10,000 / To Cash A/c Rs.10,000.",
+          "If Purchases is posted as Rs.10,000 but Cash is not posted, Trial Balance may not agree.",
+          "Memory line: If only one side is wrong, Trial Balance may disagree.",
+        ],
+      },
+      {
+        title: "Errors that do not affect Trial Balance",
+        body: [
+          "Some errors do not disturb debit-credit equality, so Trial Balance may still agree.",
+          "Examples are complete omission of a transaction, wrong account but correct side and amount, error of principle, compensating errors, and recording wrong amount on both debit and credit sides.",
+          "Simple example: Rent paid Rs.5,000 is recorded as Salary paid Rs.5,000.",
+          "Debit is still Rs.5,000 and credit is still Rs.5,000.",
+          "Trial Balance may agree, but the account is wrong.",
+          "Memory line: Trial Balance agreement does not mean there is no mistake.",
+        ],
+      },
+      {
+        title: "Types of accounting errors",
+        body: [
+          "Error of Omission means a transaction is not recorded. Example: cash sale Rs.2,000 is completely forgotten.",
+          "Error of Commission means wrong account or person is used. Example: amount received from Amit is posted to Raju.",
+          "Error of Principle means a basic accounting rule is broken. Example: furniture bought is recorded as Purchases even though furniture is an asset.",
+          "Compensating Error means one mistake is balanced by another mistake.",
+          "Error of Original Entry means wrong amount is recorded from the beginning. Example: goods purchased Rs.8,000 is recorded as Rs.800.",
+          "Posting Error means journal entry is correct, but ledger posting is wrong.",
+          "Casting or Totaling Error means total of an account or book is wrongly added.",
+        ],
+      },
+      {
+        title: "What is Suspense Account?",
+        body: [
+          "When Trial Balance does not agree and the error is not found immediately, the difference is temporarily placed in Suspense Account.",
+          "Suspense Account is like a temporary waiting room for the difference.",
+          "Example: Trial Balance debit total is Rs.50,000 and credit total is Rs.48,000.",
+          "Difference is Rs.2,000.",
+          "Until the error is found, Rs.2,000 may be put in Suspense Account.",
+          "When the error is found, Suspense Account is closed by passing rectification entry.",
+          "Simple line: Suspense Account is temporary, not permanent.",
+        ],
+      },
+      {
+        title: "How to correct errors",
+        body: [
+          "Step 1: find what was wrongly recorded.",
+          "Step 2: find what should have been recorded.",
+          "Step 3: compare wrong and correct treatment.",
+          "Step 4: pass rectification entry.",
+          "Step 5: if Suspense Account was used, close it when correcting the error.",
+          "Very simple formula: Wrong entry -> Correct entry -> Difference = Rectification entry.",
+        ],
+      },
+    ],
+    visualFlow: [
+      "Transaction recorded",
+      "Error found",
+      "Identify wrong account/amount/side",
+      "Find correct treatment",
+      "Pass rectification entry",
+      "Correct accounts",
+      "Reliable Trial Balance and Final Accounts",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Rent paid Rs.5,000 was wrongly recorded as Salary.",
+        entry: [
+          "Wrong: Salary A/c Dr Rs.5,000 / To Cash A/c Rs.5,000",
+          "Correct: Rent A/c Dr Rs.5,000 / To Cash A/c Rs.5,000",
+          "Rectification: Rent A/c Dr Rs.5,000",
+          "To Salary A/c Rs.5,000",
+        ],
+        logic: [
+          "Salary was wrongly debited.",
+          "Rent should be debited.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Furniture bought Rs.10,000 was wrongly recorded as Purchases.",
+        entry: [
+          "Wrong: Purchases A/c Dr Rs.10,000 / To Cash A/c Rs.10,000",
+          "Correct: Furniture A/c Dr Rs.10,000 / To Cash A/c Rs.10,000",
+          "Rectification: Furniture A/c Dr Rs.10,000",
+          "To Purchases A/c Rs.10,000",
+        ],
+        logic: [
+          "Furniture is an asset.",
+          "It is not goods purchased for resale.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Goods sold to Amit Rs.8,000 were posted to Raju's account.",
+        entry: [
+          "Rectification: Amit A/c Dr Rs.8,000",
+          "To Raju A/c Rs.8,000",
+        ],
+        logic: [
+          "Amit should be debtor.",
+          "Raju was wrongly debited.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Sales Book was undercast by Rs.2,000.",
+        entry: [
+          "Meaning: Sales total is short by Rs.2,000.",
+          "Rectification: Suspense A/c Dr Rs.2,000",
+          "To Sales A/c Rs.2,000",
+        ],
+        logic: [
+          "Sales should increase, so Sales is credited.",
+          "Suspense Account is used because Trial Balance difference is being corrected.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Purchases Book was overcast by Rs.1,000.",
+        entry: [
+          "Meaning: Purchases total is more by Rs.1,000.",
+          "Rectification: Suspense A/c Dr Rs.1,000",
+          "To Purchases A/c Rs.1,000",
+        ],
+        logic: [
+          "Purchases was too high.",
+          "It must be reduced by crediting Purchases.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking Trial Balance agreement means no errors",
+      "Forgetting that some errors do not affect Trial Balance",
+      "Treating asset purchase as goods purchase",
+      "Confusing error of principle and error of commission",
+      "Forgetting to reverse the wrong account",
+      "Using Suspense Account for every error",
+      "Not checking whether one side or both sides are wrong",
+      "Correcting only amount but not wrong account",
+      "Thinking Suspense Account is a permanent account",
+    ],
+    tryPrompts: [
+      "Rent paid Rs.4,000 recorded as Salary. Expected: Wrong expense account. Debit Rent and credit Salary.",
+      "Furniture bought Rs.12,000 recorded as Purchases. Expected: Error of principle. Debit Furniture and credit Purchases.",
+      "Cash sale Rs.2,000 not recorded at all. Expected: Error of omission. Record Cash and Sales.",
+      "Goods sold to Amit Rs.5,000 posted to Raju. Expected: Error of commission. Transfer from Raju to Amit.",
+      "Salary account total is short by Rs.1,000. Expected: Totaling/casting error. Increase Salary.",
+      "Purchases Book total is Rs.500 more than actual. Expected: Purchases overcast. Reduce Purchases.",
+      "Goods purchased Rs.8,000 recorded as Rs.800 in both accounts. Expected: Error of original entry. Correct short amount Rs.7,200.",
+      "Trial Balance difference is temporarily placed in an account. Expected: Suspense Account.",
+    ],
+    toolLinks: [
+      { label: "Review Trial Balance Basics", href: "/learn/trial-balance-basics" },
+      { label: "Practice Trial Balance", href: "/practice/trial-balance" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
       label: "Continue to Depreciation, Provisions and Reserves",
       href: "/learn/depreciation-provisions-and-reserves",
-      description:
-        "After Trial Balance, learn why assets lose value, why expected losses are provided for, and why profit may be kept aside.",
+      description: "After learning how mistakes are corrected, continue with depreciation, provisions, and reserves.",
     },
   },
   "depreciation-provisions-and-reserves": {
