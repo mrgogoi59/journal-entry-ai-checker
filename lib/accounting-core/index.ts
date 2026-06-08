@@ -81,3 +81,31 @@ export type {
   ShareForfeitureInput,
   ShareIssueAtPremiumInput,
 } from "./generators/company-journal-generator";
+
+export {
+  generateGoodwillCompensationEntry,
+  generateInterestOnCapitalAllowedEntry,
+  generateInterestOnDrawingsChargedEntry,
+  generatePartnerCommissionAllowedEntry,
+  generatePartnerSalaryAllowedEntry,
+  generatePartnershipJournalScenario,
+  generateRealisationAssetTransferEntry,
+  generateRealisationExpensePaidEntry,
+  generateRealisationLiabilityTransferEntry,
+  generateRevaluationGainOnAssetEntry,
+  generateRevaluationLossOnAssetEntry,
+  partnerCapitalAccountName,
+} from "./generators/partnership-journal-generator";
+export type {
+  GoodwillCompensationInput,
+  InterestOnCapitalAllowedInput,
+  InterestOnDrawingsChargedInput,
+  PartnerAmount,
+  PartnerCommissionAllowedInput,
+  PartnerSalaryAllowedInput,
+  PartnershipJournalScenarioInput,
+  RealisationAssetTransferInput,
+  RealisationExpensePaidInput,
+  RealisationLiabilityTransferInput,
+  RevaluationAssetInput,
+} from "./generators/partnership-journal-generator";
