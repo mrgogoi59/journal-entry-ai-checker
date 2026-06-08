@@ -30,6 +30,7 @@ export const trackedLessonSlugs = [
   "accounting-for-share-capital",
   "calls-in-arrears-and-calls-in-advance",
   "forfeiture-and-reissue-of-shares",
+  "issue-and-redemption-of-debentures",
 ] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];

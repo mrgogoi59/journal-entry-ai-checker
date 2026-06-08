@@ -27,7 +27,8 @@ export type LessonSlug =
   | "dissolution-of-partnership-firm"
   | "accounting-for-share-capital"
   | "calls-in-arrears-and-calls-in-advance"
-  | "forfeiture-and-reissue-of-shares";
+  | "forfeiture-and-reissue-of-shares"
+  | "issue-and-redemption-of-debentures";
 
 export type SolvedLessonExample = {
   title: string;
@@ -275,6 +276,12 @@ export const lessonCards = [
     title: "Forfeiture and Reissue of Shares",
     description: "Learn what happens when unpaid shares are cancelled and issued again.",
     href: "/learn/forfeiture-and-reissue-of-shares",
+  },
+  {
+    slug: "issue-and-redemption-of-debentures",
+    title: "Issue and Redemption of Debentures",
+    description: "Learn how companies borrow money through debentures and repay them later.",
+    href: "/learn/issue-and-redemption-of-debentures",
   },
 ];
 
@@ -7816,10 +7823,365 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
+      label: "Continue to Issue and Redemption of Debentures",
+      href: "/learn/issue-and-redemption-of-debentures",
+      description:
+        "After learning forfeiture and reissue of shares, the next company accounts topic is debentures.",
+    },
+  },
+  "issue-and-redemption-of-debentures": {
+    slug: "issue-and-redemption-of-debentures",
+    title: "Issue and Redemption of Debentures",
+    subtitle: "Learn how companies borrow money through debentures and repay them later.",
+    description:
+      "Understand debentures as borrowed capital, debenture holders, interest, issue at par/premium/discount, and redemption basics.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What a debenture means",
+      "Why companies issue debentures",
+      "Difference between shares and debentures",
+      "Who debenture holders are",
+      "Debentures as loan or borrowed capital",
+      "Interest on debentures",
+      "Issue of debentures at par",
+      "Issue of debentures at premium",
+      "Issue of debentures at discount at beginner level",
+      "Redemption of debentures",
+      "Redemption at par and premium at beginner level",
+      "Simple journal entry ideas",
+      "Common mistakes in debenture questions",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Debenture?",
+        body: [
+          "A debenture is a written acknowledgement of debt issued by a company.",
+          "When a company needs money, it can collect money by issuing shares or by borrowing money.",
+          "If the company borrows money from people and gives them written proof, that proof is called a debenture.",
+          "Example: Riya Stationery Ltd. needs Rs.1,00,000 to buy new machines. Instead of issuing more shares, it borrows money by issuing debentures.",
+          "People who give money to the company become debenture holders.",
+          "Simple line: A debenture is loan taken by a company from debenture holders.",
+        ],
+      },
+      {
+        title: "Why companies issue debentures",
+        body: [
+          "Companies issue debentures because they need money for expansion.",
+          "They may not want to issue more shares.",
+          "They can borrow from many people.",
+          "Debenture holders get fixed interest.",
+          "Ownership of company does not change like shares.",
+          "Company repays debentures later.",
+          "Simple line: Shares bring ownership capital. Debentures bring borrowed capital.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya Stationery Ltd. wants to open a printing unit.",
+          "The company needs Rs.2,00,000.",
+          "It has two options: issue more shares or borrow money by issuing debentures.",
+          "The company decides to issue 2,000 debentures of Rs.100 each.",
+          "Total money raised = 2,000 x Rs.100 = Rs.2,00,000.",
+          "The people who buy debentures are not owners. They are lenders.",
+          "The company must pay them interest and repay the debenture amount later.",
+          "This is debenture accounting.",
+        ],
+      },
+      {
+        title: "Shares vs Debentures",
+        body: [
+          "Shares are part of owner's capital.",
+          "Debentures are borrowed capital or loan.",
+          "Shareholders are owners.",
+          "Debenture holders are lenders.",
+          "Dividend may be paid from profit on shares.",
+          "Interest is paid on debentures.",
+          "Shares do not have fixed repayment like a loan.",
+          "Debentures are usually repaid after a fixed period.",
+          "Memory line: Shareholder is owner. Debenture holder is lender.",
+        ],
+      },
+      {
+        title: "Debenture holder",
+        body: [
+          "A debenture holder is a person who gives money to the company by buying debentures.",
+          "Example: Amit buys 10 debentures of Rs.100 each.",
+          "Amit gives 10 x Rs.100 = Rs.1,000.",
+          "Amit becomes a debenture holder.",
+          "He will receive interest from the company.",
+          "Simple line: Debenture holder lends money to the company.",
+        ],
+      },
+      {
+        title: "Interest on debentures",
+        body: [
+          "Debenture holders receive interest.",
+          "Example: a company issues 10% debentures of Rs.1,00,000.",
+          "Interest = Rs.1,00,000 x 10% = Rs.10,000 per year.",
+          "Interest on debentures is an expense for the company.",
+          "Simple journal entry idea: Debenture Interest A/c Dr., To Debentureholders A/c or Bank A/c.",
+          "Simple line: Debenture interest is cost of borrowing money.",
+        ],
+      },
+      {
+        title: "Issue of debentures",
+        body: [
+          "Issue of debentures means giving debentures to people and receiving money from them.",
+          "Debentures can be issued at par, at premium, or at discount.",
+          "At par means issue price equals face value.",
+          "Premium means issue price is above face value.",
+          "Discount means issue price is below face value.",
+          "Simple line: Debenture issue records how borrowed money comes into the company.",
+        ],
+      },
+      {
+        title: "Issue of Debentures at Par",
+        body: [
+          "At par means issue price equals face value.",
+          "Example: company issues 1,000 debentures of Rs.100 each at Rs.100.",
+          "Amount received = 1,000 x Rs.100 = Rs.1,00,000.",
+          "Entry idea: Bank A/c Dr. Rs.1,00,000, To Debentures A/c Rs.1,00,000.",
+          "Simple line: At par means issue price = face value.",
+        ],
+      },
+      {
+        title: "Issue of Debentures at Premium",
+        body: [
+          "Premium means debentures are issued above face value.",
+          "Example: company issues 1,000 debentures of Rs.100 each at Rs.110.",
+          "Face value = 1,000 x Rs.100 = Rs.1,00,000.",
+          "Premium = 1,000 x Rs.10 = Rs.10,000.",
+          "Total received = Rs.1,10,000.",
+          "Entry idea: Bank A/c Dr. Rs.1,10,000, To Debentures A/c Rs.1,00,000, To Securities Premium A/c Rs.10,000.",
+          "Simple line: Premium is extra amount received above face value.",
+        ],
+      },
+      {
+        title: "Issue of Debentures at Discount",
+        body: [
+          "Discount means debentures are issued below face value.",
+          "Example: company issues 1,000 debentures of Rs.100 each at Rs.95.",
+          "Face value is Rs.1,00,000.",
+          "Amount received is Rs.95,000.",
+          "Discount is Rs.5,000.",
+          "Entry idea: Bank A/c Dr. Rs.95,000, Discount on Issue of Debentures A/c Dr. Rs.5,000, To Debentures A/c Rs.1,00,000.",
+          "Simple line: Discount is a loss or expense-like amount for the company.",
+        ],
+      },
+      {
+        title: "What is Redemption of Debentures?",
+        body: [
+          "Redemption means repayment of debentures by the company.",
+          "When the company returns the debenture money to debenture holders, it is called redemption.",
+          "Example: company issued debentures of Rs.1,00,000.",
+          "After 5 years, it repays Rs.1,00,000 to debenture holders.",
+          "This is redemption.",
+          "Simple line: Redemption means repayment of debenture money.",
+        ],
+      },
+      {
+        title: "Redemption at par and premium",
+        body: [
+          "Redemption at par means the company repays face value.",
+          "Example: Rs.100 debenture is redeemed at Rs.100.",
+          "Redemption at premium means the company repays more than face value.",
+          "Example: Rs.100 debenture is redeemed at Rs.105.",
+          "Premium on redemption is Rs.5 per debenture.",
+          "Simple line: Redemption premium is extra amount paid at repayment.",
+        ],
+      },
+      {
+        title: "Basic journal entry ideas",
+        body: [
+          "Issue at par: Bank A/c Dr., To Debentures A/c.",
+          "Issue at premium: Bank A/c Dr., To Debentures A/c, To Securities Premium A/c.",
+          "Issue at discount: Bank A/c Dr., Discount on Issue of Debentures A/c Dr., To Debentures A/c.",
+          "Interest due: Debenture Interest A/c Dr., To Debentureholders A/c.",
+          "Interest paid: Debentureholders A/c Dr., To Bank A/c.",
+          "Redemption at par: Debentures A/c Dr., To Debentureholders A/c.",
+          "Payment: Debentureholders A/c Dr., To Bank A/c.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Shares vs Debentures",
+      leftHeading: "Shares",
+      rightHeading: "Debentures",
+      rows: [
+        {
+          left: "Part of owner's capital",
+          right: "Borrowed capital or loan",
+        },
+        {
+          left: "Shareholders are owners",
+          right: "Debenture holders are lenders",
+        },
+        {
+          left: "Dividend may be paid from profit",
+          right: "Interest is paid on debentures",
+        },
+        {
+          left: "No fixed repayment like loan",
+          right: "Usually repaid after a fixed period",
+        },
+        {
+          left: "Higher risk for investor",
+          right: "Usually lower risk than equity shares",
+        },
+        {
+          left: "Ownership may change",
+          right: "Ownership does not change",
+        },
+      ],
+      note: "Memory line: Shareholder is owner. Debenture holder is lender.",
+    },
+    memoryTable: [
+      {
+        principle: "Debenture",
+        meaning: "Company's loan document",
+        example: "Rs.100 debenture",
+      },
+      {
+        principle: "Debenture Holder",
+        meaning: "Lender to company",
+        example: "Amit buys debentures",
+      },
+      {
+        principle: "Interest",
+        meaning: "Cost of borrowing",
+        example: "10% interest",
+      },
+      {
+        principle: "Issue at Par",
+        meaning: "Issued at face value",
+        example: "Rs.100 at Rs.100",
+      },
+      {
+        principle: "Issue at Premium",
+        meaning: "Issued above face value",
+        example: "Rs.100 at Rs.110",
+      },
+      {
+        principle: "Issue at Discount",
+        meaning: "Issued below face value",
+        example: "Rs.100 at Rs.95",
+      },
+      {
+        principle: "Redemption",
+        meaning: "Repayment of debenture",
+        example: "Company pays back money",
+      },
+      {
+        principle: "Redemption Premium",
+        meaning: "Extra paid on repayment",
+        example: "Rs.100 redeemed at Rs.105",
+      },
+    ],
+    visualFlow: [
+      "Company needs money",
+      "Issues debentures",
+      "Receives money",
+      "Pays interest regularly",
+      "Repays debentures on redemption",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Company issues 2,000 debentures of Rs.100 each.",
+        entry: ["Amount = 2,000 x Rs.100", "Amount = Rs.2,00,000"],
+        logic: [
+          "Debenture amount is number of debentures multiplied by face value.",
+          "This is borrowed capital for the company.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "1,000 debentures of Rs.100 issued at Rs.100.",
+        entry: ["Bank A/c Dr. Rs.1,00,000", "To Debentures A/c Rs.1,00,000"],
+        logic: [
+          "Issue price equals face value.",
+          "So the debentures are issued at par.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "1,000 debentures of Rs.100 issued at Rs.110.",
+        entry: [
+          "Face value = Rs.1,00,000",
+          "Premium = Rs.10,000",
+          "Total received = Rs.1,10,000",
+        ],
+        logic: [
+          "The company receives more than face value.",
+          "The extra amount is premium.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "1,000 debentures of Rs.100 issued at Rs.95.",
+        entry: ["Face value = Rs.1,00,000", "Amount received = Rs.95,000", "Discount = Rs.5,000"],
+        logic: [
+          "The company receives less than face value.",
+          "The difference is discount on issue of debentures.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "10% debentures Rs.2,00,000.",
+        entry: ["Annual interest = Rs.2,00,000 x 10%", "Annual interest = Rs.20,000"],
+        logic: [
+          "Debenture interest is paid at the fixed rate.",
+          "It is an expense for the company.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "1,000 debentures of Rs.100 redeemed at Rs.105.",
+        entry: [
+          "Face value = Rs.1,00,000",
+          "Premium on redemption = 1,000 x Rs.5 = Rs.5,000",
+          "Total payment = Rs.1,05,000",
+        ],
+        logic: [
+          "The company repays more than face value.",
+          "The extra amount is premium on redemption.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking debenture holders are owners",
+      "Confusing shares with debentures",
+      "Treating debenture interest as dividend",
+      "Forgetting interest is expense for company",
+      "Confusing issue premium with redemption premium",
+      "Forgetting discount on issue is not cash received",
+      "Thinking redemption means selling debentures",
+      "Treating debentures as share capital",
+      "Forgetting company must repay debentures",
+      "Going into complex legal rules before understanding basics",
+    ],
+    tryPrompts: [
+      "Company issues 1,000 debentures of Rs.100 each. Find debenture amount. Expected: Rs.1,00,000.",
+      "Rs.100 debenture issued at Rs.110. At par, premium, or discount? Expected: premium.",
+      "Rs.100 debenture issued at Rs.95. Find discount. Expected: Rs.5 per debenture.",
+      "10% debentures Rs.50,000. Find annual interest. Expected: Rs.5,000.",
+      "Rs.100 debenture redeemed at Rs.100. At par or premium? Expected: at par.",
+      "Rs.100 debenture redeemed at Rs.105. Find redemption premium. Expected: Rs.5 per debenture.",
+      "Debenture holder is owner or lender? Expected: lender.",
+      "Interest on debentures is expense or dividend? Expected: expense.",
+    ],
+    toolLinks: [
+      { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
+      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+    ],
+    nextLesson: {
       label: "Review Share Capital",
       href: "/learn/accounting-for-share-capital",
       description:
-        "After learning forfeiture and reissue of shares, the next company accounts topic is debentures.",
+        "After learning debentures, the next company accounts topic is understanding company financial statements.",
     },
   },
 };

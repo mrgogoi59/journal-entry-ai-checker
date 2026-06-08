@@ -137,7 +137,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/forfeiture-and-reissue-of-shares",
         status: "available",
       },
-      { title: "Issue and Redemption of Debentures", status: "coming_soon" },
+      {
+        title: "Issue and Redemption of Debentures",
+        href: "/learn/issue-and-redemption-of-debentures",
+        status: "available",
+      },
       { title: "Financial Statements of a Company", status: "coming_soon" },
     ],
   },
