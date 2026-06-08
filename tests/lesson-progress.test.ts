@@ -37,7 +37,7 @@ describe("lesson progress helpers", () => {
   it("returns empty progress when window is unavailable", () => {
     expect(getLessonProgress()).toEqual([]);
     expect(getLessonProgressSummary()).toEqual({
-      totalLessons: 36,
+      totalLessons: 37,
       completedLessons: 0,
       completionPercent: 0,
       completedLessonSlugs: [],
@@ -75,7 +75,7 @@ describe("lesson progress helpers", () => {
     expect(isLessonCompleted("rules-of-debit-and-credit")).toBe(false);
   });
 
-  it("returns correct summary percentage for one of thirty-six completed", () => {
+  it("returns correct summary percentage for one of thirty-seven completed", () => {
     expect(
       getLessonProgressSummary([
         {
@@ -85,7 +85,7 @@ describe("lesson progress helpers", () => {
         },
       ]),
     ).toEqual({
-      totalLessons: 36,
+      totalLessons: 37,
       completedLessons: 1,
       completionPercent: 3,
       completedLessonSlugs: ["introduction-to-accounting"],
@@ -93,8 +93,8 @@ describe("lesson progress helpers", () => {
   });
 
   it("tracks each available lesson exactly once", () => {
-    expect(trackedLessonSlugs).toHaveLength(36);
-    expect(new Set(trackedLessonSlugs).size).toBe(36);
+    expect(trackedLessonSlugs).toHaveLength(37);
+    expect(new Set(trackedLessonSlugs).size).toBe(37);
     expect([...trackedLessonSlugs].sort()).toEqual(Object.keys(lessons).sort());
   });
 

@@ -34,7 +34,8 @@ export type LessonSlug =
   | "comparative-statements"
   | "common-size-statements"
   | "accounting-ratios"
-  | "cash-flow-statement";
+  | "cash-flow-statement"
+  | "computerised-accounting-system-and-database-reports";
 
 export type SolvedLessonExample = {
   title: string;
@@ -324,6 +325,12 @@ export const lessonCards = [
     title: "Cash Flow Statement",
     description: "Learn how cash comes in, goes out, and why profit and cash can be different.",
     href: "/learn/cash-flow-statement",
+  },
+  {
+    slug: "computerised-accounting-system-and-database-reports",
+    title: "Computerised Accounting System and Accounting Database & Reports",
+    description: "Learn how accounting software stores transactions and creates useful reports.",
+    href: "/learn/computerised-accounting-system-and-database-reports",
   },
 ];
 
@@ -10633,6 +10640,402 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       href: "/learn/analysis-of-financial-statements",
       description:
         "You have now covered the main tools used to understand financial statements: analysis, comparative statements, common size statements, ratios, and cash flow.",
+    },
+  },
+  "computerised-accounting-system-and-database-reports": {
+    slug: "computerised-accounting-system-and-database-reports",
+    title: "Computerised Accounting System and Accounting Database & Reports",
+    subtitle:
+      "Learn how accounting software records transactions, stores data, and creates reports like Ledger, Trial Balance, Profit and Loss, and Balance Sheet.",
+    description:
+      "Understand computerised accounting, vouchers, accounting databases, tables, records, fields, reports, benefits, and risks in a simple way.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What computerised accounting means",
+      "Difference between manual accounting and computerised accounting",
+      "Why businesses use accounting software",
+      "What data entry means",
+      "What vouchers mean in a computerised system",
+      "How one transaction can update many books automatically",
+      "What an accounting database means",
+      "What a database table means in simple words",
+      "What records and fields mean",
+      "What accounting reports mean",
+      "Journal, Ledger, Cash/Bank Book, Trial Balance, Profit and Loss, and Balance Sheet reports",
+      "Receivables, payables, and GST/tax reports at a basic level",
+      "Benefits of computerised accounting",
+      "Limitations and risks",
+      "Common mistakes in computerised accounting",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Computerised Accounting System?",
+        body: [
+          "A computerised accounting system is a system where accounting transactions are recorded, stored, processed, and reported using accounting software.",
+          "In manual accounting, we write entries in books.",
+          "In computerised accounting, we enter transactions into software, and the software prepares ledgers and reports.",
+          "Example: Riya Stationery Shop sells notebooks for Rs.5,000 cash.",
+          "In a manual system, Riya writes the journal entry, posts it to ledger, prepares trial balance, and then prepares final accounts.",
+          "In a computerised system, Riya enters one sales transaction, and the software updates sales, cash, ledger, trial balance, and reports automatically.",
+          "Simple line: Computerised accounting means using software to record and process accounting transactions.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a stationery shop.",
+          "Earlier, she used notebooks to record cash sales, credit sales, purchases, payments, receipts, and expenses.",
+          "At month-end, she spent many hours preparing ledger accounts, trial balance, profit and loss, and balance sheet.",
+          "Later, she started using accounting software.",
+          "Now when she enters one transaction, the software saves the transaction, updates related accounts, prepares ledger reports, updates trial balance, and helps prepare profit and loss and balance sheet.",
+          "This saves time, but Riya still needs to know which accounts are affected.",
+          "Simple line: Computerised accounting saves time, but it still needs correct accounting knowledge.",
+        ],
+      },
+      {
+        title: "How a transaction flows in accounting software",
+        body: [
+          "Transaction: Riya sells goods for Rs.10,000 cash.",
+          "Step 1: user enters voucher in software.",
+          "Step 2: software records Cash A/c Dr. and To Sales A/c.",
+          "Step 3: software updates Cash Ledger.",
+          "Step 4: software updates Sales Ledger.",
+          "Step 5: Trial Balance updates.",
+          "Step 6: Profit and Loss and Balance Sheet data updates.",
+          "Simple line: One correct transaction can update many reports automatically.",
+        ],
+      },
+      {
+        title: "What is a voucher in computerised accounting?",
+        body: [
+          "A voucher is the data entry screen or record used to enter a transaction into accounting software.",
+          "Common examples are Sales voucher, Purchase voucher, Receipt voucher, Payment voucher, Contra voucher, and Journal voucher.",
+          "For a cash sale, a Sales voucher or Receipt/Sales entry may be used depending on the software design.",
+          "For cash paid for rent, a Payment voucher may be used.",
+          "For cash deposited into bank, a Contra voucher may be used.",
+          "For depreciation entry, a Journal voucher may be used.",
+          "Simple line: Voucher is how a transaction enters the computerised accounting system.",
+        ],
+      },
+      {
+        title: "What is an Accounting Database?",
+        body: [
+          "An accounting database is the place where accounting data is stored digitally.",
+          "Think of it like a digital cupboard.",
+          "Inside the cupboard, data is arranged properly.",
+          "It may store customer details, supplier details, item details, transaction details, ledger details, and payment details.",
+          "When we need a report, the software takes data from this database.",
+          "The database keeps the accounting information organised.",
+          "Simple line: Accounting database stores accounting information in an organised digital form.",
+        ],
+      },
+      {
+        title: "Tables, records, and fields",
+        body: [
+          "A database table is like a digital register.",
+          "Example: a Customer table stores customer details.",
+          "A record is one full row in a table.",
+          "Example: Raju Traders can be one customer record.",
+          "A field is one specific detail inside a record.",
+          "Example fields are customer name, phone number, balance, and address.",
+          "Simple example: Customer Name, Phone, and Balance are fields. Raju Traders | 98765xxxxx | Rs.10,000 is one record.",
+          "Simple line: Table = register. Record = row. Field = detail.",
+        ],
+      },
+      {
+        title: "What are Accounting Reports?",
+        body: [
+          "Accounting reports are summaries prepared from accounting data.",
+          "A Journal Report shows all journal entries.",
+          "A Ledger Report shows account-wise transactions.",
+          "A Cash/Bank Book shows cash and bank movement.",
+          "A Trial Balance shows debit and credit balances.",
+          "Profit and Loss shows profit or loss.",
+          "Balance Sheet shows assets, liabilities, and capital.",
+          "Receivables Report shows who owes money to the business.",
+          "Payables Report shows whom the business has to pay.",
+          "GST/tax reports show tax-related summaries at a basic level.",
+          "Simple line: Reports convert stored data into useful information.",
+        ],
+      },
+      {
+        title: "Benefits of computerised accounting",
+        body: [
+          "Computerised accounting saves time.",
+          "It reduces calculation errors when data is entered correctly.",
+          "Reports can be generated quickly.",
+          "Old records can be searched easily.",
+          "Data can be stored safely with backup.",
+          "Ledger and trial balance update automatically.",
+          "It helps in GST or tax reporting at a basic level.",
+          "It helps owners make better decisions.",
+          "It reduces repeated work and can handle many transactions.",
+          "Simple line: Computerised accounting makes accounting faster and more organised.",
+        ],
+      },
+      {
+        title: "Limitations and risks",
+        body: [
+          "Computerised accounting is useful, but it has risks.",
+          "Wrong data entry gives wrong reports.",
+          "The user must understand accounting basics.",
+          "Software can fail or crash.",
+          "Data may be lost without backup.",
+          "Password and security are important.",
+          "Viruses or cyber risks can affect data.",
+          "Wrong setup of ledgers can create wrong results.",
+          "Example: if rent is entered as furniture, the report will be wrong.",
+          "Simple line: Computerised accounting is powerful, but wrong input gives wrong output.",
+        ],
+      },
+      {
+        title: "Simple report examples",
+        body: [
+          "Ledger Report: Cash Account may show cash sales Rs.5,000, rent paid Rs.2,000, and closing balance Rs.3,000.",
+          "Receivables Report: Raju Traders owes Rs.10,000 and Neha Stores owes Rs.7,000.",
+          "Payables Report: Amit Suppliers payable Rs.8,000 and Paper Mart payable Rs.12,000.",
+          "Trial Balance Report: Cash A/c Debit, Sales A/c Credit, Rent A/c Debit, and Capital A/c Credit.",
+          "Profit and Loss Report: Sales, less expenses, then profit or loss.",
+          "These reports come from stored transaction data.",
+          "Simple line: Reports help the owner know what is happening in the business.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Manual Accounting vs Computerised Accounting",
+      leftHeading: "Manual Accounting",
+      rightHeading: "Computerised Accounting",
+      rows: [
+        {
+          left: "Entries are written by hand",
+          right: "Entries are entered into software",
+        },
+        {
+          left: "Ledger posting is manual",
+          right: "Ledger updates automatically",
+        },
+        {
+          left: "Reports take time",
+          right: "Reports are generated quickly",
+        },
+        {
+          left: "More chance of calculation error",
+          right: "Less chance of calculation error if data is correct",
+        },
+        {
+          left: "Physical books/files are used",
+          right: "Digital database is used",
+        },
+        {
+          left: "Searching old records is slower",
+          right: "Searching records is faster",
+        },
+      ],
+      note: "Memory line: Manual accounting depends on writing. Computerised accounting depends on correct data entry.",
+    },
+    memoryTable: [
+      {
+        principle: "Computerised Accounting",
+        meaning: "Accounting using software",
+        example: "Entering sales in software",
+      },
+      {
+        principle: "Voucher",
+        meaning: "Transaction entry record",
+        example: "Sales voucher",
+      },
+      {
+        principle: "Database",
+        meaning: "Digital storage of data",
+        example: "Customer and ledger data",
+      },
+      {
+        principle: "Table",
+        meaning: "Digital register",
+        example: "Customer table",
+      },
+      {
+        principle: "Record",
+        meaning: "One row of data",
+        example: "Raju Traders row",
+      },
+      {
+        principle: "Field",
+        meaning: "One detail",
+        example: "Phone number or balance",
+      },
+      {
+        principle: "Report",
+        meaning: "Summary from data",
+        example: "Trial Balance",
+      },
+      {
+        principle: "Backup",
+        meaning: "Copy of data for safety",
+        example: "Saved data copy",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Report guide",
+      title: "Common reports in accounting software",
+      columns: ["Report", "What it shows", "Simple use"],
+      rows: [
+        {
+          first: "Journal Report",
+          second: "All journal entries",
+          third: "Check transactions entered",
+        },
+        {
+          first: "Ledger Report",
+          second: "Account-wise transactions",
+          third: "Check one account in detail",
+        },
+        {
+          first: "Cash/Bank Book",
+          second: "Cash and bank movement",
+          third: "Track money coming in and going out",
+        },
+        {
+          first: "Trial Balance",
+          second: "Debit and credit balances",
+          third: "Check balance agreement",
+        },
+        {
+          first: "Profit and Loss",
+          second: "Income, expenses, profit or loss",
+          third: "Know business result",
+        },
+        {
+          first: "Balance Sheet",
+          second: "Assets, liabilities, and capital",
+          third: "Know financial position",
+        },
+        {
+          first: "Receivables / Payables",
+          second: "Who owes money and whom to pay",
+          third: "Manage collections and payments",
+        },
+        {
+          first: "GST/Tax Report",
+          second: "Tax summaries at a basic level",
+          third: "Support tax checking",
+        },
+      ],
+      note: "Reports are useful only when the entered data is correct.",
+    },
+    visualFlow: [
+      "Business transaction happens",
+      "Source document is received",
+      "Voucher is entered in software",
+      "Data is saved in accounting database",
+      "Ledger accounts update",
+      "Trial Balance updates",
+      "Reports are generated",
+      "Owner uses reports for decisions",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Goods sold for cash Rs.5,000.",
+        entry: [
+          "In software: Sales voucher is entered",
+          "Entry idea: Cash A/c Dr. Rs.5,000",
+          "To Sales A/c Rs.5,000",
+          "Report effect: Cash Book increases, Sales Ledger increases, and Profit and Loss sales increases.",
+        ],
+        logic: [
+          "Cash increases because money is received.",
+          "Sales increases because goods are sold.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Goods sold to Raju Traders for Rs.10,000 on credit.",
+        entry: [
+          "Entry idea: Raju Traders A/c Dr. Rs.10,000",
+          "To Sales A/c Rs.10,000",
+          "Report effect: Receivables report shows Raju owes Rs.10,000.",
+        ],
+        logic: [
+          "Raju Traders becomes debtor.",
+          "Sales increases even though cash is not received immediately.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Paid Amit Suppliers Rs.8,000 by bank.",
+        entry: [
+          "Entry idea: Amit Suppliers A/c Dr. Rs.8,000",
+          "To Bank A/c Rs.8,000",
+          "Report effect: Bank Book updates and Payables report updates.",
+        ],
+        logic: [
+          "Supplier balance decreases because payment is made.",
+          "Bank decreases because money is paid through bank.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Rent paid Rs.12,000.",
+        entry: [
+          "Entry idea: Rent A/c Dr. Rs.12,000",
+          "To Cash/Bank A/c Rs.12,000",
+          "Report effect: Profit and Loss expense increases.",
+        ],
+        logic: [
+          "Rent is an expense.",
+          "Cash or bank decreases when payment is made.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Machine purchased Rs.50,000.",
+        entry: [
+          "Entry idea: Machinery A/c Dr. Rs.50,000",
+          "To Bank A/c Rs.50,000",
+          "Report effect: Balance Sheet asset increases.",
+        ],
+        logic: [
+          "Machine is an asset.",
+          "It should not be treated as a normal expense.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking software removes the need to understand accounting",
+      "Entering wrong account names",
+      "Selecting wrong voucher type",
+      "Recording capital expense as revenue expense",
+      "Not checking reports after entry",
+      "Not taking data backup",
+      "Sharing passwords carelessly",
+      "Creating duplicate ledgers",
+      "Thinking reports are correct even when input is wrong",
+      "Ignoring source documents",
+    ],
+    tryPrompts: [
+      "Goods sold for cash Rs.6,000. Which account increases? Expected: Cash and Sales.",
+      "Goods sold to Raju Traders on credit Rs.10,000. Which report will show Raju owes money? Expected: Receivables report / debtor report.",
+      "Rent paid by bank Rs.5,000. Which voucher type may be used? Expected: Payment voucher.",
+      "Cash deposited into bank Rs.20,000. Which voucher type may be used? Expected: Contra voucher.",
+      "Machine purchased Rs.50,000. Is it shown in Profit and Loss or Balance Sheet? Expected: Balance Sheet as asset.",
+      "A customer table has Customer Name, Phone, and Balance. Are these fields or records? Expected: Fields.",
+      "One row for Raju Traders in customer table is called? Expected: Record.",
+      "Wrong data entered into software gives correct reports. True or false? Expected: False.",
+      "Trial Balance report is generated from stored transaction data. True or false? Expected: True.",
+      "Backup is needed for data safety. True or false? Expected: True.",
+    ],
+    toolLinks: [
+      { label: "Review Journal Entry Basics", href: "/learn/journal-entry-basics" },
+      { label: "Review Ledger Posting Basics", href: "/learn/ledger-posting-basics" },
+      { label: "Open Tools", href: "/tools" },
+    ],
+    nextLesson: {
+      label: "Review Journal Entry Basics",
+      href: "/learn/journal-entry-basics",
+      description:
+        "Computerised accounting becomes easy when you understand the accounting logic behind each transaction. First learn the entry, then understand how software stores it and turns it into reports.",
     },
   },
 };

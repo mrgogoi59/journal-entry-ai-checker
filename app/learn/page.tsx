@@ -182,8 +182,11 @@ const topicGroups: TopicGroup[] = [
   {
     title: "Computerised Accounting",
     topics: [
-      { title: "Computerised Accounting System", status: "coming_soon" },
-      { title: "Accounting Database and Reports", status: "coming_soon" },
+      {
+        title: "Computerised Accounting System and Accounting Database & Reports",
+        href: "/learn/computerised-accounting-system-and-database-reports",
+        status: "available",
+      },
     ],
   },
 ];
