@@ -28,7 +28,8 @@ export type LessonSlug =
   | "accounting-for-share-capital"
   | "calls-in-arrears-and-calls-in-advance"
   | "forfeiture-and-reissue-of-shares"
-  | "issue-and-redemption-of-debentures";
+  | "issue-and-redemption-of-debentures"
+  | "financial-statements-of-a-company";
 
 export type SolvedLessonExample = {
   title: string;
@@ -282,6 +283,12 @@ export const lessonCards = [
     title: "Issue and Redemption of Debentures",
     description: "Learn how companies borrow money through debentures and repay them later.",
     href: "/learn/issue-and-redemption-of-debentures",
+  },
+  {
+    slug: "financial-statements-of-a-company",
+    title: "Financial Statements of a Company",
+    description: "Learn how companies show profit, position, assets, liabilities, and shareholders' funds.",
+    href: "/learn/financial-statements-of-a-company",
   },
 ];
 
@@ -8178,10 +8185,370 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
     ],
     nextLesson: {
-      label: "Review Share Capital",
-      href: "/learn/accounting-for-share-capital",
+      label: "Continue to Financial Statements of a Company",
+      href: "/learn/financial-statements-of-a-company",
       description:
         "After learning debentures, the next company accounts topic is understanding company financial statements.",
+    },
+  },
+  "financial-statements-of-a-company": {
+    slug: "financial-statements-of-a-company",
+    title: "Financial Statements of a Company",
+    subtitle: "Learn how a company shows its profit, position, assets, liabilities, and shareholders' funds.",
+    description:
+      "Understand Statement of Profit and Loss, Balance Sheet, Notes to Accounts, shareholders' funds, assets, liabilities, and the link between profit and position.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What financial statements mean",
+      "Why companies prepare financial statements",
+      "Main financial statements of a company",
+      "Statement of Profit and Loss",
+      "Balance Sheet",
+      "Notes to Accounts at a simple level",
+      "What profit shows",
+      "What financial position shows",
+      "Difference between profit and cash",
+      "Difference between assets and liabilities",
+      "Shareholders' funds",
+      "Share capital and reserves",
+      "Non-current liabilities and current liabilities",
+      "Non-current assets and current assets",
+      "Simple company Balance Sheet structure",
+      "How Profit and Loss links with Balance Sheet",
+      "Common mistakes in company financial statements",
+    ],
+    conceptSections: [
+      {
+        title: "What are Financial Statements of a Company?",
+        body: [
+          "Financial statements are reports that show how a company performed and what it owns and owes.",
+          "A company does many transactions during the year.",
+          "At the end of the year, it prepares reports to answer two big questions.",
+          "Question 1: Did the company earn profit or suffer loss?",
+          "Question 2: What does the company own and what does it owe?",
+          "Example: Riya Stationery Ltd. wants to know how much profit it earned, how much cash and stock it has, how much it owes to suppliers, and how much capital belongs to shareholders.",
+          "Simple line: Financial statements are the company's yearly report card.",
+        ],
+      },
+      {
+        title: "Why companies prepare financial statements",
+        body: [
+          "Owners and shareholders want to know profit.",
+          "Investors want to know whether the company is strong.",
+          "Banks want to know if the company can repay loans.",
+          "Management wants to make better decisions.",
+          "Government and tax authorities need financial information.",
+          "Suppliers and lenders want to know if the company is reliable.",
+          "Simple line: Financial statements help people understand the health of a company.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya Stationery Ltd. sells notebooks, pens, and school bags.",
+          "During the year, it sold goods worth Rs.5,00,000.",
+          "It paid salaries Rs.80,000 and rent Rs.60,000.",
+          "It bought furniture Rs.50,000.",
+          "It has stock left Rs.70,000 and bank balance Rs.40,000.",
+          "It owes suppliers Rs.30,000.",
+          "It has share capital Rs.2,00,000.",
+          "At the end of the year, Riya wants to know whether the company earned profit and what the company owns and owes.",
+          "Simple line: Profit and Loss shows performance. Balance Sheet shows position.",
+        ],
+      },
+      {
+        title: "Main financial statements of a company",
+        body: [
+          "A company mainly prepares Statement of Profit and Loss, Balance Sheet, and Notes to Accounts.",
+          "Statement of Profit and Loss shows income, expenses, and profit or loss.",
+          "Balance Sheet shows assets, liabilities, and shareholders' funds.",
+          "Notes to Accounts give details behind the numbers.",
+          "Example: Balance Sheet may show Current Assets Rs.1,50,000. Notes may show Inventory Rs.70,000, Trade Receivables Rs.40,000, and Cash and Bank Rs.40,000.",
+          "Simple line: Main statement gives summary. Notes give details.",
+        ],
+      },
+      {
+        title: "Statement of Profit and Loss",
+        body: [
+          "Statement of Profit and Loss shows whether the company made profit or loss during the year.",
+          "It includes income such as revenue from sales and other income.",
+          "It includes expenses such as purchases or cost of goods sold, salaries, rent, depreciation, interest, and other expenses.",
+          "Very simple formula: Profit = Income - Expenses.",
+          "Example: Riya Stationery Ltd. has revenue Rs.5,00,000 and expenses Rs.4,00,000.",
+          "Profit = Rs.1,00,000.",
+          "Simple line: Statement of Profit and Loss tells how much the company earned after expenses.",
+        ],
+      },
+      {
+        title: "Balance Sheet",
+        body: [
+          "Balance Sheet shows the financial position of a company on a particular date.",
+          "It shows shareholders' funds, liabilities, and assets.",
+          "Balance Sheet answers: What money belongs to shareholders? What money is owed to outsiders? What does the company own?",
+          "Simple equation: Assets = Shareholders' Funds + Liabilities.",
+          "Example: share capital Rs.2,00,000 and loan Rs.1,00,000 give total funds Rs.3,00,000.",
+          "Assets may be furniture Rs.50,000, stock Rs.70,000, debtors Rs.80,000, and bank Rs.1,00,000.",
+          "Total assets = Rs.3,00,000.",
+          "Simple line: Balance Sheet shows where money came from and where it is used.",
+        ],
+      },
+      {
+        title: "What are Notes to Accounts?",
+        body: [
+          "Notes to Accounts give details of items shown in financial statements.",
+          "Example: Balance Sheet may show Current Assets Rs.1,90,000.",
+          "Notes may explain Inventory Rs.70,000, Trade Receivables Rs.80,000, and Cash and Bank Rs.40,000.",
+          "Simple line: Notes explain the numbers shown in the main statements.",
+        ],
+      },
+      {
+        title: "Shareholders' Funds",
+        body: [
+          "Shareholders' funds are the money belonging to company owners or shareholders.",
+          "It mainly includes Share Capital and Reserves and Surplus.",
+          "Share Capital is money received by issuing shares.",
+          "Reserves and Surplus are accumulated profits or reserves kept in the company.",
+          "Example: Share Capital Rs.2,00,000 and Reserves Rs.50,000.",
+          "Shareholders' Funds = Rs.2,50,000.",
+          "Simple line: Shareholders' funds show owners' money in the company.",
+        ],
+      },
+      {
+        title: "Assets and liabilities",
+        body: [
+          "Assets are things owned or controlled by the company.",
+          "Examples of assets are land, building, furniture, machines, inventory, debtors, cash, and bank balance.",
+          "Liabilities are amounts the company owes to others.",
+          "Examples of liabilities are loans, debentures, creditors, and outstanding expenses.",
+          "Simple memory line: Assets = what company owns. Liabilities = what company owes.",
+        ],
+      },
+      {
+        title: "Current and non-current items",
+        body: [
+          "Current means short-term, usually within one year.",
+          "Non-current means long-term, more than one year.",
+          "Current assets include inventory, trade receivables, cash, and bank.",
+          "Non-current assets include building, machinery, and furniture.",
+          "Current liabilities include trade payables, outstanding expenses, and short-term borrowings.",
+          "Non-current liabilities include long-term loans and debentures.",
+          "Simple line: Current = short-term. Non-current = long-term.",
+        ],
+      },
+      {
+        title: "Profit and cash are not always the same",
+        body: [
+          "A company may earn profit but still have low cash.",
+          "Example: company sold goods of Rs.1,00,000 on credit.",
+          "It earned revenue, but cash is not received yet.",
+          "So profit may increase, but cash may not increase immediately.",
+          "Another example: company buys a machine for cash.",
+          "Cash decreases, but the full amount may not become expense immediately.",
+          "Simple line: Profit is not always equal to cash.",
+        ],
+      },
+      {
+        title: "Simple company financial statement format",
+        body: [
+          "Statement of Profit and Loss starts with Revenue from Operations.",
+          "Add Other Income to find Total Income.",
+          "Less Expenses to find Profit or Loss.",
+          "Balance Sheet has Equity and Liabilities on one side: Shareholders' Funds, Non-current Liabilities, and Current Liabilities.",
+          "Balance Sheet has Assets on the other side: Non-current Assets and Current Assets.",
+          "This is a simplified learning format. Detailed company formats can have more lines and notes.",
+        ],
+      },
+    ],
+    memoryTable: [
+      {
+        principle: "Financial Statements",
+        meaning: "Company report card",
+        example: "Year-end reports",
+      },
+      {
+        principle: "Profit and Loss",
+        meaning: "Shows profit or loss",
+        example: "Income minus expenses",
+      },
+      {
+        principle: "Balance Sheet",
+        meaning: "Shows position",
+        example: "Assets and liabilities",
+      },
+      {
+        principle: "Notes to Accounts",
+        meaning: "Details behind numbers",
+        example: "Inventory details",
+      },
+      {
+        principle: "Share Capital",
+        meaning: "Money from shareholders",
+        example: "Shares issued",
+      },
+      {
+        principle: "Reserves",
+        meaning: "Profit kept in business",
+        example: "General reserve",
+      },
+      {
+        principle: "Assets",
+        meaning: "Things company owns",
+        example: "Cash, stock, machine",
+      },
+      {
+        principle: "Liabilities",
+        meaning: "Amount company owes",
+        example: "Loan, creditors",
+      },
+      {
+        principle: "Current",
+        meaning: "Short-term",
+        example: "Cash, creditors",
+      },
+      {
+        principle: "Non-current",
+        meaning: "Long-term",
+        example: "Machinery, long-term loan",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Simple format",
+      title: "Company financial statement sections",
+      columns: ["Statement", "Simple meaning", "Common items"],
+      rows: [
+        {
+          first: "Statement of Profit and Loss",
+          second: "Shows performance during the year",
+          third: "Revenue, other income, expenses, profit or loss",
+        },
+        {
+          first: "Balance Sheet",
+          second: "Shows position on a date",
+          third: "Shareholders' funds, liabilities, assets",
+        },
+        {
+          first: "Notes to Accounts",
+          second: "Explains the numbers",
+          third: "Inventory, trade receivables, cash, trade payables",
+        },
+        {
+          first: "Shareholders' Funds",
+          second: "Owners' money in the company",
+          third: "Share capital, reserves and surplus",
+        },
+        {
+          first: "Current Items",
+          second: "Short-term items",
+          third: "Cash, inventory, trade receivables, trade payables",
+        },
+        {
+          first: "Non-current Items",
+          second: "Long-term items",
+          third: "Machinery, furniture, long-term loans, debentures",
+        },
+      ],
+      note: "Profit and Loss shows performance. Balance Sheet shows position. Notes explain details.",
+    },
+    visualFlow: [
+      "Transactions during the year",
+      "Income and expenses recorded",
+      "Statement of Profit and Loss prepared",
+      "Profit or loss found",
+      "Profit added to reserves or surplus",
+      "Assets, liabilities, and shareholders' funds shown in Balance Sheet",
+      "Notes explain details",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Revenue Rs.5,00,000 and expenses Rs.4,20,000.",
+        entry: ["Profit = Rs.5,00,000 - Rs.4,20,000", "Profit = Rs.80,000"],
+        logic: [
+          "Income is more than expenses.",
+          "So the company earns profit.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Revenue Rs.3,00,000 and expenses Rs.3,50,000.",
+        entry: ["Loss = Rs.3,50,000 - Rs.3,00,000", "Loss = Rs.50,000"],
+        logic: [
+          "Expenses are more than income.",
+          "So the company suffers loss.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Share Capital Rs.2,00,000 and Reserves Rs.40,000.",
+        entry: ["Shareholders' Funds = Rs.2,00,000 + Rs.40,000", "Shareholders' Funds = Rs.2,40,000"],
+        logic: [
+          "Share capital and reserves belong to shareholders' funds.",
+          "They show owners' money in the company.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Inventory Rs.70,000, Trade Receivables Rs.80,000, Cash and Bank Rs.50,000.",
+        entry: ["Current Assets = Rs.70,000 + Rs.80,000 + Rs.50,000", "Current Assets = Rs.2,00,000"],
+        logic: [
+          "These are short-term assets.",
+          "So they are grouped as current assets.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Trade Payables Rs.60,000 and Outstanding Expenses Rs.20,000.",
+        entry: ["Current Liabilities = Rs.60,000 + Rs.20,000", "Current Liabilities = Rs.80,000"],
+        logic: [
+          "These are short-term obligations.",
+          "So they are current liabilities.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Shareholders' Funds Rs.2,50,000 and Liabilities Rs.1,50,000.",
+        entry: ["Total funds = Rs.4,00,000", "Assets should also total Rs.4,00,000"],
+        logic: [
+          "Assets equal shareholders' funds plus liabilities.",
+          "Both sides of the Balance Sheet must match.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking Profit and Loss and Balance Sheet are the same",
+      "Thinking profit means cash is available",
+      "Confusing assets and liabilities",
+      "Treating shareholders as creditors",
+      "Putting share capital as liability to outsiders",
+      "Forgetting reserves are part of shareholders' funds",
+      "Confusing current and non-current items",
+      "Treating purchase of machine as normal expense immediately",
+      "Forgetting notes explain main statement items",
+      "Thinking company financial statements are only for owners",
+    ],
+    tryPrompts: [
+      "Revenue Rs.2,00,000 and expenses Rs.1,50,000. Find profit. Expected: Rs.50,000.",
+      "Revenue Rs.1,20,000 and expenses Rs.1,60,000. Profit or loss? Expected: loss Rs.40,000.",
+      "Share Capital Rs.3,00,000 and Reserves Rs.50,000. Find shareholders' funds. Expected: Rs.3,50,000.",
+      "Inventory Rs.40,000, Debtors Rs.30,000, Bank Rs.20,000. Find current assets. Expected: Rs.90,000.",
+      "Trade Payables Rs.25,000 and Outstanding Salary Rs.10,000. Find current liabilities. Expected: Rs.35,000.",
+      "Machine is asset or liability? Expected: asset.",
+      "Loan taken by company is asset or liability? Expected: liability.",
+      "Profit and cash are always same. True or false? Expected: false.",
+      "Notes to Accounts give summary or details? Expected: details.",
+      "Share capital belongs to shareholders' funds or current liabilities? Expected: shareholders' funds.",
+    ],
+    toolLinks: [
+      { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
+      { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Review Final Accounts Basics",
+      href: "/learn/final-accounts-basics",
+      description:
+        "After learning how company financial statements are prepared, the next step is to learn how to analyse them.",
     },
   },
 };

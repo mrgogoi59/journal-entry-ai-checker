@@ -142,7 +142,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/issue-and-redemption-of-debentures",
         status: "available",
       },
-      { title: "Financial Statements of a Company", status: "coming_soon" },
+      {
+        title: "Financial Statements of a Company",
+        href: "/learn/financial-statements-of-a-company",
+        status: "available",
+      },
     ],
   },
   {
