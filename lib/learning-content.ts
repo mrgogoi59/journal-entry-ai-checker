@@ -30,7 +30,8 @@ export type LessonSlug =
   | "forfeiture-and-reissue-of-shares"
   | "issue-and-redemption-of-debentures"
   | "financial-statements-of-a-company"
-  | "analysis-of-financial-statements";
+  | "analysis-of-financial-statements"
+  | "comparative-statements";
 
 export type SolvedLessonExample = {
   title: string;
@@ -296,6 +297,12 @@ export const lessonCards = [
     title: "Analysis of Financial Statements",
     description: "Learn how to read financial statements and judge business strength, profit, cash, and risk.",
     href: "/learn/analysis-of-financial-statements",
+  },
+  {
+    slug: "comparative-statements",
+    title: "Comparative Statements",
+    description: "Learn how to compare two years of financial statements and spot improvement or decline.",
+    href: "/learn/comparative-statements",
   },
 ];
 
@@ -8933,10 +8940,439 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
-      label: "Review Financial Statements",
-      href: "/learn/financial-statements-of-a-company",
+      label: "Continue to Comparative Statements",
+      href: "/learn/comparative-statements",
       description:
         "After understanding the purpose of analysis, the next step is to compare two years of financial statements.",
+    },
+  },
+  "comparative-statements": {
+    slug: "comparative-statements",
+    title: "Comparative Statements",
+    subtitle:
+      "Learn how to compare two years of financial statements and understand whether a business is improving or declining.",
+    description:
+      "Understand previous year, current year, increase, decrease, absolute change, percentage change, and simple interpretation of comparative statements.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What comparative statements mean",
+      "Why we compare two years",
+      "Difference between normal financial statements and comparative statements",
+      "Previous year and current year",
+      "Increase and decrease",
+      "Absolute change",
+      "Percentage change",
+      "Comparative Statement of Profit and Loss",
+      "Comparative Balance Sheet",
+      "How to read sales increase and expense increase",
+      "How to read profit increase or decrease",
+      "How to read asset, liability, and debt changes",
+      "Why sales can rise while profit falls",
+      "Why assets can rise while debt also rises",
+      "Common mistakes in comparative statements",
+    ],
+    conceptSections: [
+      {
+        title: "What are Comparative Statements?",
+        body: [
+          "Comparative statements compare financial statement figures of two or more years.",
+          "Normal financial statements show one year's numbers.",
+          "Comparative statements show how numbers changed from one year to another.",
+          "Example: sales last year were Rs.5,00,000 and sales this year are Rs.6,00,000.",
+          "Increase is Rs.1,00,000.",
+          "Now we know sales improved.",
+          "Simple line: Comparative statements help us see whether the business is improving or declining.",
+        ],
+      },
+      {
+        title: "Why comparative statements are useful",
+        body: [
+          "One year's numbers can be useful, but they do not show direction.",
+          "If profit is Rs.1,00,000, we should ask whether it was higher or lower than last year.",
+          "If loan is Rs.4,00,000, we should ask whether debt increased too much.",
+          "Comparative statements help us notice growth, weakness, warning signs, and improvement.",
+          "They make analysis easier because changes are shown clearly.",
+          "Simple line: Comparison tells us the direction of the business.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya Stationery Ltd. wants to know whether the business improved this year.",
+          "Last year sales were Rs.5,00,000.",
+          "This year sales are Rs.6,00,000.",
+          "At first, Riya feels happy because sales increased.",
+          "But then she checks profit.",
+          "Last year profit was Rs.1,20,000.",
+          "This year profit is Rs.90,000.",
+          "Now she understands that sales increased, but profit decreased.",
+          "This means expenses may have increased too much.",
+          "Simple line: Comparative statements help us ask better questions.",
+        ],
+      },
+      {
+        title: "Previous year vs current year",
+        body: [
+          "Previous year means the earlier year.",
+          "Current year means the year we are studying now.",
+          "In a comparative statement, both years are shown side by side.",
+          "Example: Previous year sales Rs.5,00,000 and current year sales Rs.6,00,000.",
+          "Then we calculate the change.",
+          "If current year is higher, there is an increase.",
+          "If current year is lower, there is a decrease.",
+          "Simple line: Previous year is the base. Current year is compared with it.",
+        ],
+      },
+      {
+        title: "Absolute change",
+        rule: "Absolute change = Current year amount - Previous year amount",
+        body: [
+          "Absolute change means the change in rupees.",
+          "It shows by how much an item increased or decreased.",
+          "Example: sales increased from Rs.5,00,000 to Rs.6,00,000.",
+          "Absolute change = Rs.6,00,000 - Rs.5,00,000 = Rs.1,00,000.",
+          "So sales increased by Rs.1,00,000.",
+          "If profit falls from Rs.1,20,000 to Rs.90,000, change is Rs.30,000 decrease.",
+          "Simple line: Absolute change tells the rupee difference.",
+        ],
+      },
+      {
+        title: "Percentage change",
+        rule: "Percentage change = Absolute change / Previous year amount x 100",
+        body: [
+          "Percentage change shows the change as a percentage of the previous year amount.",
+          "Example: sales increased from Rs.5,00,000 to Rs.6,00,000.",
+          "Absolute change is Rs.1,00,000.",
+          "Percentage change = Rs.1,00,000 / Rs.5,00,000 x 100 = 20%.",
+          "So sales increased by 20%.",
+          "Percentage change helps compare items of different sizes.",
+          "Simple line: Percentage change tells how big the change is compared with last year.",
+        ],
+      },
+      {
+        title: "Comparative Statement of Profit and Loss",
+        body: [
+          "A Comparative Statement of Profit and Loss compares income and expenses of two years.",
+          "It usually compares sales, other income, expenses, and profit.",
+          "It helps us see whether sales increased, expenses increased, and profit improved or declined.",
+          "Example: sales increased by Rs.1,00,000, but expenses increased by Rs.1,30,000.",
+          "Profit may decrease even though sales increased.",
+          "Simple line: This statement explains changes in income, expenses, and profit.",
+        ],
+      },
+      {
+        title: "Comparative Balance Sheet",
+        body: [
+          "A Comparative Balance Sheet compares assets, liabilities, and equity of two years.",
+          "It helps us see changes in cash, receivables, inventory, fixed assets, loans, creditors, and shareholders' funds.",
+          "Example: assets increased by Rs.2,00,000, but loan increased by Rs.1,80,000.",
+          "The business has more assets, but much of the growth may be funded by debt.",
+          "Simple line: Comparative Balance Sheet shows changes in financial position.",
+        ],
+      },
+      {
+        title: "How to interpret comparative statements",
+        body: [
+          "Do not stop after calculating increase or decrease.",
+          "Ask what the change means.",
+          "Sales increase may be good.",
+          "Expense increase may be normal if sales also increased, but it can be a warning if expenses grew faster than sales.",
+          "Profit increase is usually good.",
+          "Cash decrease can be a warning if the business needs money to pay bills.",
+          "Loan increase may help growth, but too much loan can create risk.",
+          "Simple line: Calculation gives the number. Interpretation gives the meaning.",
+        ],
+      },
+      {
+        title: "Sales up but profit down",
+        body: [
+          "Sometimes sales increase, but profit decreases.",
+          "This can happen when cost of goods, salary, rent, advertising, interest, or other expenses increase faster than sales.",
+          "Example: Accy Mobile Accessories Ltd. increased sales from Rs.5,00,000 to Rs.6,00,000.",
+          "But expenses increased from Rs.3,80,000 to Rs.5,10,000.",
+          "Profit fell from Rs.1,20,000 to Rs.90,000.",
+          "This tells us that higher sales did not convert into higher profit.",
+          "Simple line: Sales growth is good only when profit also remains healthy.",
+        ],
+      },
+      {
+        title: "Assets up but debt also up",
+        body: [
+          "Sometimes assets increase, but debt also increases.",
+          "This means the business may have bought assets using borrowed money.",
+          "Example: machinery increased by Rs.2,00,000 and loan increased by Rs.1,80,000.",
+          "The business may be expanding.",
+          "But we should check whether the company can repay the loan.",
+          "Asset growth is not always risk-free.",
+          "Simple line: More assets are good only if debt is controlled.",
+        ],
+      },
+      {
+        title: "Simple comparative format",
+        body: [
+          "A simple comparative format has item name, previous year amount, current year amount, absolute change, and percentage change.",
+          "Example columns: Particulars, Previous Year, Current Year, Increase or Decrease, Percentage Change.",
+          "For sales: Rs.5,00,000, Rs.6,00,000, increase Rs.1,00,000, increase 20%.",
+          "For profit: Rs.1,20,000, Rs.90,000, decrease Rs.30,000, decrease 25%.",
+          "For cash: Rs.80,000, Rs.50,000, decrease Rs.30,000, decrease 37.5%.",
+          "Simple line: The format shows numbers and changes together.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Normal Statements vs Comparative Statements",
+      leftHeading: "Normal Financial Statements",
+      rightHeading: "Comparative Statements",
+      rows: [
+        {
+          left: "Shows one year's figures",
+          right: "Shows two or more years together",
+        },
+        {
+          left: "Tells what the amount is",
+          right: "Tells how the amount changed",
+        },
+        {
+          left: "Example: Sales Rs.6,00,000",
+          right: "Sales increased from Rs.5,00,000 to Rs.6,00,000",
+        },
+        {
+          left: "Useful for reporting",
+          right: "Useful for analysis",
+        },
+        {
+          left: "Does not directly show trend",
+          right: "Shows increase, decrease, and trend",
+        },
+      ],
+      note: "Memory line: normal statements show numbers; comparative statements show change.",
+    },
+    extraComparisonTables: [
+      {
+        title: "Comparative Profit and Loss vs Comparative Balance Sheet",
+        leftHeading: "Comparative Statement of Profit and Loss",
+        rightHeading: "Comparative Balance Sheet",
+        rows: [
+          {
+            left: "Compares income and expenses",
+            right: "Compares assets, liabilities, and equity",
+          },
+          {
+            left: "Helps study sales, expenses, and profit",
+            right: "Helps study cash, assets, debt, and capital",
+          },
+          {
+            left: "Shows operating performance",
+            right: "Shows financial position",
+          },
+          {
+            left: "Example question: Did profit improve?",
+            right: "Example question: Did debt increase too much?",
+          },
+        ],
+        note: "Use both statements together for a better picture.",
+      },
+    ],
+    memoryTable: [
+      {
+        principle: "Previous year",
+        meaning: "The earlier year used for comparison",
+        example: "Last year sales Rs.5,00,000",
+      },
+      {
+        principle: "Current year",
+        meaning: "The year being studied now",
+        example: "This year sales Rs.6,00,000",
+      },
+      {
+        principle: "Absolute change",
+        meaning: "Rupee increase or decrease",
+        example: "Increase Rs.1,00,000",
+      },
+      {
+        principle: "Percentage change",
+        meaning: "Change compared with previous year",
+        example: "Increase 20%",
+      },
+      {
+        principle: "Interpretation",
+        meaning: "Simple meaning of the change",
+        example: "Sales improved, but check profit too",
+      },
+      {
+        principle: "Trend",
+        meaning: "Direction of movement",
+        example: "Improving, declining, or stable",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Comparative statement guide",
+      title: "How to read common changes",
+      columns: ["Change", "Simple meaning", "What to check next"],
+      rows: [
+        {
+          first: "Sales increased",
+          second: "Business activity may be growing",
+          third: "Check whether profit also increased",
+        },
+        {
+          first: "Expenses increased",
+          second: "Costs are higher",
+          third: "Check whether expenses grew faster than sales",
+        },
+        {
+          first: "Profit decreased",
+          second: "Business result weakened",
+          third: "Check sales, cost, expenses, and interest",
+        },
+        {
+          first: "Cash decreased",
+          second: "Less immediate money is available",
+          third: "Check collections, payments, and bank balance",
+        },
+        {
+          first: "Assets increased",
+          second: "Business may be expanding",
+          third: "Check whether assets were funded by loan",
+        },
+        {
+          first: "Loan increased",
+          second: "Debt and risk may be higher",
+          third: "Check repayment ability and interest burden",
+        },
+      ],
+      note: "A change is only the starting point. Always ask what caused it.",
+    },
+    visualFlow: [
+      "Take previous year figures",
+      "Take current year figures",
+      "Find absolute change",
+      "Find percentage change",
+      "Mark increase or decrease",
+      "Ask what the change means",
+      "Connect sales, expenses, profit, assets, and debt",
+      "Decide whether the business looks stronger or weaker",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Riya Stationery Ltd. sales were Rs.5,00,000 last year and Rs.6,00,000 this year.",
+        entry: [
+          "Previous year sales Rs.5,00,000",
+          "Current year sales Rs.6,00,000",
+          "Absolute increase = Rs.1,00,000",
+          "Percentage increase = Rs.1,00,000 / Rs.5,00,000 x 100 = 20%",
+        ],
+        logic: [
+          "Sales increased, so business activity improved.",
+          "Next, we should check whether profit also increased.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Profit decreased from Rs.1,20,000 to Rs.90,000.",
+        entry: [
+          "Previous year profit Rs.1,20,000",
+          "Current year profit Rs.90,000",
+          "Absolute decrease = Rs.30,000",
+          "Percentage decrease = Rs.30,000 / Rs.1,20,000 x 100 = 25%",
+        ],
+        logic: [
+          "Profit decreased by 25%.",
+          "The business should check expenses, cost of goods, interest, and selling price.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Sales increased by Rs.1,00,000, but expenses increased by Rs.1,30,000.",
+        entry: [
+          "Sales went up",
+          "Expenses went up even more",
+          "Profit may decrease",
+          "Interpretation: growth is not strong if costs are uncontrolled",
+        ],
+        logic: [
+          "Higher sales do not automatically mean higher profit.",
+          "Expenses must be compared with sales.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Cash decreased from Rs.80,000 to Rs.50,000.",
+        entry: [
+          "Absolute decrease = Rs.30,000",
+          "Cash is lower than last year",
+          "Interpretation: liquidity may need attention",
+        ],
+        logic: [
+          "Cash helps pay immediate dues.",
+          "A fall in cash should be checked with debtors, creditors, and bank payments.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Machinery increased by Rs.2,00,000 and loan increased by Rs.1,80,000.",
+        entry: [
+          "Assets increased",
+          "Loan also increased heavily",
+          "Interpretation: expansion may be funded by borrowing",
+        ],
+        logic: [
+          "Asset growth can be good.",
+          "But high debt may increase risk and interest burden.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Accy Mobile Accessories Ltd. receivables increased from Rs.60,000 to Rs.1,20,000.",
+        entry: [
+          "Absolute increase = Rs.60,000",
+          "Receivables doubled",
+          "Interpretation: more credit sales or slower collection may exist",
+        ],
+        logic: [
+          "Higher receivables are not automatically good or bad.",
+          "We should check whether customers are paying on time.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking comparative statements are a new accounting engine or tool",
+      "Only calculating change and not interpreting it",
+      "Using current year amount as the base for percentage change",
+      "Forgetting that previous year is the base year",
+      "Calling every increase good",
+      "Calling every decrease bad",
+      "Thinking sales increase always means profit increase",
+      "Ignoring expenses when profit falls",
+      "Ignoring debt when assets increase",
+      "Comparing numbers without checking whether they belong to the same item",
+      "Forgetting to write whether the change is increase or decrease",
+      "Confusing Comparative Statement of Profit and Loss with Comparative Balance Sheet",
+    ],
+    tryPrompts: [
+      "Sales increased from Rs.5,00,000 to Rs.6,00,000. Find absolute change. Expected: Increase Rs.1,00,000.",
+      "Sales increased from Rs.5,00,000 to Rs.6,00,000. Find percentage change. Expected: 20% increase.",
+      "Profit decreased from Rs.1,20,000 to Rs.90,000. Find absolute change. Expected: Decrease Rs.30,000.",
+      "Profit decreased from Rs.1,20,000 to Rs.90,000. Find percentage change. Expected: 25% decrease.",
+      "Sales increased but profit decreased. What should be checked? Expected: expenses, cost, selling price, and interest.",
+      "Cash decreased from Rs.80,000 to Rs.50,000. Is this a liquidity point or profitability point? Expected: liquidity point.",
+      "Machinery increased and loan also increased. What should be checked? Expected: whether expansion is funded by too much debt.",
+      "Which statement compares assets and liabilities of two years? Expected: Comparative Balance Sheet.",
+      "Which statement compares sales, expenses, and profit of two years? Expected: Comparative Statement of Profit and Loss.",
+      "Previous year amount is Rs.2,00,000 and current year amount is Rs.2,50,000. Find change. Expected: Increase Rs.50,000, 25% increase.",
+    ],
+    toolLinks: [
+      { label: "Review Analysis of Financial Statements", href: "/learn/analysis-of-financial-statements" },
+      { label: "Review Financial Statements of a Company", href: "/learn/financial-statements-of-a-company" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Back to Learn Topics",
+      href: "/learn",
+      description:
+        "Common Size Statements are the next analysis topic, but that lesson is not available yet. For now, revise comparative statements and continue from the Learn topics page.",
     },
   },
 };
