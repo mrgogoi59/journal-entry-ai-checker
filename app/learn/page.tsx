@@ -162,7 +162,11 @@ const topicGroups: TopicGroup[] = [
         href: "/learn/comparative-statements",
         status: "available",
       },
-      { title: "Common Size Statements", status: "coming_soon" },
+      {
+        title: "Common Size Statements",
+        href: "/learn/common-size-statements",
+        status: "available",
+      },
       { title: "Accounting Ratios", status: "coming_soon" },
       { title: "Cash Flow Statement", status: "coming_soon" },
     ],

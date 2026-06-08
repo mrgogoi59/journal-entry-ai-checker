@@ -31,7 +31,8 @@ export type LessonSlug =
   | "issue-and-redemption-of-debentures"
   | "financial-statements-of-a-company"
   | "analysis-of-financial-statements"
-  | "comparative-statements";
+  | "comparative-statements"
+  | "common-size-statements";
 
 export type SolvedLessonExample = {
   title: string;
@@ -303,6 +304,12 @@ export const lessonCards = [
     title: "Comparative Statements",
     description: "Learn how to compare two years of financial statements and spot improvement or decline.",
     href: "/learn/comparative-statements",
+  },
+  {
+    slug: "common-size-statements",
+    title: "Common Size Statements",
+    description: "Learn how to convert financial statement figures into percentages for easier comparison.",
+    href: "/learn/common-size-statements",
   },
 ];
 
@@ -9369,10 +9376,421 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
-      label: "Back to Learn Topics",
-      href: "/learn",
+      label: "Continue to Common Size Statements",
+      href: "/learn/common-size-statements",
       description:
-        "Common Size Statements are the next analysis topic, but that lesson is not available yet. For now, revise comparative statements and continue from the Learn topics page.",
+        "After comparing two years of figures, the next step is to convert figures into percentages so comparison becomes easier.",
+    },
+  },
+  "common-size-statements": {
+    slug: "common-size-statements",
+    title: "Common Size Statements",
+    subtitle:
+      "Learn how to convert financial statement figures into percentages so companies can be compared easily.",
+    description:
+      "Understand base amount, percentage calculation, common size Profit and Loss, common size Balance Sheet, and simple interpretation.",
+    difficulty: "Beginner",
+    estimatedTime: "12-15 min",
+    whatYouWillLearn: [
+      "What common size statements mean",
+      "Why percentages are useful",
+      "Difference between comparative statements and common size statements",
+      "Common size Statement of Profit and Loss",
+      "Common size Balance Sheet",
+      "What base amount means",
+      "Revenue from Operations or sales as base for Profit and Loss",
+      "Total assets or total equity and liabilities as base for Balance Sheet",
+      "How to calculate percentage",
+      "How to interpret expenses as percentage of sales",
+      "How to interpret assets as percentage of total assets",
+      "How to compare companies of different sizes",
+      "Common mistakes in common size statements",
+    ],
+    conceptSections: [
+      {
+        title: "What are Common Size Statements?",
+        body: [
+          "Common size statements convert financial statement figures into percentages.",
+          "Normal statements show rupee amounts.",
+          "Common size statements show each item as a percentage of a base amount.",
+          "Example: sales are Rs.5,00,000 and rent is Rs.50,000.",
+          "Rent as percentage of sales = Rs.50,000 / Rs.5,00,000 x 100 = 10%.",
+          "Now we understand that rent is 10% of sales.",
+          "Simple line: Common size statements help us understand the size of each item compared to the total.",
+        ],
+      },
+      {
+        title: "Why common size statements are useful",
+        body: [
+          "Common size statements make comparison easier.",
+          "They show which expenses are too high.",
+          "They help compare small and large companies.",
+          "They show how assets are distributed.",
+          "They show how much money comes from owners and how much from loans.",
+          "They help us understand financial statements more clearly.",
+          "Simple line: Common size statements convert rupees into percentages for easier analysis.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya wants to compare two companies.",
+          "Company A has sales Rs.5,00,000 and profit Rs.1,00,000.",
+          "Company B has sales Rs.20,00,000 and profit Rs.3,00,000.",
+          "At first, Company B looks better because profit is higher.",
+          "But Riya calculates profit percentage.",
+          "Company A profit percentage = Rs.1,00,000 / Rs.5,00,000 x 100 = 20%.",
+          "Company B profit percentage = Rs.3,00,000 / Rs.20,00,000 x 100 = 15%.",
+          "Now Riya understands that Company B earns more rupees, but Company A earns better profit percentage.",
+          "Simple line: Percentages help us compare companies fairly.",
+        ],
+      },
+      {
+        title: "Comparative statements vs common size statements",
+        body: [
+          "Comparative statements compare two years.",
+          "Common size statements convert figures into percentages.",
+          "Comparative statements show increase or decrease.",
+          "Common size statements show proportion or percentage.",
+          "Example of comparative statement: sales increased by Rs.1,00,000.",
+          "Example of common size statement: rent is 10% of sales.",
+          "Memory line: Comparative = change over time. Common size = percentage of total.",
+        ],
+      },
+      {
+        title: "What is Base Amount?",
+        body: [
+          "Base amount is the total amount used for calculating percentages.",
+          "In a common size Statement of Profit and Loss, Revenue from Operations or sales is usually taken as 100%.",
+          "In a common size Balance Sheet, Total Assets or Total Equity and Liabilities is taken as 100%.",
+          "Example: sales Rs.5,00,000. Sales is the base and is treated as 100%.",
+          "Rent Rs.50,000. Rent percentage = Rs.50,000 / Rs.5,00,000 x 100 = 10%.",
+          "Simple line: Base amount is the number we compare every item with.",
+        ],
+      },
+      {
+        title: "Common Size Statement of Profit and Loss",
+        body: [
+          "In a common size Statement of Profit and Loss, each item is shown as a percentage of sales or revenue.",
+          "Sales Rs.5,00,000 is taken as 100%.",
+          "Purchases or cost Rs.3,00,000 means Rs.3,00,000 / Rs.5,00,000 x 100 = 60%.",
+          "Salary Rs.50,000 means Rs.50,000 / Rs.5,00,000 x 100 = 10%.",
+          "Profit Rs.1,00,000 means Rs.1,00,000 / Rs.5,00,000 x 100 = 20%.",
+          "Simple interpretation: for every Rs.100 of sales, the company earns Rs.20 profit.",
+          "Simple line: Common size P&L shows income and expenses as percentage of sales.",
+        ],
+      },
+      {
+        title: "Common Size Balance Sheet",
+        body: [
+          "In a common size Balance Sheet, each item is shown as a percentage of total assets or total equity and liabilities.",
+          "Total assets Rs.10,00,000 is taken as 100%.",
+          "Machines Rs.4,00,000 means Rs.4,00,000 / Rs.10,00,000 x 100 = 40%.",
+          "Inventory Rs.2,00,000 means Rs.2,00,000 / Rs.10,00,000 x 100 = 20%.",
+          "Cash Rs.1,00,000 means Rs.1,00,000 / Rs.10,00,000 x 100 = 10%.",
+          "Simple interpretation: 40% of the company's assets are invested in machines.",
+          "Simple line: Common size Balance Sheet shows each asset or liability as percentage of total.",
+        ],
+      },
+      {
+        title: "How to calculate percentages",
+        rule: "Percentage = Item Amount / Base Amount x 100",
+        body: [
+          "First choose the correct base amount.",
+          "Then divide the item amount by the base amount.",
+          "Then multiply by 100.",
+          "Example: advertising expense Rs.25,000 and sales Rs.5,00,000.",
+          "Advertising percentage = Rs.25,000 / Rs.5,00,000 x 100 = 5%.",
+          "Simple line: Divide the item by the base amount and multiply by 100.",
+        ],
+      },
+      {
+        title: "How to interpret common size percentages",
+        body: [
+          "After calculating percentages, ask which expense takes the largest part of sales.",
+          "Ask whether profit percentage is increasing or decreasing.",
+          "Ask whether too much money is blocked in inventory.",
+          "Ask whether cash percentage is too low.",
+          "Ask whether loan percentage is too high.",
+          "Ask whether assets are balanced properly.",
+          "Ask whether one company is better than another company in percentage terms.",
+          "Simple line: The calculation gives percentage. Interpretation gives understanding.",
+        ],
+      },
+      {
+        title: "Comparing small and large companies",
+        body: [
+          "Company A has sales Rs.5,00,000 and profit Rs.1,00,000.",
+          "Company B has sales Rs.50,00,000 and profit Rs.5,00,000.",
+          "Company B has higher profit in rupees.",
+          "But Company A profit percentage = Rs.1,00,000 / Rs.5,00,000 x 100 = 20%.",
+          "Company B profit percentage = Rs.5,00,000 / Rs.50,00,000 x 100 = 10%.",
+          "Company B is bigger, but Company A is more profitable in percentage terms.",
+          "Simple line: Common size statements help compare companies of different sizes.",
+        ],
+      },
+      {
+        title: "Simple common size format",
+        body: [
+          "A simple common size Statement of Profit and Loss can show Particulars, Amount, and Percentage of Sales.",
+          "Rows can include Sales, Cost of Goods Sold, Salary, Rent, Other Expenses, and Profit.",
+          "A simple common size Balance Sheet can show Particulars, Amount, and Percentage of Total Assets or Total Funds.",
+          "Rows can include Shareholders' Funds, Long-term Loans, Current Liabilities, Fixed Assets, Inventory, Debtors, and Cash and Bank.",
+          "This is a simplified learning format.",
+          "Real statements may have more details.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Comparative Statements vs Common Size Statements",
+      leftHeading: "Comparative Statements",
+      rightHeading: "Common Size Statements",
+      rows: [
+        {
+          left: "Compare two years",
+          right: "Convert figures into percentages",
+        },
+        {
+          left: "Shows increase or decrease",
+          right: "Shows proportion or percentage",
+        },
+        {
+          left: "Useful for trend",
+          right: "Useful for size and structure",
+        },
+        {
+          left: "Example: Sales increased by Rs.1,00,000",
+          right: "Example: Rent is 10% of sales",
+        },
+        {
+          left: "Focuses on change",
+          right: "Focuses on relationship with total",
+        },
+      ],
+      note: "Memory line: Comparative = change over time. Common size = percentage of total.",
+    },
+    extraComparisonTables: [
+      {
+        title: "Simple common size formats",
+        leftHeading: "Common Size Statement of Profit and Loss",
+        rightHeading: "Common Size Balance Sheet",
+        rows: [
+          {
+            left: "Particulars | Amount | Percentage of Sales",
+            right: "Particulars | Amount | Percentage of Total Assets / Total Funds",
+          },
+          {
+            left: "Sales, Cost of Goods Sold, Salary",
+            right: "Shareholders' Funds, Long-term Loans, Current Liabilities",
+          },
+          {
+            left: "Rent, Other Expenses, Profit",
+            right: "Fixed Assets, Inventory, Debtors, Cash and Bank",
+          },
+          {
+            left: "Sales or Revenue from Operations is usually 100%",
+            right: "Total Assets or Total Equity and Liabilities is usually 100%",
+          },
+        ],
+        note: "This is a simplified learning format. Real statements may have more details.",
+      },
+    ],
+    memoryTable: [
+      {
+        principle: "Common Size Statement",
+        meaning: "Statement in percentages",
+        example: "Rent is 10% of sales",
+      },
+      {
+        principle: "Base Amount",
+        meaning: "Total used for comparison",
+        example: "Sales or total assets",
+      },
+      {
+        principle: "Sales as Base",
+        meaning: "Sales taken as 100%",
+        example: "P&L statement",
+      },
+      {
+        principle: "Total Assets as Base",
+        meaning: "Assets taken as 100%",
+        example: "Balance Sheet",
+      },
+      {
+        principle: "Expense Percentage",
+        meaning: "Expense / Sales x 100",
+        example: "Salary 8% of sales",
+      },
+      {
+        principle: "Asset Percentage",
+        meaning: "Asset / Total Assets x 100",
+        example: "Inventory 25%",
+      },
+      {
+        principle: "Interpretation",
+        meaning: "Meaning of percentage",
+        example: "Profit margin is strong",
+      },
+    ],
+    impactTable: {
+      eyebrow: "Common size guide",
+      title: "How to read common size percentages",
+      columns: ["Percentage", "Simple meaning", "What to check next"],
+      rows: [
+        {
+          first: "Rent is 10% of sales",
+          second: "For every Rs.100 sales, Rs.10 goes to rent",
+          third: "Check whether rent is reasonable",
+        },
+        {
+          first: "Profit is 20% of sales",
+          second: "For every Rs.100 sales, Rs.20 remains as profit",
+          third: "Compare with another company or another year",
+        },
+        {
+          first: "Inventory is 25% of assets",
+          second: "One-fourth of assets are in stock",
+          third: "Check whether stock is too high or moving slowly",
+        },
+        {
+          first: "Cash is 5% of assets",
+          second: "Only a small part of assets is cash",
+          third: "Check liquidity and payment ability",
+        },
+        {
+          first: "Loan is 50% of total funds",
+          second: "Half of funds come from borrowing",
+          third: "Check debt risk and interest burden",
+        },
+        {
+          first: "Machines are 40% of assets",
+          second: "Large investment is in machines",
+          third: "Check whether machines help generate sales",
+        },
+      ],
+      note: "Good common size analysis means reading the percentage and asking what it tells us.",
+    },
+    visualFlow: [
+      "Take financial statement figures",
+      "Choose base amount",
+      "Treat base as 100%",
+      "Divide each item by base",
+      "Multiply by 100",
+      "Compare percentages",
+      "Understand structure and performance",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Sales Rs.5,00,000 and rent Rs.50,000.",
+        entry: [
+          "Rent percentage = Rs.50,000 / Rs.5,00,000 x 100",
+          "Rent percentage = 10%",
+          "Interpretation: Rent is 10% of sales.",
+        ],
+        logic: [
+          "Sales is the base amount for Profit and Loss items.",
+          "Rent is compared with sales.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Sales Rs.8,00,000 and profit Rs.1,60,000.",
+        entry: [
+          "Profit percentage = Rs.1,60,000 / Rs.8,00,000 x 100",
+          "Profit percentage = 20%",
+          "Interpretation: For every Rs.100 sales, company earns Rs.20 profit.",
+        ],
+        logic: [
+          "Profit is compared with sales.",
+          "This helps understand earning strength.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Total assets Rs.10,00,000 and inventory Rs.2,50,000.",
+        entry: [
+          "Inventory percentage = Rs.2,50,000 / Rs.10,00,000 x 100",
+          "Inventory percentage = 25%",
+          "Interpretation: 25% of assets are in inventory.",
+        ],
+        logic: [
+          "Total assets are the base for asset items.",
+          "Inventory percentage shows how much money is blocked in stock.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Total assets Rs.10,00,000 and cash Rs.50,000.",
+        entry: [
+          "Cash percentage = Rs.50,000 / Rs.10,00,000 x 100",
+          "Cash percentage = 5%",
+          "Interpretation: Only 5% of assets are cash. Cash position may need checking.",
+        ],
+        logic: [
+          "Cash is compared with total assets.",
+          "Very low cash can become a liquidity concern.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Total equity and liabilities Rs.12,00,000 and loan Rs.6,00,000.",
+        entry: [
+          "Loan percentage = Rs.6,00,000 / Rs.12,00,000 x 100",
+          "Loan percentage = 50%",
+          "Interpretation: Half of the company's funds come from loan. This may be risky.",
+        ],
+        logic: [
+          "Loan is compared with total funds.",
+          "A high loan percentage can increase financial risk.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Company A profit percentage is 20%. Company B profit percentage is 12%.",
+        entry: [
+          "Company A profit percentage = 20%",
+          "Company B profit percentage = 12%",
+          "Interpretation: Company A is more profitable compared to sales.",
+        ],
+        logic: [
+          "Percentage comparison is fairer than only rupee comparison.",
+          "A smaller company can have a better profit percentage.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Forgetting to multiply by 100",
+      "Using wrong base amount",
+      "Using current year as base in every situation without thinking",
+      "Comparing rupees when percentage is needed",
+      "Thinking higher rupee profit always means better performance",
+      "Confusing comparative statements with common size statements",
+      "Calculating percentage but not interpreting it",
+      "Using total assets as base for Profit and Loss items",
+      "Using sales as base for Balance Sheet items",
+      "Ignoring very high loan percentage or very low cash percentage",
+    ],
+    tryPrompts: [
+      "Sales Rs.4,00,000 and rent Rs.40,000. Find rent percentage. Expected: 10%.",
+      "Sales Rs.5,00,000 and profit Rs.1,00,000. Find profit percentage. Expected: 20%.",
+      "Total assets Rs.10,00,000 and inventory Rs.2,00,000. Find inventory percentage. Expected: 20%.",
+      "Total assets Rs.8,00,000 and cash Rs.40,000. Find cash percentage. Expected: 5%.",
+      "Sales Rs.6,00,000 and salary Rs.90,000. Find salary percentage. Expected: 15%.",
+      "Company A profit percentage is 20%. Company B profit percentage is 12%. Which company is more profitable in percentage terms? Expected: Company A.",
+      "In common size P&L, what is usually taken as 100%? Expected: Sales / Revenue from Operations.",
+      "In common size Balance Sheet, what is usually taken as 100%? Expected: Total Assets or Total Equity and Liabilities.",
+    ],
+    toolLinks: [
+      { label: "Review Comparative Statements", href: "/learn/comparative-statements" },
+      { label: "Review Analysis", href: "/learn/analysis-of-financial-statements" },
+      { label: "Practice Journal Entries", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Review Comparative Statements",
+      href: "/learn/comparative-statements",
+      description:
+        "After learning percentages through common size statements, the next step is to understand accounting ratios. That lesson is not available yet, so revise comparative statements for now.",
     },
   },
 };

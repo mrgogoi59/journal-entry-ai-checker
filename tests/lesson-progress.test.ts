@@ -35,7 +35,7 @@ describe("lesson progress helpers", () => {
   it("returns empty progress when window is unavailable", () => {
     expect(getLessonProgress()).toEqual([]);
     expect(getLessonProgressSummary()).toEqual({
-      totalLessons: 33,
+      totalLessons: 34,
       completedLessons: 0,
       completionPercent: 0,
       completedLessonSlugs: [],
@@ -73,7 +73,7 @@ describe("lesson progress helpers", () => {
     expect(isLessonCompleted("rules-of-debit-and-credit")).toBe(false);
   });
 
-  it("returns correct summary percentage for one of thirty-three completed", () => {
+  it("returns correct summary percentage for one of thirty-four completed", () => {
     expect(
       getLessonProgressSummary([
         {
@@ -83,7 +83,7 @@ describe("lesson progress helpers", () => {
         },
       ]),
     ).toEqual({
-      totalLessons: 33,
+      totalLessons: 34,
       completedLessons: 1,
       completionPercent: 3,
       completedLessonSlugs: ["introduction-to-accounting"],
