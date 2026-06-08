@@ -68,6 +68,20 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
             <p className="mt-4 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
               {lesson.description}
             </p>
+            {lesson.difficulty || lesson.estimatedTime ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {lesson.difficulty ? (
+                  <span className="rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-bold text-blue-900">
+                    {lesson.difficulty}
+                  </span>
+                ) : null}
+                {lesson.estimatedTime ? (
+                  <span className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-xs font-bold text-emerald-800">
+                    {lesson.estimatedTime}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </header>
 
@@ -251,7 +265,7 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
           <section className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-950 to-emerald-800 p-6 text-white shadow-soft sm:p-8">
             <h2 className="text-3xl font-bold tracking-normal">Ready for the next step?</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-50">
-              Keep the learning flow moving while the idea is fresh.
+              {lesson.nextLesson.description ?? "Keep the learning flow moving while the idea is fresh."}
             </p>
             <Link
               href={lesson.nextLesson.href}

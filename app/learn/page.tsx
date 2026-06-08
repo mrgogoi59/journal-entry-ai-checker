@@ -18,7 +18,7 @@ const topicGroups: TopicGroup[] = [
   {
     title: "Foundations",
     topics: [
-      { title: "Introduction to Accounting", status: "coming_soon" },
+      { title: "Introduction to Accounting", href: "/learn/introduction-to-accounting", status: "available" },
       { title: "Theory Base of Accounting", status: "coming_soon" },
       { title: "Accounting Principles and Concepts", status: "coming_soon" },
       { title: "Rules of Debit and Credit", href: "/learn/rules-of-debit-and-credit", status: "available" },

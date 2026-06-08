@@ -1,6 +1,10 @@
 export const lessonProgressStorageKey = "accywise_lesson_progress_v1";
 
-export const trackedLessonSlugs = ["rules-of-debit-and-credit", "journal-entry-basics"] as const;
+export const trackedLessonSlugs = [
+  "introduction-to-accounting",
+  "rules-of-debit-and-credit",
+  "journal-entry-basics",
+] as const;
 
 export type TrackedLessonSlug = (typeof trackedLessonSlugs)[number];
 

@@ -1,4 +1,4 @@
-export type LessonSlug = "rules-of-debit-and-credit" | "journal-entry-basics";
+export type LessonSlug = "introduction-to-accounting" | "rules-of-debit-and-credit" | "journal-entry-basics";
 
 export type SolvedLessonExample = {
   title: string;
@@ -12,6 +12,8 @@ export type LessonContent = {
   title: string;
   subtitle: string;
   description: string;
+  difficulty?: string;
+  estimatedTime?: string;
   whatYouWillLearn: string[];
   conceptSections: {
     title: string;
@@ -35,10 +37,17 @@ export type LessonContent = {
   nextLesson?: {
     label: string;
     href: string;
+    description?: string;
   };
 };
 
 export const lessonCards = [
+  {
+    slug: "introduction-to-accounting",
+    title: "Introduction to Accounting",
+    description: "Understand what accounting means and why businesses record transactions.",
+    href: "/learn/introduction-to-accounting",
+  },
   {
     slug: "rules-of-debit-and-credit",
     title: "Rules of Debit and Credit",
@@ -62,6 +71,169 @@ export const comingSoonLessons = [
 ];
 
 export const lessons: Record<LessonSlug, LessonContent> = {
+  "introduction-to-accounting": {
+    slug: "introduction-to-accounting",
+    title: "Introduction to Accounting",
+    subtitle:
+      "Accounting is the language of business. It helps us record, understand, and explain money-related activities.",
+    description: "Understand what accounting means and why businesses record transactions.",
+    difficulty: "Beginner",
+    estimatedTime: "8-10 min",
+    whatYouWillLearn: [
+      "What accounting means",
+      "Why businesses record transactions",
+      "What a transaction is",
+      "What accounting records",
+      "Who uses accounting information",
+      "Basic words like assets, liabilities, capital, income, and expenses",
+      "How accounting connects to journal entries",
+    ],
+    conceptSections: [
+      {
+        title: "Simple meaning of accounting",
+        body: [
+          "Accounting means recording business transactions in a proper way so that we can know what happened in the business.",
+          "If a shopkeeper buys goods, sells goods, pays rent, receives cash, or takes a loan, all these activities affect the business.",
+          "Accounting helps record these activities clearly.",
+          "Accounting is not just maths. It is a system for understanding money movement in a business.",
+        ],
+      },
+      {
+        title: "Why accounting is needed",
+        body: [
+          "A business does many money-related activities every day.",
+          "Without accounting, the owner may forget what was bought, sold, paid, received, borrowed, or owed.",
+          "Accounting helps the owner know cash, goods, expenses, income, profit, loss, and business position.",
+        ],
+      },
+      {
+        title: "What is a transaction?",
+        body: [
+          "A transaction is a business activity that can be measured in money.",
+          "Started business with cash Rs.50,000, bought goods for cash Rs.10,000, sold goods for Rs.5,000, paid rent Rs.2,000, and took loan from bank Rs.20,000 are transactions.",
+          "A plan to buy goods next month, a customer asking the price, or the shopkeeper thinking sales may increase are not recorded yet.",
+          "These are not recorded because no money-measurable business event has happened yet.",
+        ],
+      },
+      {
+        title: "Simple business story",
+        body: [
+          "Imagine Raju starts a small stationery shop.",
+          "Day 1: He brings Rs.50,000 cash into the business.",
+          "Day 2: He buys notebooks for Rs.10,000.",
+          "Day 3: He sells notebooks for Rs.3,000.",
+          "Day 4: He pays shop rent Rs.2,000.",
+          "How will Raju know how much cash is left, how much goods he bought, how much he sold, whether the business is earning or losing, and what belongs to the business?",
+          "He needs accounting.",
+        ],
+      },
+      {
+        title: "What accounting records",
+        body: [
+          "Money coming into business.",
+          "Money going out of business.",
+          "Goods bought and sold.",
+          "Amount payable to others.",
+          "Amount receivable from customers.",
+          "Assets owned by business.",
+          "Expenses and incomes.",
+          "Profit or loss.",
+        ],
+      },
+      {
+        title: "Who uses accounting information",
+        body: [
+          "Owners use it to know profit, loss, cash, and business position.",
+          "Students use it to understand how business transactions are recorded.",
+          "Banks use it to know whether the business can repay loans.",
+          "Government uses it for tax and legal reporting.",
+          "Investors use it to decide whether the business is strong.",
+          "Managers use it to make better decisions.",
+        ],
+      },
+      {
+        title: "Basic accounting words",
+        body: [
+          "Business: an activity done to earn profit.",
+          "Transaction: a money-measurable business activity.",
+          "Capital: money or assets brought into the business by the owner.",
+          "Asset: something valuable owned by the business, such as cash, bank, furniture, machinery, and debtors.",
+          "Liability: amount the business has to pay to others, such as loans, creditors, and outstanding expenses.",
+          "Income: money earned by the business, such as sales, commission received, and interest received.",
+          "Expense: money spent to run the business, such as rent, salary, wages, and electricity.",
+          "Profit: when income is more than expenses.",
+          "Loss: when expenses are more than income.",
+        ],
+      },
+    ],
+    visualFlow: [
+      "Business activity",
+      "Transaction",
+      "Record in books",
+      "Classify into accounts",
+      "Prepare summary",
+      "Understand profit/loss and position",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Started business with cash Rs.50,000",
+        entry: ["Accounting records:", "Cash increased.", "Capital increased."],
+        logic: [
+          "This is a transaction because cash came into business.",
+          "The owner introduced capital into the business.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Bought goods for cash Rs.10,000",
+        entry: ["Accounting records:", "Purchases increased.", "Cash decreased."],
+        logic: ["This is a transaction because goods were bought.", "Cash went out of the business."],
+      },
+      {
+        title: "Example 3",
+        transaction: "Paid rent Rs.2,000",
+        entry: ["Accounting records:", "Rent expense increased.", "Cash decreased."],
+        logic: ["This is a transaction because the business paid an expense.", "Cash went out of the business."],
+      },
+      {
+        title: "Example 4",
+        transaction: "Sold goods for cash Rs.5,000",
+        entry: ["Accounting records:", "Cash increased.", "Sales increased."],
+        logic: [
+          "This is a transaction because the business earned sales.",
+          "The business received cash.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Thinking accounting is only maths",
+      "Recording personal events as business transactions",
+      "Recording plans or promises without a money-measurable event",
+      "Confusing capital with profit",
+      "Thinking cash and profit are the same",
+      "Forgetting that every transaction affects the business in some way",
+    ],
+    tryPrompts: [
+      "Owner started business with Rs.80,000 cash. Is this a business transaction? Yes, because cash came into the business.",
+      "Bought goods for Rs.20,000. Is this a business transaction? Yes, because goods were bought and it can be measured in money.",
+      "Customer asked for price of goods. Is this a business transaction? No, because no sale or money-measurable event happened yet.",
+      "Paid electricity bill Rs.1,500. Is this a business transaction? Yes, because an expense was paid.",
+      "Owner plans to buy furniture next month. Is this a business transaction? No, because it is only a plan.",
+      "Sold goods for Rs.12,000. Is this a business transaction? Yes, because sales happened and it can be measured in money.",
+      "Expected idea: 1, 2, 4, and 6 are recorded. 3 and 5 are not recorded yet.",
+    ],
+    toolLinks: [
+      { label: "Next Lesson: Rules of Debit and Credit", href: "/learn/rules-of-debit-and-credit" },
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Practice Basics", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Continue to Rules of Debit and Credit",
+      href: "/learn/rules-of-debit-and-credit",
+      description: "Now that you understand what accounting records, learn how accounts are debited and credited.",
+    },
+  },
   "rules-of-debit-and-credit": {
     slug: "rules-of-debit-and-credit",
     title: "Rules of Debit and Credit",
