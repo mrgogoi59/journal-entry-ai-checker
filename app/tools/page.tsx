@@ -45,6 +45,12 @@ const toolSections = [
         label: "Open Ledger",
       },
       {
+        title: "Bank Reconciliation Statement",
+        description: "Match Cash Book and Bank Statement balances step by step.",
+        href: "/bank-reconciliation",
+        label: "Open BRS",
+      },
+      {
         title: "Ledger Practice",
         description: "Practice finding ledger account balances from given journal entries.",
         href: "/practice/ledger",

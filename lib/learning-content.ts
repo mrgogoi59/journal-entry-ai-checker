@@ -2147,6 +2147,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       "Cash Book balance Rs.25,000, bank charges Rs.500, interest credited Rs.1,000, cheque issued but not presented Rs.3,000, cheque deposited but not cleared Rs.2,000. Expected Pass Book balance: Rs.26,500.",
     ],
     toolLinks: [
+      { label: "Open BRS Tool", href: "/bank-reconciliation" },
       { label: "Review Cash Book", href: "/learn/cash-book" },
       { label: "Next Lesson: Subsidiary Books", href: "/learn/subsidiary-books" },
       { label: "Practice Basics", href: "/practice" },
