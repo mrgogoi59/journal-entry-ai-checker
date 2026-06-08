@@ -129,12 +129,15 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Modern rules</p>
             <h2 className="mt-2 text-2xl font-bold text-blue-950">Increase and decrease logic</h2>
             <div className="mt-5 overflow-x-auto rounded-xl border border-blue-100">
-              <table className="w-full min-w-[560px] border-collapse text-sm">
+              <table className="w-full min-w-[640px] border-collapse text-sm">
                 <thead>
                   <tr className="bg-blue-950 text-left text-white">
                     <th className="px-4 py-3 font-semibold">Account type</th>
                     <th className="px-4 py-3 font-semibold">Increase</th>
                     <th className="px-4 py-3 font-semibold">Decrease</th>
+                    {lesson.modernRules.some((rule) => rule.example) ? (
+                      <th className="px-4 py-3 font-semibold">Example</th>
+                    ) : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -143,6 +146,9 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
                       <td className="px-4 py-3 font-bold text-blue-950">{rule.accountType}</td>
                       <td className="px-4 py-3 font-semibold text-slate-800">{rule.increase}</td>
                       <td className="px-4 py-3 font-semibold text-slate-800">{rule.decrease ?? "-"}</td>
+                      {lesson.modernRules?.some((item) => item.example) ? (
+                        <td className="px-4 py-3 font-semibold leading-6 text-slate-800">{rule.example ?? "-"}</td>
+                      ) : null}
                     </tr>
                   ))}
                 </tbody>
