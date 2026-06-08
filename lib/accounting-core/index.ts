@@ -127,3 +127,20 @@ export type {
   AdvancedPracticeQuestionFilter,
   AdvancedPracticeTopic,
 } from "./practice/advanced-practice-question-generator";
+
+export {
+  aggregateAdvancedJournalLines,
+  checkAdvancedJournalAnswer,
+  createCheckMessage,
+  flattenAdvancedJournalLines,
+  getAdvancedJournalLineKey,
+  getAdvancedJournalTotals,
+  isAdvancedJournalBalanced,
+  normalizeAdvancedAccountName,
+} from "./checkers/advanced-journal-answer-checker";
+export type {
+  AdvancedJournalAnswerCheckInput,
+  AdvancedJournalAnswerCheckResult,
+  AdvancedJournalCheckScoreBreakdown,
+  AdvancedJournalLineComparison,
+} from "./checkers/advanced-journal-answer-checker";
