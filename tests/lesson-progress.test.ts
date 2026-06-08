@@ -6,7 +6,9 @@ import {
   lessonProgressStorageKey,
   markLessonCompleted,
   markLessonIncomplete,
+  trackedLessonSlugs,
 } from "@/lib/lesson-progress";
+import { lessons } from "@/lib/learning-content";
 
 function installLocalStorageMock() {
   const store = new Map<string, string>();
@@ -88,6 +90,12 @@ describe("lesson progress helpers", () => {
       completionPercent: 3,
       completedLessonSlugs: ["introduction-to-accounting"],
     });
+  });
+
+  it("tracks each available lesson exactly once", () => {
+    expect(trackedLessonSlugs).toHaveLength(36);
+    expect(new Set(trackedLessonSlugs).size).toBe(36);
+    expect([...trackedLessonSlugs].sort()).toEqual(Object.keys(lessons).sort());
   });
 
   it("does not crash write helpers when window is unavailable", () => {
