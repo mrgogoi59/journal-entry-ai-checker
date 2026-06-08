@@ -6,6 +6,7 @@ export type LessonSlug =
   | "source-documents-and-vouchers"
   | "rules-of-debit-and-credit"
   | "journal-entry-basics"
+  | "cash-book"
   | "ledger-posting-basics"
   | "trial-balance-basics";
 
@@ -108,6 +109,12 @@ export const lessonCards = [
     title: "Journal Entry Basics",
     description: "Learn how to convert transactions into proper journal entries.",
     href: "/learn/journal-entry-basics",
+  },
+  {
+    slug: "cash-book",
+    title: "Cash Book",
+    description: "Learn how cash and bank transactions are recorded in one special book.",
+    href: "/learn/cash-book",
   },
   {
     slug: "ledger-posting-basics",
@@ -1473,9 +1480,240 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Practice Journal Entries", href: "/practice" },
     ],
     nextLesson: {
+      label: "Continue to Cash Book",
+      href: "/learn/cash-book",
+      description: "Now that you know the journal entry format, learn how cash and bank transactions are recorded.",
+    },
+  },
+  "cash-book": {
+    slug: "cash-book",
+    title: "Cash Book",
+    subtitle: "Learn how cash and bank transactions are recorded in one special book.",
+    description: "Understand how a business tracks cash and bank money movement clearly.",
+    difficulty: "Beginner",
+    estimatedTime: "10-12 min",
+    whatYouWillLearn: [
+      "What Cash Book means",
+      "Why Cash Book is needed",
+      "Why cash and bank transactions are recorded specially",
+      "How Cash Book is connected to journal and ledger",
+      "Debit side and credit side of Cash Book",
+      "Single-column Cash Book",
+      "Double-column Cash Book",
+      "Triple-column Cash Book at a basic level",
+      "Contra entry",
+      "Cash discount basics",
+      "Petty Cash Book basics",
+      "Common mistakes",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Cash Book?",
+        body: [
+          "Cash Book is a special book where cash and bank transactions are recorded.",
+          "Every business receives and pays cash or bank money many times.",
+          "Instead of searching many journal entries, Cash Book keeps all cash and bank transactions in one place.",
+          "Simple line: Cash Book records cash and bank money movement.",
+          "Example: if Riya receives cash from sales, pays rent in cash, deposits cash into bank, or pays by cheque, these transactions can be recorded in the Cash Book.",
+        ],
+      },
+      {
+        title: "Why Cash Book is needed",
+        body: [
+          "Suppose Riya runs a stationery shop.",
+          "Every day she may receive cash from customers, pay rent, pay salary, buy goods in cash, deposit cash into bank, withdraw cash from bank, and pay suppliers by cheque.",
+          "If all these are scattered everywhere, it becomes difficult to know how much cash is available.",
+          "It also becomes difficult to know how much money is in bank.",
+          "Cash Book helps show how much cash came in, how much cash went out, and whether cash records are correct.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a small stationery shop.",
+          "Day 1: she starts business with cash Rs.50,000.",
+          "Day 2: she buys goods for cash Rs.10,000.",
+          "Day 3: she sells goods for cash Rs.5,000.",
+          "Day 4: she pays shop rent Rs.3,000.",
+          "Day 5: she deposits Rs.20,000 into bank.",
+          "Question: how will Riya know how much cash is left?",
+          "Answer: she can use the Cash Book.",
+          "Cash received = Rs.50,000 + Rs.5,000 = Rs.55,000.",
+          "Cash paid = Rs.10,000 + Rs.3,000 + Rs.20,000 = Rs.33,000.",
+          "Cash balance = Rs.22,000.",
+          "Cash Book helps Riya know cash balance quickly.",
+        ],
+      },
+      {
+        title: "Cash Book is both journal and ledger",
+        body: [
+          "Cash Book is special because it works like both a journal and a ledger.",
+          "It works like a journal because cash and bank transactions are first recorded in it.",
+          "It works like a ledger because it also shows the balance of cash and bank.",
+          "Simple line: Cash Book is both a book of original entry and a ledger account.",
+        ],
+      },
+      {
+        title: "Debit side and credit side",
+        body: [
+          "Cash Book has two sides.",
+          "Debit side records money received.",
+          "Credit side records money paid.",
+          "Cash received goes on the debit side.",
+          "Cash paid goes on the credit side.",
+          "Bank money received goes on the debit side.",
+          "Bank money paid goes on the credit side.",
+          "Cash deposited into bank affects both cash and bank columns.",
+          "Cash withdrawn from bank also affects both cash and bank columns.",
+          "Memory line: money coming in goes to debit side. Money going out goes to credit side.",
+        ],
+      },
+      {
+        title: "Types of Cash Book",
+        body: [
+          "Single Column Cash Book records only cash transactions.",
+          "Single column examples are cash sales, cash rent payment, and cash purchase.",
+          "Simple line: single column means only cash column.",
+          "Double Column Cash Book records cash and bank transactions.",
+          "Double column examples are cash deposited into bank, payment by cheque, cash received, and bank received.",
+          "Simple line: double column means cash plus bank.",
+          "Triple Column Cash Book records cash, bank, and discount.",
+          "Triple column examples are receiving money from customer and allowing discount, or paying creditor and receiving discount.",
+          "Simple line: triple column means cash plus bank plus discount.",
+        ],
+      },
+      {
+        title: "Contra entry",
+        body: [
+          "Contra entry means a transaction between cash and bank.",
+          "Examples are cash deposited into bank and cash withdrawn from bank for office use.",
+          "It is special because both Cash and Bank are in the same Cash Book.",
+          "Example: deposited cash into bank Rs.10,000.",
+          "Bank increases and Cash decreases.",
+          "Simple entry idea: Bank A/c Dr. Rs.10,000 / To Cash A/c Rs.10,000.",
+          "In Cash Book, Bank column appears on debit side and Cash column appears on credit side.",
+          "Memory line: contra entry happens between Cash and Bank.",
+          "In many Cash Books, contra entries are marked with C.",
+        ],
+      },
+      {
+        title: "Cash discount in Cash Book",
+        body: [
+          "Cash discount is given or received when payment is made early or in full settlement.",
+          "Discount Allowed means the business gives discount to customer.",
+          "Discount Allowed is an expense or loss.",
+          "It usually appears on the debit side discount column.",
+          "Discount Received means the business receives discount from supplier or creditor.",
+          "Discount Received is income or gain.",
+          "It usually appears on the credit side discount column.",
+          "Example: received Rs.9,500 from Raju in full settlement of Rs.10,000. Cash received is Rs.9,500 and Discount Allowed is Rs.500.",
+          "Example: paid Amit Rs.4,800 in full settlement of Rs.5,000. Cash paid is Rs.4,800 and Discount Received is Rs.200.",
+        ],
+      },
+      {
+        title: "Petty Cash Book basics",
+        body: [
+          "Petty Cash Book is used for small daily expenses.",
+          "Examples are tea, postage, stationery, small repairs, local transport, and courier.",
+          "Small expenses happen often.",
+          "Recording them separately keeps the main Cash Book cleaner.",
+          "Simple line: Petty Cash Book records small expenses.",
+        ],
+      },
+    ],
+    visualFlow: [
+      "Cash or bank transaction",
+      "Cash Book",
+      "Cash/Bank balance",
+      "Ledger/Trial Balance",
+      "Final Accounts",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Started business with cash Rs.50,000.",
+        entry: ["Cash Book effect: Debit side cash column Rs.50,000."],
+        logic: ["Cash came into business."],
+      },
+      {
+        title: "Example 2",
+        transaction: "Bought goods for cash Rs.10,000.",
+        entry: ["Cash Book effect: Credit side cash column Rs.10,000."],
+        logic: ["Cash went out."],
+      },
+      {
+        title: "Example 3",
+        transaction: "Paid rent Rs.3,000.",
+        entry: ["Cash Book effect: Credit side cash column Rs.3,000."],
+        logic: ["Cash went out for expense."],
+      },
+      {
+        title: "Example 4",
+        transaction: "Deposited cash into bank Rs.20,000.",
+        entry: [
+          "Cash Book effect: Debit side bank column Rs.20,000.",
+          "Credit side cash column Rs.20,000.",
+        ],
+        logic: [
+          "Bank increases and cash decreases.",
+          "This is a contra entry.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Received Rs.9,500 from Raju and allowed discount Rs.500.",
+        entry: [
+          "Cash Book effect: Debit side cash/bank column Rs.9,500.",
+          "Debit side discount allowed column Rs.500 if using triple column Cash Book.",
+        ],
+        logic: [
+          "Money was received from Raju.",
+          "Discount was allowed to customer.",
+        ],
+      },
+      {
+        title: "Example 6",
+        transaction: "Paid Amit Rs.4,800 and received discount Rs.200.",
+        entry: [
+          "Cash Book effect: Credit side cash/bank column Rs.4,800.",
+          "Credit side discount received column Rs.200 if using triple column Cash Book.",
+        ],
+        logic: [
+          "Money was paid to Amit.",
+          "Discount was received from creditor.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Recording cash paid on debit side",
+      "Recording cash received on credit side",
+      "Confusing Cash Book with pass book",
+      "Forgetting contra entry for cash deposited into bank",
+      "Thinking bank deposit increases total money of business",
+      "Confusing discount allowed and discount received",
+      "Recording credit sales in Cash Book",
+      "Recording credit purchases in Cash Book",
+      "Forgetting that Cash Book records only cash/bank transactions",
+    ],
+    tryPrompts: [
+      "Cash sales Rs.5,000. Expected: Debit side cash column.",
+      "Paid rent Rs.2,000 in cash. Expected: Credit side cash column.",
+      "Deposited cash into bank Rs.10,000. Expected: Bank column debit side and cash column credit side.",
+      "Withdrew cash from bank Rs.4,000 for office use. Expected: Cash column debit side and bank column credit side.",
+      "Received Rs.9,500 from Raju and allowed discount Rs.500. Expected: Cash/bank received on debit side and discount allowed on debit side.",
+      "Paid Amit Rs.4,800 and received discount Rs.200. Expected: Cash/bank paid on credit side and discount received on credit side.",
+      "Sold goods to Mohan on credit Rs.8,000. Expected: Not recorded in Cash Book immediately because no cash/bank movement.",
+      "Bought goods from Amit on credit Rs.12,000. Expected: Not recorded in Cash Book immediately because no cash/bank movement.",
+    ],
+    toolLinks: [
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Practice Basics", href: "/practice" },
+      { label: "Next Lesson: Ledger Posting Basics", href: "/learn/ledger-posting-basics" },
+    ],
+    nextLesson: {
       label: "Continue to Ledger Posting Basics",
       href: "/learn/ledger-posting-basics",
-      description: "Now that you know the journal entry format, learn how those entries move into ledger accounts.",
+      description: "After learning how cash and bank transactions are recorded, learn how journal entries are posted into ledger accounts.",
     },
   },
   "ledger-posting-basics": {

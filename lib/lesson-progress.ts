@@ -8,6 +8,7 @@ export const trackedLessonSlugs = [
   "source-documents-and-vouchers",
   "rules-of-debit-and-credit",
   "journal-entry-basics",
+  "cash-book",
   "ledger-posting-basics",
   "trial-balance-basics",
 ] as const;
