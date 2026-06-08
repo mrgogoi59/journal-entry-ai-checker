@@ -2,6 +2,7 @@ export type LessonSlug =
   | "introduction-to-accounting"
   | "theory-base-of-accounting"
   | "accounting-principles-and-concepts"
+  | "recording-of-transactions"
   | "rules-of-debit-and-credit"
   | "journal-entry-basics";
 
@@ -69,6 +70,12 @@ export const lessonCards = [
     title: "Accounting Principles and Concepts",
     description: "Learn the simple rules that make accounting clear, fair, and reliable.",
     href: "/learn/accounting-principles-and-concepts",
+  },
+  {
+    slug: "recording-of-transactions",
+    title: "Recording of Transactions",
+    description: "Learn how business activities are identified, measured, and recorded.",
+    href: "/learn/recording-of-transactions",
   },
   {
     slug: "rules-of-debit-and-credit",
@@ -642,6 +649,203 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       "Business loan shown clearly in Balance Sheet. Expected: Full Disclosure.",
     ],
     toolLinks: [
+      { label: "Next Lesson: Recording of Transactions", href: "/learn/recording-of-transactions" },
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Practice Basics", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Continue to Recording of Transactions",
+      href: "/learn/recording-of-transactions",
+      description: "Now that you understand the main accounting principles, learn how business activities are recorded.",
+    },
+  },
+  "recording-of-transactions": {
+    slug: "recording-of-transactions",
+    title: "Recording of Transactions",
+    subtitle: "Learn how business activities are identified, measured, and recorded in accounting books.",
+    description: "Learn how business activities are identified, measured, and recorded.",
+    difficulty: "Beginner",
+    estimatedTime: "10-12 min",
+    whatYouWillLearn: [
+      "What recording of transactions means",
+      "Which business activities should be recorded",
+      "Which activities should not be recorded",
+      "How to identify a transaction",
+      "Why source documents are important",
+      "How transactions move toward journal entries",
+      "Basic steps before writing a journal entry",
+    ],
+    conceptSections: [
+      {
+        title: "What does Recording of Transactions mean?",
+        body: [
+          "Recording of transactions means writing business activities in accounting books in a proper way.",
+          "Whenever something happens in a business that can be measured in money, it should be recorded.",
+          "If a shop buys goods for Rs.10,000, it is recorded.",
+          "If a shop sells goods for Rs.5,000, it is recorded.",
+          "If the owner only plans to buy goods next week, it is not recorded yet.",
+          "Accounting records real business events, not just thoughts or plans.",
+        ],
+      },
+      {
+        title: "Why transactions are recorded",
+        body: [
+          "A business records transactions to know how much cash it has.",
+          "It helps the business know how much it purchased and sold.",
+          "It shows how much the business has to pay and receive.",
+          "It helps calculate whether the business made profit or loss.",
+          "It shows assets owned by the business and liabilities payable by the business.",
+        ],
+      },
+      {
+        title: "What is recorded and what is not recorded",
+        body: [
+          "Recorded: Bought goods for cash Rs.10,000.",
+          "Recorded: Sold goods on credit Rs.8,000.",
+          "Recorded: Paid rent Rs.3,000.",
+          "Recorded: Received commission Rs.2,000.",
+          "Recorded: Took loan from bank Rs.50,000.",
+          "Recorded: Owner introduced capital Rs.1,00,000.",
+          "Not recorded: Customer asked price.",
+          "Not recorded: Owner plans furniture.",
+          "Not recorded: Shopkeeper feels sales will increase.",
+          "Not recorded: Employee promises to work harder.",
+          "Not recorded: Owner is very skilled.",
+          "Reason: only money-measurable business events are recorded.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya starts a stationery shop.",
+          "Day 1: she brings Rs.50,000 cash into the business.",
+          "Day 2: she buys notebooks for Rs.12,000.",
+          "Day 3: she sells notebooks for Rs.4,000 cash.",
+          "Day 4: she sells pens to Amit Rs.2,000 on credit.",
+          "Day 5: she pays rent Rs.3,000.",
+          "Day 6: a customer asks the price of a diary but does not buy.",
+          "Record Day 1 to Day 5 because real business transactions happened.",
+          "Do not record Day 6 because no sale happened.",
+          "This is the first step before journal entries.",
+        ],
+      },
+      {
+        title: "What are source documents?",
+        body: [
+          "A source document is proof of a transaction.",
+          "Examples include cash memo, invoice, receipt, bill, bank slip, cheque counterfoil, debit note, and credit note.",
+          "If goods are purchased, the purchase invoice is proof.",
+          "If rent is paid, the receipt is proof.",
+          "Source document means proof of transaction.",
+        ],
+      },
+      {
+        title: "Steps to record a transaction",
+        body: [
+          "Step 1: read the business event carefully.",
+          "Step 2: check whether it can be measured in money.",
+          "Step 3: check whether it belongs to the business.",
+          "Step 4: identify the accounts affected.",
+          "Step 5: decide debit and credit.",
+          "Step 6: write the journal entry.",
+          "Recording starts before debit and credit. Understand the transaction clearly first.",
+        ],
+      },
+      {
+        title: "Cash and credit transactions",
+        body: [
+          "A cash transaction means money is paid or received immediately.",
+          "Example: sold goods for cash Rs.5,000.",
+          "A credit transaction means money will be paid or received later.",
+          "Example: sold goods to Amit Rs.5,000 on credit.",
+          "A cash sale affects Cash immediately.",
+          "A credit sale creates a Debtor.",
+        ],
+      },
+    ],
+    visualFlow: [
+      "Business event",
+      "Money-measurable?",
+      "Business-related?",
+      "Source document",
+      "Identify accounts",
+      "Journal entry",
+      "Ledger",
+      "Trial balance",
+      "Final accounts",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Owner started business with cash Rs.50,000.",
+        entry: ["Should it be recorded? Yes.", "Accounts affected: Cash and Capital."],
+        logic: [
+          "Cash came into the business.",
+          "Capital increased because the owner introduced money into the business.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Bought goods for cash Rs.10,000.",
+        entry: ["Should it be recorded? Yes.", "Accounts affected: Purchases and Cash."],
+        logic: [
+          "Goods were purchased for the business.",
+          "Cash went out of the business.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Customer asked price of goods.",
+        entry: ["Should it be recorded? No.", "No accounts are affected yet."],
+        logic: [
+          "No sale happened.",
+          "No money-measurable transaction has taken place yet.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Sold goods to Raju Rs.8,000 on credit.",
+        entry: ["Should it be recorded? Yes.", "Accounts affected: Raju / Debtor and Sales."],
+        logic: [
+          "Sales happened even though cash was not received immediately.",
+          "A customer now owes money to the business.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Owner paid personal mobile bill from business cash Rs.1,000.",
+        entry: [
+          "Should it be recorded? Yes.",
+          "Treatment: Drawings, not business expense.",
+          "Accounts affected: Drawings and Cash.",
+        ],
+        logic: [
+          "Business cash went out.",
+          "Because the expense is personal, it is treated as drawings.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Recording plans as transactions",
+      "Ignoring credit transactions",
+      "Recording personal expenses as business expenses",
+      "Thinking only cash transactions are recorded",
+      "Forgetting source documents",
+      "Not identifying both accounts",
+      "Writing journal entry before understanding transaction",
+      "Confusing customer enquiry with sale",
+    ],
+    tryPrompts: [
+      "Bought goods for Rs.20,000 in cash. Expected: Yes. Purchases and Cash.",
+      "Sold goods to Amit Rs.15,000 on credit. Expected: Yes. Amit/Debtor and Sales.",
+      "Customer asked for discount but did not buy. Expected: No. No transaction.",
+      "Paid salary Rs.5,000. Expected: Yes. Salary and Cash/Bank.",
+      "Owner took goods for personal use Rs.2,000. Expected: Yes. Drawings and Purchases/Goods.",
+      "Owner plans to open another shop next month. Expected: No. Only a plan.",
+      "Received interest Rs.1,000. Expected: Yes. Cash/Bank and Interest Income.",
+      "Bought furniture Rs.10,000 through bank. Expected: Yes. Furniture and Bank.",
+    ],
+    toolLinks: [
       { label: "Next Lesson: Rules of Debit and Credit", href: "/learn/rules-of-debit-and-credit" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
       { label: "Practice Basics", href: "/practice" },
@@ -649,7 +853,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     nextLesson: {
       label: "Continue to Rules of Debit and Credit",
       href: "/learn/rules-of-debit-and-credit",
-      description: "Now that you understand the main accounting principles, learn how accounts are debited and credited.",
+      description: "Now that you understand which transactions are recorded, learn how accounts are debited and credited.",
     },
   },
   "rules-of-debit-and-credit": {
