@@ -178,6 +178,36 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
           </section>
         ) : null}
 
+        {lesson.comparisonTable ? (
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Simple comparison</p>
+            <h2 className="mt-2 text-2xl font-bold text-blue-950">{lesson.comparisonTable.title}</h2>
+            <div className="mt-5 overflow-x-auto rounded-xl border border-blue-100">
+              <table className="w-full min-w-[560px] border-collapse text-sm">
+                <thead>
+                  <tr className="bg-blue-950 text-left text-white">
+                    <th className="px-4 py-3 font-semibold">{lesson.comparisonTable.leftHeading}</th>
+                    <th className="px-4 py-3 font-semibold">{lesson.comparisonTable.rightHeading}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lesson.comparisonTable.rows.map((row) => (
+                    <tr key={`${row.left}-${row.right}`} className="border-b border-blue-50 last:border-b-0">
+                      <td className="px-4 py-3 font-semibold leading-6 text-slate-800">{row.left}</td>
+                      <td className="px-4 py-3 font-semibold leading-6 text-slate-800">{row.right}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {lesson.comparisonTable.note ? (
+              <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold leading-6 text-emerald-900">
+                {lesson.comparisonTable.note}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
+
         <section className="rounded-2xl border border-blue-100 bg-blue-50/70 p-5 shadow-soft sm:p-6">
           <SectionHeader eyebrow="Visual flow" title="Mental model" />
           <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-6">

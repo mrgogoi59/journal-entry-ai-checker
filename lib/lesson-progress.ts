@@ -5,6 +5,7 @@ export const trackedLessonSlugs = [
   "theory-base-of-accounting",
   "accounting-principles-and-concepts",
   "recording-of-transactions",
+  "source-documents-and-vouchers",
   "rules-of-debit-and-credit",
   "journal-entry-basics",
 ] as const;

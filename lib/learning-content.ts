@@ -3,6 +3,7 @@ export type LessonSlug =
   | "theory-base-of-accounting"
   | "accounting-principles-and-concepts"
   | "recording-of-transactions"
+  | "source-documents-and-vouchers"
   | "rules-of-debit-and-credit"
   | "journal-entry-basics";
 
@@ -37,6 +38,16 @@ export type LessonContent = {
     meaning: string;
     example: string;
   }[];
+  comparisonTable?: {
+    title: string;
+    leftHeading: string;
+    rightHeading: string;
+    rows: {
+      left: string;
+      right: string;
+    }[];
+    note?: string;
+  };
   visualFlow: string[];
   solvedExamples: SolvedLessonExample[];
   commonMistakes: string[];
@@ -76,6 +87,12 @@ export const lessonCards = [
     title: "Recording of Transactions",
     description: "Learn how business activities are identified, measured, and recorded.",
     href: "/learn/recording-of-transactions",
+  },
+  {
+    slug: "source-documents-and-vouchers",
+    title: "Source Documents and Vouchers",
+    description: "Learn what proof is used before recording a transaction in accounting books.",
+    href: "/learn/source-documents-and-vouchers",
   },
   {
     slug: "rules-of-debit-and-credit",
@@ -846,6 +863,238 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       "Bought furniture Rs.10,000 through bank. Expected: Yes. Furniture and Bank.",
     ],
     toolLinks: [
+      { label: "Next Lesson: Source Documents and Vouchers", href: "/learn/source-documents-and-vouchers" },
+      { label: "Try Explainer", href: "/journal-entry-solver" },
+      { label: "Practice Basics", href: "/practice" },
+    ],
+    nextLesson: {
+      label: "Continue to Source Documents and Vouchers",
+      href: "/learn/source-documents-and-vouchers",
+      description: "Now that you understand which transactions are recorded, learn what proof supports each entry.",
+    },
+  },
+  "source-documents-and-vouchers": {
+    slug: "source-documents-and-vouchers",
+    title: "Source Documents and Vouchers",
+    subtitle: "Learn what proof is used before recording a transaction in accounting books.",
+    description: "Understand how bills, invoices, receipts, and vouchers help accountants record entries correctly.",
+    difficulty: "Beginner",
+    estimatedTime: "8-10 min",
+    whatYouWillLearn: [
+      "What a source document is",
+      "Why proof is needed before recording a transaction",
+      "What a voucher is",
+      "The difference between source documents and vouchers",
+      "Common examples like bill, invoice, receipt, cash memo, bank slip, debit note, and credit note",
+      "How documents help in writing journal entries",
+      "Why accountants should not record transactions without proof",
+    ],
+    conceptSections: [
+      {
+        title: "What is a Source Document?",
+        body: [
+          "A source document is the original proof of a business transaction.",
+          "Before recording a transaction, the accountant should have proof that the transaction actually happened.",
+          "If a shop buys goods, the purchase bill or invoice is proof.",
+          "If rent is paid, the rent receipt is proof.",
+          "If cash is deposited into bank, the bank slip is proof.",
+          "Simple line: Source document = proof of transaction.",
+        ],
+      },
+      {
+        title: "Why source documents are important",
+        body: [
+          "They prove that a transaction happened.",
+          "They help us know the correct amount.",
+          "They show the date of transaction.",
+          "They show the party name, such as customer, supplier, or landlord.",
+          "They help avoid fake or wrong entries.",
+          "They help prepare correct journal entries.",
+          "They help check records later during audit or review.",
+        ],
+      },
+      {
+        title: "Simple story",
+        body: [
+          "Riya runs a small stationery shop.",
+          "One day, she buys notebooks from a supplier for Rs.10,000.",
+          "The supplier gives her a bill.",
+          "She sells pens to Amit for Rs.2,000.",
+          "She gives Amit a sales invoice.",
+          "She pays shop rent Rs.3,000.",
+          "The landlord gives her a rent receipt.",
+          "She deposits Rs.5,000 into bank.",
+          "The bank gives her a deposit slip.",
+          "Can Riya record all these transactions from memory only? No. She should use proof.",
+          "The bill, invoice, receipt, and bank slip help her record transactions correctly.",
+        ],
+      },
+      {
+        title: "Common source documents",
+        body: [
+          "Cash Memo: used when goods are bought or sold for cash. Example: Riya sells notebooks for cash Rs.500 and gives a cash memo.",
+          "Invoice or Bill: used when goods are bought or sold, especially on credit. Example: Riya buys goods from a supplier for Rs.10,000 and receives an invoice.",
+          "Receipt: proof that money has been received. Example: the landlord gives a rent receipt after receiving rent.",
+          "Bank Slip or Deposit Slip: proof of money deposited into bank. Example: Riya deposits Rs.5,000 into bank and receives a deposit slip.",
+          "Cheque Counterfoil: proof that a cheque was issued. Example: Riya pays supplier by cheque and keeps the cheque counterfoil.",
+          "Debit Note: used when goods are returned to supplier. Example: Riya returns damaged goods to supplier and prepares a debit note.",
+          "Credit Note: used when customer returns goods to the business. Example: Amit returns goods to Riya, and Riya issues a credit note.",
+        ],
+      },
+      {
+        title: "What is a Voucher?",
+        body: [
+          "A voucher is an accounting document prepared using the source document.",
+          "Source document is the proof.",
+          "Voucher is the accounting record or authorization made from that proof.",
+          "Example: Riya pays rent Rs.3,000 and receives a rent receipt.",
+          "Based on that receipt, the accountant prepares a payment voucher.",
+          "Simple line: Voucher = accounting support prepared from proof.",
+        ],
+      },
+      {
+        title: "Types of vouchers",
+        body: [
+          "Payment Voucher: used when business pays money. Example: paid rent Rs.3,000.",
+          "Receipt Voucher: used when business receives money. Example: received cash from customer Rs.5,000.",
+          "Purchase Voucher: used for purchase of goods. Example: bought goods from supplier Rs.10,000.",
+          "Sales Voucher: used for sale of goods. Example: sold goods to customer Rs.8,000.",
+          "Journal Voucher: used for non-cash or adjustment entries. Example: depreciation on furniture Rs.2,000.",
+          "Contra Voucher: used for cash and bank transfer. Example: deposited cash into bank Rs.5,000.",
+        ],
+      },
+      {
+        title: "How documents help journal entries",
+        body: [
+          "Documents tell the accountant what happened.",
+          "They show the amount, date, and party name.",
+          "They help identify the accounts affected.",
+          "They reduce guessing.",
+          "A good journal entry starts with clear proof.",
+        ],
+      },
+    ],
+    comparisonTable: {
+      title: "Difference between Source Document and Voucher",
+      leftHeading: "Source Document",
+      rightHeading: "Voucher",
+      rows: [
+        {
+          left: "Original proof of transaction",
+          right: "Accounting document prepared from proof",
+        },
+        {
+          left: "Usually received or given at transaction time",
+          right: "Usually prepared for accounting record",
+        },
+        {
+          left: "Examples: bill, receipt, invoice",
+          right: "Examples: payment voucher, receipt voucher, journal voucher",
+        },
+        {
+          left: "Shows transaction evidence",
+          right: "Helps record transaction in books",
+        },
+      ],
+      note: "Memory line: Source document proves the transaction. Voucher supports the accounting entry.",
+    },
+    visualFlow: [
+      "Business transaction",
+      "Source document",
+      "Voucher",
+      "Journal entry",
+      "Ledger",
+      "Trial balance",
+      "Final accounts",
+    ],
+    solvedExamples: [
+      {
+        title: "Example 1",
+        transaction: "Bought goods for cash Rs.10,000.",
+        entry: [
+          "Source document: Cash memo or purchase bill.",
+          "Voucher: Purchase voucher / payment voucher.",
+          "Accounts affected: Purchases and Cash.",
+        ],
+        logic: [
+          "The bill proves goods were purchased.",
+          "The voucher helps the accountant record the entry correctly.",
+        ],
+      },
+      {
+        title: "Example 2",
+        transaction: "Paid rent Rs.3,000.",
+        entry: [
+          "Source document: Rent receipt.",
+          "Voucher: Payment voucher.",
+          "Accounts affected: Rent and Cash/Bank.",
+        ],
+        logic: [
+          "The receipt proves rent was paid.",
+          "The payment voucher supports the accounting record.",
+        ],
+      },
+      {
+        title: "Example 3",
+        transaction: "Sold goods to Amit on credit Rs.5,000.",
+        entry: [
+          "Source document: Sales invoice.",
+          "Voucher: Sales voucher.",
+          "Accounts affected: Amit/Debtor and Sales.",
+        ],
+        logic: [
+          "The invoice proves the credit sale.",
+          "Amit becomes the customer who has to pay later.",
+        ],
+      },
+      {
+        title: "Example 4",
+        transaction: "Deposited cash into bank Rs.8,000.",
+        entry: [
+          "Source document: Bank deposit slip.",
+          "Voucher: Contra voucher.",
+          "Accounts affected: Bank and Cash.",
+        ],
+        logic: [
+          "The deposit slip proves cash went into the bank.",
+          "A contra voucher supports the cash-bank transfer.",
+        ],
+      },
+      {
+        title: "Example 5",
+        transaction: "Goods returned to supplier Rs.2,000.",
+        entry: [
+          "Source document: Debit note.",
+          "Voucher: Purchase return voucher / journal voucher.",
+          "Accounts affected: Supplier and Purchase Return.",
+        ],
+        logic: [
+          "The debit note proves goods were returned to the supplier.",
+          "The voucher helps record the purchase return.",
+        ],
+      },
+    ],
+    commonMistakes: [
+      "Recording a transaction without proof",
+      "Confusing invoice with receipt",
+      "Thinking voucher and source document are exactly the same",
+      "Not checking amount, date, and party name before recording",
+      "Ignoring bank slips and cheque counterfoils",
+      "Confusing debit note and credit note",
+      "Recording customer enquiry as a transaction",
+      "Preparing journal entry before understanding the document",
+    ],
+    tryPrompts: [
+      "Bought goods for cash Rs.5,000. Expected: Cash memo / purchase bill.",
+      "Paid shop rent Rs.3,000. Expected: Rent receipt / payment voucher.",
+      "Sold goods to Raju on credit Rs.8,000. Expected: Sales invoice.",
+      "Deposited cash into bank Rs.10,000. Expected: Bank deposit slip.",
+      "Goods returned to supplier Rs.2,000. Expected: Debit note.",
+      "Customer returned goods Rs.1,500. Expected: Credit note.",
+      "Paid supplier by cheque Rs.12,000. Expected: Cheque counterfoil / payment voucher.",
+      "Depreciation charged on furniture Rs.2,000. Expected: Journal voucher.",
+    ],
+    toolLinks: [
       { label: "Next Lesson: Rules of Debit and Credit", href: "/learn/rules-of-debit-and-credit" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
       { label: "Practice Basics", href: "/practice" },
@@ -853,7 +1102,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     nextLesson: {
       label: "Continue to Rules of Debit and Credit",
       href: "/learn/rules-of-debit-and-credit",
-      description: "Now that you understand which transactions are recorded, learn how accounts are debited and credited.",
+      description: "Now that you understand transaction proof, learn how accounts are debited and credited.",
     },
   },
   "rules-of-debit-and-credit": {
