@@ -110,6 +110,28 @@ Practice/history support files:
 - `lib/scoring-engine.ts`
 - `lib/explanation-generator.ts`
 
+Current Journal Entry Explainer note:
+
+- `/journal-entry-solver` now includes narrow deterministic explanations for the six currently exposed `/practice/advanced` Partnership/Company scenarios:
+  - Partnership partner capital contribution: `Bank A/c Dr.` / `Amit's Capital A/c Cr.`
+  - Partnership drawings in cash: `Amit Drawings A/c Dr.` / `Cash A/c Cr.`
+  - Partnership interest on capital: `Interest on Capital A/c Dr.` / partners' `Current A/c` credits
+  - Company share application money received: `Bank A/c Dr.` / `Share Application A/c Cr.`
+  - Company calls in advance received: `Bank A/c Dr.` / `Calls in Advance A/c Cr.`
+  - Company debenture redemption at par: `Debentures A/c Dr.` / `Bank A/c Cr.`
+- the explainer uses static, controlled response branches for these cases only; it does not add a broad Partnership/Company Accounts engine
+- the partner-capital explainer preserves named partner capital accounts, so `Amit introduced capital...` explains `Amit's Capital A/c`, not generic `Capital A/c`
+- the share-application explainer clarifies that application money is not final Share Capital yet
+- the calls-in-advance explainer clarifies that call money was received before it became due
+- the debenture explainer stays strictly simple redemption at par by bank and does not introduce wider debenture treatments
+- this slice did not change beginner `/practice`, `/practice/advanced` exposure order/count, parser/classifier/validator/checker logic, ledger/trial-balance calculations, Final Accounts Impact, API routes, database/auth/history/progress/payment/backend, or AI features
+- a follow-up safety audit now confirms the explainer parity boundary:
+  - the six controlled scenarios above remain supported
+  - partner capital affected accounts and logic still use `Amit's Capital A/c`, not generic `Capital A/c`
+  - multi-partner interest on capital totals partner amounts before debiting `Interest on Capital A/c`
+  - share allotment, forfeiture, reissue, debenture premium, DRR, retirement, death, goodwill, and statutory treatment prompts remain unsupported
+  - `/practice/advanced` order/count and beginner `/practice` remain unchanged
+
 History is currently stored with localStorage key:
 
 - `accywise_attempt_history_v1`

@@ -68,6 +68,11 @@ export function solveJournalEntry(transaction: string, mode: SolverMode = "begin
     return unsupportedResponse(transactionSummary);
   }
 
+  const controlledAdvancedResponse = solveControlledAdvancedExplainerScenario(transactionSummary, safeMode);
+  if (controlledAdvancedResponse) {
+    return controlledAdvancedResponse;
+  }
+
   if (isAmbiguousPersonPayment(transactionSummary)) {
     return ambiguousPersonPaymentResponse(transactionSummary);
   }
@@ -102,6 +107,431 @@ export function solveJournalEntry(transaction: string, mode: SolverMode = "begin
     commonMistakes: buildCommonMistakes(classification),
     practiceQuestion: buildPracticeQuestion(classification),
   };
+}
+
+function solveControlledAdvancedExplainerScenario(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  return (
+    solvePartnerCapitalContributionExplainer(transactionSummary, safeMode) ??
+    solvePartnerDrawingsCashExplainer(transactionSummary, safeMode) ??
+    solvePartnershipInterestOnCapitalExplainer(transactionSummary, safeMode) ??
+    solveShareApplicationReceivedExplainer(transactionSummary, safeMode) ??
+    solveCallsInAdvanceReceivedExplainer(transactionSummary, safeMode) ??
+    solveDebentureRedemptionAtParExplainer(transactionSummary, safeMode)
+  );
+}
+
+function solvePartnerCapitalContributionExplainer(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  if (!/\bintroduced\s+capital\b/i.test(transactionSummary)) return null;
+  if (!/\bpartnership\b/i.test(transactionSummary)) return null;
+  if (!DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)) return null;
+
+  const partnerName = extractLeadingName(transactionSummary);
+  const amount = extractAmount(transactionSummary);
+  if (!partnerName || !amount) return null;
+
+  const capitalAccount = `${partnerName}'s Capital A/c`;
+  const steps = [
+    `${partnerName} brings capital into the partnership through bank.`,
+    "Bank A/c is debited because money comes into the firm's bank account.",
+    `${capitalAccount} is credited because the partner's capital claim increases.`,
+    `Therefore, Bank A/c is debited and ${capitalAccount} is credited.`,
+  ];
+
+  return controlledAdvancedSolvedResponse({
+    transactionSummary,
+    safeMode,
+    journalEntry: [
+      { account: "Bank A/c", debit: amount, credit: 0 },
+      { account: capitalAccount, debit: 0, credit: amount },
+    ],
+    narration: `Being capital introduced by ${partnerName} into the partnership through bank.`,
+    affectedAccounts: [
+      assetAffectedAccount("Bank A/c", "Debit", "Bank balance increased", "Money came into the bank account."),
+      capitalAffectedAccount(
+        capitalAccount,
+        "Credit",
+        `${partnerName}'s capital increased`,
+        `${partnerName} gave capital to the partnership, so ${capitalAccount} is credited.`,
+      ),
+    ],
+    stepByStepExplanation: steps,
+    commonMistakes: [
+      `Do not use generic Capital A/c when the partner name is given; use ${capitalAccount}.`,
+      "Do not credit Bank A/c because bank balance increases when capital is introduced.",
+    ],
+    practiceQuestion: {
+      question: `${partnerName} introduced capital into the partnership by bank. Pass the journal entry.`,
+      expectedPattern: `Bank A/c Dr. To ${capitalAccount}`,
+    },
+  });
+}
+
+function solvePartnerDrawingsCashExplainer(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  if (!/\bwithdrew\b/i.test(transactionSummary) || !/\bcash\b/i.test(transactionSummary)) return null;
+  if (!/\b(?:partnership|personal\s+use|drawings?)\b/i.test(transactionSummary)) return null;
+
+  const partnerName = extractLeadingName(transactionSummary);
+  const amount = extractAmount(transactionSummary);
+  if (!partnerName || !amount) return null;
+
+  const drawingsAccount = `${partnerName} Drawings A/c`;
+  const steps = [
+    `${partnerName} withdrew cash from the partnership for personal use.`,
+    `${drawingsAccount} is debited because partner drawings increase.`,
+    "Cash A/c is credited because cash goes out of the business.",
+    `Therefore, ${drawingsAccount} is debited and Cash A/c is credited.`,
+  ];
+
+  return controlledAdvancedSolvedResponse({
+    transactionSummary,
+    safeMode,
+    journalEntry: [
+      { account: drawingsAccount, debit: amount, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: amount },
+    ],
+    narration: `Being cash withdrawn by ${partnerName} for personal use.`,
+    affectedAccounts: [
+      capitalAffectedAccount(
+        drawingsAccount,
+        "Debit",
+        `${partnerName}'s drawings increased`,
+        `${partnerName} withdrew value from the partnership, so ${drawingsAccount} is debited.`,
+      ),
+      assetAffectedAccount("Cash A/c", "Credit", "Cash decreased", "Cash went out of the business."),
+    ],
+    stepByStepExplanation: steps,
+    commonMistakes: [
+      "Do not debit Cash A/c because cash is going out.",
+      `Do not use ${partnerName}'s Capital A/c directly for this simple drawings entry.`,
+    ],
+    practiceQuestion: {
+      question: `${partnerName} withdrew cash from the partnership for personal use. Pass the journal entry.`,
+      expectedPattern: `${drawingsAccount} Dr. To Cash A/c`,
+    },
+  });
+}
+
+function solvePartnershipInterestOnCapitalExplainer(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  if (!/\binterest\s+on\s+capital\b/i.test(transactionSummary)) return null;
+  if (!/\ballowed\b/i.test(transactionSummary)) return null;
+
+  const namedAmounts = extractNamedAmounts(transactionSummary);
+  if (namedAmounts.length < 2) return null;
+
+  const totalAmount = namedAmounts.reduce((total, line) => total + line.amount, 0);
+  const currentAccountNames = namedAmounts.map((line) => `${line.name}'s Current A/c`);
+  const steps = [
+    "Interest on capital is allowed to partners.",
+    `Total interest on capital is ${formatRupees(totalAmount)}.`,
+    "Interest on Capital A/c is debited because it is an appropriation/expense-style account for this entry.",
+    `Partners' Current A/cs are credited under this controlled fluctuating-capital convention: ${currentAccountNames.join(
+      " and ",
+    )}.`,
+  ];
+
+  return controlledAdvancedSolvedResponse({
+    transactionSummary,
+    safeMode,
+    journalEntry: [
+      { account: "Interest on Capital A/c", debit: totalAmount, credit: 0 },
+      ...namedAmounts.map((line) => ({
+        account: `${line.name}'s Current A/c`,
+        debit: 0,
+        credit: line.amount,
+      })),
+    ],
+    narration: "Being interest on capital allowed to partners under the fluctuating capital method.",
+    affectedAccounts: [
+      expenseAffectedAccount(
+        "Interest on Capital A/c",
+        "Debit",
+        `Interest on capital increased by ${formatRupees(totalAmount)}`,
+        "Interest on Capital A/c is debited for the total interest allowed.",
+      ),
+      ...namedAmounts.map((line) =>
+        capitalAffectedAccount(
+          `${line.name}'s Current A/c`,
+          "Credit",
+          `${line.name}'s current account increased by ${formatRupees(line.amount)}`,
+          `${line.name}'s Current A/c is credited because interest is allowed to the partner.`,
+        ),
+      ),
+    ],
+    stepByStepExplanation: steps,
+    commonMistakes: [
+      "Do not credit Bank or Cash because no payment is made in this entry.",
+      "For this controlled explainer case, credit partners' Current A/cs instead of Capital A/cs.",
+    ],
+    practiceQuestion: {
+      question: "Interest on capital is allowed to partners. Pass the journal entry.",
+      expectedPattern: `Interest on Capital A/c Dr. To ${currentAccountNames.join(", To ")}`,
+    },
+  });
+}
+
+function solveShareApplicationReceivedExplainer(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  if (!/\bshare\s+application\b/i.test(transactionSummary)) return null;
+  if (!/\breceived\b/i.test(transactionSummary)) return null;
+  if (!DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)) return null;
+
+  const amount = extractAmount(transactionSummary);
+  if (!amount) return null;
+
+  return controlledAdvancedSolvedResponse({
+    transactionSummary,
+    safeMode,
+    journalEntry: [
+      { account: "Bank A/c", debit: amount, credit: 0 },
+      { account: "Share Application A/c", debit: 0, credit: amount },
+    ],
+    narration: "Being share application money received through bank.",
+    affectedAccounts: [
+      assetAffectedAccount("Bank A/c", "Debit", "Bank balance increased", "Money came into the bank account."),
+      liabilityAffectedAccount(
+        "Share Application A/c",
+        "Credit",
+        "Share application money increased",
+        "Application money is received before final share capital is recorded.",
+      ),
+    ],
+    stepByStepExplanation: [
+      "The company received share application money through bank.",
+      "Bank A/c is debited because money comes into the bank account.",
+      "Share Application A/c is credited because application money is not final Share Capital yet.",
+      "Share Capital A/c is not credited at this stage.",
+    ],
+    commonMistakes: [
+      "Do not credit Share Capital A/c when the transaction only says application money is received.",
+      "Do not credit Bank A/c because bank balance increases.",
+    ],
+    practiceQuestion: {
+      question: "The company received share application money by bank. Pass the journal entry.",
+      expectedPattern: "Bank A/c Dr. To Share Application A/c",
+    },
+  });
+}
+
+function solveCallsInAdvanceReceivedExplainer(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  if (!/\bcalls?\s+in\s+advance\b/i.test(transactionSummary)) return null;
+  if (!/\breceived\b/i.test(transactionSummary)) return null;
+  if (!DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)) return null;
+
+  const amount = extractAmount(transactionSummary);
+  if (!amount) return null;
+
+  return controlledAdvancedSolvedResponse({
+    transactionSummary,
+    safeMode,
+    journalEntry: [
+      { account: "Bank A/c", debit: amount, credit: 0 },
+      { account: "Calls in Advance A/c", debit: 0, credit: amount },
+    ],
+    narration: "Being calls in advance received through bank.",
+    affectedAccounts: [
+      assetAffectedAccount("Bank A/c", "Debit", "Bank balance increased", "Money came into the bank account."),
+      liabilityAffectedAccount(
+        "Calls in Advance A/c",
+        "Credit",
+        "Calls in advance liability increased",
+        "Call money received before it is due is credited to Calls in Advance A/c.",
+      ),
+    ],
+    stepByStepExplanation: [
+      "The company received call money before it became due.",
+      "Bank A/c is debited because money comes into the bank account.",
+      "Calls in Advance A/c is credited because this early call money is recorded separately until it becomes due.",
+      "Do not treat it as ordinary Share Capital in this entry.",
+    ],
+    commonMistakes: [
+      "Do not credit Share Capital A/c for calls received before they are due.",
+      "Do not credit Bank A/c because bank balance increases.",
+    ],
+    practiceQuestion: {
+      question: "The company received calls in advance by bank. Pass the journal entry.",
+      expectedPattern: "Bank A/c Dr. To Calls in Advance A/c",
+    },
+  });
+}
+
+function solveDebentureRedemptionAtParExplainer(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  if (!/\bredeemed\s+debentures?\b/i.test(transactionSummary)) return null;
+  if (!/\bat\s+par\b/i.test(transactionSummary)) return null;
+  if (!DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)) return null;
+  if (/\b(?:premium|interest|drr|reserve|instalments?|installments?|statutory|companies\s+act)\b/i.test(transactionSummary)) {
+    return null;
+  }
+
+  const amount = extractAmount(transactionSummary);
+  if (!amount) return null;
+
+  return controlledAdvancedSolvedResponse({
+    transactionSummary,
+    safeMode,
+    journalEntry: [
+      { account: "Debentures A/c", debit: amount, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: amount },
+    ],
+    narration: "Being debentures redeemed at par through bank.",
+    affectedAccounts: [
+      liabilityAffectedAccount(
+        "Debentures A/c",
+        "Debit",
+        "Debenture liability decreased",
+        "Debentures A/c is debited because the debenture liability is reduced on redemption.",
+      ),
+      assetAffectedAccount("Bank A/c", "Credit", "Bank balance decreased", "Money went out through the bank account."),
+    ],
+    stepByStepExplanation: [
+      "The company redeemed debentures at par.",
+      "Debentures A/c is debited because the debenture liability is reduced.",
+      "Bank A/c is credited because the redemption amount is paid through bank.",
+      "This controlled case records only simple redemption at par.",
+    ],
+    commonMistakes: [
+      "Do not credit Share Capital A/c; this is debenture redemption, not share capital.",
+      "Do not add extra debenture adjustments in this at-par-only case.",
+    ],
+    practiceQuestion: {
+      question: "The company redeemed debentures at par by bank. Pass the journal entry.",
+      expectedPattern: "Debentures A/c Dr. To Bank A/c",
+    },
+  });
+}
+
+function controlledAdvancedSolvedResponse({
+  transactionSummary,
+  safeMode,
+  journalEntry,
+  narration,
+  affectedAccounts,
+  stepByStepExplanation,
+  commonMistakes,
+  practiceQuestion,
+}: {
+  transactionSummary: string;
+  safeMode: SolverMode;
+  journalEntry: SolverJournalEntryLine[];
+  narration: string;
+  affectedAccounts: SolverAffectedAccount[];
+  stepByStepExplanation: string[];
+  commonMistakes: string[];
+  practiceQuestion: SolverPracticeQuestion;
+}): JournalEntrySolverResponse {
+  return {
+    transactionSummary,
+    status: "solved",
+    confidence: "high",
+    ambiguityQuestions: [],
+    possibleInterpretations: [],
+    journalEntry,
+    narration,
+    affectedAccounts,
+    stepByStepExplanation: safeMode === "exam" ? stepByStepExplanation.slice(0, 3) : stepByStepExplanation,
+    commonMistakes,
+    practiceQuestion,
+  };
+}
+
+function assetAffectedAccount(
+  account: string,
+  side: SolverSide,
+  effect: string,
+  reason: string,
+): SolverAffectedAccount {
+  return {
+    account,
+    traditionalType: "Real Account",
+    modernType: "Asset",
+    effect,
+    debitOrCredit: side,
+    ruleApplied: side === "Debit" ? "Debit what comes in" : "Credit what goes out",
+    reason,
+  };
+}
+
+function capitalAffectedAccount(
+  account: string,
+  side: SolverSide,
+  effect: string,
+  reason: string,
+): SolverAffectedAccount {
+  return {
+    account,
+    traditionalType: "Personal Account",
+    modernType: "Capital / Partner's Equity",
+    effect,
+    debitOrCredit: side,
+    ruleApplied: side === "Debit" ? "Debit capital reductions" : "Credit the giver / Capital increases are credited",
+    reason,
+  };
+}
+
+function liabilityAffectedAccount(
+  account: string,
+  side: SolverSide,
+  effect: string,
+  reason: string,
+): SolverAffectedAccount {
+  return {
+    account,
+    traditionalType: "Personal Account",
+    modernType: "Liability",
+    effect,
+    debitOrCredit: side,
+    ruleApplied: side === "Debit" ? "Debit liability decreases" : "Credit liability increases",
+    reason,
+  };
+}
+
+function expenseAffectedAccount(
+  account: string,
+  side: SolverSide,
+  effect: string,
+  reason: string,
+): SolverAffectedAccount {
+  return {
+    account,
+    traditionalType: "Nominal Account",
+    modernType: "Expense / Appropriation",
+    effect,
+    debitOrCredit: side,
+    ruleApplied: side === "Debit" ? "Debit all expenses and losses" : "Credit reductions in expense",
+    reason,
+  };
+}
+
+function extractLeadingName(transaction: string): string | null {
+  const match = /^([a-z][a-z.'-]*)\b/i.exec(transaction.trim());
+  return match?.[1] ? titleCase(match[1]) : null;
+}
+
+function extractNamedAmounts(transaction: string): Array<{ name: string; amount: number }> {
+  const matches = transaction.matchAll(/\b([a-z][a-z.'-]*)\s+(?:rs\.?|inr|₹)\s*([0-9][0-9,]*(?:\.\d+)?)/gi);
+  return Array.from(matches, ([, name, amount]) => ({
+    name: titleCase(name),
+    amount: Number(amount.replace(/,/g, "")),
+  })).filter((line) => line.amount > 0);
 }
 
 function withCashDefaultAssumption(classification: TransactionClassification, steps: string[]): string[] {

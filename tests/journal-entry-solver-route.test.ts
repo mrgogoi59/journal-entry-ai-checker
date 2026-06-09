@@ -2068,6 +2068,113 @@ describe("POST /api/journal-entry-solver", () => {
       { account: "Input GST A/c", debit: 0, credit: 5000 },
     ]);
   });
+
+  it("uses the named partner capital account for partnership capital introduced by bank", async () => {
+    const body = await solve("Amit introduced capital of Rs.50,000 into the partnership by bank. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 50000, credit: 0 },
+      { account: "Amit's Capital A/c", debit: 0, credit: 50000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Amit's Capital A/c");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual(["Bank A/c", "Amit's Capital A/c"]);
+    expect(body.stepByStepExplanation.join(" ")).toContain("Amit's Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves partnership drawings paid in cash with partner drawings and cash", async () => {
+    const body = await solve("Amit withdrew cash Rs.10,000 from the partnership for personal use. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Amit Drawings A/c", debit: 10000, credit: 0 },
+      { account: "Cash A/c", debit: 0, credit: 10000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Amit Drawings A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Cash A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves share application money received without treating it as final share capital", async () => {
+    const body = await solve("The company received share application money of Rs.25,000 by bank. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 25000, credit: 0 },
+      { account: "Share Application A/c", debit: 0, credit: 25000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Share Application A/c");
+    expect(body.stepByStepExplanation.join(" ")).toContain("application money is not final Share Capital yet");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves calls in advance received as early call money", async () => {
+    const body = await solve("The company received calls in advance of Rs.25,000 by bank. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 25000, credit: 0 },
+      { account: "Calls in Advance A/c", debit: 0, credit: 25000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Calls in Advance A/c");
+    expect(body.stepByStepExplanation.join(" ")).toContain("before it became due");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves simple debenture redemption at par by bank without broader debenture treatments", async () => {
+    const body = await solve("The company redeemed debentures of Rs.50,000 at par by bank. Pass the journal entry.");
+    const text = solverText(body);
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Debentures A/c", debit: 50000, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 50000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Debentures A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Bank A/c");
+    expect(text).not.toMatch(/\b(?:premium|interest|DRR|instalment|installment|statutory|Companies Act)\b/i);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves partnership interest on capital using current accounts for the controlled explainer case", async () => {
+    const body = await solve("Interest on capital is allowed to Riya Rs.5,000 and Amit Rs.5,000. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Interest on Capital A/c", debit: 10000, credit: 0 },
+      { account: "Riya's Current A/c", debit: 0, credit: 5000 },
+      { account: "Amit's Current A/c", debit: 0, credit: 5000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Interest on Capital A/c Dr. ₹10,000");
+    expect(journalEntryText(body)).toContain("To Riya's Current A/c ₹5,000");
+    expect(journalEntryText(body)).toContain("To Amit's Current A/c ₹5,000");
+    expect(journalEntryText(body)).not.toContain("To Amit's Capital A/c");
+    expect(journalEntryText(body)).not.toContain("To Riya's Capital A/c");
+    expect(body.stepByStepExplanation.join(" ")).toContain("Current A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it.each([
+    "The company received share allotment money of Rs.25,000 by bank. Pass the journal entry.",
+    "The company forfeited shares of Rs.10,000 for non-payment of calls. Pass the journal entry.",
+    "The company reissued forfeited shares of Rs.8,000 by bank. Pass the journal entry.",
+    "The company redeemed debentures of Rs.50,000 at premium by bank. Pass the journal entry.",
+    "The company created DRR of Rs.10,000 for debenture redemption. Pass the journal entry.",
+    "Amit retired from the partnership and was paid Rs.50,000 by bank. Pass the journal entry.",
+    "Amit died and his executor was paid Rs.50,000 by bank. Pass the journal entry.",
+    "Goodwill of Rs.20,000 was raised in the partnership books. Pass the journal entry.",
+    "The company redeemed debentures of Rs.50,000 under Companies Act treatment. Pass the journal entry.",
+  ])("keeps unsupported complex advanced explainer case unsupported: %s", async (transaction) => {
+    const body = await solve(transaction);
+
+    expect(body.status).toBe("unsupported");
+    expect(body.journalEntry).toEqual([]);
+  });
 });
 
 function totalDebits(response: JournalEntrySolverResponse): number {
@@ -2092,4 +2199,18 @@ function solverText(response: JournalEntrySolverResponse): string {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+function journalEntryText(response: JournalEntrySolverResponse): string {
+  return response.journalEntry
+    .map((line) =>
+      line.debit
+        ? `${line.account} Dr. ${formatTestRupees(line.debit)}`
+        : `To ${line.account} ${formatTestRupees(line.credit)}`,
+    )
+    .join("\n");
+}
+
+function formatTestRupees(amount: number): string {
+  return `₹${amount.toLocaleString("en-IN")}`;
 }

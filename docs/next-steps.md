@@ -2,6 +2,38 @@
 
 ## Immediate recommended next step
 
+The Journal Entry Explainer safe-parity slice for the currently exposed advanced Partnership/Company scenarios is completed.
+
+What this completed slice achieved:
+
+- it adds narrow deterministic explainer support for the six controlled `/practice/advanced` scenarios already exposed at runtime
+- it fixes named partner capital wording so `Amit introduced capital...` uses `Amit's Capital A/c`, not generic `Capital A/c`
+- it explains share application money as not final Share Capital yet
+- it explains calls in advance as call money received before due
+- it keeps debenture redemption strictly at par by bank, without wider debenture treatments
+- it uses partners' Current A/c credits for the controlled interest-on-capital explainer case
+- it does not change beginner `/practice`, advanced question order/count, parser/classifier/validator/checker logic, ledger/trial-balance calculations, Final Accounts Impact, API routes, persistence, backend, or AI features
+
+The next safest step is a small post-change safety audit for the Journal Entry Explainer parity slice, or a docs/test-only checkpoint before adding more explainer coverage.
+
+## Immediate recommended next step
+
+The Journal Entry Explainer safe-parity safety audit is completed.
+
+What this completed audit confirmed:
+
+- the explainer still supports only the six intended controlled Partnership/Company scenarios from the parity slice
+- named partner capital output, affected accounts, and step-by-step logic preserve `Amit's Capital A/c`
+- multi-partner interest on capital totals Riya and Amit before debiting `Interest on Capital A/c`
+- share application and calls in advance explanations stay student-safe and narrow
+- debenture redemption remains strictly at par by bank
+- complex prompts such as share allotment, forfeiture, reissue, debenture premium, DRR, retirement, death, goodwill, and statutory treatment remain unsupported
+- beginner `/practice` and `/practice/advanced` order/count remain unchanged
+
+The next safest step is to pause explainer expansion briefly, or make the next request docs/test-only unless another small controlled explainer scenario is explicitly chosen.
+
+## Immediate recommended next step
+
 The read-only Ledger Impact and Trial Balance Impact preview inside `/practice/advanced` is completed.
 
 What this completed slice achieved:
