@@ -134,7 +134,7 @@ Core pieces currently present:
 
 Current hidden/foundation counts observed from source:
 
-- `13` advanced practice questions in the question bank
+- `17` advanced practice questions in the question bank
 - `14` advanced scenarios in the scenario registry
 
 Important boundary:
@@ -158,12 +158,83 @@ Current behavior:
 - checks entries against expected advanced journal entries
 - builds rule-based result feedback
 - can show the correct entry
+- now includes a read-only `Ledger Impact` preview after answer check
+- now includes a read-only `Trial Balance Impact` preview after answer check
+- now includes student-friendly explanation notes inside the post-check impact preview
+- now includes a compact post-check help card titled `How to read this preview`
+- now includes a compact post-check read-only section titled `Why this entry?`
+- now includes compact read-only `Final Accounts Impact` previews for the partner capital contribution and drawings in cash scenarios only
+- now uses a clearer student-facing post-check order:
+  - correct answer
+  - `Why this entry?`
+  - `How to read this preview`
+  - `Ledger Impact`
+  - `Trial Balance Impact`
+  - `Final Accounts Impact`, when the current question has supported metadata
 - includes hints/common mistakes/result actions
+- keeps the preview mobile-safe with compact cards instead of wide accounting tables
 
 Current scope:
 
 - selected Company and Partnership journal-entry cases only
-- current question bank includes cases such as share issue at premium, first call due, calls in arrears, calls in advance, share forfeiture, debenture issue at discount, partner salary, interest on capital, interest on drawings, goodwill, revaluation, and realisation
+- current question bank includes cases such as share application money received, share issue at premium, first call due, calls in arrears, calls in advance, share forfeiture, debenture issue at discount, partner capital contribution, partner drawings in cash, partner salary, interest on capital, interest on drawings, goodwill, revaluation, and realisation
+- the first controlled Company runtime exposure from the hidden fixture-readiness checklist is now live in `/practice/advanced`:
+  - Company share application money received
+  - expected entry: `Bank Dr.` / `Share Application Cr.`
+  - appears as the first question in Company Accounts mode
+- the second controlled Company runtime exposure from the hidden fixture-readiness checklist is now live in `/practice/advanced`:
+  - Company calls in advance received
+  - expected entry: `Bank Dr.` / `Calls in Advance Cr.`
+  - appears as the second question in Company Accounts mode
+- the third controlled Company runtime exposure from the hidden fixture-readiness checklist is now live in `/practice/advanced`:
+  - Company debenture redemption at par
+  - expected entry: `Debentures Dr.` / `Bank Cr.`
+  - appears as the third question in Company Accounts mode
+  - intentionally avoids premium on redemption, debenture interest, DRR, instalments, Companies Act treatment, statutory reserves, and complex debenture accounting
+- the first controlled runtime exposure from the hidden fixture-readiness checklist is now live in `/practice/advanced`:
+  - Partnership partner capital contribution
+  - expected entry: `Bank Dr.` / `Amit Capital Cr.`
+  - appears as the first question in Partnership mode
+- the second controlled runtime exposure from the hidden fixture-readiness checklist is now live in `/practice/advanced`:
+  - Partnership drawings in cash
+  - expected entry: `Amit Drawings Dr.` / `Cash Cr.`
+  - appears as the second question in Partnership mode
+- the third controlled Partnership runtime exposure from the hidden fixture-readiness checklist is now live in `/practice/advanced`:
+  - Partnership interest on capital under fluctuating capital
+  - expected entry: `Interest on Capital Dr.` / `Amit Current Cr.`
+  - appears as the third question in Partnership mode
+- impact previews are derived from the correct expected journal entry, not from the student's submitted answer
+- current preview flow reuses existing utilities:
+  - `coreJournalEntriesToJournalText`
+  - `generateLedger`
+  - `generateTrialBalance`
+- `Ledger Impact` explains how the correct journal entry affects each account
+- `Trial Balance Impact` explains that total debit should equal total credit
+- the preview reminds students that it is based on the correct expected answer
+- the explanation UI remains compact and mobile-safe for small screens
+- the help card tells students to read the correct journal entry first, then review `Ledger Impact`, then check `Trial Balance Impact`
+- the help card also reminds students that the preview is based on the correct expected answer, not the submitted answer
+- the help card is advanced-only, read-only, compact, and mobile-safe
+- `Why this entry?` explains the debit and credit sides in short Class 11/12-friendly lines
+- the `Why this entry?` section is based on static expected-answer metadata for the currently exposed controlled runtime scenarios, not on the submitted answer
+- a focused safety audit now confirms `Why this entry?` stays limited to the six exposed controlled Partnership/Company runtime scenarios and keeps hidden/deferred scenarios unsupported
+- the first tiny `Final Accounts Impact` preview is now implemented for Partnership partner capital contribution:
+  - `Bank Dr.` / `Amit Capital Cr.`
+  - Balance Sheet is affected
+  - Bank increases Asset
+  - Amit Capital increases Capital
+  - there is no direct Profit & Loss impact
+- the second tiny `Final Accounts Impact` preview is now implemented for Partnership drawings in cash:
+  - `Amit Drawings Dr.` / `Cash Cr.`
+  - Balance Sheet is affected
+  - Cash decreases Asset
+  - Amit Drawings increases and is adjusted against capital
+  - there is no direct Profit & Loss impact
+- broader Final Accounts Impact support is not implemented yet; interest on capital, share application, calls in advance, and debenture redemption do not show this preview yet
+- spacing and labels were also polished so students can more clearly see that:
+  - the correct answer is the starting point
+  - `Ledger Impact` shows account-level effects
+  - `Trial Balance Impact` confirms debit/credit balance
 
 Current non-features:
 
@@ -171,7 +242,6 @@ Current non-features:
 - no localStorage history saving for advanced practice
 - no progress/weak-area integration for advanced practice
 - no report generation
-- no ledger/trial balance impact preview inside `/practice/advanced`
 - no custom student-written advanced transaction generation flow
 
 ## What is hidden/test-only vs live
@@ -182,6 +252,18 @@ Live/student-facing now:
 - ledger/trial balance/final accounts/BRS tools
 - workflow practice pages
 - advanced practice beta route `/practice/advanced`
+- advanced practice read-only ledger/trial-balance impact preview after answer check
+- advanced practice explanation notes for reading the ledger/trial-balance preview
+- advanced practice compact help card for reading the preview
+- advanced practice compact `Why this entry?` explanation section after answer check
+- advanced practice compact `Final Accounts Impact` previews after answer check for Partnership partner capital contribution and drawings in cash only
+- advanced practice clearer post-check section order and labels
+- one controlled Company share-application-money-received question exposed inside `/practice/advanced`
+- one additional controlled Company calls-in-advance question exposed inside `/practice/advanced`
+- one additional controlled Company debenture-redemption-at-par question exposed inside `/practice/advanced`
+- one controlled Partnership capital-contribution question exposed inside `/practice/advanced`
+- one additional controlled Partnership drawings-in-cash question exposed inside `/practice/advanced`
+- one additional controlled Partnership interest-on-capital/fluctuating-capital question exposed inside `/practice/advanced`
 
 Still hidden or mostly foundation-oriented:
 
@@ -190,12 +272,152 @@ Still hidden or mostly foundation-oriented:
 - company and partnership report-template fixtures in `tests/fixtures/`
 - topic-pack fixtures in `tests/fixtures/`
 - compatibility proofs that advanced entries flow through existing ledger/trial balance logic
+- hidden Company Accounts fixture/test coverage now includes a tiny calls in advance received scenario:
+  - `Bank Dr.`
+  - `Calls in Advance Cr.`
+- that fixture was added because topic-pack metadata already claimed `calls_in_advance` support, but hidden fixtures and compatibility assertions were not yet proving it
+- the calls-in-advance fixture is balanced, uses positive amounts, keeps its metadata explicit, and remains test-only
+- it now flows through the existing ledger/trial-balance compatibility pattern without changing engine logic or runtime wiring
+- hidden Partnership Accounts fixture/test coverage now also includes a simple partner capital contribution scenario:
+  - `Bank Dr.`
+  - `Amit Capital Cr.`
+- that fixture is balanced, uses positive amounts, follows the existing topic-pack fixture style, and remains test-only
+- focused coverage now confirms Partnership role expectations include `bank`
+- the Partnership capital-contribution fixture also flows through the existing ledger/trial-balance compatibility pattern without changing engine logic or runtime wiring
+- a hidden audit-style test now documents current Partnership/Company metadata-to-fixture gaps
+- that audit found some metadata claims are not yet backed by hidden fixtures or by line-level fixture roles
+- current documented examples include:
+  - Partnership `retirement`
+  - Partnership `death`
+  - claimed roles that are still not represented as line-level fixture roles
+- the audit did not force extra fixtures and did not add any runtime wiring
+- the documented Partnership `fluctuating-capital` gap has now been closed with a hidden balanced test-only fixture:
+  - `Interest on Capital Dr.`
+  - `Amit Current Cr.`
+- that fixture also proves the line-level roles `interest_on_capital` and `partner_current`
+- the metadata audit expectations were updated to remove those items from the unproven list
+- this remained fixture-only/test-only and did not add runtime wiring or change engine logic
+- the documented Company Accounts `debenture-redemption` gap has now been closed with a hidden balanced test-only fixture:
+  - `Debentures Dr.`
+  - `Bank Cr.`
+- that fixture represents simple debenture redemption at par
+- it intentionally does not introduce premium on redemption, interest, DRR, instalments, Companies Act treatment, or other broader assumptions
+- the metadata audit test was updated to remove `debenture-redemption` from the unproven tag list
+- this remained fixture-only/test-only and did not add runtime wiring or change engine logic
+- hidden Partnership metadata role gaps `partner_drawings` and `cash` have now been closed with a balanced test-only fixture:
+  - `Amit Drawings Dr.`
+  - `Cash Cr.`
+- that fixture represents Amit withdrawing cash for personal use
+- the audit expectation was updated to remove only `partner_drawings` and `cash` from the unproven role list
+- focused compatibility assertions now prove `Amit Drawings` and `Cash` in the existing ledger/trial-balance compatibility pattern
+- this remained fixture-only/test-only and did not add runtime wiring or change engine logic
+- hidden Company metadata role gap `share_application` has now been closed with a balanced test-only fixture:
+  - `Bank Dr.`
+  - `Share Application Cr.`
+- that fixture represents share application money received
+- the audit expectation was updated to remove only `share_application` from the unproven Company role list
+- focused compatibility assertions now prove `Share Application` in the existing ledger/trial-balance compatibility pattern
+- this remained fixture-only/test-only and did not add runtime wiring or change engine logic
+- a small runtime-readiness checklist now exists in `docs/next-steps.md` for choosing which proven hidden Partnership/Company fixtures could be exposed inside `/practice/advanced` later
+- that checklist is planning-only; it did not add fixtures, runtime wiring, app logic, or test changes
+- the first runtime exposure after that checklist added only the Partnership capital-contribution question to the existing advanced practice question bank
+- no other hidden Partnership/Company fixtures were exposed by that runtime slice
+- a post-exposure safety audit now adds focused test-only assertions that:
+  - the runtime boundary still exposes only one Partnership capital-contribution question
+  - Company mode keeps its existing question IDs
+  - the exposed scenario's preview remains based on the correct expected entry even when the submitted answer is wrong
+- the second runtime exposure added only the Partnership drawings-in-cash question to the existing advanced practice question bank
+- focused tests now assert that Partnership mode starts with the two intended exposed scenarios and that Company mode remains unchanged
+- a post-exposure safety audit for the drawings-in-cash exposure now confirms:
+  - no third controlled Partnership exposure was inserted before existing Partnership salary practice
+  - mixed/all mode still follows the deterministic full advanced question-bank order
+- the first controlled Company runtime exposure added only the share-application-money-received question to the existing advanced practice question bank
+- it appears as the first Company Accounts question
+- focused tests now assert that Company mode includes exactly that one new Company exposure and that Partnership mode still starts with the two intended Partnership exposures
+- the share-application preview path remains based on the correct expected answer, so a submitted `Share Capital` answer still displays the correct `Share Application` entry and impact preview
+- a post-exposure safety audit for the first Company exposure now confirms:
+  - Company mode starts with share application money received
+  - no second controlled Company exposure was added by the audit
+  - Partnership mode still starts with capital contribution and drawings in cash
+  - mixed/all mode still follows the deterministic full advanced question-bank order
+  - the Company share-application preview still shows correct answer, help card, `Ledger Impact`, `Trial Balance Impact`, and balanced debit/credit totals from the expected entry
+- the second controlled Company runtime exposure promoted the already-proven calls-in-advance question into the second Company Accounts position
+- Company mode now starts with exactly the two intended controlled Company exposures:
+  - share application money received
+  - calls in advance received
+- no additional Company scenario was added by this slice; the total advanced practice question count remains `15`
+- focused tests now assert that the calls-in-advance preview path remains based on the correct expected answer, so a submitted `Share Capital` answer still displays the correct `Calls in Advance` entry and impact preview
+- a post-exposure safety audit for the second Company exposure now confirms:
+  - Company mode starts with exactly the two intended controlled Company exposures
+  - no third controlled Company exposure was added by the audit
+  - Partnership mode still starts with capital contribution and drawings in cash
+  - mixed/all mode still follows the deterministic full advanced question-bank order
+  - the question-bank count remains stable at `15`
+- the Company calls-in-advance preview still shows correct answer, help card, `Ledger Impact`, `Trial Balance Impact`, and balanced debit/credit totals from the expected entry
+- the third controlled Partnership runtime exposure promoted the already-proven fluctuating-capital interest-on-capital fixture into the third Partnership Accounts position
+- Partnership mode now starts with exactly the three intended controlled Partnership exposures:
+  - partner capital contribution
+  - partner drawings in cash
+  - interest on capital under fluctuating capital
+- the new Partnership question uses:
+  - `Interest on Capital Dr.`
+  - `Amit Current Cr.`
+- no additional Partnership scenario was added by this slice; the total advanced practice question count is now `16`
+- focused tests now assert that the interest-on-capital/fluctuating-capital preview path remains based on the correct expected answer, so a submitted `Amit Capital` answer still displays the correct `Amit Current` entry and impact preview
+- a post-exposure safety audit for the third Partnership exposure now confirms:
+  - Partnership mode starts with exactly the three intended controlled Partnership exposures
+  - no fourth controlled Partnership exposure was added by the audit
+  - before the next Company exposure, Company mode still started with exactly the two intended controlled Company exposures
+  - mixed/all mode still follows the deterministic full advanced question-bank order
+  - the advanced practice question-bank count remains stable at `16`
+  - the interest-on-capital/fluctuating-capital preview still shows correct answer, help card, `Ledger Impact`, `Trial Balance Impact`, and balanced debit/credit totals from the expected entry
+  - an incorrect submitted `Amit Capital` credit still displays the correct expected `Amit Current` preview
+- the third controlled Company runtime exposure promoted the already-proven debenture-redemption-at-par fixture into the third Company Accounts position
+- Company mode now starts with exactly the three intended controlled Company exposures:
+  - share application money received
+  - calls in advance received
+  - debenture redemption at par
+- the new Company question uses:
+  - `Debentures Dr.`
+  - `Bank Cr.`
+- no additional Company scenario was added by this slice; the total advanced practice question count is now `17`
+- focused tests now assert that the debenture-redemption-at-par preview path remains based on the correct expected answer, so a submitted `Share Capital` answer still displays the correct `Bank` credit in the entry and impact preview
+- a post-exposure safety audit for the third Company exposure now confirms:
+  - Company mode starts with exactly the three intended controlled Company exposures
+  - no fourth controlled Company exposure was added by the audit
+  - Partnership mode still starts with exactly the three intended controlled Partnership exposures
+  - mixed/all mode still follows the deterministic full advanced question-bank order
+  - the advanced practice question-bank count remains stable at `17`
+  - the debenture-redemption-at-par preview still shows correct answer, help card, `Ledger Impact`, `Trial Balance Impact`, and balanced debit/credit totals from the expected entry
+  - an incorrect submitted `Share Capital` credit still displays the correct expected `Bank` credit preview
+  - the debenture entry remains strictly at par with only `Debentures Dr.` and `Bank Cr.`, without premium on redemption, debenture interest, DRR, instalments, Companies Act treatment, statutory reserves, or complex debenture accounting
+- the small read-only `Why this entry?` explanation layer is now live for the six currently exposed controlled advanced runtime scenarios:
+  - Partnership capital contribution
+  - Partnership drawings in cash
+  - Partnership interest on capital under fluctuating capital
+  - Company share application money received
+  - Company calls in advance received
+  - Company debenture redemption at par
+- the explanation layer uses short static expected-answer lines to explain why the debit account is debited and why the credit account is credited
+- it appears only after checking an answer and does not add any new scenario exposure, explanation engine, AI, Final Accounts impact, accounting calculation, or runtime wiring
+- a focused safety audit now confirms the six exposed scenarios have explanation lines, hidden/deferred questions did not gain broad explanation support, and the post-check order remains correct answer, `Why this entry?`, `How to read this preview`, `Ledger Impact`, then `Trial Balance Impact`
+- the first tiny read-only Final Accounts Impact preview is now live for Partnership capital contribution:
+  - it appears after answer check, after Trial Balance Impact
+  - it shows Balance Sheet, Asset, Capital, and Profit & Loss impact in compact cards
+  - it is static metadata on the existing advanced question, not a new Final Accounts engine or calculation layer
+  - it does not expose or support Final Accounts Impact for Company scenarios or interest on capital yet
+- a focused safety audit confirmed the first Final Accounts Impact preview appeared after Trial Balance Impact and stayed based on the correct expected capital-contribution scenario before the drawings slice was added
+- the second tiny read-only Final Accounts Impact preview is now live for Partnership drawings in cash:
+  - it appears after answer check, after Trial Balance Impact
+  - it shows Balance Sheet, Asset, Capital/Drawings, and Profit & Loss impact in compact cards
+  - it is static metadata on the existing advanced question, not a Final Accounts engine or mapping layer
+  - it does not expose or support Final Accounts Impact for interest on capital, share application, calls in advance, or debenture redemption yet
 
 The advanced foundation is real code, but much of the topic-pack/report-template work is still metadata/test-oriented rather than runtime product behavior.
 
 ## Current test status
 
-Latest verification run for this documentation update:
+Latest verification run for the second `Final Accounts Impact` preview slice:
 
 - `npm test`
 - `npm run typecheck`
@@ -205,7 +427,7 @@ Latest verification run for this documentation update:
 Observed status:
 
 - `37` test files passed
-- `2106` tests passed
+- `2116` tests passed
 - typecheck passed
 - lint passed
 - build passed when re-run outside the sandbox
@@ -219,14 +441,18 @@ Verification note:
 ## Known limitations
 
 - Advanced Practice has no history/progress saving yet.
-- Advanced Practice has no ledger/trial-balance impact preview yet.
 - Advanced Practice has no company report generation yet.
 - Advanced Practice has no partnership report generation yet.
+- Advanced Practice has two tiny Final Accounts Impact previews so far: Partnership partner capital contribution and Partnership drawings in cash. Broader Final Accounts Impact support is still not implemented.
 - Advanced Practice has no custom advanced transaction input yet.
 - Topic packs and report templates are still partly metadata/test-only.
 - Existing beginner `/practice` remains separate from advanced practice and should stay separate unless explicitly redesigned.
 - History and progress are browser-local only; there is no login or cloud sync.
 - Runtime app behavior is still rule-based and local; there is no external AI, database, or payments layer.
+- The completed impact preview slice did not change beginner `/practice`, engines, parser/classifier/validator/checker logic, API routes, database/auth/history/progress/payment/backend, or AI features.
+- The completed explanation-polish slice also did not change runtime/app logic; it only added student-facing explanatory UI text inside `/practice/advanced`.
+- The completed help-card slice also stayed advanced-only and did not change runtime/app logic; it only added read-only student guidance inside `/practice/advanced`.
+- The completed post-check UI polish slice also stayed UI-only; it did not change accounting logic, ledger/trial-balance calculations, or answer-checking behavior.
 
 ## Files and areas to be careful with
 

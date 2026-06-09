@@ -19,6 +19,16 @@ export type PartnerAmount = {
   amount: number;
 };
 
+export type PartnerCapitalContributionInput = BasePartnershipEntryInput & {
+  partnerName: string;
+  amount: number;
+};
+
+export type PartnerDrawingsPaidInCashInput = BasePartnershipEntryInput & {
+  partnerName: string;
+  amount: number;
+};
+
 export type PartnerSalaryAllowedInput = BasePartnershipEntryInput & {
   partnerName: string;
   amount: number;
@@ -26,6 +36,11 @@ export type PartnerSalaryAllowedInput = BasePartnershipEntryInput & {
 
 export type InterestOnCapitalAllowedInput = BasePartnershipEntryInput & {
   partnerAmounts: PartnerAmount[];
+};
+
+export type InterestOnCapitalUnderFluctuatingCapitalInput = BasePartnershipEntryInput & {
+  partnerName: string;
+  amount: number;
 };
 
 export type InterestOnDrawingsChargedInput = BasePartnershipEntryInput & {
@@ -78,6 +93,36 @@ type PartnershipJournalEntryTotals = {
   creditTotal: number;
 };
 
+export function generatePartnerCapitalContributionEntry(input: PartnerCapitalContributionInput): JournalEntry {
+  const partnerName = assertPartnerName(input.partnerName);
+  assertPositiveAmount("Amount", input.amount);
+
+  return createPartnershipJournalEntry({
+    id: input.id ?? "partnership-partner-capital-contribution-entry",
+    transactionText: input.transactionText,
+    narration: "Partner introduced capital by bank.",
+    lines: [
+      createJournalLine(partnershipAccounts.bank, "debit", input.amount),
+      createJournalLine(partnerCapitalAccount(partnerName), "credit", input.amount),
+    ],
+  });
+}
+
+export function generatePartnerDrawingsPaidInCashEntry(input: PartnerDrawingsPaidInCashInput): JournalEntry {
+  const partnerName = assertPartnerName(input.partnerName);
+  assertPositiveAmount("Amount", input.amount);
+
+  return createPartnershipJournalEntry({
+    id: input.id ?? "partnership-partner-drawings-paid-in-cash-entry",
+    transactionText: input.transactionText,
+    narration: "Partner withdrew cash for personal use.",
+    lines: [
+      createJournalLine(partnerDrawingsAccount(partnerName), "debit", input.amount),
+      createJournalLine(partnershipAccounts.cash, "credit", input.amount),
+    ],
+  });
+}
+
 export function generatePartnerSalaryAllowedEntry(input: PartnerSalaryAllowedInput): JournalEntry {
   const partnerName = assertPartnerName(input.partnerName);
   assertPositiveAmount("Amount", input.amount);
@@ -114,6 +159,23 @@ export function generateInterestOnCapitalAllowedEntry(input: InterestOnCapitalAl
       ...input.partnerAmounts.map((partnerAmount) =>
         createJournalLine(partnerCapitalAccount(partnerAmount.partnerName.trim()), "credit", partnerAmount.amount),
       ),
+    ],
+  });
+}
+
+export function generateInterestOnCapitalUnderFluctuatingCapitalEntry(
+  input: InterestOnCapitalUnderFluctuatingCapitalInput,
+): JournalEntry {
+  const partnerName = assertPartnerName(input.partnerName);
+  assertPositiveAmount("Amount", input.amount);
+
+  return createPartnershipJournalEntry({
+    id: input.id ?? "partnership-interest-on-capital-fluctuating-capital-entry",
+    transactionText: input.transactionText,
+    narration: "Interest on capital allowed under fluctuating capital method.",
+    lines: [
+      createJournalLine(partnershipAccounts.interestOnCapital, "debit", input.amount),
+      createJournalLine(partnerCurrentAccount(partnerName), "credit", input.amount),
     ],
   });
 }
@@ -352,6 +414,16 @@ function assertAccountName(accountName: string): string {
 function partnerCapitalAccount(partnerName: string): AccountRef {
   const ownerName = assertPartnerName(partnerName);
   return createPartnershipAccountRef(partnerCapitalAccountName(ownerName), "partner_capital", "equity", "credit", ownerName);
+}
+
+function partnerDrawingsAccount(partnerName: string): AccountRef {
+  const ownerName = assertPartnerName(partnerName);
+  return createPartnershipAccountRef(`${ownerName} Drawings A/c`, "partner_drawings", "equity", "debit", ownerName);
+}
+
+function partnerCurrentAccount(partnerName: string): AccountRef {
+  const ownerName = assertPartnerName(partnerName);
+  return createPartnershipAccountRef(`${ownerName} Current A/c`, "partner_current", "liability", "credit", ownerName);
 }
 
 function assetAccount(accountName: string): AccountRef {

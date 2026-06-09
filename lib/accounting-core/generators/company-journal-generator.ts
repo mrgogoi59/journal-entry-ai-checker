@@ -20,6 +20,10 @@ export type ShareIssueAtPremiumInput = BaseCompanyEntryInput & {
   securitiesPremiumAmount: number;
 };
 
+export type ShareApplicationMoneyReceivedInput = BaseCompanyEntryInput & {
+  amount: number;
+};
+
 export type ShareFirstCallDueInput = BaseCompanyEntryInput & {
   callAmount: number;
 };
@@ -50,6 +54,10 @@ export type DebentureIssueAtDiscountInput = BaseCompanyEntryInput & {
   debentureAmount: number;
   bankReceivedAmount: number;
   discountAmount: number;
+};
+
+export type DebentureRedemptionAtParInput = BaseCompanyEntryInput & {
+  amount: number;
 };
 
 export type DebentureInterestPaidInput = BaseCompanyEntryInput & {
@@ -84,6 +92,20 @@ export function generateShareIssueAtPremiumEntry(input: ShareIssueAtPremiumInput
       createJournalLine(companyAccounts.bank, "debit", input.bankAmount),
       createJournalLine(companyAccounts.shareCapital, "credit", input.shareCapitalAmount),
       createJournalLine(companyAccounts.securitiesPremium, "credit", input.securitiesPremiumAmount),
+    ],
+  });
+}
+
+export function generateShareApplicationMoneyReceivedEntry(input: ShareApplicationMoneyReceivedInput): JournalEntry {
+  assertPositiveAmount("amount", input.amount);
+
+  return createCompanyJournalEntry({
+    id: input.id ?? "company-share-application-money-received-entry",
+    transactionText: input.transactionText,
+    narration: "Share application money received by bank.",
+    lines: [
+      createJournalLine(companyAccounts.bank, "debit", input.amount),
+      createJournalLine(companyAccounts.shareApplication, "credit", input.amount),
     ],
   });
 }
@@ -192,6 +214,20 @@ export function generateDebentureIssueAtDiscountEntry(input: DebentureIssueAtDis
   });
 }
 
+export function generateDebentureRedemptionAtParEntry(input: DebentureRedemptionAtParInput): JournalEntry {
+  assertPositiveAmount("amount", input.amount);
+
+  return createCompanyJournalEntry({
+    id: input.id ?? "company-debenture-redemption-at-par-entry",
+    transactionText: input.transactionText,
+    narration: "Debentures redeemed at par by bank.",
+    lines: [
+      createJournalLine(companyAccounts.debentures, "debit", input.amount),
+      createJournalLine(companyAccounts.bank, "credit", input.amount),
+    ],
+  });
+}
+
 export function generateDebentureInterestPaidEntry(input: DebentureInterestPaidInput): JournalEntry {
   assertPositiveAmount("amount", input.amount);
 
@@ -296,6 +332,7 @@ function assertEqualAmount(label: string, actual: number, expected: number): voi
 
 const companyAccounts = {
   bank: createCompanyAccountRef("Bank A/c", "bank", "asset", "debit"),
+  shareApplication: createCompanyAccountRef("Share Application A/c", "share_application", "liability", "credit"),
   shareCapital: createCompanyAccountRef("Share Capital A/c", "share_capital", "equity", "credit"),
   securitiesPremium: createCompanyAccountRef("Securities Premium A/c", "securities_premium", "equity", "credit"),
   shareFirstCall: createCompanyAccountRef("Share First Call A/c", "share_call", "asset", "debit"),

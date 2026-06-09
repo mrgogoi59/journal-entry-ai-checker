@@ -11,12 +11,16 @@ import {
   getNextAdvancedPracticeQuestion,
   parseAdvancedJournalAnswerText,
   type AdvancedJournalTextParseResult,
+  type AdvancedFinalAccountsImpact,
   type AdvancedPracticeQuestion,
   type AdvancedPracticeResultAction,
   type AdvancedPracticeResultTone,
   type AdvancedPracticeResultViewModel,
   type AdvancedPracticeTopic,
+  type JournalEntry,
 } from "@/lib/accounting-core";
+import { generateLedger, type LedgerAccount } from "@/lib/ledger-engine";
+import { generateTrialBalance, type TrialBalanceRow } from "@/lib/trial-balance-engine";
 
 type TopicMode = AdvancedPracticeTopic | "mixed";
 
@@ -42,6 +46,15 @@ const placeholderAnswer = `Bank A/c Dr. 120000
 To Share Capital A/c 100000
 To Securities Premium A/c 20000`;
 
+export type AdvancedImpactPreview = {
+  ledgerAccounts: LedgerAccount[];
+  trialBalanceRows: TrialBalanceRow[];
+  debitTotal: number;
+  creditTotal: number;
+  agrees: boolean;
+  journalText: string;
+};
+
 export default function AdvancedPracticePage() {
   const [topicMode, setTopicMode] = useState<TopicMode>("company_accounts");
   const [currentQuestion, setCurrentQuestion] = useState<AdvancedPracticeQuestion>(() =>
@@ -58,6 +71,12 @@ export default function AdvancedPracticePage() {
     () => coreJournalEntriesToJournalText(currentQuestion.expectedJournalEntries),
     [currentQuestion],
   );
+  const impactPreview = useMemo(
+    () => (result ? buildAdvancedImpactPreview(currentQuestion.expectedJournalEntries) : null),
+    [currentQuestion, result],
+  );
+  const whyThisEntry = result && currentQuestion.whyThisEntry?.length ? currentQuestion.whyThisEntry : null;
+  const finalAccountsImpact = result && currentQuestion.finalAccountsImpact ? currentQuestion.finalAccountsImpact : null;
 
   function chooseTopic(nextMode: TopicMode) {
     const nextQuestions = getQuestionsForMode(nextMode);
@@ -153,6 +172,12 @@ export default function AdvancedPracticePage() {
             onAction={handleAction}
           />
         ) : null}
+
+        {whyThisEntry ? <WhyThisEntryCard lines={whyThisEntry} /> : null}
+
+        {impactPreview ? <ImpactPreviewCard preview={impactPreview} /> : null}
+
+        {finalAccountsImpact ? <FinalAccountsImpactCard impact={finalAccountsImpact} /> : null}
 
         <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
           <CommonMistakesCard question={currentQuestion} />
@@ -385,8 +410,12 @@ function ResultCard({
         ))}
       </div>
 
-      <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50/70 p-4">
-        <p className="text-sm font-bold text-blue-950">{result.correctEntry.title}</p>
+      <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50/70 p-4 sm:p-5">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Step 1</p>
+        <p className="mt-2 text-base font-bold text-blue-950">{result.correctEntry.title}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-700">
+          Start here. This is the correct expected answer used for the preview below.
+        </p>
         <pre className="mt-3 max-w-full overflow-x-auto whitespace-pre-wrap rounded-lg bg-white p-3 font-mono text-sm leading-7 text-slate-900">
           {result.correctEntry.journalText}
         </pre>
@@ -418,10 +447,211 @@ function ResultCard({
 
       {showWorkingNote ? (
         <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold leading-6 text-slate-700">
-          Ledger and Trial Balance impact preview will be added later.
+          Review the Ledger Impact and Trial Balance Impact below for the correct accounting flow.
         </div>
       ) : null}
     </section>
+  );
+}
+
+export function WhyThisEntryCard({ lines }: { lines: string[] }) {
+  return (
+    <section className="rounded-2xl border border-blue-100 bg-white p-4 shadow-soft sm:p-6">
+      <div className="max-w-3xl">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Expected entry explanation</p>
+        <h2 className="mt-2 text-2xl font-bold text-blue-950">Why this entry?</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          These points explain the correct expected answer, not the submitted answer.
+        </p>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {lines.map((line) => (
+          <p key={line} className="rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm font-semibold leading-6 text-slate-700">
+            {line}
+          </p>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function ImpactPreviewCard({ preview }: { preview: AdvancedImpactPreview }) {
+  return (
+    <section className="grid gap-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
+        <div className="max-w-3xl">
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Step 2</p>
+          <h2 className="mt-2 text-2xl font-bold text-blue-950">How to read this preview</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Use these steps to understand the correct answer flow.</p>
+        </div>
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <ol className="grid gap-2 text-sm leading-6 text-slate-700">
+            <li>1. First read the correct journal entry.</li>
+            <li>2. Then see how each account is affected in Ledger Impact.</li>
+            <li>3. Finally check Trial Balance Impact to confirm total debit equals total credit.</li>
+            <li>4. This preview is based on the correct expected answer, not the submitted answer.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
+        <div className="max-w-3xl">
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Step 3</p>
+          <h2 className="mt-2 text-2xl font-bold text-blue-950">Ledger Impact</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            This section shows account-level effects from the correct expected answer.
+          </p>
+          <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm leading-6 text-slate-700">
+            <p>
+              This shows how the correct journal entry affects each account.
+            </p>
+            <p className="mt-2">
+              Debit side means the account is increased or recorded on the left side here. Credit side means the
+              account is recorded on the right side here.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {preview.ledgerAccounts.map((account) => (
+            <article key={account.account} className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+              <h3 className="break-words text-lg font-bold text-blue-950">{account.account} A/c</h3>
+              <div className="mt-4 grid gap-2 text-sm font-semibold text-slate-700">
+                <p>Debit total: {formatAmount(account.debitTotal)}</p>
+                <p>Credit total: {formatAmount(account.creditTotal)}</p>
+                <p>Balance: {formatBalance(account.balanceSide, account.balanceAmount)}</p>
+              </div>
+
+              <div className="mt-4 grid gap-3">
+                <PostingList title="Debit side" postings={account.debitPostings} emptyLabel="No debit posting." />
+                <PostingList title="Credit side" postings={account.creditPostings} emptyLabel="No credit posting." />
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft sm:p-6">
+        <div className="max-w-3xl">
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Step 4</p>
+          <h2 className="mt-2 text-2xl font-bold text-blue-950">Trial Balance Impact</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            This section confirms whether total debit equals total credit for the correct expected answer.
+          </p>
+          <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm leading-6 text-slate-700">
+            <p>
+              Trial Balance is used to check whether total debit equals total credit.
+            </p>
+            <p className="mt-2">
+              This preview is based on the correct expected answer, so it shows the balanced result students should
+              reach.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {preview.trialBalanceRows.map((row) => (
+            <article key={row.account} className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+              <h3 className="break-words text-lg font-bold text-blue-950">{row.account} A/c</h3>
+              <div className="mt-4 grid gap-2 text-sm font-semibold text-slate-700">
+                <p>Debit: {formatAmount(row.debit)}</p>
+                <p>Credit: {formatAmount(row.credit)}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <SummaryChip label="Total Debit" value={formatAmount(preview.debitTotal)} />
+          <SummaryChip label="Total Credit" value={formatAmount(preview.creditTotal)} />
+          <SummaryChip
+            label="Status"
+            value={preview.agrees ? "Balanced" : "Needs review"}
+            tone={preview.agrees ? "success" : "warning"}
+          />
+        </div>
+      </section>
+    </section>
+  );
+}
+
+export function FinalAccountsImpactCard({ impact }: { impact: AdvancedFinalAccountsImpact }) {
+  return (
+    <section className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-soft sm:p-6">
+      <div className="max-w-3xl">
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Step 5</p>
+        <h2 className="mt-2 text-2xl font-bold text-blue-950">Final Accounts Impact</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          These points show the simple final-accounts effect of the correct expected answer.
+        </p>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm font-semibold leading-6 text-slate-700">
+        {impact.summary}
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {impact.points.map((point) => (
+          <article key={`${point.label}-${point.detail}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-bold text-slate-600">{point.label}</p>
+            <p className="mt-2 break-words text-base font-bold leading-6 text-blue-950">{point.detail}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PostingList({
+  title,
+  postings,
+  emptyLabel,
+}: {
+  title: string;
+  postings: LedgerAccount["debitPostings"];
+  emptyLabel: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-3">
+      <p className="text-sm font-bold text-blue-950">{title}</p>
+      {postings.length > 0 ? (
+        <ul className="mt-2 grid gap-2">
+          {postings.map((posting, index) => (
+            <li key={`${posting.reference}-${posting.amount}-${index}`} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+              <p className="break-words text-sm font-semibold text-slate-800">{posting.reference}</p>
+              <p className="mt-1 text-sm text-slate-600">{formatAmount(posting.amount)}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-sm leading-6 text-slate-600">{emptyLabel}</p>
+      )}
+    </div>
+  );
+}
+
+function SummaryChip({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: string;
+  tone?: "default" | "success" | "warning";
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-4 ${
+        tone === "success"
+          ? "border-emerald-200 bg-emerald-50"
+          : tone === "warning"
+            ? "border-amber-200 bg-amber-50"
+            : "border-slate-200 bg-slate-50"
+      }`}
+    >
+      <p className="text-sm font-bold text-slate-600">{label}</p>
+      <p className="mt-2 break-words text-xl font-bold text-blue-950">{value}</p>
+    </div>
   );
 }
 
@@ -536,6 +766,25 @@ function SecondaryButton({ children, onClick }: { children: string; onClick: () 
   );
 }
 
+export function buildAdvancedImpactPreview(entries: JournalEntry[]): AdvancedImpactPreview | null {
+  const journalText = coreJournalEntriesToJournalText(entries);
+  const ledgerResult = generateLedger(journalText);
+  const trialBalanceResult = generateTrialBalance(journalText);
+
+  if (ledgerResult.status !== "success" || trialBalanceResult.status !== "success") {
+    return null;
+  }
+
+  return {
+    ledgerAccounts: ledgerResult.ledgerAccounts,
+    trialBalanceRows: trialBalanceResult.rows,
+    debitTotal: trialBalanceResult.debitTotal,
+    creditTotal: trialBalanceResult.creditTotal,
+    agrees: trialBalanceResult.agrees,
+    journalText,
+  };
+}
+
 function getQuestionsForMode(mode: TopicMode): AdvancedPracticeQuestion[] {
   if (mode === "mixed") return getAllAdvancedPracticeQuestions();
   return getAdvancedPracticeQuestionsByTopic(mode);
@@ -569,4 +818,13 @@ function getFeedbackClass(tone: AdvancedPracticeResultTone): string {
   if (tone === "warning") return "border-amber-200 bg-amber-50 text-amber-900";
   if (tone === "error") return "border-red-200 bg-red-50 text-red-900";
   return "border-blue-200 bg-blue-50 text-blue-950";
+}
+
+function formatAmount(amount: number): string {
+  return `Rs.${amount.toLocaleString("en-IN")}`;
+}
+
+function formatBalance(side: LedgerAccount["balanceSide"], amount: number): string {
+  if (side === "balanced" || amount === 0) return "Balanced";
+  return `${titleCase(side)} ${formatAmount(amount)}`;
 }

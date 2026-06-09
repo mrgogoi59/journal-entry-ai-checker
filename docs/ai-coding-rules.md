@@ -68,6 +68,8 @@ When working on advanced practice:
 - keep beginner `/practice` separate
 - keep advanced question selection deterministic unless a task explicitly asks for randomness
 - prefer read-only previews and additive UI before adding persistence
+- keep advanced preview features derived from expected entries and additive to the page
+- do not modify core engines just to support advanced preview UI
 - do not send advanced answers through the beginner classifier unless explicitly redesigning that boundary
 
 ## Testing rules

@@ -109,6 +109,45 @@ export const companyAccountsTopicPackFixture: TopicPack = {
 
 export const partnershipScenarioFixtures: AccountingScenario[] = [
   scenario({
+    id: "partnership-capital-contribution-amit",
+    topic: "partnership",
+    title: "Partner capital introduced by Amit",
+    prompt: "Amit introduced capital in cash Rs.50,000.",
+    tags: ["partnership-basic", "fixed-capital"],
+    entries: [
+      journalEntry("partnership-capital-contribution-amit-entry", "partnership", [
+        debit("Bank", 50000, "bank", "asset"),
+        credit("Amit Capital", 50000, "partner_capital", "equity", "Amit"),
+      ]),
+    ],
+  }),
+  scenario({
+    id: "partnership-interest-on-capital-current-amit",
+    topic: "partnership",
+    title: "Interest on capital transferred to Amit Current Account",
+    prompt: "Under fluctuating capital method, interest on capital due to Amit Rs.4,000 was transferred to his current account.",
+    tags: ["fluctuating-capital", "appropriation"],
+    entries: [
+      journalEntry("partnership-interest-on-capital-current-amit-entry", "partnership", [
+        debit("Interest on Capital", 4000, "interest_on_capital", "expense"),
+        credit("Amit Current", 4000, "partner_current", "liability", "Amit"),
+      ]),
+    ],
+  }),
+  scenario({
+    id: "partnership-drawings-paid-cash-amit",
+    topic: "partnership",
+    title: "Partner drawings paid in cash to Amit",
+    prompt: "Amit withdrew cash Rs.3,000 for personal use.",
+    tags: ["partnership-basic"],
+    entries: [
+      journalEntry("partnership-drawings-paid-cash-amit-entry", "partnership", [
+        debit("Amit Drawings", 3000, "partner_drawings", "equity", "Amit"),
+        credit("Cash", 3000, "cash", "asset"),
+      ]),
+    ],
+  }),
+  scenario({
     id: "partnership-partner-salary-amit",
     topic: "partnership",
     title: "Partner salary allowed to Amit",
@@ -190,6 +229,19 @@ export const partnershipScenarioFixtures: AccountingScenario[] = [
 
 export const companyAccountsScenarioFixtures: AccountingScenario[] = [
   scenario({
+    id: "company-share-application-money-received",
+    topic: "company_accounts",
+    title: "Share application money received",
+    prompt: "Company received share application money Rs.25,000 by bank.",
+    tags: ["share-issue", "application-allotment-call"],
+    entries: [
+      journalEntry("company-share-application-money-received-entry", "company_accounts", [
+        debit("Bank", 25000, "bank", "asset"),
+        credit("Share Application", 25000, "share_application", "liability"),
+      ]),
+    ],
+  }),
+  scenario({
     id: "company-share-issue-at-premium",
     topic: "company_accounts",
     title: "Share issue at premium",
@@ -227,6 +279,19 @@ export const companyAccountsScenarioFixtures: AccountingScenario[] = [
         debit("Bank", 27000, "bank", "asset"),
         debit("Calls in Arrears", 3000, "calls_in_arrears", "asset"),
         credit("Share First Call", 30000, "share_call", "asset"),
+      ]),
+    ],
+  }),
+  scenario({
+    id: "company-calls-in-advance",
+    topic: "company_accounts",
+    title: "Calls in advance received",
+    prompt: "A shareholder paid future call money of Rs.2,000 in advance.",
+    tags: ["calls-in-advance"],
+    entries: [
+      journalEntry("company-calls-in-advance-entry", "company_accounts", [
+        debit("Bank", 2000, "bank", "asset"),
+        credit("Calls in Advance", 2000, "calls_in_advance", "liability"),
       ]),
     ],
   }),
@@ -282,6 +347,19 @@ export const companyAccountsScenarioFixtures: AccountingScenario[] = [
       journalEntry("company-debenture-interest-paid-entry", "company_accounts", [
         debit("Debenture Interest", 10000, "debenture_interest", "expense"),
         credit("Bank", 10000, "bank", "asset"),
+      ]),
+    ],
+  }),
+  scenario({
+    id: "company-debenture-redemption-at-par",
+    topic: "company_accounts",
+    title: "Debenture redemption at par",
+    prompt: "Debentures of Rs.50,000 were redeemed at par and paid by bank.",
+    tags: ["debenture-redemption"],
+    entries: [
+      journalEntry("company-debenture-redemption-at-par-entry", "company_accounts", [
+        debit("Debentures", 50000, "debenture", "liability"),
+        credit("Bank", 50000, "bank", "asset"),
       ]),
     ],
   }),

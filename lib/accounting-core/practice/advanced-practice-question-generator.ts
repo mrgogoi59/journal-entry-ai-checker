@@ -2,6 +2,8 @@ import {
   generateCallsInAdvanceReceivedEntry,
   generateCallsInArrearsReceiptEntry,
   generateDebentureIssueAtDiscountEntry,
+  generateDebentureRedemptionAtParEntry,
+  generateShareApplicationMoneyReceivedEntry,
   generateShareFirstCallDueEntry,
   generateShareForfeitureEntry,
   generateShareIssueAtPremiumEntry,
@@ -9,7 +11,10 @@ import {
 import {
   generateGoodwillCompensationEntry,
   generateInterestOnCapitalAllowedEntry,
+  generateInterestOnCapitalUnderFluctuatingCapitalEntry,
   generateInterestOnDrawingsChargedEntry,
+  generatePartnerCapitalContributionEntry,
+  generatePartnerDrawingsPaidInCashEntry,
   generatePartnerSalaryAllowedEntry,
   generateRealisationAssetTransferEntry,
   generateRevaluationLossOnAssetEntry,
@@ -29,9 +34,19 @@ export type AdvancedPracticeQuestion = {
   tags: string[];
   expectedJournalEntries: JournalEntry[];
   explanation: string;
+  whyThisEntry?: string[];
+  finalAccountsImpact?: AdvancedFinalAccountsImpact;
   beginnerHint: string;
   commonMistakes: string[];
   source: "advanced-practice-generator-v1";
+};
+
+export type AdvancedFinalAccountsImpact = {
+  summary: string;
+  points: Array<{
+    label: string;
+    detail: string;
+  }>;
 };
 
 export type AdvancedPracticeQuestionFilter = {
@@ -49,6 +64,84 @@ export type AdvancedPracticeQuestionBank = {
 export const ADVANCED_PRACTICE_QUESTION_BANK_VERSION = "advanced-practice-question-bank-v1";
 
 const advancedPracticeQuestions: AdvancedPracticeQuestion[] = [
+  createQuestion({
+    id: "company-share-application-money-received-practice",
+    topic: "company_accounts",
+    title: "Share application money received",
+    prompt: "The company received share application money of Rs.25,000 by bank. Pass the journal entry.",
+    difficulty: "beginner",
+    tags: ["company", "share-application", "share-issue"],
+    expectedJournalEntries: [
+      generateShareApplicationMoneyReceivedEntry({
+        id: "company-share-application-money-received-practice-entry",
+        transactionText: "The company received share application money of Rs.25,000 by bank.",
+        amount: 25000,
+      }),
+    ],
+    explanation:
+      "Bank is debited because money is received. Share Application is credited because application money is recorded separately until shares are processed.",
+    whyThisEntry: [
+      "Bank is debited because application money is received by bank.",
+      "Share Application is credited because the money is received against applications and is not yet final share capital.",
+    ],
+    beginnerHint: "Application money is not Share Capital yet; credit Share Application.",
+    commonMistakes: [
+      "Crediting Share Capital immediately.",
+      "Debiting Share Application instead of crediting it.",
+    ],
+  }),
+  createQuestion({
+    id: "company-calls-in-advance-practice",
+    topic: "company_accounts",
+    title: "Calls in advance received",
+    prompt: "The company received calls in advance of Rs.2,000 by bank. Pass the journal entry.",
+    difficulty: "beginner",
+    tags: ["company", "calls-in-advance"],
+    expectedJournalEntries: [
+      generateCallsInAdvanceReceivedEntry({
+        id: "company-calls-in-advance-practice-entry",
+        transactionText: "The company received calls in advance of Rs.2,000 by bank.",
+        amount: 2000,
+      }),
+    ],
+    explanation:
+      "Bank is debited because money is received. Calls in Advance is credited because money received before it is due is a liability.",
+    whyThisEntry: [
+      "Bank is debited because money is received by bank.",
+      "Calls in Advance is credited because the company received call money before it was due.",
+    ],
+    beginnerHint: "Advance call money is not share capital yet; treat it as a liability.",
+    commonMistakes: [
+      "Crediting Share Capital immediately.",
+      "Treating Calls in Advance as an expense.",
+    ],
+  }),
+  createQuestion({
+    id: "company-debenture-redemption-at-par-practice",
+    topic: "company_accounts",
+    title: "Debenture redemption at par",
+    prompt: "The company redeemed debentures of Rs.50,000 at par by bank. Pass the journal entry.",
+    difficulty: "beginner",
+    tags: ["company", "debenture-redemption"],
+    expectedJournalEntries: [
+      generateDebentureRedemptionAtParEntry({
+        id: "company-debenture-redemption-at-par-practice-entry",
+        transactionText: "The company redeemed debentures of Rs.50,000 at par by bank.",
+        amount: 50000,
+      }),
+    ],
+    explanation:
+      "Debentures is debited because the liability is closed. Bank is credited because the company pays money through bank.",
+    whyThisEntry: [
+      "Debentures is debited because the debenture liability is being settled.",
+      "Bank is credited because money is paid out through bank.",
+    ],
+    beginnerHint: "At par means repay the debenture face value only: debit Debentures and credit Bank.",
+    commonMistakes: [
+      "Adding premium on redemption when the question says at par.",
+      "Crediting Debentures instead of debiting it to close the liability.",
+    ],
+  }),
   createQuestion({
     id: "company-share-issue-premium-practice",
     topic: "company_accounts",
@@ -174,25 +267,102 @@ const advancedPracticeQuestions: AdvancedPracticeQuestion[] = [
     ],
   }),
   createQuestion({
-    id: "company-calls-in-advance-practice",
-    topic: "company_accounts",
-    title: "Calls in advance received",
-    prompt: "A shareholder paid future call money of Rs.2,000 in advance. Pass the journal entry.",
+    id: "partnership-capital-contribution-practice",
+    topic: "partnership",
+    title: "Partner capital introduced",
+    prompt: "Amit introduced capital of Rs.50,000 into the partnership by bank. Pass the journal entry.",
     difficulty: "beginner",
-    tags: ["company", "calls-in-advance"],
+    tags: ["partnership", "capital-contribution", "fixed-capital"],
     expectedJournalEntries: [
-      generateCallsInAdvanceReceivedEntry({
-        id: "company-calls-in-advance-practice-entry",
-        transactionText: "A shareholder paid future call money of Rs.2,000 in advance.",
-        amount: 2000,
+      generatePartnerCapitalContributionEntry({
+        id: "partnership-capital-contribution-practice-entry",
+        transactionText: "Amit introduced capital of Rs.50,000 into the partnership by bank.",
+        partnerName: "Amit",
+        amount: 50000,
       }),
     ],
     explanation:
-      "Bank is debited because money is received. Calls in Advance is credited because money received before it is due is a liability.",
-    beginnerHint: "Advance call money is not share capital yet; treat it as a liability.",
+      "Bank is debited because the firm receives money. Amit Capital is credited because Amit's capital in the partnership increases.",
+    whyThisEntry: [
+      "Bank is debited because money comes into the business through bank.",
+      "Amit Capital is credited because Amit's owner's capital in the firm increases.",
+    ],
+    finalAccountsImpact: {
+      summary: "This entry affects the Balance Sheet only. There is no direct Profit & Loss impact.",
+      points: [
+        { label: "Balance Sheet", detail: "affected" },
+        { label: "Asset", detail: "Bank increases" },
+        { label: "Capital", detail: "Amit Capital increases" },
+        { label: "Profit & Loss", detail: "no direct impact" },
+      ],
+    },
+    beginnerHint: "When a partner brings money into the firm, debit Bank and credit that partner's Capital Account.",
     commonMistakes: [
-      "Crediting Share Capital immediately.",
-      "Treating Calls in Advance as an expense.",
+      "Crediting Bank even though money is received.",
+      "Using Profit and Loss Appropriation instead of Amit Capital.",
+    ],
+  }),
+  createQuestion({
+    id: "partnership-drawings-paid-cash-practice",
+    topic: "partnership",
+    title: "Partner drawings paid in cash",
+    prompt: "Amit withdrew cash of Rs.3,000 from the partnership for personal use. Pass the journal entry.",
+    difficulty: "beginner",
+    tags: ["partnership", "drawings", "cash"],
+    expectedJournalEntries: [
+      generatePartnerDrawingsPaidInCashEntry({
+        id: "partnership-drawings-paid-cash-practice-entry",
+        transactionText: "Amit withdrew cash of Rs.3,000 from the partnership for personal use.",
+        partnerName: "Amit",
+        amount: 3000,
+      }),
+    ],
+    explanation:
+      "Amit Drawings is debited because the partner's personal withdrawal is recorded. Cash is credited because cash leaves the firm.",
+    whyThisEntry: [
+      "Amit Drawings is debited because Amit takes value out for personal use.",
+      "Cash is credited because cash leaves the business.",
+    ],
+    finalAccountsImpact: {
+      summary: "This entry affects the Balance Sheet only. There is no direct Profit & Loss impact.",
+      points: [
+        { label: "Balance Sheet", detail: "affected" },
+        { label: "Asset", detail: "Cash decreases" },
+        { label: "Capital/Drawings", detail: "Amit Drawings increases and is adjusted against capital" },
+        { label: "Profit & Loss", detail: "no direct impact" },
+      ],
+    },
+    beginnerHint: "When a partner withdraws cash for personal use, debit that partner's Drawings Account and credit Cash.",
+    commonMistakes: [
+      "Debiting Cash even though cash is going out.",
+      "Crediting Amit Capital instead of recording Amit Drawings.",
+    ],
+  }),
+  createQuestion({
+    id: "partnership-interest-on-capital-fluctuating-practice",
+    topic: "partnership",
+    title: "Interest on capital under fluctuating capital",
+    prompt: "Interest on capital of Rs.5,000 is allowed to Amit under the fluctuating capital method. Pass the journal entry.",
+    difficulty: "beginner",
+    tags: ["partnership", "interest-on-capital", "fluctuating-capital"],
+    expectedJournalEntries: [
+      generateInterestOnCapitalUnderFluctuatingCapitalEntry({
+        id: "partnership-interest-on-capital-fluctuating-practice-entry",
+        transactionText: "Interest on capital of Rs.5,000 is allowed to Amit under the fluctuating capital method.",
+        partnerName: "Amit",
+        amount: 5000,
+      }),
+    ],
+    explanation:
+      "Interest on Capital is debited because the firm records the partner benefit. Amit Current is credited because under fluctuating capital, the amount is added to the partner's current account.",
+    whyThisEntry: [
+      "Interest on Capital is debited because interest is allowed to the partner.",
+      "Amit Current is credited because the amount is credited to Amit under the fluctuating capital method.",
+    ],
+    beginnerHint: "Under fluctuating capital method, credit Amit Current, not Amit Capital.",
+    commonMistakes: [
+      "Crediting Amit Capital instead of Amit Current.",
+      "Using Bank even though no cash payment is mentioned.",
     ],
   }),
   createQuestion({
@@ -395,13 +565,23 @@ export function getNextAdvancedPracticeQuestion(
 }
 
 function createQuestion(question: Omit<AdvancedPracticeQuestion, "source">): AdvancedPracticeQuestion {
-  return {
+  const copiedQuestion: AdvancedPracticeQuestion = {
     ...question,
     tags: [...question.tags],
     expectedJournalEntries: [...question.expectedJournalEntries],
     commonMistakes: [...question.commonMistakes],
     source: "advanced-practice-generator-v1",
   };
+
+  if (question.whyThisEntry) {
+    copiedQuestion.whyThisEntry = [...question.whyThisEntry];
+  }
+
+  if (question.finalAccountsImpact) {
+    copiedQuestion.finalAccountsImpact = copyFinalAccountsImpact(question.finalAccountsImpact);
+  }
+
+  return copiedQuestion;
 }
 
 function copyQuestions(questions: AdvancedPracticeQuestion[]): AdvancedPracticeQuestion[] {
@@ -409,11 +589,28 @@ function copyQuestions(questions: AdvancedPracticeQuestion[]): AdvancedPracticeQ
 }
 
 function copyQuestion(question: AdvancedPracticeQuestion): AdvancedPracticeQuestion {
-  return {
+  const copiedQuestion: AdvancedPracticeQuestion = {
     ...question,
     tags: [...question.tags],
     expectedJournalEntries: question.expectedJournalEntries.map(copyJournalEntry),
     commonMistakes: [...question.commonMistakes],
+  };
+
+  if (question.whyThisEntry) {
+    copiedQuestion.whyThisEntry = [...question.whyThisEntry];
+  }
+
+  if (question.finalAccountsImpact) {
+    copiedQuestion.finalAccountsImpact = copyFinalAccountsImpact(question.finalAccountsImpact);
+  }
+
+  return copiedQuestion;
+}
+
+function copyFinalAccountsImpact(impact: AdvancedFinalAccountsImpact): AdvancedFinalAccountsImpact {
+  return {
+    ...impact,
+    points: impact.points.map((point) => ({ ...point })),
   };
 }
 

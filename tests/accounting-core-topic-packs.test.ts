@@ -115,8 +115,13 @@ describe("accounting-core topic pack fixtures", () => {
   it("covers required partnership roles", () => {
     expect(scenarioRoles(partnershipScenarioFixtures)).toEqual(
       expect.arrayContaining([
+        "bank",
+        "interest_on_capital",
         "profit_and_loss_appropriation",
         "partner_capital",
+        "partner_current",
+        "partner_drawings",
+        "cash",
         "interest_on_drawings",
         "revaluation",
         "realisation",
@@ -127,15 +132,37 @@ describe("accounting-core topic pack fixtures", () => {
   it("covers required company account roles", () => {
     expect(scenarioRoles(companyAccountsScenarioFixtures)).toEqual(
       expect.arrayContaining([
+        "share_application",
         "share_capital",
         "share_call",
         "calls_in_arrears",
+        "calls_in_advance",
         "share_forfeiture",
         "securities_premium",
         "debenture",
         "debenture_interest",
       ]),
     );
+  });
+
+  it("documents the current metadata-to-fixture audit gaps without adding runtime wiring", () => {
+    expect(unprovenClaimedRoles(partnershipTopicPackFixture, partnershipScenarioFixtures)).toEqual([
+      "partner_salary",
+      "partner_commission",
+      "goodwill",
+      "liability",
+    ]);
+    expect(unprovenClaimedTags(partnershipTopicPackFixture, partnershipScenarioFixtures)).toEqual(["retirement", "death"]);
+
+    expect(unprovenClaimedRoles(companyAccountsTopicPackFixture, companyAccountsScenarioFixtures)).toEqual([
+      "share_allotment",
+      "capital_reserve",
+      "premium_on_redemption_of_debentures",
+      "asset",
+      "liability",
+      "expense",
+    ]);
+    expect(unprovenClaimedTags(companyAccountsTopicPackFixture, companyAccountsScenarioFixtures)).toEqual([]);
   });
 
   it("does not claim runtime implementation details", () => {
@@ -196,11 +223,29 @@ function expectScenarioJournalEntriesBalanced(scenario: AccountingScenario): voi
 }
 
 function scenarioRoles(scenarios: AccountingScenario[]): string[] {
-  return scenarios.flatMap((scenario) =>
-    (scenario.expectedJournalEntries ?? []).flatMap((entry) =>
-      entry.lines.flatMap((line) => (line.account.role ? [line.account.role] : [])),
+  return Array.from(
+    new Set(
+      scenarios.flatMap((scenario) =>
+        (scenario.expectedJournalEntries ?? []).flatMap((entry) =>
+          entry.lines.flatMap((line) => (line.account.role ? [line.account.role] : [])),
+        ),
+      ),
     ),
   );
+}
+
+function scenarioTags(scenarios: AccountingScenario[]): string[] {
+  return Array.from(new Set(scenarios.flatMap((scenario) => scenario.tags ?? [])));
+}
+
+function unprovenClaimedRoles(topicPack: TopicPack, scenarios: AccountingScenario[]): string[] {
+  const coveredRoles = new Set(scenarioRoles(scenarios));
+  return (topicPack.supportedAccountRoles ?? []).filter((role) => !coveredRoles.has(role));
+}
+
+function unprovenClaimedTags(topicPack: TopicPack, scenarios: AccountingScenario[]): string[] {
+  const coveredTags = new Set(scenarioTags(scenarios));
+  return (topicPack.supportedScenarioTags ?? []).filter((tag) => !coveredTags.has(tag));
 }
 
 function entryDebitTotal(entry: JournalEntry): number {

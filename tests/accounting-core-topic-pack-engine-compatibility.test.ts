@@ -34,10 +34,28 @@ describe("accounting-core topic-pack engine compatibility", () => {
     });
 
     expect(
+      partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Bank")),
+    ).toBe(true);
+    expect(
+      partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Amit Drawings")),
+    ).toBe(true);
+    expect(
+      partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Cash")),
+    ).toBe(true);
+    expect(
+      partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Interest on Capital")),
+    ).toBe(true);
+    expect(
       partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Profit and Loss Appropriation")),
     ).toBe(true);
     expect(
       partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Amit Capital")),
+    ).toBe(true);
+    expect(
+      partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Amit Current")),
+    ).toBe(true);
+    expect(
+      partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Interest on Drawings")),
     ).toBe(true);
     expect(
       partnershipScenarioFixtures.some((scenario) => findLedgerAccount(generateLedger(scenarioToJournalText(scenario)), "Riya Capital")),
@@ -67,10 +85,12 @@ describe("accounting-core topic-pack engine compatibility", () => {
     });
 
     expectCompanyLedgerAccountPresent("Bank");
+    expectCompanyLedgerAccountPresent("Share Application");
     expectCompanyLedgerAccountPresent("Share Capital");
     expectCompanyLedgerAccountPresent("Securities Premium");
     expectCompanyLedgerAccountPresent("Share First Call");
     expectCompanyLedgerAccountPresent("Calls in Arrears");
+    expectCompanyLedgerAccountPresent("Calls in Advance");
     expectCompanyLedgerAccountPresent("Share Forfeiture");
     expectCompanyLedgerAccountPresent("Debentures");
     expectCompanyLedgerAccountPresent("Debenture Interest");
@@ -108,12 +128,20 @@ describe("accounting-core topic-pack engine compatibility", () => {
 
     expectLedgerSuccess(ledgerResult);
     expectTrialBalanceBalanced(trialBalanceResult);
+    expect(findLedgerAccount(ledgerResult, "Amit Drawings")).toBeDefined();
+    expect(findLedgerAccount(ledgerResult, "Cash")).toBeDefined();
     expect(findLedgerAccount(ledgerResult, "Revaluation")).toBeDefined();
+    expect(findLedgerAccount(ledgerResult, "Amit Current")).toBeDefined();
+    expect(findLedgerAccount(ledgerResult, "Share Application")).toBeDefined();
     expect(findLedgerAccount(ledgerResult, "Share Capital")).toBeDefined();
     expect(findLedgerAccount(ledgerResult, "Securities Premium")).toBeDefined();
     expect(findLedgerAccount(ledgerResult, "Share Forfeiture")).toBeDefined();
     expect(findLedgerAccount(ledgerResult, "Debentures")).toBeDefined();
+    expect(findTrialBalanceRow(trialBalanceResult, "Amit Drawings")).toBeDefined();
+    expect(findTrialBalanceRow(trialBalanceResult, "Cash")).toBeDefined();
+    expect(findTrialBalanceRow(trialBalanceResult, "Amit Current")).toBeDefined();
     expect(findTrialBalanceRow(trialBalanceResult, "Revaluation")).toBeDefined();
+    expect(findTrialBalanceRow(trialBalanceResult, "Share Application")).toBeDefined();
     expect(findTrialBalanceRow(trialBalanceResult, "Securities Premium")).toBeDefined();
     expect(findTrialBalanceRow(trialBalanceResult, "Debentures")).toBeDefined();
   });
