@@ -35,6 +35,20 @@ export {
 export type { JournalEntryAdapterOptions } from "./adapters/journal-entry-adapters";
 
 export {
+  ADVANCED_JOURNAL_TEXT_PARSER_ADAPTER_VERSION,
+  buildParseErrorResult,
+  hasAdvancedJournalAnswerText,
+  normalizeAdvancedJournalAnswerText,
+  parseAdvancedJournalAnswerText,
+} from "./adapters/advanced-journal-text-parser-adapter";
+export type {
+  AdvancedJournalTextParseInput,
+  AdvancedJournalTextParseMessage,
+  AdvancedJournalTextParseResult,
+  AdvancedJournalTextParseStatus,
+} from "./adapters/advanced-journal-text-parser-adapter";
+
+export {
   assertSerializableCoreJournalEntry,
   coreJournalEntriesToJournalText,
   coreJournalEntryToJournalText,
