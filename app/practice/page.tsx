@@ -286,6 +286,8 @@ export default function PracticePage() {
           />
         ) : null}
 
+        <AdvancedPracticeBetaCard />
+
         <ReviewLinks />
       </section>
     </main>
@@ -347,6 +349,35 @@ function ReviewLinks() {
           <p className="mt-1 text-xs leading-5 text-slate-600 sm:mt-2 sm:text-sm sm:leading-6">Review recent attempts saved on this browser.</p>
         </article>
       </Link>
+    </section>
+  );
+}
+
+function AdvancedPracticeBetaCard() {
+  return (
+    <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-white via-emerald-50 to-blue-50 p-4 shadow-soft sm:p-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="max-w-2xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-bold text-blue-950 sm:text-2xl">Advanced Practice Beta</h2>
+            <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-bold uppercase tracking-normal text-emerald-700">
+              Beta
+            </span>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
+            Practise selected Partnership and Company Accounts journal entries with step-by-step checking.
+          </p>
+          <p className="mt-2 text-xs font-semibold leading-5 text-slate-600 sm:text-sm sm:leading-6">
+            This is separate from beginner practice. Reports, history, and progress saving are not included yet.
+          </p>
+        </div>
+        <Link
+          href="/practice/advanced"
+          className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-blue-800"
+        >
+          Open Advanced Practice
+        </Link>
+      </div>
     </section>
   );
 }
