@@ -2085,6 +2085,37 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("keeps named partner capital for another partner introduced by bank", async () => {
+    const body = await solve("Riya introduced capital of Rs.40,000 into the partnership by bank. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 40000, credit: 0 },
+      { account: "Riya's Capital A/c", debit: 0, credit: 40000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Riya's Capital A/c");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves partner capital brought in cash with the named partner capital account", async () => {
+    const body = await solve("Amit brought Rs.50,000 in cash as capital to the business. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 50000, credit: 0 },
+      { account: "Amit's Capital A/c", debit: 0, credit: 50000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Cash A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Amit's Capital A/c");
+    expect(journalEntryText(body)).not.toContain("Bank A/c Dr.");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.stepByStepExplanation.join(" ")).toContain("Cash A/c is debited");
+    expect(body.stepByStepExplanation.join(" ")).toContain("Amit's Capital A/c is credited");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves partnership drawings paid in cash with partner drawings and cash", async () => {
     const body = await solve("Amit withdrew cash Rs.10,000 from the partnership for personal use. Pass the journal entry.");
 
@@ -2095,6 +2126,21 @@ describe("POST /api/journal-entry-solver", () => {
     ]);
     expect(journalEntryText(body)).toContain("Amit Drawings A/c Dr.");
     expect(journalEntryText(body)).toContain("To Cash A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves partner drawings withdrawn by bank for personal use", async () => {
+    const body = await solve("Amit withdrew Rs.8,000 by bank for personal use. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Amit Drawings A/c", debit: 8000, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 8000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Amit Drawings A/c Dr.");
+    expect(journalEntryText(body)).toContain("To Bank A/c");
+    expect(journalEntryText(body)).not.toContain("To Cash A/c");
+    expect(body.stepByStepExplanation.join(" ")).toContain("Bank A/c is credited");
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
@@ -2159,6 +2205,21 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves single-partner interest on capital using the partner current account", async () => {
+    const body = await solve("Interest on capital is allowed to Amit Rs.6,000. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Interest on Capital A/c", debit: 6000, credit: 0 },
+      { account: "Amit's Current A/c", debit: 0, credit: 6000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Interest on Capital A/c Dr. ₹6,000");
+    expect(journalEntryText(body)).toContain("To Amit's Current A/c ₹6,000");
+    expect(journalEntryText(body)).not.toContain("To Amit's Capital A/c");
+    expect(body.stepByStepExplanation.join(" ")).toContain("Amit's Current A/c is credited");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it.each([
     "The company received share allotment money of Rs.25,000 by bank. Pass the journal entry.",
     "The company forfeited shares of Rs.10,000 for non-payment of calls. Pass the journal entry.",
@@ -2168,6 +2229,10 @@ describe("POST /api/journal-entry-solver", () => {
     "Amit retired from the partnership and was paid Rs.50,000 by bank. Pass the journal entry.",
     "Amit died and his executor was paid Rs.50,000 by bank. Pass the journal entry.",
     "Goodwill of Rs.20,000 was raised in the partnership books. Pass the journal entry.",
+    "Amit brought goodwill of Rs.20,000 into the partnership. Pass the journal entry.",
+    "Amit was admitted as a partner with capital Rs.50,000 and goodwill Rs.10,000. Pass the journal entry.",
+    "Partner salary is allowed to Amit Rs.5,000. Pass the journal entry.",
+    "Partner commission is allowed to Amit Rs.5,000. Pass the journal entry.",
     "The company redeemed debentures of Rs.50,000 under Companies Act treatment. Pass the journal entry.",
   ])("keeps unsupported complex advanced explainer case unsupported: %s", async (transaction) => {
     const body = await solve(transaction);

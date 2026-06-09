@@ -131,6 +131,16 @@ Current Journal Entry Explainer note:
   - multi-partner interest on capital totals partner amounts before debiting `Interest on Capital A/c`
   - share allotment, forfeiture, reissue, debenture premium, DRR, retirement, death, goodwill, and statutory treatment prompts remain unsupported
   - `/practice/advanced` order/count and beginner `/practice` remain unchanged
+- a follow-up Partnership wording polish now keeps the same narrow explainer boundary while also supporting:
+  - cash capital wording: `Amit brought Rs.50,000 in cash as capital to the business`
+  - bank drawings wording: `Amit withdrew Rs.8,000 by bank for personal use`
+  - single-partner interest on capital: `Interest on capital is allowed to Amit Rs.6,000`
+- the wording polish still preserves named partner accounts, uses Cash/Bank from the transaction wording, and keeps goodwill, retirement, admission with goodwill, partner salary, and partner commission unsupported
+- a safety audit for that wording polish now confirms:
+  - cash capital uses `Cash A/c` and `Amit's Capital A/c`, not `Bank A/c` or generic `Capital A/c`
+  - bank drawings uses `Amit Drawings A/c` and `Bank A/c`, not `Cash A/c`
+  - single-partner interest on capital uses `Amit's Current A/c`, not `Amit's Capital A/c`
+  - deferred Partnership cases, including goodwill brought by a partner, remain unsupported
 
 History is currently stored with localStorage key:
 

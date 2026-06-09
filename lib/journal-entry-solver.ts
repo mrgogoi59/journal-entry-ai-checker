@@ -127,32 +127,49 @@ function solvePartnerCapitalContributionExplainer(
   transactionSummary: string,
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
-  if (!/\bintroduced\s+capital\b/i.test(transactionSummary)) return null;
-  if (!/\bpartnership\b/i.test(transactionSummary)) return null;
-  if (!DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)) return null;
+  const isIntroducedToPartnership =
+    /\bintroduced\s+capital\b/i.test(transactionSummary) && /\bpartnership\b/i.test(transactionSummary);
+  const isBroughtCashAsCapital =
+    /\bbrought\b/i.test(transactionSummary) &&
+    /\bas\s+capital\b/i.test(transactionSummary) &&
+    /\bto\s+the\s+business\b/i.test(transactionSummary) &&
+    CASH_WORD_PATTERN.test(transactionSummary);
+  if (!isIntroducedToPartnership && !isBroughtCashAsCapital) return null;
 
   const partnerName = extractLeadingName(transactionSummary);
   const amount = extractAmount(transactionSummary);
   if (!partnerName || !amount) return null;
 
+  const receiptAccount = CASH_WORD_PATTERN.test(transactionSummary) ? "Cash A/c" : DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary) ? "Bank A/c" : null;
+  if (!receiptAccount) return null;
+
+  const receiptLabel = receiptAccount.replace(" A/c", "");
   const capitalAccount = `${partnerName}'s Capital A/c`;
   const steps = [
-    `${partnerName} brings capital into the partnership through bank.`,
-    "Bank A/c is debited because money comes into the firm's bank account.",
+    `${partnerName} brings capital into the business.`,
+    `${receiptAccount} is debited because ${receiptLabel.toLowerCase()} comes into the business.`,
     `${capitalAccount} is credited because the partner's capital claim increases.`,
-    `Therefore, Bank A/c is debited and ${capitalAccount} is credited.`,
+    `Therefore, ${receiptAccount} is debited and ${capitalAccount} is credited.`,
   ];
 
   return controlledAdvancedSolvedResponse({
     transactionSummary,
     safeMode,
     journalEntry: [
-      { account: "Bank A/c", debit: amount, credit: 0 },
+      { account: receiptAccount, debit: amount, credit: 0 },
       { account: capitalAccount, debit: 0, credit: amount },
     ],
-    narration: `Being capital introduced by ${partnerName} into the partnership through bank.`,
+    narration:
+      receiptAccount === "Bank A/c"
+        ? `Being capital introduced by ${partnerName} into the partnership through bank.`
+        : `Being capital brought in by ${partnerName} in cash.`,
     affectedAccounts: [
-      assetAffectedAccount("Bank A/c", "Debit", "Bank balance increased", "Money came into the bank account."),
+      assetAffectedAccount(
+        receiptAccount,
+        "Debit",
+        receiptAccount === "Bank A/c" ? "Bank balance increased" : "Cash increased",
+        receiptAccount === "Bank A/c" ? "Money came into the bank account." : "Cash came into the business.",
+      ),
       capitalAffectedAccount(
         capitalAccount,
         "Credit",
@@ -163,11 +180,11 @@ function solvePartnerCapitalContributionExplainer(
     stepByStepExplanation: steps,
     commonMistakes: [
       `Do not use generic Capital A/c when the partner name is given; use ${capitalAccount}.`,
-      "Do not credit Bank A/c because bank balance increases when capital is introduced.",
+      `Do not credit ${receiptAccount} because ${receiptLabel.toLowerCase()} increases when capital is introduced.`,
     ],
     practiceQuestion: {
-      question: `${partnerName} introduced capital into the partnership by bank. Pass the journal entry.`,
-      expectedPattern: `Bank A/c Dr. To ${capitalAccount}`,
+      question: `${partnerName} introduced capital into the business. Pass the journal entry.`,
+      expectedPattern: `${receiptAccount} Dr. To ${capitalAccount}`,
     },
   });
 }
@@ -176,19 +193,23 @@ function solvePartnerDrawingsCashExplainer(
   transactionSummary: string,
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
-  if (!/\bwithdrew\b/i.test(transactionSummary) || !/\bcash\b/i.test(transactionSummary)) return null;
+  if (!/\bwithdrew\b/i.test(transactionSummary)) return null;
   if (!/\b(?:partnership|personal\s+use|drawings?)\b/i.test(transactionSummary)) return null;
 
   const partnerName = extractLeadingName(transactionSummary);
   const amount = extractAmount(transactionSummary);
   if (!partnerName || !amount) return null;
 
+  const paymentAccount = CASH_WORD_PATTERN.test(transactionSummary) ? "Cash A/c" : DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary) ? "Bank A/c" : null;
+  if (!paymentAccount) return null;
+
+  const paymentLabel = paymentAccount.replace(" A/c", "");
   const drawingsAccount = `${partnerName} Drawings A/c`;
   const steps = [
-    `${partnerName} withdrew cash from the partnership for personal use.`,
+    `${partnerName} withdrew value from the business for personal use.`,
     `${drawingsAccount} is debited because partner drawings increase.`,
-    "Cash A/c is credited because cash goes out of the business.",
-    `Therefore, ${drawingsAccount} is debited and Cash A/c is credited.`,
+    `${paymentAccount} is credited because ${paymentLabel.toLowerCase()} leaves the business.`,
+    `Therefore, ${drawingsAccount} is debited and ${paymentAccount} is credited.`,
   ];
 
   return controlledAdvancedSolvedResponse({
@@ -196,9 +217,12 @@ function solvePartnerDrawingsCashExplainer(
     safeMode,
     journalEntry: [
       { account: drawingsAccount, debit: amount, credit: 0 },
-      { account: "Cash A/c", debit: 0, credit: amount },
+      { account: paymentAccount, debit: 0, credit: amount },
     ],
-    narration: `Being cash withdrawn by ${partnerName} for personal use.`,
+    narration:
+      paymentAccount === "Bank A/c"
+        ? `Being amount withdrawn by ${partnerName} through bank for personal use.`
+        : `Being cash withdrawn by ${partnerName} for personal use.`,
     affectedAccounts: [
       capitalAffectedAccount(
         drawingsAccount,
@@ -206,16 +230,21 @@ function solvePartnerDrawingsCashExplainer(
         `${partnerName}'s drawings increased`,
         `${partnerName} withdrew value from the partnership, so ${drawingsAccount} is debited.`,
       ),
-      assetAffectedAccount("Cash A/c", "Credit", "Cash decreased", "Cash went out of the business."),
+      assetAffectedAccount(
+        paymentAccount,
+        "Credit",
+        paymentAccount === "Bank A/c" ? "Bank balance decreased" : "Cash decreased",
+        paymentAccount === "Bank A/c" ? "Money went out through the bank account." : "Cash went out of the business.",
+      ),
     ],
     stepByStepExplanation: steps,
     commonMistakes: [
-      "Do not debit Cash A/c because cash is going out.",
+      `Do not debit ${paymentAccount} because ${paymentLabel.toLowerCase()} is going out.`,
       `Do not use ${partnerName}'s Capital A/c directly for this simple drawings entry.`,
     ],
     practiceQuestion: {
       question: `${partnerName} withdrew cash from the partnership for personal use. Pass the journal entry.`,
-      expectedPattern: `${drawingsAccount} Dr. To Cash A/c`,
+      expectedPattern: `${drawingsAccount} Dr. To ${paymentAccount}`,
     },
   });
 }
@@ -228,17 +257,19 @@ function solvePartnershipInterestOnCapitalExplainer(
   if (!/\ballowed\b/i.test(transactionSummary)) return null;
 
   const namedAmounts = extractNamedAmounts(transactionSummary);
-  if (namedAmounts.length < 2) return null;
+  if (namedAmounts.length < 1) return null;
 
   const totalAmount = namedAmounts.reduce((total, line) => total + line.amount, 0);
   const currentAccountNames = namedAmounts.map((line) => `${line.name}'s Current A/c`);
   const steps = [
-    "Interest on capital is allowed to partners.",
+    namedAmounts.length === 1 ? "Interest on capital is allowed to the partner." : "Interest on capital is allowed to partners.",
     `Total interest on capital is ${formatRupees(totalAmount)}.`,
     "Interest on Capital A/c is debited because it is an appropriation/expense-style account for this entry.",
-    `Partners' Current A/cs are credited under this controlled fluctuating-capital convention: ${currentAccountNames.join(
-      " and ",
-    )}.`,
+    namedAmounts.length === 1
+      ? `${currentAccountNames[0]} is credited under this controlled current-account convention.`
+      : `Partners' Current A/cs are credited under this controlled fluctuating-capital convention: ${currentAccountNames.join(
+          " and ",
+        )}.`,
   ];
 
   return controlledAdvancedSolvedResponse({

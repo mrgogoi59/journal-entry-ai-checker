@@ -34,6 +34,43 @@ The next safest step is to pause explainer expansion briefly, or make the next r
 
 ## Immediate recommended next step
 
+The Journal Entry Explainer Partnership wording-gap polish is completed.
+
+What this completed slice achieved:
+
+- it keeps the same narrow controlled Partnership explainer boundary
+- it supports capital brought in cash with the named partner capital account:
+  - `Cash A/c Dr.`
+  - `To Amit's Capital A/c`
+- it supports drawings withdrawn by bank for personal use:
+  - `Amit Drawings A/c Dr.`
+  - `To Bank A/c`
+- it supports single-partner interest on capital with the current-account convention:
+  - `Interest on Capital A/c Dr.`
+  - `To Amit's Current A/c`
+- it keeps existing Amit/Riya capital by bank, drawings in cash, and two-partner interest on capital behavior intact
+- it keeps goodwill, retirement, admission with goodwill, partner salary, and partner commission unsupported
+- it does not change beginner `/practice`, `/practice/advanced` order/count, parser/classifier/validator/checker logic, ledger/trial-balance calculations, Final Accounts Impact, API routes, persistence, backend, or AI features
+
+The next safest step is a small docs/test-only audit of this wording polish, or to pause Explainer expansion until another specific controlled wording gap is identified.
+
+## Immediate recommended next step
+
+The Journal Entry Explainer Partnership wording-gap safety audit is completed.
+
+What this completed audit confirmed:
+
+- cash capital wording uses `Cash A/c` and `Amit's Capital A/c`, not `Bank A/c` or generic `Capital A/c`
+- drawings by bank uses `Amit Drawings A/c` and `Bank A/c`, not `Cash A/c`
+- single-partner interest on capital uses `Interest on Capital A/c` and `Amit's Current A/c`, not `Amit's Capital A/c`
+- existing Amit/Riya capital by bank, drawings in cash, and two-partner interest on capital cases still pass
+- goodwill brought by a partner, retirement, admission with goodwill, partner salary, and partner commission remain unsupported
+- beginner `/practice` and `/practice/advanced` order/count remain unchanged
+
+The next safest step is to pause Explainer expansion unless another specific narrow wording gap is found, or keep future work docs/test-only.
+
+## Immediate recommended next step
+
 The read-only Ledger Impact and Trial Balance Impact preview inside `/practice/advanced` is completed.
 
 What this completed slice achieved:
