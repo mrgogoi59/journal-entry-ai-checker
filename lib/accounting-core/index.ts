@@ -144,3 +144,24 @@ export type {
   AdvancedJournalCheckScoreBreakdown,
   AdvancedJournalLineComparison,
 } from "./checkers/advanced-journal-answer-checker";
+
+export {
+  ADVANCED_PRACTICE_RESULT_BUILDER_VERSION,
+  buildAdvancedPracticeActions,
+  buildAdvancedPracticeFeedback,
+  buildAdvancedPracticeResult,
+  buildAdvancedPracticeScoreDisplay,
+  buildCorrectEntryDisplay,
+  getAdvancedPracticeResultStatus,
+  summarizeAdvancedPracticeResult,
+} from "./practice/advanced-practice-result-builder";
+export type {
+  AdvancedPracticeCorrectEntryDisplay,
+  AdvancedPracticeFeedbackItem,
+  AdvancedPracticeResultAction,
+  AdvancedPracticeResultBuilderInput,
+  AdvancedPracticeResultStatus,
+  AdvancedPracticeResultTone,
+  AdvancedPracticeResultViewModel,
+  AdvancedPracticeScoreDisplay,
+} from "./practice/advanced-practice-result-builder";
