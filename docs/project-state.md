@@ -41,6 +41,8 @@ Notes:
   - `POST /api/check-entry`
   - `POST /api/generate-practice-question`
   - `POST /api/journal-entry-solver`
+- Vercel Web Analytics is enabled globally through the root app layout with `@vercel/analytics/next` for basic live-site traffic, page, referrer, location, and device reporting in Vercel.
+- No custom events, PostHog, Google Analytics/GA4, Microsoft Clarity, database/login/product analytics, backend tracking, or AI analytics features were added.
 
 ## Current learning content
 

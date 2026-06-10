@@ -2,6 +2,19 @@
 
 ## Immediate recommended next step
 
+Vercel Web Analytics is now enabled for the live Accywise site.
+
+What this completed slice achieved:
+
+- it installs `@vercel/analytics` and mounts the Vercel `Analytics` component in the root app layout
+- it enables basic Vercel traffic/page/referrer/location/device reporting
+- it does not add custom events, PostHog, Google Analytics/GA4, Microsoft Clarity, product analytics, database/login tracking, backend features, or AI features
+- it does not change beginner `/practice`, `/practice/advanced` UI/order/count, parser/classifier/validator/checker logic, journal-entry checking behavior, Ledger Impact, Trial Balance Impact, Final Accounts Impact, or accounting calculations
+
+The next safest step is to verify analytics after deployment in the Vercel dashboard, without adding custom event tracking unless a separate future task explicitly asks for it.
+
+## Immediate recommended next step
+
 The Journal Entry Explainer safe-parity slice for the currently exposed advanced Partnership/Company scenarios is completed.
 
 What this completed slice achieved:
