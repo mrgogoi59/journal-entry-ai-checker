@@ -2,6 +2,19 @@
 
 ## Immediate recommended next step
 
+The topic learning-page `What you will learn` UI cleanup is completed.
+
+What this completed slice achieved:
+
+- it stops rendering the repetitive `What you will learn` card from topic lesson pages
+- it keeps each lesson's header, title, description/objective, concept explanation, examples, tables, practice actions, and completion controls intact
+- it does not delete the underlying `whatYouWillLearn` data from lesson content
+- it does not change beginner `/practice`, `/practice/advanced`, Journal Entry Explainer logic, Ledger/Trial Balance/Final Accounts logic, parser/classifier/validator/checker logic, API routes, persistence, backend, AI, or analytics
+
+The next safest step is to keep learning-page changes UI-only unless a specific lesson-content update is requested.
+
+## Immediate recommended next step
+
 Vercel Web Analytics is now enabled for the live Accywise site.
 
 What this completed slice achieved:

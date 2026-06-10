@@ -72,6 +72,11 @@ Important lesson/content files:
 - `app/learn/page.tsx`
 - `app/learn/LessonReader.tsx`
 
+Current learning-page UI note:
+
+- topic learning pages no longer render the `What you will learn` card, so lessons flow from the header/objective directly into concept explanation
+- the underlying `whatYouWillLearn` lesson data remains in `lib/learning-content.ts`; this was a UI-only rendering cleanup
+
 ## Current engines and tools
 
 Student-facing runtime tools/pages:

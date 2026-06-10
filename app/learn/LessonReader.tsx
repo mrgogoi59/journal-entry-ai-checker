@@ -85,17 +85,6 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
           </div>
         </header>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
-          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">What you will learn</p>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {lesson.whatYouWillLearn.map((item) => (
-              <div key={item} className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-bold text-blue-950">
-                {item}
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section>
           <SectionHeader eyebrow="Concept explanation" title="Understand the idea first" />
           <div className="mt-5 grid gap-4">
