@@ -1,8 +1,15 @@
-# Accywise Project State
+# AccyWise AI Project State
 
 ## Current purpose
 
-Accywise is a rule-based accountancy learning and practice platform for commerce students. It teaches concepts through lesson pages and lets students practice or use tools for journal entries, ledger posting, trial balance, final accounts, and bank reconciliation.
+AccyWise AI is a rule-based accountancy learning and practice platform for commerce students. It teaches concepts through lesson pages and lets students practice or use tools for journal entries, ledger posting, trial balance, final accounts, and bank reconciliation.
+
+Public-facing brand note:
+
+- the public/user-facing platform name is standardized as `AccyWise AI`
+- the domain remains `accywise.in` when referring to the website domain/link
+- internal repo, package, route, folder, helper, and test names were not renamed by this branding/copy-only update
+- no logo image asset was added or changed by this brand-name standardization
 
 The live app now has two layers:
 

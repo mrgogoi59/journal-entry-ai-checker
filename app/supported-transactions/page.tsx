@@ -252,7 +252,7 @@ export default function SupportedTransactionsPage() {
         <section>
           <SectionHeader
             eyebrow="Supported now"
-            title="What Accywise can currently handle"
+            title="What AccyWise AI can currently handle"
             body="These grouped cards cover the main supported transaction and workflow areas."
           />
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
@@ -319,10 +319,10 @@ function PageHeader() {
         </Link>
       </nav>
       <div className="mt-7 max-w-3xl">
-        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Accywise guide</p>
+        <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">AccyWise AI guide</p>
         <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Supported Topics</h1>
         <p className="mt-4 text-lg leading-8 text-slate-700">
-          See what Accywise can currently solve, explain, and check, and what is still being improved.
+          See what AccyWise AI can currently solve, explain, and check, and what is still being improved.
         </p>
         <p className="mt-4 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
           This page helps you write transactions in a format the app can safely understand.
@@ -399,7 +399,7 @@ function FinalAccountsSupport() {
           <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Final Accounts support</p>
           <h2 className="mt-2 text-3xl font-bold tracking-normal text-blue-950">Final Accounts support</h2>
           <p className="mt-4 text-base leading-7 text-slate-700">
-            Accywise can prepare Trading A/c, Profit & Loss A/c, and a simple sole proprietorship Balance Sheet from
+            AccyWise AI can prepare Trading A/c, Profit & Loss A/c, and a simple sole proprietorship Balance Sheet from
             trial balance balances.
           </p>
           <Link

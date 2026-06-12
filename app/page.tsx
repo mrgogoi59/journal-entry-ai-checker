@@ -15,7 +15,7 @@ export default function Home() {
       <header className="sticky top-0 z-20 border-b border-blue-100 bg-white/95 px-4 py-4 backdrop-blur sm:px-6">
         <nav className="mx-auto flex w-full max-w-[1120px] items-center justify-between gap-4">
           <Link href="/" className="text-xl font-bold text-blue-950">
-            Accywise
+            AccyWise AI
           </Link>
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-700 md:flex">
             <Link href="/learn" className="transition hover:text-blue-900">
@@ -73,7 +73,7 @@ export default function Home() {
           <SectionHeader
             eyebrow="The solution"
             title="A complete accountancy learning flow"
-            body="Accywise helps students understand how every accounting step connects to the next."
+            body="AccyWise AI helps students understand how every accounting step connects to the next."
           />
           <div className="mt-8 grid gap-3 md:grid-cols-5">
             {learningFlow.map((step, index) => (
@@ -108,7 +108,7 @@ export default function Home() {
       <footer className="border-t border-slate-200 px-4 py-8 sm:px-6">
         <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="text-lg font-bold text-blue-950">Accywise</div>
+            <div className="text-lg font-bold text-blue-950">AccyWise AI</div>
             <p className="mt-1">Built for commerce students</p>
           </div>
           <div className="flex flex-wrap gap-4 font-semibold text-slate-700">

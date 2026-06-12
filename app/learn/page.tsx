@@ -218,7 +218,7 @@ export default function LearnPage() {
       <section className="mx-auto flex min-h-[calc(100vh-7rem)] w-full max-w-[1120px] flex-col">
         <header className="flex items-center justify-between gap-4 py-2">
           <Link href="/" className="text-lg font-bold tracking-normal text-blue-950">
-            Accywise
+            AccyWise AI
           </Link>
           <nav className="hidden items-center gap-5 text-sm font-bold text-blue-800 sm:flex">
             <Link href="/practice" className="transition hover:text-blue-950">
@@ -241,7 +241,7 @@ export default function LearnPage() {
             <div className="relative grid gap-8 lg:grid-cols-[1fr_20rem] lg:items-start">
               <div className="max-w-3xl">
                 <h1 className="text-4xl font-bold tracking-normal text-blue-950 sm:text-6xl">
-                  Hi, I&apos;m AccyWise.
+                  Hi, I&apos;m AccyWise AI.
                 </h1>
                 <p className="mt-5 max-w-2xl text-lg font-semibold leading-8 text-slate-700 sm:text-xl">
                   I&apos;ll help you learn Accountancy step by step.

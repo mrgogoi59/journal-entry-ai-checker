@@ -4,8 +4,8 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Journal Entry AI Checker",
-  description: "A simple journal entry practice checker for accountancy students.",
+  title: "AccyWise AI",
+  description: "AccyWise AI helps accountancy students learn, practice, and understand accounting workflows step by step.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

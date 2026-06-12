@@ -275,7 +275,7 @@ function PageHeader() {
       </nav>
       <div className="mt-7 max-w-3xl">
         <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Student guide</p>
-        <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">How to Use Accywise</h1>
+        <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">How to Use AccyWise AI</h1>
         <p className="mt-4 text-lg leading-8 text-slate-700">
           Learn how to check journal entries, understand accounting logic, generate ledgers, prepare trial balance, and
           create final accounts step by step.

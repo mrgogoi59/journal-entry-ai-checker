@@ -88,7 +88,7 @@ const toolSections = [
     tools: [
       {
         title: "Start Learning",
-        description: "Return to the simple starting point for learning with Accywise.",
+        description: "Return to the simple starting point for learning with AccyWise AI.",
         href: "/learn",
         label: "Continue Learning",
       },
@@ -106,7 +106,7 @@ const toolSections = [
       },
       {
         title: "Supported Topics",
-        description: "See what Accywise currently supports and what is not supported yet.",
+        description: "See what AccyWise AI currently supports and what is not supported yet.",
         href: "/supported-transactions",
         label: "View Topics",
       },

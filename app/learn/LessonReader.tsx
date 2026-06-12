@@ -257,7 +257,7 @@ export function LessonReader({ lesson }: { lesson: LessonContent }) {
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-6">
-          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Connect with Accywise Tools</p>
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Connect with AccyWise AI Tools</p>
           <h2 className="mt-2 text-2xl font-bold text-blue-950">Practice the same concept</h2>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             {lesson.toolLinks.map((tool) => (

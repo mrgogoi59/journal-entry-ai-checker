@@ -1,4 +1,18 @@
-# Accywise Next Steps
+# AccyWise AI Next Steps
+
+## Immediate recommended next step
+
+The public-facing brand-name standardization is completed.
+
+What this completed slice achieved:
+
+- it standardizes visible UI copy and root metadata to `AccyWise AI`
+- it keeps `accywise.in` reserved for domain/link references
+- it does not rename internal routes, repo/package names, folders, helpers, or test utilities
+- it does not add or change logo image assets
+- it does not change beginner `/practice`, `/practice/advanced` behavior/order/count, Journal Entry Explainer logic, Ledger/Trial Balance/Final Accounts logic, analytics, APIs, persistence, backend, AI, parser/classifier/validator/checker logic, or accounting calculations
+
+The next safest step is to keep any future brand changes copy/UI-only unless a separate logo or domain task explicitly asks for more.
 
 ## Immediate recommended next step
 
@@ -15,7 +29,7 @@ The next safest step is to keep learning-page changes UI-only unless a specific 
 
 ## Immediate recommended next step
 
-Vercel Web Analytics is now enabled for the live Accywise site.
+Vercel Web Analytics is now enabled for the live AccyWise AI site.
 
 What this completed slice achieved:
 
