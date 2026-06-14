@@ -134,11 +134,17 @@ function solveTwoPartnerCashCapitalContributionExplainer(
   transactionSummary: string,
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
-  if (!/\bstarted\s+(?:their\s+)?business\b/i.test(transactionSummary)) return null;
+  const isStartedCapital =
+    /\bstarted\s+(?:(?:their\s+)?business|a\s+partnership|partnership)\b/i.test(transactionSummary) &&
+    /\bcapital\b/i.test(transactionSummary);
+  const isBroughtCapital = /\bbrought\b/i.test(transactionSummary) && /\bcapital\b/i.test(transactionSummary);
+  if (!isStartedCapital && !isBroughtCapital) return null;
   if (!/\bcapital\b/i.test(transactionSummary)) return null;
   if (/\beach\b/i.test(transactionSummary)) return null;
 
-  const partnerMatch = /^\s*([a-z][a-z.'-]*)\s+and\s+([a-z][a-z.'-]*)\s+started\b/i.exec(transactionSummary);
+  const partnerMatch = /^\s*([a-z][a-z.'-]*)\s+and\s+([a-z][a-z.'-]*)\s+(?:started|brought)\b/i.exec(
+    transactionSummary,
+  );
   if (!partnerMatch?.[1] || !partnerMatch[2]) return null;
 
   const amounts = extractAmounts(transactionSummary);

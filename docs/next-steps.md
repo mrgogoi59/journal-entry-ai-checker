@@ -2,6 +2,21 @@
 
 ## Immediate recommended next step
 
+The narrow Partnership Explainer two-partner capital wording fixes are completed.
+
+What this completed slice achieved:
+
+- it handles `Amit and Riya started a partnership with Rs.40,000 and Rs.60,000 by bank as capital`
+- it handles `Kuldeep and Priyanka brought Rs.80,000 and Rs.50,000 in cash as capital`
+- it debits the stated receipt account (`Bank A/c` or `Cash A/c`) for the combined total
+- it credits each named partner's `Capital A/c` separately and avoids generic `Capital A/c`
+- it keeps deferred Partnership topics unsupported and does not add broad Partnership Accounts support or batch solving
+- it does not change beginner `/practice`, `/practice/advanced` order/count, parser/classifier/validator/checker behavior, ledger-trial balance calculations, Final Accounts Impact, APIs, persistence, backend, or AI features
+
+The next safest step is to pause Explainer expansion unless another concrete narrow manual-testing wording bug is found.
+
+## Immediate recommended next step
+
 The narrow Partnership Explainer single-partner capital wording fixes are completed.
 
 What this completed slice achieved:

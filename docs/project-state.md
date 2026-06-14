@@ -180,6 +180,10 @@ Current Journal Entry Explainer note:
   - `Priyanka brought cash Rs.60,000 as capital into the partnership` debits `Cash A/c` and credits `Priyanka's Capital A/c`
   - named partner capital wording does not fall back to generic `Capital A/c`
   - revaluation profit transfer remains unsupported
+- two additional narrow two-partner capital wording fixes now confirm:
+  - `Amit and Riya started a partnership with Rs.40,000 and Rs.60,000 by bank as capital` debits `Bank A/c` for `Rs 100000`
+  - `Kuldeep and Priyanka brought Rs.80,000 and Rs.50,000 in cash as capital` debits `Cash A/c` for `Rs 130000`
+  - both cases credit each named partner's `Capital A/c` separately and do not use generic `Capital A/c`
 
 History is currently stored with localStorage key:
 

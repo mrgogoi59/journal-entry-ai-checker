@@ -2198,6 +2198,50 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves two named partners starting a partnership with different bank capitals", async () => {
+    const body = await solve(
+      "Amit and Riya started a partnership with Rs.40,000 and Rs.60,000 by bank as capital. Pass the journal entry.",
+    );
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 100000, credit: 0 },
+      { account: "Amit's Capital A/c", debit: 0, credit: 40000 },
+      { account: "Riya's Capital A/c", debit: 0, credit: 60000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr. ₹1,00,000");
+    expect(journalEntryText(body)).toContain("To Amit's Capital A/c ₹40,000");
+    expect(journalEntryText(body)).toContain("To Riya's Capital A/c ₹60,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual([
+      "Bank A/c",
+      "Amit's Capital A/c",
+      "Riya's Capital A/c",
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves two named partners bringing different cash capitals", async () => {
+    const body = await solve("Kuldeep and Priyanka brought Rs.80,000 and Rs.50,000 in cash as capital. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 130000, credit: 0 },
+      { account: "Kuldeep's Capital A/c", debit: 0, credit: 80000 },
+      { account: "Priyanka's Capital A/c", debit: 0, credit: 50000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Cash A/c Dr. ₹1,30,000");
+    expect(journalEntryText(body)).toContain("To Kuldeep's Capital A/c ₹80,000");
+    expect(journalEntryText(body)).toContain("To Priyanka's Capital A/c ₹50,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual([
+      "Cash A/c",
+      "Kuldeep's Capital A/c",
+      "Priyanka's Capital A/c",
+    ]);
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves partner capital brought in cash with the named partner capital account", async () => {
     const body = await solve("Amit brought Rs.50,000 in cash as capital to the business. Pass the journal entry.");
 
