@@ -235,6 +235,20 @@ describe("POST /api/journal-entry-solver", () => {
     ]);
   });
 
+  it("keeps ordinary cash withdrawn from bank as cash transfer", async () => {
+    const body = await solve("Withdraw cash from bank ₹3,000");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 3000, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Cash A/c Dr. ₹3,000");
+    expect(journalEntryText(body)).toContain("To Bank A/c ₹3,000");
+    expect(journalEntryText(body)).not.toContain("Drawings A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves salary outstanding", async () => {
     const body = await solve("Salary outstanding Rs.6000");
 
@@ -2115,6 +2129,34 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves named partner capital invested by bank without generic Capital A/c", async () => {
+    const body = await solve("Amit invested Rs.50,000 as capital by bank. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 50000, credit: 0 },
+      { account: "Amit's Capital A/c", debit: 0, credit: 50000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr. ₹50,000");
+    expect(journalEntryText(body)).toContain("To Amit's Capital A/c ₹50,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves named partner capital brought through bank without generic Capital A/c", async () => {
+    const body = await solve("Kuldeep brought capital of Rs.75,000 through bank. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 75000, credit: 0 },
+      { account: "Kuldeep's Capital A/c", debit: 0, credit: 75000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr. ₹75,000");
+    expect(journalEntryText(body)).toContain("To Kuldeep's Capital A/c ₹75,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves named partner cash capital brought into the partnership", async () => {
     const body = await solve("Priyanka brought cash Rs.60,000 as capital into the partnership. Pass the journal entry.");
 
@@ -2221,6 +2263,40 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves two named partners introducing different bank capitals", async () => {
+    const body = await solve("Amit and Riya introduced Rs.40,000 and Rs.60,000 by bank as capital. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 100000, credit: 0 },
+      { account: "Amit's Capital A/c", debit: 0, credit: 40000 },
+      { account: "Riya's Capital A/c", debit: 0, credit: 60000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr. ₹1,00,000");
+    expect(journalEntryText(body)).toContain("To Amit's Capital A/c ₹40,000");
+    expect(journalEntryText(body)).toContain("To Riya's Capital A/c ₹60,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves two named partners starting the partnership with different cash capitals", async () => {
+    const body = await solve(
+      "Kuldeep and Priyanka started the partnership with Rs.80,000 and Rs.50,000 in cash as capital. Pass the journal entry.",
+    );
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 130000, credit: 0 },
+      { account: "Kuldeep's Capital A/c", debit: 0, credit: 80000 },
+      { account: "Priyanka's Capital A/c", debit: 0, credit: 50000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Cash A/c Dr. ₹1,30,000");
+    expect(journalEntryText(body)).toContain("To Kuldeep's Capital A/c ₹80,000");
+    expect(journalEntryText(body)).toContain("To Priyanka's Capital A/c ₹50,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves two named partners bringing different cash capitals", async () => {
     const body = await solve("Kuldeep and Priyanka brought Rs.80,000 and Rs.50,000 in cash as capital. Pass the journal entry.");
 
@@ -2284,6 +2360,20 @@ describe("POST /api/journal-entry-solver", () => {
     expect(journalEntryText(body)).toContain("To Bank A/c");
     expect(journalEntryText(body)).not.toContain("To Cash A/c");
     expect(body.stepByStepExplanation.join(" ")).toContain("Bank A/c is credited");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves partner drawings withdrawn from bank for personal expenses", async () => {
+    const body = await solve("Riya withdrew Rs.3,000 from bank for personal expenses. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Riya Drawings A/c", debit: 3000, credit: 0 },
+      { account: "Bank A/c", debit: 0, credit: 3000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Riya Drawings A/c Dr. ₹3,000");
+    expect(journalEntryText(body)).toContain("To Bank A/c ₹3,000");
+    expect(journalEntryText(body)).not.toContain("Cash A/c Dr.");
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 

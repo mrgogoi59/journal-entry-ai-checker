@@ -2,6 +2,36 @@
 
 ## Immediate recommended next step
 
+The safety audit for the five narrow Partnership Explainer wording/priority fixes is completed.
+
+What this completed audit confirmed:
+
+- all five manual-test inputs return the expected named partner capital or drawings entries
+- named partner capital cases do not fall back to generic `Capital A/c`
+- two-partner capital entries debit the combined total and credit both named partners separately
+- `Riya withdrew Rs.3,000 from bank for personal expenses` is partner drawings and does not return `Cash A/c Dr.`
+- ordinary business cash withdrawn from bank remains a normal `Cash A/c Dr.` / `Bank A/c Cr.` transfer
+- deferred Partnership topics remain unsupported and beginner `/practice` plus `/practice/advanced` order/count remain unchanged
+
+The next safest step is to pause Partnership Explainer expansion unless another concrete narrow manual-testing bug appears.
+
+## Immediate recommended next step
+
+The five narrow Partnership Explainer wording/priority fixes are completed.
+
+What this completed slice achieved:
+
+- it handles `Amit invested Rs.50,000 as capital by bank` with `Amit's Capital A/c`
+- it handles `Kuldeep brought capital of Rs.75,000 through bank` with `Kuldeep's Capital A/c`
+- it handles `Amit and Riya introduced Rs.40,000 and Rs.60,000 by bank as capital` with one combined `Bank A/c` debit and separate named partner capital credits
+- it handles `Kuldeep and Priyanka started the partnership with Rs.80,000 and Rs.50,000 in cash as capital` with one combined `Cash A/c` debit and separate named partner capital credits
+- it handles `Riya withdrew Rs.3,000 from bank for personal expenses` as partner drawings, not normal cash withdrawn from bank
+- it does not add broad Partnership Accounts support, batch solving, deferred Partnership topics, beginner `/practice` changes, `/practice/advanced` order/count changes, parser/classifier/validator/checker changes, ledger/trial-balance changes, Final Accounts Impact changes, APIs, persistence, backend, or AI features
+
+The next safest step is to pause Partnership Explainer expansion and do a docs/test-only audit if manual testing finds more wording concerns.
+
+## Immediate recommended next step
+
 The narrow Partnership Explainer two-partner capital wording fixes are completed.
 
 What this completed slice achieved:

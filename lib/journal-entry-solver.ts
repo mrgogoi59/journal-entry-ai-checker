@@ -134,15 +134,15 @@ function solveTwoPartnerCashCapitalContributionExplainer(
   transactionSummary: string,
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
+  const hasCapital = /\bcapital\b/i.test(transactionSummary);
   const isStartedCapital =
-    /\bstarted\s+(?:(?:their\s+)?business|a\s+partnership|partnership)\b/i.test(transactionSummary) &&
-    /\bcapital\b/i.test(transactionSummary);
-  const isBroughtCapital = /\bbrought\b/i.test(transactionSummary) && /\bcapital\b/i.test(transactionSummary);
-  if (!isStartedCapital && !isBroughtCapital) return null;
-  if (!/\bcapital\b/i.test(transactionSummary)) return null;
+    /\bstarted\s+(?:(?:their\s+)?business|(?:a|the)\s+partnership|partnership)\b/i.test(transactionSummary) && hasCapital;
+  const isBroughtCapital = /\bbrought\b/i.test(transactionSummary) && hasCapital;
+  const isIntroducedCapital = /\bintroduced\b/i.test(transactionSummary) && hasCapital;
+  if (!isStartedCapital && !isBroughtCapital && !isIntroducedCapital) return null;
   if (/\beach\b/i.test(transactionSummary)) return null;
 
-  const partnerMatch = /^\s*([a-z][a-z.'-]*)\s+and\s+([a-z][a-z.'-]*)\s+(?:started|brought)\b/i.exec(
+  const partnerMatch = /^\s*([a-z][a-z.'-]*)\s+and\s+([a-z][a-z.'-]*)\s+(?:started|brought|introduced)\b/i.exec(
     transactionSummary,
   );
   if (!partnerMatch?.[1] || !partnerMatch[2]) return null;
@@ -222,14 +222,11 @@ function solvePartnerCapitalContributionExplainer(
   transactionSummary: string,
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
-  const isIntroducedToPartnership =
-    /\bintroduced\b/i.test(transactionSummary) && /\bcapital\b/i.test(transactionSummary);
-  const isBroughtCashAsCapital =
-    /\bbrought\b/i.test(transactionSummary) &&
-    /\bcapital\b/i.test(transactionSummary) &&
-    /\b(?:partnership|business)\b/i.test(transactionSummary) &&
-    CASH_WORD_PATTERN.test(transactionSummary);
-  if (!isIntroducedToPartnership && !isBroughtCashAsCapital) return null;
+  const hasCapital = /\bcapital\b/i.test(transactionSummary);
+  const isIntroducedCapital = /\bintroduced\b/i.test(transactionSummary) && hasCapital;
+  const isBroughtCapital = /\bbrought\b/i.test(transactionSummary) && hasCapital;
+  const isInvestedCapital = /\binvested\b/i.test(transactionSummary) && hasCapital;
+  if (!isIntroducedCapital && !isBroughtCapital && !isInvestedCapital) return null;
 
   const partnerName = extractLeadingName(transactionSummary);
   const amount = extractAmount(transactionSummary);
@@ -293,13 +290,17 @@ function solvePartnerDrawingsCashExplainer(
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
   if (!/\bwithdrew\b/i.test(transactionSummary)) return null;
-  if (!/\b(?:partnership|personal\s+use|drawings?)\b/i.test(transactionSummary)) return null;
+  if (!/\b(?:partnership|personal\s+(?:use|expenses?)|drawings?)\b/i.test(transactionSummary)) return null;
 
   const partnerName = extractLeadingName(transactionSummary);
   const amount = extractAmount(transactionSummary);
   if (!partnerName || !amount) return null;
 
-  const paymentAccount = CASH_WORD_PATTERN.test(transactionSummary) ? "Cash A/c" : DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary) ? "Bank A/c" : null;
+  const paymentAccount = CASH_WORD_PATTERN.test(transactionSummary)
+    ? "Cash A/c"
+    : DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)
+      ? "Bank A/c"
+      : null;
   if (!paymentAccount) return null;
 
   const paymentLabel = paymentAccount.replace(" A/c", "");

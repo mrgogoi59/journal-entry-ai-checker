@@ -184,6 +184,15 @@ Current Journal Entry Explainer note:
   - `Amit and Riya started a partnership with Rs.40,000 and Rs.60,000 by bank as capital` debits `Bank A/c` for `Rs 100000`
   - `Kuldeep and Priyanka brought Rs.80,000 and Rs.50,000 in cash as capital` debits `Cash A/c` for `Rs 130000`
   - both cases credit each named partner's `Capital A/c` separately and do not use generic `Capital A/c`
+- five additional narrow Partnership Explainer wording/priority fixes now confirm:
+  - `Amit invested Rs.50,000 as capital by bank` and `Kuldeep brought capital of Rs.75,000 through bank` use named partner `Capital A/c`, not generic `Capital A/c`
+  - `Amit and Riya introduced Rs.40,000 and Rs.60,000 by bank as capital` debits `Bank A/c` for the combined total and credits both named partner capital accounts
+  - `Kuldeep and Priyanka started the partnership with Rs.80,000 and Rs.50,000 in cash as capital` debits `Cash A/c` for the combined total and credits both named partner capital accounts
+  - `Riya withdrew Rs.3,000 from bank for personal expenses` is treated as `Riya Drawings A/c Dr.` / `Bank A/c Cr.`, not a normal cash withdrawal
+- a safety audit for those five wording/priority fixes now confirms:
+  - the five exact manual-test inputs remain covered by focused tests
+  - ordinary business cash withdrawn from bank remains `Cash A/c Dr.` / `Bank A/c Cr.`
+  - deferred Partnership cases remain unsupported and `/practice` plus `/practice/advanced` order/count remain unchanged
 
 History is currently stored with localStorage key:
 
