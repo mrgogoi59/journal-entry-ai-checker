@@ -2140,6 +2140,31 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves two named partners starting business with different bank capitals using named capital accounts", async () => {
+    const body = await solve(
+      "Priyanka and Kuldeep started their business with Rs 50000 and Rs 70000 by bank as their capital.",
+    );
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 120000, credit: 0 },
+      { account: "Priyanka's Capital A/c", debit: 0, credit: 50000 },
+      { account: "Kuldeep's Capital A/c", debit: 0, credit: 70000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr. ₹1,20,000");
+    expect(journalEntryText(body)).toContain("To Priyanka's Capital A/c ₹50,000");
+    expect(journalEntryText(body)).toContain("To Kuldeep's Capital A/c ₹70,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual([
+      "Bank A/c",
+      "Priyanka's Capital A/c",
+      "Kuldeep's Capital A/c",
+    ]);
+    expect(body.stepByStepExplanation.join(" ")).toContain("Total bank received by the partnership is ₹1,20,000");
+    expect(body.commonMistakes.join(" ")).toContain("Do not use generic Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves partner capital brought in cash with the named partner capital account", async () => {
     const body = await solve("Amit brought Rs.50,000 in cash as capital to the business. Pass the journal entry.");
 

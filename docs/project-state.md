@@ -160,7 +160,8 @@ Current Journal Entry Explainer note:
   - it does not return a partial journal entry for the first transaction
 - the explainer now supports one additional controlled Partnership capital wording:
   - `A and B started their business with Rs 50000 and Rs 70000 in cash as their capital`
-  - expected entry: `Cash A/c Dr.` for the total, with `A's Capital A/c` and `B's Capital A/c` credited separately
+  - `Priyanka and Kuldeep started their business with Rs 50000 and Rs 70000 by bank as their capital`
+  - expected entry uses the stated receipt account (`Cash A/c` or `Bank A/c`) for the total, with each named partner's `Capital A/c` credited separately
   - this remains narrow and does not add broad Partnership Accounts or batch-solving support
 - a safety audit for the batch-guard and two-partner cash-capital fix now confirms:
   - batch input returns the one-transaction message with no partial journal entry
@@ -169,6 +170,11 @@ Current Journal Entry Explainer note:
   - existing controlled Partnership explainer cases still pass
   - goodwill, retirement, admission with goodwill, partner salary, and partner commission remain unsupported
   - beginner `/practice` and `/practice/advanced` order/count remain unchanged
+- a narrow bank-capital regression fix now confirms:
+  - `Priyanka and Kuldeep... by bank as their capital` debits `Bank A/c` for `Rs 120000`
+  - it credits `Priyanka's Capital A/c` for `Rs 50000` and `Kuldeep's Capital A/c` for `Rs 70000`
+  - it does not fall through to generic single-owner `Capital A/c`
+  - the existing A/B cash case still works
 
 History is currently stored with localStorage key:
 

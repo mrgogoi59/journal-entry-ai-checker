@@ -136,7 +136,6 @@ function solveTwoPartnerCashCapitalContributionExplainer(
 ): JournalEntrySolverResponse | null {
   if (!/\bstarted\s+(?:their\s+)?business\b/i.test(transactionSummary)) return null;
   if (!/\bcapital\b/i.test(transactionSummary)) return null;
-  if (!CASH_WORD_PATTERN.test(transactionSummary)) return null;
   if (/\beach\b/i.test(transactionSummary)) return null;
 
   const partnerMatch = /^\s*([a-z][a-z.'-]*)\s+and\s+([a-z][a-z.'-]*)\s+started\b/i.exec(transactionSummary);
@@ -145,6 +144,13 @@ function solveTwoPartnerCashCapitalContributionExplainer(
   const amounts = extractAmounts(transactionSummary);
   if (amounts.length < 2) return null;
 
+  const receiptAccount = CASH_WORD_PATTERN.test(transactionSummary)
+    ? "Cash A/c"
+    : DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)
+      ? "Bank A/c"
+      : null;
+  if (!receiptAccount) return null;
+
   const firstPartnerName = titleCase(partnerMatch[1]);
   const secondPartnerName = titleCase(partnerMatch[2]);
   const firstAmount = amounts[0];
@@ -152,22 +158,29 @@ function solveTwoPartnerCashCapitalContributionExplainer(
   const totalAmount = firstAmount + secondAmount;
   const firstCapitalAccount = `${firstPartnerName}'s Capital A/c`;
   const secondCapitalAccount = `${secondPartnerName}'s Capital A/c`;
+  const receiptLabel = receiptAccount.replace(" A/c", "");
+  const receiptLabelLower = receiptLabel.toLowerCase();
 
   return controlledAdvancedSolvedResponse({
     transactionSummary,
     safeMode,
     journalEntry: [
-      { account: "Cash A/c", debit: totalAmount, credit: 0 },
+      { account: receiptAccount, debit: totalAmount, credit: 0 },
       { account: firstCapitalAccount, debit: 0, credit: firstAmount },
       { account: secondCapitalAccount, debit: 0, credit: secondAmount },
     ],
-    narration: `Being cash capital introduced by ${firstPartnerName} and ${secondPartnerName} into the partnership.`,
+    narration:
+      receiptAccount === "Bank A/c"
+        ? `Being capital introduced by ${firstPartnerName} and ${secondPartnerName} into the partnership through bank.`
+        : `Being cash capital introduced by ${firstPartnerName} and ${secondPartnerName} into the partnership.`,
     affectedAccounts: [
       assetAffectedAccount(
-        "Cash A/c",
+        receiptAccount,
         "Debit",
-        `Cash increased by ${formatRupees(totalAmount)}`,
-        "Cash came into the partnership business.",
+        `${receiptLabel} increased by ${formatRupees(totalAmount)}`,
+        receiptAccount === "Bank A/c"
+          ? "Money came into the partnership bank account."
+          : "Cash came into the partnership business.",
       ),
       capitalAffectedAccount(
         firstCapitalAccount,
@@ -183,9 +196,9 @@ function solveTwoPartnerCashCapitalContributionExplainer(
       ),
     ],
     stepByStepExplanation: [
-      `${firstPartnerName} contributes ${formatRupees(firstAmount)} and ${secondPartnerName} contributes ${formatRupees(secondAmount)} in cash.`,
-      `Total cash received by the partnership is ${formatRupees(totalAmount)}.`,
-      "Cash A/c is debited because cash comes into the partnership business.",
+      `${firstPartnerName} contributes ${formatRupees(firstAmount)} and ${secondPartnerName} contributes ${formatRupees(secondAmount)} through ${receiptLabelLower}.`,
+      `Total ${receiptLabelLower} received by the partnership is ${formatRupees(totalAmount)}.`,
+      `${receiptAccount} is debited because ${receiptLabelLower} comes into the partnership business.`,
       `${firstCapitalAccount} and ${secondCapitalAccount} are credited because both partners' capital claims increase.`,
     ],
     commonMistakes: [
@@ -193,8 +206,8 @@ function solveTwoPartnerCashCapitalContributionExplainer(
       "Do not record only the first partner's capital when two partner amounts are given.",
     ],
     practiceQuestion: {
-      question: `${firstPartnerName} and ${secondPartnerName} started their business with different cash capitals. Pass the journal entry.`,
-      expectedPattern: `Cash A/c Dr. To ${firstCapitalAccount}, To ${secondCapitalAccount}`,
+      question: `${firstPartnerName} and ${secondPartnerName} started their business with different capitals. Pass the journal entry.`,
+      expectedPattern: `${receiptAccount} Dr. To ${firstCapitalAccount}, To ${secondCapitalAccount}`,
     },
   });
 }

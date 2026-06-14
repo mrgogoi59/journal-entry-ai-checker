@@ -2,6 +2,21 @@
 
 ## Immediate recommended next step
 
+The narrow Partnership Explainer two-named-partner bank-capital bug fix is completed.
+
+What this completed slice achieved:
+
+- it handles `Priyanka and Kuldeep started their business with Rs 50000 and Rs 70000 by bank as their capital`
+- it debits `Bank A/c` for `Rs 120000`
+- it credits `Priyanka's Capital A/c` for `Rs 50000` and `Kuldeep's Capital A/c` for `Rs 70000`
+- it prevents this named-partner bank-capital wording from falling through to generic single-owner `Capital A/c`
+- it keeps the earlier A/B cash-capital case working
+- it does not add broad Partnership Accounts support, batch solving, deferred Partnership topics, beginner `/practice` changes, `/practice/advanced` order/count changes, parser/classifier/validator/checker changes, ledger/trial-balance changes, Final Accounts Impact changes, APIs, persistence, backend, or AI features
+
+The next safest step is to pause Explainer expansion unless another concrete narrow wording bug is found.
+
+## Immediate recommended next step
+
 The safety audit for the narrow Partnership Explainer batch-guard and two-partner cash-capital fix is completed.
 
 What this completed audit confirmed:
