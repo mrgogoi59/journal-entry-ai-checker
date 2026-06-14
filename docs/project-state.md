@@ -175,6 +175,11 @@ Current Journal Entry Explainer note:
   - it credits `Priyanka's Capital A/c` for `Rs 50000` and `Kuldeep's Capital A/c` for `Rs 70000`
   - it does not fall through to generic single-owner `Capital A/c`
   - the existing A/B cash case still works
+- two additional narrow single-partner capital wording fixes now confirm:
+  - `Kuldeep introduced Rs.75,000 as capital by bank` debits `Bank A/c` and credits `Kuldeep's Capital A/c`
+  - `Priyanka brought cash Rs.60,000 as capital into the partnership` debits `Cash A/c` and credits `Priyanka's Capital A/c`
+  - named partner capital wording does not fall back to generic `Capital A/c`
+  - revaluation profit transfer remains unsupported
 
 History is currently stored with localStorage key:
 

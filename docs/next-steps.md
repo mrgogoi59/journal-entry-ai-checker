@@ -2,6 +2,21 @@
 
 ## Immediate recommended next step
 
+The narrow Partnership Explainer single-partner capital wording fixes are completed.
+
+What this completed slice achieved:
+
+- it handles `Kuldeep introduced Rs.75,000 as capital by bank` as `Bank A/c Dr.` / `Kuldeep's Capital A/c Cr.`
+- it handles `Priyanka brought cash Rs.60,000 as capital into the partnership` as `Cash A/c Dr.` / `Priyanka's Capital A/c Cr.`
+- it keeps named partner capital from falling back to generic `Capital A/c`
+- it keeps existing Partnership capital, drawings, and interest-on-capital cases working
+- it keeps goodwill, retirement, admission with goodwill, partner salary, partner commission, and revaluation profit transfer unsupported
+- it does not add broad Partnership Accounts support, batch solving, beginner `/practice` changes, `/practice/advanced` order/count changes, parser/classifier/validator/checker changes, ledger/trial-balance changes, Final Accounts Impact changes, APIs, persistence, backend, or AI features
+
+The next safest step is to pause Partnership Explainer expansion unless another concrete narrow manual-testing bug is found.
+
+## Immediate recommended next step
+
 The narrow Partnership Explainer two-named-partner bank-capital bug fix is completed.
 
 What this completed slice achieved:

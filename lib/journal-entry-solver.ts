@@ -217,11 +217,11 @@ function solvePartnerCapitalContributionExplainer(
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
   const isIntroducedToPartnership =
-    /\bintroduced\s+capital\b/i.test(transactionSummary) && /\bpartnership\b/i.test(transactionSummary);
+    /\bintroduced\b/i.test(transactionSummary) && /\bcapital\b/i.test(transactionSummary);
   const isBroughtCashAsCapital =
     /\bbrought\b/i.test(transactionSummary) &&
-    /\bas\s+capital\b/i.test(transactionSummary) &&
-    /\bto\s+the\s+business\b/i.test(transactionSummary) &&
+    /\bcapital\b/i.test(transactionSummary) &&
+    /\b(?:partnership|business)\b/i.test(transactionSummary) &&
     CASH_WORD_PATTERN.test(transactionSummary);
   if (!isIntroducedToPartnership && !isBroughtCashAsCapital) return null;
 
@@ -229,7 +229,11 @@ function solvePartnerCapitalContributionExplainer(
   const amount = extractAmount(transactionSummary);
   if (!partnerName || !amount) return null;
 
-  const receiptAccount = CASH_WORD_PATTERN.test(transactionSummary) ? "Cash A/c" : DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary) ? "Bank A/c" : null;
+  const receiptAccount = CASH_WORD_PATTERN.test(transactionSummary)
+    ? "Cash A/c"
+    : DIGITAL_OR_BANK_WORD_PATTERN.test(transactionSummary)
+      ? "Bank A/c"
+      : null;
   if (!receiptAccount) return null;
 
   const receiptLabel = receiptAccount.replace(" A/c", "");

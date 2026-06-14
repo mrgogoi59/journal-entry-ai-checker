@@ -2099,6 +2099,39 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("solves named partner capital introduced as capital by bank without generic Capital A/c", async () => {
+    const body = await solve("Kuldeep introduced Rs.75,000 as capital by bank. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Bank A/c", debit: 75000, credit: 0 },
+      { account: "Kuldeep's Capital A/c", debit: 0, credit: 75000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Bank A/c Dr. ₹75,000");
+    expect(journalEntryText(body)).toContain("To Kuldeep's Capital A/c ₹75,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual(["Bank A/c", "Kuldeep's Capital A/c"]);
+    expect(body.stepByStepExplanation.join(" ")).toContain("Kuldeep's Capital A/c is credited");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
+  it("solves named partner cash capital brought into the partnership", async () => {
+    const body = await solve("Priyanka brought cash Rs.60,000 as capital into the partnership. Pass the journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 60000, credit: 0 },
+      { account: "Priyanka's Capital A/c", debit: 0, credit: 60000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Cash A/c Dr. ₹60,000");
+    expect(journalEntryText(body)).toContain("To Priyanka's Capital A/c ₹60,000");
+    expect(journalEntryText(body)).not.toContain("Bank A/c Dr.");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual(["Cash A/c", "Priyanka's Capital A/c"]);
+    expect(body.stepByStepExplanation.join(" ")).toContain("Priyanka's Capital A/c is credited");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("asks for one transaction at a time instead of returning a partial batch answer", async () => {
     const body = await solve(
       [
@@ -2299,6 +2332,7 @@ describe("POST /api/journal-entry-solver", () => {
     "Amit was admitted as a partner with capital Rs.50,000 and goodwill Rs.10,000. Pass the journal entry.",
     "Partner salary is allowed to Amit Rs.5,000. Pass the journal entry.",
     "Partner commission is allowed to Amit Rs.5,000. Pass the journal entry.",
+    "Revaluation profit of Rs.10,000 was transferred to partners' capital accounts. Pass the journal entry.",
     "The company redeemed debentures of Rs.50,000 under Companies Act treatment. Pass the journal entry.",
   ])("keeps unsupported complex advanced explainer case unsupported: %s", async (transaction) => {
     const body = await solve(transaction);
