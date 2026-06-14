@@ -155,6 +155,20 @@ Current Journal Entry Explainer note:
   - bank drawings uses `Amit Drawings A/c` and `Bank A/c`, not `Cash A/c`
   - single-partner interest on capital uses `Amit's Current A/c`, not `Amit's Capital A/c`
   - deferred Partnership cases, including goodwill brought by a partner, remain unsupported
+- the explainer now has a narrow batch-input guard:
+  - if clear multiple transactions are entered together, it returns `Please enter one transaction at a time.`
+  - it does not return a partial journal entry for the first transaction
+- the explainer now supports one additional controlled Partnership capital wording:
+  - `A and B started their business with Rs 50000 and Rs 70000 in cash as their capital`
+  - expected entry: `Cash A/c Dr.` for the total, with `A's Capital A/c` and `B's Capital A/c` credited separately
+  - this remains narrow and does not add broad Partnership Accounts or batch-solving support
+- a safety audit for the batch-guard and two-partner cash-capital fix now confirms:
+  - batch input returns the one-transaction message with no partial journal entry
+  - the two-partner case totals `Rs 50000` + `Rs 70000` into `Cash A/c Dr.` for `Rs 120000`
+  - named capital accounts are used for `A's Capital A/c` and `B's Capital A/c`, not generic `Capital A/c`
+  - existing controlled Partnership explainer cases still pass
+  - goodwill, retirement, admission with goodwill, partner salary, and partner commission remain unsupported
+  - beginner `/practice` and `/practice/advanced` order/count remain unchanged
 
 History is currently stored with localStorage key:
 

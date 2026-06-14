@@ -2,6 +2,36 @@
 
 ## Immediate recommended next step
 
+The safety audit for the narrow Partnership Explainer batch-guard and two-partner cash-capital fix is completed.
+
+What this completed audit confirmed:
+
+- multi-transaction input returns `Please enter one transaction at a time.` and does not return a partial journal entry
+- the controlled two-partner capital wording debits `Cash A/c` for `Rs 120000` and credits `A's Capital A/c` and `B's Capital A/c` separately
+- the two-partner capital case does not use generic `Capital A/c`
+- existing controlled Partnership explainer cases still pass, including Amit/Riya bank capital, Amit cash capital, Amit drawings by cash/bank, and one-/two-partner interest on capital
+- deferred Partnership cases remain unsupported, including goodwill, retirement, admission with goodwill, partner salary, and partner commission
+- beginner `/practice` and `/practice/advanced` order/count remain unchanged
+
+The next safest step is to pause broad Explainer expansion and only add another docs/test-only audit or one narrow wording fix if a specific student-facing gap is confirmed.
+
+## Immediate recommended next step
+
+The narrow Partnership Explainer batch-guard and two-partner cash-capital fix is completed.
+
+What this completed slice achieved:
+
+- it returns `Please enter one transaction at a time.` when clear multiple transactions are entered together
+- it avoids returning a partial journal entry for batch input
+- it supports the controlled two-partner capital wording where A contributes `Rs 50000` and B contributes `Rs 70000` in cash
+- it debits `Cash A/c` for `Rs 120000` and credits `A's Capital A/c` and `B's Capital A/c` separately
+- it keeps existing Partnership explainer cases intact and leaves deferred goodwill, retirement, admission with goodwill, partner salary, and partner commission unsupported
+- it does not change beginner `/practice`, `/practice/advanced` order/count, Journal Entry Explainer route shape, parser/classifier/validator/checker behavior, ledger/trial-balance calculations, Final Accounts Impact, APIs, persistence, backend, or AI features
+
+The next safest step is the completed safety audit above, then pausing Partnership Explainer expansion until another specific narrow wording gap is confirmed.
+
+## Immediate recommended next step
+
 The public-facing brand-name standardization is completed.
 
 What this completed slice achieved:

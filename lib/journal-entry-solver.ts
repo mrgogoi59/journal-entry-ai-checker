@@ -1,4 +1,5 @@
 import { displayAccountName, getAccountMetadata } from "./account-metadata";
+import { extractAmounts } from "./amount-parser";
 import { generatePracticeQuestion } from "./explanation-generator";
 import { generateExpectedEntry } from "./expected-entry-generator";
 import { classifyTransaction, extractAmount } from "./transaction-classifier";
@@ -18,6 +19,7 @@ import type {
 
 const unsupportedMessage =
   "I cannot safely solve this transaction yet. Please rewrite with amount, payment mode, and account context.";
+const oneTransactionAtATimeMessage = "Please enter one transaction at a time.";
 const cashDefaultAssumptionNote =
   "Since no payment mode or buyer is mentioned, this beginner convention assumes a cash transaction.";
 const DIGITAL_OR_BANK_WORD_PATTERN =
@@ -68,6 +70,10 @@ export function solveJournalEntry(transaction: string, mode: SolverMode = "begin
     return unsupportedResponse(transactionSummary);
   }
 
+  if (isMultiTransactionInput(transactionSummary)) {
+    return multiTransactionUnsupportedResponse(transactionSummary);
+  }
+
   const controlledAdvancedResponse = solveControlledAdvancedExplainerScenario(transactionSummary, safeMode);
   if (controlledAdvancedResponse) {
     return controlledAdvancedResponse;
@@ -114,6 +120,7 @@ function solveControlledAdvancedExplainerScenario(
   safeMode: SolverMode,
 ): JournalEntrySolverResponse | null {
   return (
+    solveTwoPartnerCashCapitalContributionExplainer(transactionSummary, safeMode) ??
     solvePartnerCapitalContributionExplainer(transactionSummary, safeMode) ??
     solvePartnerDrawingsCashExplainer(transactionSummary, safeMode) ??
     solvePartnershipInterestOnCapitalExplainer(transactionSummary, safeMode) ??
@@ -121,6 +128,75 @@ function solveControlledAdvancedExplainerScenario(
     solveCallsInAdvanceReceivedExplainer(transactionSummary, safeMode) ??
     solveDebentureRedemptionAtParExplainer(transactionSummary, safeMode)
   );
+}
+
+function solveTwoPartnerCashCapitalContributionExplainer(
+  transactionSummary: string,
+  safeMode: SolverMode,
+): JournalEntrySolverResponse | null {
+  if (!/\bstarted\s+(?:their\s+)?business\b/i.test(transactionSummary)) return null;
+  if (!/\bcapital\b/i.test(transactionSummary)) return null;
+  if (!CASH_WORD_PATTERN.test(transactionSummary)) return null;
+  if (/\beach\b/i.test(transactionSummary)) return null;
+
+  const partnerMatch = /^\s*([a-z][a-z.'-]*)\s+and\s+([a-z][a-z.'-]*)\s+started\b/i.exec(transactionSummary);
+  if (!partnerMatch?.[1] || !partnerMatch[2]) return null;
+
+  const amounts = extractAmounts(transactionSummary);
+  if (amounts.length < 2) return null;
+
+  const firstPartnerName = titleCase(partnerMatch[1]);
+  const secondPartnerName = titleCase(partnerMatch[2]);
+  const firstAmount = amounts[0];
+  const secondAmount = amounts[1];
+  const totalAmount = firstAmount + secondAmount;
+  const firstCapitalAccount = `${firstPartnerName}'s Capital A/c`;
+  const secondCapitalAccount = `${secondPartnerName}'s Capital A/c`;
+
+  return controlledAdvancedSolvedResponse({
+    transactionSummary,
+    safeMode,
+    journalEntry: [
+      { account: "Cash A/c", debit: totalAmount, credit: 0 },
+      { account: firstCapitalAccount, debit: 0, credit: firstAmount },
+      { account: secondCapitalAccount, debit: 0, credit: secondAmount },
+    ],
+    narration: `Being cash capital introduced by ${firstPartnerName} and ${secondPartnerName} into the partnership.`,
+    affectedAccounts: [
+      assetAffectedAccount(
+        "Cash A/c",
+        "Debit",
+        `Cash increased by ${formatRupees(totalAmount)}`,
+        "Cash came into the partnership business.",
+      ),
+      capitalAffectedAccount(
+        firstCapitalAccount,
+        "Credit",
+        `${firstPartnerName}'s capital increased by ${formatRupees(firstAmount)}`,
+        `${firstPartnerName} contributed capital, so ${firstCapitalAccount} is credited.`,
+      ),
+      capitalAffectedAccount(
+        secondCapitalAccount,
+        "Credit",
+        `${secondPartnerName}'s capital increased by ${formatRupees(secondAmount)}`,
+        `${secondPartnerName} contributed capital, so ${secondCapitalAccount} is credited.`,
+      ),
+    ],
+    stepByStepExplanation: [
+      `${firstPartnerName} contributes ${formatRupees(firstAmount)} and ${secondPartnerName} contributes ${formatRupees(secondAmount)} in cash.`,
+      `Total cash received by the partnership is ${formatRupees(totalAmount)}.`,
+      "Cash A/c is debited because cash comes into the partnership business.",
+      `${firstCapitalAccount} and ${secondCapitalAccount} are credited because both partners' capital claims increase.`,
+    ],
+    commonMistakes: [
+      `Do not use generic Capital A/c when partner names are given; use ${firstCapitalAccount} and ${secondCapitalAccount}.`,
+      "Do not record only the first partner's capital when two partner amounts are given.",
+    ],
+    practiceQuestion: {
+      question: `${firstPartnerName} and ${secondPartnerName} started their business with different cash capitals. Pass the journal entry.`,
+      expectedPattern: `Cash A/c Dr. To ${firstCapitalAccount}, To ${secondCapitalAccount}`,
+    },
+  });
 }
 
 function solvePartnerCapitalContributionExplainer(
@@ -563,6 +639,47 @@ function extractNamedAmounts(transaction: string): Array<{ name: string; amount:
     name: titleCase(name),
     amount: Number(amount.replace(/,/g, "")),
   })).filter((line) => line.amount > 0);
+}
+
+function isMultiTransactionInput(transaction: string): boolean {
+  const parts = transaction
+    .split(/[\r\n;]+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.filter(looksLikeTransactionClause).length >= 2) return true;
+
+  return /\bpass\s+journal\s+entries?\b[\s.:-]+(?:bought|purchased|sold|paid|received|deposited|withdrew|redeemed|issued)\b/i.test(
+    transaction.replace(/\s+/g, " "),
+  );
+}
+
+function looksLikeTransactionClause(value: string): boolean {
+  if (!extractAmount(value)) return false;
+
+  return /\b(?:started|brought|introduced|bought|purchased|sold|paid|received|deposited|withdrew|redeemed|issued|allowed|capital|goods)\b/i.test(
+    value,
+  );
+}
+
+function multiTransactionUnsupportedResponse(transactionSummary: string): JournalEntrySolverResponse {
+  const explanation =
+    "The Explainer currently explains one journal entry at a time to stay accurate. Please split this into separate transactions and enter them one by one.";
+
+  return {
+    transactionSummary,
+    status: "unsupported",
+    confidence: "low",
+    ambiguityQuestions: [],
+    possibleInterpretations: [],
+    journalEntry: [],
+    narration: "",
+    affectedAccounts: [],
+    stepByStepExplanation: [oneTransactionAtATimeMessage, explanation],
+    commonMistakes: ["Do not combine multiple transactions in one Explainer request."],
+    practiceQuestion: emptyPracticeQuestion(),
+    message: `${oneTransactionAtATimeMessage}\n${explanation}`,
+  };
 }
 
 function withCashDefaultAssumption(classification: TransactionClassification, steps: string[]): string[] {

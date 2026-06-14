@@ -2099,6 +2099,47 @@ describe("POST /api/journal-entry-solver", () => {
     expect(totalDebits(body)).toBe(totalCredits(body));
   });
 
+  it("asks for one transaction at a time instead of returning a partial batch answer", async () => {
+    const body = await solve(
+      [
+        "A and B started their business with Rs 50000 and Rs 70000 each in cash as their capital. Pass Journal Entries",
+        "",
+        "Bought goods for cash Rs.10000",
+      ].join("\n"),
+    );
+
+    expect(body.status).toBe("unsupported");
+    expect(body.message).toContain("Please enter one transaction at a time.");
+    expect(body.stepByStepExplanation.join(" ")).toContain("one journal entry at a time");
+    expect(body.journalEntry).toEqual([]);
+    expect(journalEntryText(body)).not.toContain("Cash A/c Dr. ₹50,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(journalEntryText(body)).not.toContain("Purchases A/c");
+  });
+
+  it("solves two partners starting business with different cash capitals using named capital accounts", async () => {
+    const body = await solve("A and B started their business with Rs 50000 and Rs 70000 in cash as their capital. Pass journal entry.");
+
+    expect(body.status).toBe("solved");
+    expect(body.journalEntry).toEqual([
+      { account: "Cash A/c", debit: 120000, credit: 0 },
+      { account: "A's Capital A/c", debit: 0, credit: 50000 },
+      { account: "B's Capital A/c", debit: 0, credit: 70000 },
+    ]);
+    expect(journalEntryText(body)).toContain("Cash A/c Dr. ₹1,20,000");
+    expect(journalEntryText(body)).toContain("To A's Capital A/c ₹50,000");
+    expect(journalEntryText(body)).toContain("To B's Capital A/c ₹70,000");
+    expect(journalEntryText(body)).not.toContain("To Capital A/c");
+    expect(body.affectedAccounts.map((account) => account.account)).toEqual([
+      "Cash A/c",
+      "A's Capital A/c",
+      "B's Capital A/c",
+    ]);
+    expect(body.stepByStepExplanation.join(" ")).toContain("Total cash received by the partnership is ₹1,20,000");
+    expect(body.commonMistakes.join(" ")).toContain("Do not use generic Capital A/c");
+    expect(totalDebits(body)).toBe(totalCredits(body));
+  });
+
   it("solves partner capital brought in cash with the named partner capital account", async () => {
     const body = await solve("Amit brought Rs.50,000 in cash as capital to the business. Pass the journal entry.");
 
