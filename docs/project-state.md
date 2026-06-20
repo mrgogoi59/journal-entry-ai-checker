@@ -134,6 +134,25 @@ Target platform planning note:
 - Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions, Accounts Affected, Types of Accounts, Debit and Credit Rules, Journal Format and Narration, and Cash and Bank Transactions remain explanation-only.
 - Phase 3L does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/capital`, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
 - Phase 3L does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
+- Phase 3M now adds the eighth routed Journal Entries learning section inside the isolated `/platform-preview` shell:
+  - `/platform-preview/chapters/journal-entries/capital`
+- The Journal Entries preview now contains eight routed learning sections:
+  - `Introduction to Journal Entries and Journal Format`
+  - `Business Transactions`
+  - `Accounts Affected`
+  - `Types of Accounts`
+  - `Debit and Credit Rules`
+  - `Journal Format and Narration`
+  - `Cash and Bank Transactions`
+  - `Capital`
+- The Capital section teaches capital meaning, the business entity concept, accounting-equation impact, cash capital, bank capital, named Capital A/c treatment, two-partner cash and bank capital entries, additional capital, capital versus loans/income, a non-cash capital design-needed note, five solved illustrations, common mistakes, a 10-step process, a display-only checklist, and a non-checking reflection prompt.
+- Cash and Bank Transactions now links forward to Capital, while Capital links back to Cash and Bank Transactions and shows `Drawings` as an upcoming disabled next step.
+- Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions, Accounts Affected, Types of Accounts, Debit and Credit Rules, Journal Format and Narration, Cash and Bank Transactions, and Capital remain explanation-only.
+- The supported checking scope remains exactly two questions:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- Phase 3M does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/drawings`, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
+- Phase 3M does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 

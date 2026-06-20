@@ -2,9 +2,9 @@
 
 ## Immediate recommended next step
 
-Phase 3L of the Journal Entries chapter-learning preview is completed.
+Phase 3M of the Journal Entries chapter-learning preview is completed.
 
-What this completed seventh-section slice achieved:
+What this completed eighth-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
 - it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
@@ -12,15 +12,16 @@ What this completed seventh-section slice achieved:
 - it keeps `/platform-preview/chapters/journal-entries/types-of-accounts` as Section 4: `Types of Accounts`
 - it keeps `/platform-preview/chapters/journal-entries/debit-and-credit-rules` as Section 5: `Debit and Credit Rules`
 - it keeps `/platform-preview/chapters/journal-entries/journal-format-and-narration` as Section 6: `Journal Format and Narration`
-- it adds `/platform-preview/chapters/journal-entries/cash-and-bank-transactions` as Section 7: `Cash and Bank Transactions`
-- Cash and Bank Transactions reuses the existing typed learning-platform model and renderer blocks for clue guides, comparisons, solved illustrations, process steps, common mistakes, recap, and reflection prompts
-- Journal Format and Narration now links forward to Cash and Bank Transactions, while Cash and Bank Transactions links back to Journal Format and Narration and shows `Capital` as an upcoming disabled next step
-- Cash and Bank Transactions is static learning content only: Cash A/c versus Bank A/c, cash receipts/payments, bank receipts/payments, payment-mode clues, cash deposited into bank, cash withdrawn from bank for business use, business-versus-personal withdrawal treatment, credit-transaction warnings, seven worked examples, common mistakes, a display-only checklist, and a non-checking reflection prompt
+- it keeps `/platform-preview/chapters/journal-entries/cash-and-bank-transactions` as Section 7: `Cash and Bank Transactions`
+- it adds `/platform-preview/chapters/journal-entries/capital` as Section 8: `Capital`
+- Capital reuses the existing typed learning-platform model and renderer blocks for concept explanations, comparisons, accounting-format displays, solved illustrations, process steps, common mistakes, recap, and reflection prompts
+- Cash and Bank Transactions now links forward to Capital, while Capital links back to Cash and Bank Transactions and shows `Drawings` as an upcoming disabled next step
+- Capital is static learning content only: capital meaning, business entity concept, accounting-equation impact, cash capital, bank capital, named Capital A/c examples, two-partner cash and bank capital entries, additional capital, capital versus loans/income, a non-cash capital design-needed note, five solved illustrations, common mistakes, a display-only checklist, and a non-checking reflection prompt
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
-- no third question ID, new checker logic, broad question-bank generator, `/capital` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
+- no third question ID, new checker logic, broad question-bank generator, `/drawings` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder visual/content review is required next for the seven-section progression on desktop and mobile. Phase 3M should add the eighth static subtopic, `Capital`, only after review and using the same reusable section progression; do not add further Practice It Yourself questions, broad question-bank generation, live-route migration, or new checker wiring yet.
+Founder visual/content review is required next for the eight-section progression on desktop and mobile. Phase 3N should add the ninth static subtopic, `Drawings`, only after review and using the same reusable section progression; do not add further Practice It Yourself questions, broad question-bank generation, live-route migration, or new checker wiring yet.
 
 ## Immediate recommended next step
 

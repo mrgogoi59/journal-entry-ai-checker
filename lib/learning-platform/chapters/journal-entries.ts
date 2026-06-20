@@ -16,6 +16,7 @@ export const JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG = "types-of-accounts
 export const JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG = "debit-and-credit-rules";
 export const JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG = "journal-format-and-narration";
 export const JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG = "cash-and-bank-transactions";
+export const JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG = "capital";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -175,10 +176,19 @@ const cashAndBankTransactionsSubtopicReference: ChapterSubtopicReference = {
 };
 
 const capitalSubtopicReference: ChapterSubtopicReference = {
-  id: "capital",
-  slug: "capital",
+  id: JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
   title: "Capital",
   order: 8,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG}`,
+};
+
+const drawingsSubtopicReference: ChapterSubtopicReference = {
+  id: "drawings",
+  slug: "drawings",
+  title: "Drawings",
+  order: 9,
   availabilityStatus: "upcoming",
 };
 
@@ -2198,6 +2208,503 @@ export const cashAndBankTransactionsJournalEntriesSubtopic: ChapterSubtopicDefin
   ],
 };
 
+export const capitalJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...capitalSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG}`,
+  shortDescription:
+    "Learn what capital means, why Capital A/c is credited, and how named and multi-partner capital entries are recorded.",
+  learningObjective:
+    "Students learn capital as the owner's or partner's claim, record cash and bank capital, preserve named Capital A/c, and keep two-partner entries balanced.",
+  progressLabel: "Section 8 of 16",
+  previousSection: cashAndBankTransactionsSubtopicReference,
+  nextSection: drawingsSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "capital",
+      eyebrow: "Learning objective",
+      title: "Capital",
+      body:
+        "By the end of this section, you should be able to record capital introduced by cash or bank, preserve named Capital A/c, record two partners separately, and understand the Balance Sheet impact.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-capital",
+      eyebrow: "Concept explanation",
+      title: "What capital means",
+      paragraphs: [
+        "Capital is the amount or value introduced by the owner or partners into the business.",
+        "Capital represents the owner's or partners' claim against the business.",
+        "Capital is not business income. It is not sales revenue, and it is not a loan from an outsider.",
+        "Capital may be introduced when the business starts or later as additional capital.",
+        "Cash A/c or Bank A/c records the asset received. Capital A/c records the owner's or partner's claim.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "business-entity-concept-for-capital",
+      eyebrow: "Business entity concept",
+      title: "The business and owner are treated separately",
+      paragraphs: [
+        "For accounting, the business and its owner are treated as separate.",
+        "When Amit introduces money, the business receives an asset.",
+        "At the same time, the business recognises Amit's claim through Amit's Capital A/c.",
+        "From the business's point of view, the owner gives value to the business.",
+        "This is why the asset account is debited and the named Capital A/c is credited.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "capital-accounting-equation-impact",
+      eyebrow: "Accounting equation",
+      title: "Capital keeps the accounting equation balanced",
+      intro:
+        "Assets = Capital + Liabilities. When capital is introduced, an asset increases and capital also increases.",
+      groups: [
+        {
+          title: "Before Amit introduces cash",
+          items: [
+            "Assets: ₹0.",
+            "Capital: ₹0.",
+            "Liabilities: ₹0.",
+          ],
+        },
+        {
+          title: "After Amit introduces cash ₹50,000",
+          items: [
+            "Cash: ₹50,000.",
+            "Amit's Capital: ₹50,000.",
+            "Asset increases and capital increases, so the equation remains balanced.",
+          ],
+        },
+        {
+          title: "Final accounts impact",
+          items: [
+            "No income is earned.",
+            "No expense is incurred.",
+            "No direct Profit & Loss impact arises.",
+            "The Balance Sheet is affected.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "capital-introduced-in-cash-format",
+      eyebrow: "Capital introduced in cash",
+      title: "Use Cash A/c when physical cash is introduced",
+      paragraphs: [
+        "Transaction: Amit introduced cash ₹50,000 as capital.",
+        "Cash asset increases, so Cash A/c is debited. Amit's Capital increases, so Amit's Capital A/c is credited.",
+        "Use Cash A/c because physical cash is introduced. Do not use Bank A/c, and do not use generic Capital A/c when Amit is named.",
+      ],
+      formatRows: [
+        { id: "capital-cash-debit", particulars: "Cash A/c Dr.", lf: "", debitDisplay: "50,000" },
+        { id: "capital-cash-credit", particulars: "To Amit's Capital A/c", lf: "", creditDisplay: "50,000" },
+        { id: "capital-cash-narration", particulars: "(Being cash introduced by Amit as capital.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "capital-introduced-through-bank-format",
+      eyebrow: "Capital introduced through bank",
+      title: "Use Bank A/c when money enters the business bank",
+      paragraphs: [
+        "Transaction: Priyanka introduced capital of ₹60,000 through bank.",
+        "Bank asset increases, so Bank A/c is debited. Priyanka's Capital increases, so Priyanka's Capital A/c is credited.",
+        "Use Bank A/c because the money enters the business bank account. Cash A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "capital-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "60,000" },
+        { id: "capital-bank-credit", particulars: "To Priyanka's Capital A/c", lf: "", creditDisplay: "60,000" },
+        { id: "capital-bank-narration", particulars: "(Being capital introduced by Priyanka through bank.)" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "named-capital-accounts",
+      eyebrow: "Named Capital A/c",
+      title: "Use the person's Capital A/c when a name is given",
+      intro:
+        "Named Capital A/c is especially important in Partnership Accounts, where every partner has a separate capital account.",
+      groups: [
+        {
+          title: "Use named accounts",
+          items: [
+            "Amit's Capital A/c.",
+            "Priyanka's Capital A/c.",
+            "Kuldeep's Capital A/c.",
+            "Riya's Capital A/c.",
+          ],
+        },
+        {
+          title: "Avoid generic wording",
+          items: [
+            "Do not write only Capital A/c when the transaction gives a name.",
+            "The name tells whose claim against the business increased.",
+            "Separate names become essential when two or more partners contribute capital.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "two-partners-cash-capital-format",
+      eyebrow: "Two partners",
+      title: "Two partners introduce cash capital",
+      paragraphs: [
+        "Transaction: A and B started their partnership with ₹50,000 and ₹70,000 in cash as capital.",
+        "Cash receives the combined ₹1,20,000. A and B retain separate Capital A/c balances.",
+        "Each partner's contribution must be credited separately, and the debit total must equal the combined capital credits.",
+      ],
+      formatRows: [
+        { id: "two-partner-cash-debit", particulars: "Cash A/c Dr.", lf: "", debitDisplay: "1,20,000" },
+        { id: "two-partner-a-credit", particulars: "To A's Capital A/c", lf: "", creditDisplay: "50,000" },
+        { id: "two-partner-b-credit", particulars: "To B's Capital A/c", lf: "", creditDisplay: "70,000" },
+        { id: "two-partner-cash-narration", particulars: "(Being cash capital introduced by A and B.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "two-partners-bank-capital-format",
+      eyebrow: "Two partners",
+      title: "Two partners introduce capital through bank",
+      paragraphs: [
+        "Transaction: Amit and Riya introduced ₹40,000 and ₹60,000 through bank as capital.",
+        "Bank A/c is debited with the combined ₹1,00,000. Amit's Capital A/c and Riya's Capital A/c are credited separately.",
+        "Do not combine the two partners into one generic Capital A/c.",
+      ],
+      formatRows: [
+        { id: "two-partner-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "1,00,000" },
+        { id: "two-partner-amit-credit", particulars: "To Amit's Capital A/c", lf: "", creditDisplay: "40,000" },
+        { id: "two-partner-riya-credit", particulars: "To Riya's Capital A/c", lf: "", creditDisplay: "60,000" },
+        { id: "two-partner-bank-narration", particulars: "(Being capital introduced by Amit and Riya through bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "additional-capital-format",
+      eyebrow: "Additional capital",
+      title: "Additional capital follows the same logic",
+      paragraphs: [
+        "Capital may be introduced after the business has already started.",
+        "Additional capital follows the same debit-credit logic. It is not income merely because the business receives more money.",
+        "Transaction: Kuldeep introduced additional capital of ₹25,000 through bank.",
+      ],
+      formatRows: [
+        { id: "additional-capital-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "25,000" },
+        { id: "additional-capital-kuldeep-credit", particulars: "To Kuldeep's Capital A/c", lf: "", creditDisplay: "25,000" },
+        { id: "additional-capital-narration", particulars: "(Being additional capital introduced by Kuldeep through bank.)" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "capital-versus-similar-receipts",
+      eyebrow: "Capital versus similar receipts",
+      title: "Money received can have different accounting nature",
+      intro:
+        "Capital, loan, and income can all bring money into the business, but their accounting meaning is different.",
+      groups: [
+        {
+          title: "Capital",
+          items: [
+            "Source: owner or partner.",
+            "Effect: Capital / Equity increases.",
+            "Example entry: Bank A/c Dr.",
+            "To Amit's Capital A/c.",
+          ],
+        },
+        {
+          title: "Loan",
+          items: [
+            "Source: outsider, bank, or lender.",
+            "Effect: Liability increases.",
+            "Example entry: Bank A/c Dr.",
+            "To Bank Loan A/c.",
+          ],
+        },
+        {
+          title: "Sales or income",
+          items: [
+            "Source: normal business operations.",
+            "Effect: Income increases.",
+            "Example entry: Cash/Bank A/c Dr.",
+            "To Sales/Income A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "capital-versus-revenue",
+      eyebrow: "Capital versus revenue",
+      title: "Capital is not income",
+      intro:
+        "Do not treat capital as profit just because money comes into the business.",
+      groups: [
+        {
+          title: "Capital receipt",
+          items: [
+            "Comes from the owner or partner.",
+            "Increases the owner's or partner's claim.",
+            "Does not arise from normal sales or services.",
+            "Does not directly increase profit.",
+          ],
+        },
+        {
+          title: "Revenue receipt",
+          items: [
+            "Arises from business operations.",
+            "Is recorded as income.",
+            "May affect Profit & Loss.",
+            "Examples include sales or commission received.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "non-cash-capital-design-note",
+      eyebrow: "Later / design-needed",
+      title: "Capital introduced in a non-cash form",
+      paragraphs: [
+        "Sometimes an owner may introduce an asset, such as furniture or machinery, as capital.",
+        "This requires identifying the asset received, valuing it correctly, and crediting the named Capital A/c.",
+        "Detailed non-cash capital entries are marked Later / design-needed in this preview.",
+        "This phase does not add checking support, solver support, or a full solved illustration for non-cash capital.",
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "capital-riya-cash",
+      illustration: {
+        id: "capital-riya-cash",
+        title: "Solved Illustration 1: cash capital",
+        difficulty: "easy",
+        question: "Riya brought ₹45,000 in cash as capital into the business.",
+        accountsAffected: ["Cash A/c", "Riya's Capital A/c"],
+        reasoningSteps: [
+          { label: "Physical cash", detail: "Cash comes into the business, so Cash A/c is debited." },
+          { label: "Named capital", detail: "Riya's Capital A/c increases, so it is credited." },
+          { label: "Not income", detail: "Capital is not income because it comes from the owner or partner." },
+        ],
+        journalEntry: [
+          { id: "capital-riya-cash-debit", account: "Cash A/c", side: "debit", amount: 45000, drNotation: "Dr." },
+          { id: "capital-riya-capital-credit", account: "Riya's Capital A/c", side: "credit", amount: 45000, displayPrefix: "To" },
+        ],
+        narration: "Being cash introduced by Riya as capital.",
+        explanation:
+          "Cash A/c is debited because physical cash increases. Riya's Capital A/c is credited because Riya's claim in the business increases.",
+        studentTakeaway: "Use Cash A/c for cash capital and keep the named Capital A/c.",
+        commonMistake: "Crediting Sales or Income instead of Riya's Capital A/c.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "capital-kuldeep-bank",
+      illustration: {
+        id: "capital-kuldeep-bank",
+        title: "Solved Illustration 2: bank capital",
+        difficulty: "easy",
+        question: "Kuldeep introduced ₹75,000 as capital through bank.",
+        accountsAffected: ["Bank A/c", "Kuldeep's Capital A/c"],
+        reasoningSteps: [
+          { label: "Bank mode", detail: "Money enters the business bank account, so Bank A/c is debited." },
+          { label: "Named capital", detail: "Kuldeep's Capital A/c increases, so it is credited." },
+          { label: "Cash not used", detail: "Cash A/c is not affected because the transaction says through bank." },
+        ],
+        journalEntry: [
+          { id: "capital-kuldeep-bank-debit", account: "Bank A/c", side: "debit", amount: 75000, drNotation: "Dr." },
+          {
+            id: "capital-kuldeep-capital-credit",
+            account: "Kuldeep's Capital A/c",
+            side: "credit",
+            amount: 75000,
+            displayPrefix: "To",
+          },
+        ],
+        narration: "Being capital introduced by Kuldeep through bank.",
+        explanation:
+          "Bank A/c is debited because bank balance increases. Kuldeep's Capital A/c is credited because Kuldeep's claim increases.",
+        studentTakeaway: "Use Bank A/c instead of Cash A/c when capital is introduced through bank.",
+        commonMistake: "Using Cash A/c even though the transaction says through bank.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "capital-kuldeep-priyanka-cash",
+      illustration: {
+        id: "capital-kuldeep-priyanka-cash",
+        title: "Solved Illustration 3: two partners, cash",
+        difficulty: "slightly-harder",
+        question: "Kuldeep and Priyanka brought ₹80,000 and ₹50,000 in cash as capital.",
+        accountsAffected: ["Cash A/c", "Kuldeep's Capital A/c", "Priyanka's Capital A/c"],
+        reasoningSteps: [
+          { label: "Combined cash debit", detail: "Cash receives ₹80,000 + ₹50,000 = ₹1,30,000." },
+          { label: "Kuldeep's capital", detail: "Kuldeep's Capital A/c is credited with ₹80,000." },
+          { label: "Priyanka's capital", detail: "Priyanka's Capital A/c is credited with ₹50,000." },
+          { label: "Both partners recorded", detail: "Do not record only the first partner or first amount." },
+        ],
+        journalEntry: [
+          { id: "capital-two-cash-debit", account: "Cash A/c", side: "debit", amount: 130000, drNotation: "Dr." },
+          {
+            id: "capital-kuldeep-cash-credit",
+            account: "Kuldeep's Capital A/c",
+            side: "credit",
+            amount: 80000,
+            displayPrefix: "To",
+          },
+          {
+            id: "capital-priyanka-cash-credit",
+            account: "Priyanka's Capital A/c",
+            side: "credit",
+            amount: 50000,
+            displayPrefix: "To",
+          },
+        ],
+        narration: "Being cash capital introduced by Kuldeep and Priyanka.",
+        explanation:
+          "Cash A/c is debited with the combined total. Each partner's named Capital A/c is credited separately.",
+        studentTakeaway: "For two partners, total the asset debit and credit each partner separately.",
+        commonMistake: "Recording only one partner or ignoring the second amount.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "capital-priyanka-kuldeep-bank",
+      illustration: {
+        id: "capital-priyanka-kuldeep-bank",
+        title: "Solved Illustration 4: two partners, bank",
+        difficulty: "slightly-harder",
+        question: "Priyanka and Kuldeep started their partnership with ₹50,000 and ₹70,000 through bank as capital.",
+        accountsAffected: ["Bank A/c", "Priyanka's Capital A/c", "Kuldeep's Capital A/c"],
+        reasoningSteps: [
+          { label: "Combined bank debit", detail: "Bank receives ₹50,000 + ₹70,000 = ₹1,20,000." },
+          { label: "Priyanka's capital", detail: "Priyanka's Capital A/c is credited with ₹50,000." },
+          { label: "Kuldeep's capital", detail: "Kuldeep's Capital A/c is credited with ₹70,000." },
+          { label: "Named accounts", detail: "Do not combine both partners into one generic Capital A/c." },
+        ],
+        journalEntry: [
+          { id: "capital-two-bank-debit", account: "Bank A/c", side: "debit", amount: 120000, drNotation: "Dr." },
+          {
+            id: "capital-priyanka-bank-credit",
+            account: "Priyanka's Capital A/c",
+            side: "credit",
+            amount: 50000,
+            displayPrefix: "To",
+          },
+          {
+            id: "capital-kuldeep-bank-credit",
+            account: "Kuldeep's Capital A/c",
+            side: "credit",
+            amount: 70000,
+            displayPrefix: "To",
+          },
+        ],
+        narration: "Being capital introduced by Priyanka and Kuldeep through bank.",
+        explanation:
+          "Bank A/c is debited with the combined total, while each partner's named Capital A/c is credited separately.",
+        studentTakeaway: "A partnership capital entry must preserve each partner's capital balance.",
+        commonMistake: "Writing one combined Capital A/c credit for both partners.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "capital-amit-additional-cash",
+      illustration: {
+        id: "capital-amit-additional-cash",
+        title: "Solved Illustration 5: additional capital",
+        difficulty: "easy",
+        question: "Amit introduced additional capital of ₹20,000 in cash.",
+        accountsAffected: ["Cash A/c", "Amit's Capital A/c"],
+        reasoningSteps: [
+          { label: "Cash increases", detail: "Cash comes into the business, so Cash A/c is debited." },
+          { label: "Amit's capital increases", detail: "Amit's Capital A/c is credited." },
+          { label: "Same logic", detail: "Additional capital follows the same treatment as initial capital." },
+          { label: "No income", detail: "No income is created by this capital contribution." },
+        ],
+        journalEntry: [
+          { id: "capital-amit-additional-cash-debit", account: "Cash A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          {
+            id: "capital-amit-additional-capital-credit",
+            account: "Amit's Capital A/c",
+            side: "credit",
+            amount: 20000,
+            displayPrefix: "To",
+          },
+        ],
+        narration: "Being additional cash capital introduced by Amit.",
+        explanation:
+          "Cash A/c is debited because cash increases. Amit's Capital A/c is credited because Amit contributes additional capital.",
+        studentTakeaway: "Additional capital is still capital, not business income.",
+        commonMistake: "Treating additional capital as business income.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "capital-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Capital mistakes",
+      mistakes: [
+        "Crediting Sales or Income instead of Capital.",
+        "Treating capital as a loan.",
+        "Using generic Capital A/c when the person is named.",
+        "Using Bank A/c when cash is introduced.",
+        "Using Cash A/c when money comes through bank.",
+        "Recording only one partner in a two-partner transaction.",
+        "Ignoring the second amount.",
+        "Failing to total both partners' contributions.",
+        "Debiting Capital A/c when capital is introduced.",
+        "Describing capital as profit.",
+        "Combining all partners into one Capital A/c.",
+        "Confusing additional capital with business income.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "capital-entry-decision-process",
+      eyebrow: "Decision process",
+      title: "Capital-entry decision process",
+      body:
+        "Use this order whenever the owner or partners introduce value into the business.",
+      steps: [
+        { label: "Identify who introduces the value", detail: "Look for the owner or partner name." },
+        { label: "Confirm the source", detail: "Make sure the source is an owner or partner, not a customer, lender, or outsider." },
+        { label: "Identify the asset received", detail: "Decide whether the business receives cash, bank money, or another asset." },
+        { label: "Debit the asset", detail: "Debit the asset received by the business." },
+        { label: "Credit named Capital A/c", detail: "Credit the named owner's or partner's Capital A/c." },
+        { label: "Separate multiple partners", detail: "If multiple partners contribute, record each Capital A/c separately." },
+        { label: "Add contributions", detail: "Add all contributions to determine the total asset debit." },
+        { label: "Confirm totals", detail: "Total debit must equal total credit." },
+        { label: "Write narration", detail: "Explain who introduced the capital and how." },
+        { label: "Check receipt nature", detail: "Confirm the receipt is not income or a loan." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "capital-checklist",
+      title: "Capital checklist",
+      points: [
+        "The owner or partner is identified.",
+        "Cash or Bank is selected correctly.",
+        "The named Capital A/c is used.",
+        "Every partner is recorded.",
+        "Every contribution amount is included.",
+        "Total asset debit equals total capital credits.",
+        "Capital is not recorded as income.",
+        "Narration explains who introduced the capital and how.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "capital-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Who gave the value to the business, what asset did the business receive, and whose Capital A/c increased?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -2206,6 +2713,7 @@ const journalEntriesSubtopics = [
   debitAndCreditRulesJournalEntriesSubtopic,
   journalFormatAndNarrationJournalEntriesSubtopic,
   cashAndBankTransactionsJournalEntriesSubtopic,
+  capitalJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -2222,7 +2730,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 7,
+      value: 8,
     },
   },
   outline: [
@@ -2282,7 +2790,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Cash A/c, Bank A/c, transfers, withdrawals, and credit-transaction warnings.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG}`,
     },
-    { id: "capital", title: "Capital", order: 8, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
+      title: "Capital",
+      order: 8,
+      status: "available",
+      shortDescription: "Capital meaning, named Capital A/c, two partners, and additional capital.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG}`,
+    },
     { id: "drawings", title: "Drawings", order: 9, status: "upcoming" },
     { id: "purchases", title: "Purchases", order: 10, status: "upcoming" },
     { id: "sales", title: "Sales", order: 11, status: "upcoming" },

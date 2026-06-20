@@ -10,6 +10,7 @@ import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/jo
 import AccountsAffectedChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/accounts-affected/page";
 import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
 import CashAndBankTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/cash-and-bank-transactions/page";
+import CapitalChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/capital/page";
 import DebitAndCreditRulesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/debit-and-credit-rules/page";
 import JournalFormatAndNarrationChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/journal-format-and-narration/page";
 import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
@@ -17,6 +18,7 @@ import {
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
   JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
@@ -56,6 +58,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
       JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
       JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+      JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -92,6 +95,11 @@ describe("Platform preview routes", () => {
       title: "Cash and Bank Transactions",
       progressLabel: "Section 7 of 16",
     });
+    expect(journalEntriesChapter.subtopics[7]).toMatchObject({
+      order: 8,
+      title: "Capital",
+      progressLabel: "Section 8 of 16",
+    });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].nextSection).toMatchObject({
@@ -127,8 +135,16 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
     );
     expect(journalEntriesChapter.subtopics[6].nextSection).toMatchObject({
-      slug: "capital",
+      slug: JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
       title: "Capital",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[7].previousSection?.slug).toBe(
+      JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+    );
+    expect(journalEntriesChapter.subtopics[7].nextSection).toMatchObject({
+      slug: "drawings",
+      title: "Drawings",
       availabilityStatus: "upcoming",
     });
 
@@ -169,6 +185,15 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "common-mistakes")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "recap")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "concept-explanation")).toHaveLength(3);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "accounting-format")).toHaveLength(5);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "comparison")).toHaveLength(4);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(5);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "common-mistakes")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "recap")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -541,6 +566,104 @@ describe("Platform preview routes", () => {
     expect(creditWarning.groups[0].items.join(" ")).toContain("Cash A/c and Bank A/c are not affected");
     expect(creditWarning.groups[1].items.join(" ")).toContain("To Sales A/c");
     expect(creditWarning.groups[1].items.join(" ")).toContain("Cash A/c and Bank A/c are not affected");
+  });
+
+  it("defines Capital as display-only content with named and multi-partner entries", () => {
+    const capitalSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
+    );
+    const equationSection = capitalSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "capital-accounting-equation-impact",
+    );
+    const similarReceiptsSection = capitalSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "capital-versus-similar-receipts",
+    );
+    const designNoteSection = capitalSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "non-cash-capital-design-note",
+    );
+    const solvedIllustrations = capitalSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+
+    expect(capitalSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(capitalSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(equationSection?.type).toBe("comparison");
+    expect(similarReceiptsSection?.type).toBe("comparison");
+    expect(designNoteSection?.type).toBe("concept-explanation");
+    expect(solvedIllustrations).toHaveLength(5);
+
+    if (
+      equationSection?.type !== "comparison" ||
+      similarReceiptsSection?.type !== "comparison" ||
+      designNoteSection?.type !== "concept-explanation"
+    ) {
+      throw new Error("Capital display sections were not found");
+    }
+
+    expect(equationSection.intro).toContain("Assets = Capital + Liabilities");
+    expect(equationSection.groups[2].items).toContain("No direct Profit & Loss impact arises.");
+    expect(similarReceiptsSection.groups.map((group) => group.title)).toEqual(["Capital", "Loan", "Sales or income"]);
+    expect(designNoteSection.paragraphs.join(" ")).toContain("Later / design-needed");
+
+    const cashCapital = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "capital-riya-cash",
+    );
+    const bankCapital = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "capital-kuldeep-bank",
+    );
+    const twoPartnerCash = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "capital-kuldeep-priyanka-cash",
+    );
+    const twoPartnerBank = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "capital-priyanka-kuldeep-bank",
+    );
+    const additionalCapital = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "capital-amit-additional-cash",
+    );
+
+    expect(cashCapital?.type).toBe("solved-illustration");
+    expect(bankCapital?.type).toBe("solved-illustration");
+    expect(twoPartnerCash?.type).toBe("solved-illustration");
+    expect(twoPartnerBank?.type).toBe("solved-illustration");
+    expect(additionalCapital?.type).toBe("solved-illustration");
+
+    if (
+      cashCapital?.type !== "solved-illustration" ||
+      bankCapital?.type !== "solved-illustration" ||
+      twoPartnerCash?.type !== "solved-illustration" ||
+      twoPartnerBank?.type !== "solved-illustration" ||
+      additionalCapital?.type !== "solved-illustration"
+    ) {
+      throw new Error("Capital solved illustrations were not found");
+    }
+
+    expect(cashCapital.illustration.journalEntry.map((line) => line.account)).toEqual(["Cash A/c", "Riya's Capital A/c"]);
+    expect(bankCapital.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Bank A/c",
+      "Kuldeep's Capital A/c",
+    ]);
+    expect(twoPartnerCash.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Cash A/c",
+      "Kuldeep's Capital A/c",
+      "Priyanka's Capital A/c",
+    ]);
+    expect(twoPartnerCash.illustration.journalEntry.map((line) => line.amount)).toEqual([130000, 80000, 50000]);
+    expect(twoPartnerBank.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Bank A/c",
+      "Priyanka's Capital A/c",
+      "Kuldeep's Capital A/c",
+    ]);
+    expect(twoPartnerBank.illustration.journalEntry.map((line) => line.amount)).toEqual([120000, 50000, 70000]);
+    expect(additionalCapital.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Cash A/c",
+      "Amit's Capital A/c",
+    ]);
+
+    solvedIllustrations.forEach((section) => {
+      if (section.type !== "solved-illustration") {
+        return;
+      }
+
+      expect(section.illustration.journalEntry.map((line) => line.account)).not.toContain("Capital A/c");
+    });
   });
 
   it("marks the platform preview routes as noindex and nofollow", () => {
@@ -976,7 +1099,7 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("renders the Cash and Bank Transactions section without adding a checker or Capital route link", () => {
+  it("renders the Cash and Bank Transactions section with the Capital next link and without adding a checker", () => {
     const html = renderToStaticMarkup(createElement(CashAndBankTransactionsChapterPreviewPage));
 
     expect(html).toContain("Chapters");
@@ -1043,12 +1166,75 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Display-only checklist");
     expect(html).toContain("Where did the money move—from cash, from bank, into cash, into bank, or outside the business?");
     expect(html).toContain("Previous Journal Format and Narration");
-    expect(html).toContain("Continue to Capital - Preview only");
+    expect(html).toContain("Continue to Capital");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/cash-and-bank-transactions")).toContain(
       'aria-current="step"',
     );
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/capital"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/capital"');
+    expect(html).not.toContain("Continue to Capital - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Capital section without adding a checker or Drawings route link", () => {
+    const html = renderToStaticMarkup(createElement(CapitalChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Capital");
+    expect(html).toContain("Section 8 of 16");
+    expect(html).toContain("What capital means");
+    expect(html).toContain("Capital is not business income.");
+    expect(html).toContain("The business and owner are treated separately");
+    expect(html).toContain("From the business&#x27;s point of view, the owner gives value to the business.");
+    expect(html).toContain("Assets = Capital + Liabilities");
+    expect(html).toContain("After Amit introduces cash ₹50,000");
+    expect(html).toContain("No direct Profit &amp; Loss impact arises.");
+    expect(html).toContain("The Balance Sheet is affected.");
+    expect(html).toContain("Amit introduced cash ₹50,000 as capital.");
+    expect(html).toContain("Cash A/c Dr.");
+    expect(html).toContain("To Amit&#x27;s Capital A/c");
+    expect(html).toContain("Priyanka introduced capital of ₹60,000 through bank.");
+    expect(html).toContain("Bank A/c Dr.");
+    expect(html).toContain("To Priyanka&#x27;s Capital A/c");
+    expect(html).toContain("Use the person&#x27;s Capital A/c when a name is given");
+    expect(html).toContain("Amit&#x27;s Capital A/c.");
+    expect(html).toContain("Kuldeep&#x27;s Capital A/c.");
+    expect(html).toContain("A and B started their partnership with ₹50,000 and ₹70,000 in cash as capital.");
+    expect(html).toContain("To A&#x27;s Capital A/c");
+    expect(html).toContain("To B&#x27;s Capital A/c");
+    expect(html).toContain("Amit and Riya introduced ₹40,000 and ₹60,000 through bank as capital.");
+    expect(html).toContain("To Amit&#x27;s Capital A/c");
+    expect(html).toContain("To Riya&#x27;s Capital A/c");
+    expect(html).toContain("Kuldeep introduced additional capital of ₹25,000 through bank.");
+    expect(html).toContain("To Kuldeep&#x27;s Capital A/c");
+    expect(html).toContain("Capital, loan, and income can all bring money into the business");
+    expect(html).toContain("To Bank Loan A/c");
+    expect(html).toContain("To Sales/Income A/c");
+    expect(html).toContain("Capital is not income");
+    expect(html).toContain("Later / design-needed");
+    expect(html).toContain("Riya brought ₹45,000 in cash as capital into the business.");
+    expect(html).toContain("To Riya&#x27;s Capital A/c");
+    expect(html).toContain("Kuldeep introduced ₹75,000 as capital through bank.");
+    expect(html).toContain("To Kuldeep&#x27;s Capital A/c");
+    expect(html).toContain("Kuldeep and Priyanka brought ₹80,000 and ₹50,000 in cash as capital.");
+    expect(html).toContain("1,30,000");
+    expect(html).toContain("Priyanka and Kuldeep started their partnership with ₹50,000 and ₹70,000 through bank as capital.");
+    expect(html).toContain("1,20,000");
+    expect(html).toContain("Amit introduced additional capital of ₹20,000 in cash.");
+    expect(html).toContain("Avoid these Capital mistakes");
+    expect(html).toContain("Capital-entry decision process");
+    expect(html).toContain("Capital checklist");
+    expect(html).toContain("Who gave the value to the business, what asset did the business receive, and whose Capital A/c increased?");
+    expect(html).toContain("Previous Cash and Bank Transactions");
+    expect(html).toContain("Continue to Drawings - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/capital")).toContain('aria-current="step"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/drawings"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -1107,5 +1293,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/capital"');
   });
 });
