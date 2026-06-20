@@ -9,12 +9,14 @@ import PlatformPreviewChaptersPage from "@/app/platform-preview/chapters/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
 import AccountsAffectedChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/accounts-affected/page";
 import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
+import CashAndBankTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/cash-and-bank-transactions/page";
 import DebitAndCreditRulesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/debit-and-credit-rules/page";
 import JournalFormatAndNarrationChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/journal-format-and-narration/page";
 import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
 import {
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
@@ -53,6 +55,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
       JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
       JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+      JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -84,6 +87,11 @@ describe("Platform preview routes", () => {
       title: "Journal Format and Narration",
       progressLabel: "Section 6 of 16",
     });
+    expect(journalEntriesChapter.subtopics[6]).toMatchObject({
+      order: 7,
+      title: "Cash and Bank Transactions",
+      progressLabel: "Section 7 of 16",
+    });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].nextSection).toMatchObject({
@@ -111,8 +119,16 @@ describe("Platform preview routes", () => {
     });
     expect(journalEntriesChapter.subtopics[5].previousSection?.slug).toBe(JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[5].nextSection).toMatchObject({
-      slug: "cash-and-bank-transactions",
+      slug: JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
       title: "Cash and Bank Transactions",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[6].previousSection?.slug).toBe(
+      JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+    );
+    expect(journalEntriesChapter.subtopics[6].nextSection).toMatchObject({
+      slug: "capital",
+      title: "Capital",
       availabilityStatus: "upcoming",
     });
 
@@ -145,6 +161,14 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(4);
     expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "recap")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "clue-guide")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "comparison")).toHaveLength(5);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(9);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "common-mistakes")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "recap")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[6].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -441,6 +465,82 @@ describe("Platform preview routes", () => {
     expect(checklistSection.points).toContain("Debit account is written first.");
     expect(checklistSection.points).toContain("L.F. is used correctly or left blank.");
     expect(checklistSection.points).toContain("Debit total equals credit total.");
+  });
+
+  it("defines Cash and Bank Transactions as display-only content without a checker", () => {
+    const cashBankSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+    );
+    const clueGuideSection = cashBankSubtopic?.sections.find(
+      (section) => section.type === "clue-guide" && section.id === "payment-mode-clue-guide",
+    );
+    const solvedIllustrations = cashBankSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+    const businessPersonalComparison = cashBankSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "business-withdrawal-versus-drawings",
+    );
+    const creditWarning = cashBankSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "credit-transaction-warning",
+    );
+
+    expect(cashBankSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(cashBankSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(clueGuideSection?.type).toBe("clue-guide");
+    expect(solvedIllustrations.length).toBeGreaterThanOrEqual(7);
+    expect(businessPersonalComparison?.type).toBe("comparison");
+    expect(creditWarning?.type).toBe("comparison");
+
+    if (
+      clueGuideSection?.type !== "clue-guide" ||
+      businessPersonalComparison?.type !== "comparison" ||
+      creditWarning?.type !== "comparison"
+    ) {
+      throw new Error("Cash and Bank Transactions display sections were not found");
+    }
+
+    expect(clueGuideSection.clues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ clue: "for cash", likelyAccounts: ["Cash A/c"] }),
+        expect.objectContaining({ clue: "by bank", likelyAccounts: ["Bank A/c"] }),
+        expect.objectContaining({ clue: "on credit", likelyAccounts: ["Customer/Supplier A/c"] }),
+        expect.objectContaining({ clue: "deposited cash into bank", likelyAccounts: ["Bank A/c", "Cash A/c"] }),
+        expect.objectContaining({ clue: "withdrew cash from bank for office use", likelyAccounts: ["Cash A/c", "Bank A/c"] }),
+      ]),
+    );
+
+    const depositExample = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "cash-bank-cash-deposited-into-bank",
+    );
+    const officeWithdrawalExample = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "cash-bank-business-withdrawal-office-use",
+    );
+    const personalWithdrawalExample = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "cash-bank-personal-bank-withdrawal",
+    );
+
+    expect(depositExample?.type).toBe("solved-illustration");
+    expect(officeWithdrawalExample?.type).toBe("solved-illustration");
+    expect(personalWithdrawalExample?.type).toBe("solved-illustration");
+
+    if (
+      depositExample?.type !== "solved-illustration" ||
+      officeWithdrawalExample?.type !== "solved-illustration" ||
+      personalWithdrawalExample?.type !== "solved-illustration"
+    ) {
+      throw new Error("Cash and Bank Transactions transfer examples were not found");
+    }
+
+    expect(depositExample.illustration.journalEntry.map((line) => line.account)).toEqual(["Bank A/c", "Cash A/c"]);
+    expect(officeWithdrawalExample.illustration.journalEntry.map((line) => line.account)).toEqual(["Cash A/c", "Bank A/c"]);
+    expect(officeWithdrawalExample.illustration.accountsAffected).not.toContain("Drawings A/c");
+    expect(personalWithdrawalExample.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Riya Drawings A/c",
+      "Bank A/c",
+    ]);
+    expect(personalWithdrawalExample.illustration.accountsAffected).not.toContain("Cash A/c");
+    expect(creditWarning.groups[0].items.join(" ")).toContain("To Mohan A/c");
+    expect(creditWarning.groups[0].items.join(" ")).toContain("Cash A/c and Bank A/c are not affected");
+    expect(creditWarning.groups[1].items.join(" ")).toContain("To Sales A/c");
+    expect(creditWarning.groups[1].items.join(" ")).toContain("Cash A/c and Bank A/c are not affected");
   });
 
   it("marks the platform preview routes as noindex and nofollow", () => {
@@ -800,7 +900,7 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("renders the Journal Format and Narration section without adding a checker or next-route link", () => {
+  it("renders the Journal Format and Narration section with the Cash and Bank next link and without adding a checker", () => {
     const html = renderToStaticMarkup(createElement(JournalFormatAndNarrationChapterPreviewPage));
 
     expect(html).toContain("Chapters");
@@ -862,12 +962,93 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Debit total equals credit total.");
     expect(html).toContain("Can another student understand the transaction only by reading your journal entry and narration?");
     expect(html).toContain("Previous Debit and Credit Rules");
-    expect(html).toContain("Continue to Cash and Bank Transactions - Preview only");
+    expect(html).toContain("Continue to Cash and Bank Transactions");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/journal-format-and-narration")).toContain(
       'aria-current="step"',
     );
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
+    expect(html).not.toContain("Continue to Cash and Bank Transactions - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Cash and Bank Transactions section without adding a checker or Capital route link", () => {
+    const html = renderToStaticMarkup(createElement(CashAndBankTransactionsChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Cash and Bank Transactions");
+    expect(html).toContain("Section 7 of 16");
+    expect(html).toContain("Start with the payment mode");
+    expect(html).toContain("Cash A/c and Bank A/c are both asset accounts, but they are separate accounts.");
+    expect(html).toContain("Cash A/c and Bank A/c");
+    expect(html).toContain("Represents physical cash held by the business.");
+    expect(html).toContain("Represents money held in the business bank account.");
+    expect(html).toContain("Do not assume every card transaction is automatically Bank A/c.");
+    expect(html).toContain("Cash receipt and cash payment");
+    expect(html).toContain("Cash A/c is debited.");
+    expect(html).toContain("Cash A/c is credited.");
+    expect(html).toContain("Bank receipt and bank payment");
+    expect(html).toContain("Bank A/c is debited.");
+    expect(html).toContain("Bank A/c is credited.");
+    expect(html).toContain("Words that point to Cash A/c or Bank A/c");
+    expect(html).toContain("for cash");
+    expect(html).toContain("by bank");
+    expect(html).toContain("through UPI");
+    expect(html).toContain("through NEFT/RTGS");
+    expect(html).toContain("on credit");
+    expect(html).toContain("deposited cash into bank");
+    expect(html).toContain("withdrew cash from bank for office use");
+    expect(html).toContain("Deposited cash into bank ₹15,000.");
+    expect(html).toContain("Bank A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Being cash deposited into bank.");
+    expect(html).toContain("No income or expense");
+    expect(html).toContain("Cash withdrawn from bank ₹3,000 for office use.");
+    expect(html).toContain("Cash A/c Dr.");
+    expect(html).toContain("To Bank A/c");
+    expect(html).toContain("Being cash withdrawn from bank for office use.");
+    expect(html).toContain("This is not drawings because the cash remains for business use.");
+    expect(html).toContain("The purpose of withdrawal changes the entry");
+    expect(html).toContain("This business withdrawal is not drawings.");
+    expect(html).toContain("This personal withdrawal is not a business cash-bank transfer.");
+    expect(html).toContain("Bought goods for cash ₹10,000.");
+    expect(html).toContain("Purchases A/c Dr.");
+    expect(html).toContain("Paid rent by bank ₹5,000.");
+    expect(html).toContain("Rent A/c Dr.");
+    expect(html).toContain("Sold goods for cash ₹12,000.");
+    expect(html).toContain("Cash A/c Dr.");
+    expect(html).toContain("To Sales A/c");
+    expect(html).toContain("Received commission through bank ₹7,000.");
+    expect(html).toContain("To Commission Received A/c");
+    expect(html).toContain("Riya withdrew ₹4,000 from bank for personal use.");
+    expect(html).toContain("Riya Drawings A/c Dr.");
+    expect(html).toContain("Being amount withdrawn by Riya from bank for personal use.");
+    expect(html).toContain("Cash A/c is not debited merely because the word withdrawn appears.");
+    expect(html).toContain("Do not use Cash or Bank for credit transactions");
+    expect(html).toContain("Bought goods on credit from Mohan ₹10,000.");
+    expect(html).toContain("To Mohan A/c ₹10,000.");
+    expect(html).toContain("Sold goods on credit to Riya ₹8,000.");
+    expect(html).toContain("Riya A/c Dr. ₹8,000.");
+    expect(html).toContain("To Sales A/c ₹8,000.");
+    expect(html).toContain("Cash A/c and Bank A/c are not affected at the time of purchase.");
+    expect(html).toContain("Cash A/c and Bank A/c are not affected at the time of sale.");
+    expect(html).toContain("Cash-versus-bank decision process");
+    expect(html).toContain("Confirm Debit equals Credit");
+    expect(html).toContain("Avoid these Cash and Bank mistakes");
+    expect(html).toContain("Display-only checklist");
+    expect(html).toContain("Where did the money move—from cash, from bank, into cash, into bank, or outside the business?");
+    expect(html).toContain("Previous Journal Format and Narration");
+    expect(html).toContain("Continue to Capital - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/cash-and-bank-transactions")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/capital"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -925,5 +1106,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
   });
 });

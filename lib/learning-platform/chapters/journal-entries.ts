@@ -15,6 +15,7 @@ export const JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG = "accounts-affected
 export const JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG = "types-of-accounts";
 export const JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG = "debit-and-credit-rules";
 export const JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG = "journal-format-and-narration";
+export const JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG = "cash-and-bank-transactions";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -165,10 +166,19 @@ const journalFormatAndNarrationSubtopicReference: ChapterSubtopicReference = {
 };
 
 const cashAndBankTransactionsSubtopicReference: ChapterSubtopicReference = {
-  id: "cash-and-bank-transactions",
-  slug: "cash-and-bank-transactions",
+  id: JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
   title: "Cash and Bank Transactions",
   order: 7,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG}`,
+};
+
+const capitalSubtopicReference: ChapterSubtopicReference = {
+  id: "capital",
+  slug: "capital",
+  title: "Capital",
+  order: 8,
   availabilityStatus: "upcoming",
 };
 
@@ -1690,6 +1700,504 @@ export const journalFormatAndNarrationJournalEntriesSubtopic: ChapterSubtopicDef
   ],
 };
 
+export const cashAndBankTransactionsJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...cashAndBankTransactionsSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG}`,
+  shortDescription:
+    "Learn how to separate Cash A/c from Bank A/c, record receipts and payments, and avoid Cash/Bank mistakes in credit transactions.",
+  learningObjective:
+    "Students learn to identify the payment mode, decide whether Cash A/c or Bank A/c is affected, identify the other account, and apply debit-credit rules safely.",
+  progressLabel: "Section 7 of 16",
+  previousSection: journalFormatAndNarrationSubtopicReference,
+  nextSection: capitalSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "cash-and-bank-transactions",
+      eyebrow: "Learning objective",
+      title: "Cash and Bank Transactions",
+      body:
+        "By the end of this section, you should be able to tell whether Cash A/c or Bank A/c is affected, record simple cash and bank transactions, and avoid using Cash or Bank when the transaction is on credit.",
+    },
+    {
+      type: "concept-explanation",
+      id: "cash-bank-central-rule",
+      eyebrow: "Core rule",
+      title: "Start with the payment mode",
+      paragraphs: [
+        "Use this order: identify the payment mode, decide whether Cash A/c or Bank A/c is affected, identify the other account, then apply debit and credit rules.",
+        "Cash A/c and Bank A/c are both asset accounts, but they are separate accounts. The exact payment mode in the transaction matters.",
+        "If money is received in cash, Cash A/c is usually debited. If money is received through bank, Bank A/c is usually debited.",
+        "If money is paid in cash, Cash A/c is usually credited. If money is paid through bank, Bank A/c is usually credited.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "cash-account-and-bank-account",
+      eyebrow: "Cash A/c and Bank A/c",
+      title: "Two separate asset accounts",
+      intro:
+        "Both represent business money, but they are not interchangeable. Read the wording before choosing the account.",
+      groups: [
+        {
+          title: "Cash A/c",
+          items: [
+            "Represents physical cash held by the business.",
+            "Common wording: for cash.",
+            "Common wording: paid cash.",
+            "Common wording: received cash.",
+            "Common wording: cash sales or cash purchase.",
+          ],
+        },
+        {
+          title: "Bank A/c",
+          items: [
+            "Represents money held in the business bank account.",
+            "Common wording: by bank or through bank.",
+            "Common wording: cheque, UPI, NEFT, RTGS, or online transfer.",
+            "Debit card means Bank A/c only when it is clearly linked to the business bank account.",
+            "Do not assume every card transaction is automatically Bank A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "cash-receipt-and-cash-payment",
+      eyebrow: "Cash transactions",
+      title: "Cash receipt and cash payment",
+      intro:
+        "Cash A/c is affected only when physical cash comes into or leaves the business.",
+      groups: [
+        {
+          title: "Cash receipt",
+          items: [
+            "Physical cash comes into the business.",
+            "Cash A/c increases.",
+            "Cash A/c is debited.",
+            "Examples: cash sale, capital introduced in cash, commission received in cash, loan received in cash.",
+          ],
+        },
+        {
+          title: "Cash payment",
+          items: [
+            "Physical cash leaves the business.",
+            "Cash A/c decreases.",
+            "Cash A/c is credited.",
+            "Examples: cash purchase, rent paid in cash, furniture bought for cash, cash withdrawn for personal use.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "bank-receipt-and-bank-payment",
+      eyebrow: "Bank transactions",
+      title: "Bank receipt and bank payment",
+      intro:
+        "Bank A/c is affected when money enters or leaves the business bank account.",
+      groups: [
+        {
+          title: "Bank receipt",
+          items: [
+            "Money enters the business bank account.",
+            "Bank A/c increases.",
+            "Bank A/c is debited.",
+            "Examples: sale proceeds received through bank, capital introduced through bank, loan received in bank, commission received through bank.",
+          ],
+        },
+        {
+          title: "Bank payment",
+          items: [
+            "Money leaves the business bank account.",
+            "Bank A/c decreases.",
+            "Bank A/c is credited.",
+            "Examples: salary paid by bank, rent paid by cheque, furniture purchased through bank, creditor paid by bank.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "clue-guide",
+      id: "payment-mode-clue-guide",
+      eyebrow: "Payment-mode clue guide",
+      title: "Words that point to Cash A/c or Bank A/c",
+      body:
+        "This is an educational guide, not a broad parser specification. Use it to slow down and read the payment mode.",
+      clues: [
+        { clue: "for cash", likelyAccounts: ["Cash A/c"], note: "Cash is physically paid or received." },
+        { clue: "paid cash", likelyAccounts: ["Cash A/c"], note: "Cash A/c is usually credited because cash leaves." },
+        { clue: "received cash", likelyAccounts: ["Cash A/c"], note: "Cash A/c is usually debited because cash comes in." },
+        { clue: "by bank", likelyAccounts: ["Bank A/c"], note: "The business bank account is involved." },
+        { clue: "through bank", likelyAccounts: ["Bank A/c"], note: "The business bank account is involved." },
+        { clue: "by cheque", likelyAccounts: ["Bank A/c"], note: "Cheque payment normally affects Bank A/c." },
+        { clue: "through UPI", likelyAccounts: ["Bank A/c"], note: "Treat as Bank A/c when it is a direct business-bank receipt or payment." },
+        { clue: "through NEFT/RTGS", likelyAccounts: ["Bank A/c"], note: "Bank transfer wording points to Bank A/c." },
+        { clue: "on credit", likelyAccounts: ["Customer/Supplier A/c"], note: "Normally no Cash A/c or Bank A/c is affected at that moment." },
+        { clue: "deposited cash into bank", likelyAccounts: ["Bank A/c", "Cash A/c"], note: "Bank increases and Cash decreases." },
+        { clue: "withdrew cash from bank for office use", likelyAccounts: ["Cash A/c", "Bank A/c"], note: "This is a business cash-bank transfer." },
+        { clue: "withdrew for personal use", likelyAccounts: ["Drawings A/c", "Cash/Bank A/c"], note: "Personal-use wording changes the treatment to drawings." },
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-cash-deposited-into-bank",
+      illustration: {
+        id: "cash-bank-cash-deposited-into-bank",
+        title: "Concept example: cash deposited into bank",
+        difficulty: "easy",
+        question: "Deposited cash into bank ₹15,000.",
+        accountsAffected: ["Bank A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Bank increases", detail: "Money moves into the business bank account, so Bank A/c is debited." },
+          { label: "Cash decreases", detail: "Physical cash leaves the cash box, so Cash A/c is credited." },
+          { label: "No income or expense", detail: "Value moves from one business asset account to another." },
+          { label: "Cash-book link", detail: "This is commonly treated as a contra transaction in cash-book learning later." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-deposit-bank-debit", account: "Bank A/c", side: "debit", amount: 15000, drNotation: "Dr." },
+          { id: "cash-bank-deposit-cash-credit", account: "Cash A/c", side: "credit", amount: 15000, displayPrefix: "To" },
+        ],
+        narration: "Being cash deposited into bank.",
+        explanation:
+          "Bank A/c is debited because bank balance increases. Cash A/c is credited because cash balance decreases.",
+        studentTakeaway: "A cash deposit into bank is an internal asset transfer, not income.",
+        commonMistake: "Treating cash deposited into bank as income earned by the business.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-business-withdrawal-office-use",
+      illustration: {
+        id: "cash-bank-business-withdrawal-office-use",
+        title: "Concept example: cash withdrawn for business use",
+        difficulty: "easy",
+        question: "Cash withdrawn from bank ₹3,000 for office use.",
+        accountsAffected: ["Cash A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Cash increases", detail: "Cash comes into the office cash balance, so Cash A/c is debited." },
+          { label: "Bank decreases", detail: "Money leaves the bank account, so Bank A/c is credited." },
+          { label: "Business use", detail: "This is not drawings because the cash remains for business use." },
+          { label: "No income or expense", detail: "The value stays inside the business." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-office-cash-debit", account: "Cash A/c", side: "debit", amount: 3000, drNotation: "Dr." },
+          { id: "cash-bank-office-bank-credit", account: "Bank A/c", side: "credit", amount: 3000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn from bank for office use.",
+        explanation:
+          "Cash A/c is debited because cash increases for office use. Bank A/c is credited because bank balance decreases.",
+        studentTakeaway: "Office-use or business-use wording means it is a business transfer, not drawings.",
+        commonMistake: "Treating every bank withdrawal as drawings.",
+      },
+    },
+    {
+      type: "comparison",
+      id: "business-withdrawal-versus-drawings",
+      eyebrow: "Business use versus personal use",
+      title: "The purpose of withdrawal changes the entry",
+      intro:
+        "The words office use, business use, or personal use change the accounting treatment.",
+      groups: [
+        {
+          title: "Business use",
+          items: [
+            "Cash withdrawn from bank ₹3,000 for office use.",
+            "Entry: Cash A/c Dr.",
+            "To Bank A/c.",
+            "Reason: the value remains inside the business.",
+            "This business withdrawal is not drawings.",
+          ],
+        },
+        {
+          title: "Personal use",
+          items: [
+            "Amit withdrew ₹3,000 from bank for personal use.",
+            "Entry: Amit Drawings A/c Dr.",
+            "To Bank A/c.",
+            "Reason: the partner or owner takes value out of the business.",
+            "This personal withdrawal is not a business cash-bank transfer.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-cash-purchase",
+      illustration: {
+        id: "cash-bank-cash-purchase",
+        title: "Worked Example 1: cash purchase",
+        difficulty: "easy",
+        question: "Bought goods for cash ₹10,000.",
+        accountsAffected: ["Purchases A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Goods for resale", detail: "Goods bought for resale use Purchases A/c." },
+          { label: "Cash leaves", detail: "Payment mode is cash, so Cash A/c is credited." },
+          { label: "Bank not affected", detail: "Bank A/c is not used because the question says cash." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-purchases-debit", account: "Purchases A/c", side: "debit", amount: 10000, drNotation: "Dr." },
+          { id: "cash-bank-cash-credit", account: "Cash A/c", side: "credit", amount: 10000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased for cash.",
+        explanation:
+          "Purchases A/c is debited because goods are bought for resale. Cash A/c is credited because cash leaves the business.",
+        studentTakeaway: "Use Purchases A/c for goods for resale, and use Cash A/c when payment is in cash.",
+        commonMistake: "Using Bank A/c even though the transaction says cash.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-rent-paid-by-bank",
+      illustration: {
+        id: "cash-bank-rent-paid-by-bank",
+        title: "Worked Example 2: bank expense",
+        difficulty: "easy",
+        question: "Paid rent by bank ₹5,000.",
+        accountsAffected: ["Rent A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Rent is expense", detail: "Rent A/c is debited because rent expense increases." },
+          { label: "Payment mode is bank", detail: "Bank A/c is credited because money leaves the bank account." },
+          { label: "Cash not used", detail: "Cash A/c is not used because the transaction says by bank." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-rent-debit", account: "Rent A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "cash-bank-rent-bank-credit", account: "Bank A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being rent paid by bank.",
+        explanation:
+          "Rent is an expense and is debited. Bank A/c is credited because payment is made through bank.",
+        studentTakeaway: "Use Bank A/c, not Cash A/c, when the expense is paid by bank.",
+        commonMistake: "Using Cash A/c for a bank payment.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-cash-sale",
+      illustration: {
+        id: "cash-bank-cash-sale",
+        title: "Worked Example 3: cash sale",
+        difficulty: "easy",
+        question: "Sold goods for cash ₹12,000.",
+        accountsAffected: ["Cash A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Cash received", detail: "Cash comes into the business, so Cash A/c is debited." },
+          { label: "Sales income", detail: "Sales income increases, so Sales A/c is credited." },
+          { label: "Totals equal", detail: "The same amount appears on debit and credit sides." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-sale-cash-debit", account: "Cash A/c", side: "debit", amount: 12000, drNotation: "Dr." },
+          { id: "cash-bank-sale-sales-credit", account: "Sales A/c", side: "credit", amount: 12000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold for cash.",
+        explanation:
+          "Cash A/c is debited because cash is received. Sales A/c is credited because income increases.",
+        studentTakeaway: "In a cash sale, Cash A/c is debited and Sales A/c is credited.",
+        commonMistake: "Crediting Cash because the word cash appears.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-commission-through-bank",
+      illustration: {
+        id: "cash-bank-commission-through-bank",
+        title: "Worked Example 4: income through bank",
+        difficulty: "easy",
+        question: "Received commission through bank ₹7,000.",
+        accountsAffected: ["Bank A/c", "Commission Received A/c"],
+        reasoningSteps: [
+          { label: "Bank increases", detail: "Money enters the business bank account, so Bank A/c is debited." },
+          { label: "Income increases", detail: "Commission Received is income, so it is credited." },
+          { label: "Cash not used", detail: "Cash A/c is not used because money is received through bank." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-commission-bank-debit", account: "Bank A/c", side: "debit", amount: 7000, drNotation: "Dr." },
+          {
+            id: "cash-bank-commission-credit",
+            account: "Commission Received A/c",
+            side: "credit",
+            amount: 7000,
+            displayPrefix: "To",
+          },
+        ],
+        narration: "Being commission received through bank.",
+        explanation:
+          "Bank A/c is debited because bank balance increases. Commission Received A/c is credited because income increases.",
+        studentTakeaway: "Income received through bank increases Bank A/c and credits the income account.",
+        commonMistake: "Using Cash A/c when the question says through bank.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-deposit-worked-example",
+      illustration: {
+        id: "cash-bank-deposit-worked-example",
+        title: "Worked Example 5: cash deposited into bank",
+        difficulty: "easy",
+        question: "Deposited cash into bank ₹15,000.",
+        accountsAffected: ["Bank A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Bank increases", detail: "Bank A/c is debited." },
+          { label: "Cash decreases", detail: "Cash A/c is credited." },
+          { label: "Asset transfer", detail: "Both accounts are assets. One increases and the other decreases." },
+          { label: "No income or expense", detail: "No income or expense arises." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-deposit-worked-bank-debit", account: "Bank A/c", side: "debit", amount: 15000, drNotation: "Dr." },
+          { id: "cash-bank-deposit-worked-cash-credit", account: "Cash A/c", side: "credit", amount: 15000, displayPrefix: "To" },
+        ],
+        narration: "Being cash deposited into bank.",
+        explanation:
+          "The same business value moves from Cash A/c to Bank A/c, so no income or expense is recorded.",
+        studentTakeaway: "Depositing cash into bank changes asset form only.",
+        commonMistake: "Crediting Sales or income for a bank deposit.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-office-withdrawal-worked-example",
+      illustration: {
+        id: "cash-bank-office-withdrawal-worked-example",
+        title: "Worked Example 6: cash withdrawn for office use",
+        difficulty: "easy",
+        question: "Cash withdrawn from bank ₹3,000 for office use.",
+        accountsAffected: ["Cash A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Cash increases", detail: "Cash A/c is debited." },
+          { label: "Bank decreases", detail: "Bank A/c is credited." },
+          { label: "Business use", detail: "This is a business transfer." },
+          { label: "Not drawings", detail: "It is not drawings because the cash remains for office use." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-office-worked-cash-debit", account: "Cash A/c", side: "debit", amount: 3000, drNotation: "Dr." },
+          { id: "cash-bank-office-worked-bank-credit", account: "Bank A/c", side: "credit", amount: 3000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn from bank for office use.",
+        explanation:
+          "The cash is still for business use, so Cash A/c is debited and Bank A/c is credited.",
+        studentTakeaway: "Business cash withdrawal is not drawings.",
+        commonMistake: "Debiting Drawings A/c when the transaction says office use.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "cash-bank-personal-bank-withdrawal",
+      illustration: {
+        id: "cash-bank-personal-bank-withdrawal",
+        title: "Worked Example 7: personal bank withdrawal",
+        difficulty: "easy",
+        question: "Riya withdrew ₹4,000 from bank for personal use.",
+        accountsAffected: ["Riya Drawings A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Personal use", detail: "Personal-use wording creates drawings." },
+          { label: "Drawings increases", detail: "Riya Drawings A/c is debited." },
+          { label: "Bank decreases", detail: "Bank A/c is credited because money leaves the bank account." },
+          { label: "Cash not debited", detail: "Cash A/c is not debited merely because the word withdrawn appears." },
+        ],
+        journalEntry: [
+          { id: "cash-bank-riya-drawings-debit", account: "Riya Drawings A/c", side: "debit", amount: 4000, drNotation: "Dr." },
+          { id: "cash-bank-riya-bank-credit", account: "Bank A/c", side: "credit", amount: 4000, displayPrefix: "To" },
+        ],
+        narration: "Being amount withdrawn by Riya from bank for personal use.",
+        explanation:
+          "Riya Drawings A/c is debited because Riya takes value out of the business. Bank A/c is credited because bank balance decreases.",
+        studentTakeaway: "Personal-use bank withdrawal is drawings, not a normal business cash withdrawal.",
+        commonMistake: "Debiting Cash A/c just because the word withdrawn appears.",
+      },
+    },
+    {
+      type: "comparison",
+      id: "credit-transaction-warning",
+      eyebrow: "Credit transaction warning",
+      title: "Do not use Cash or Bank for credit transactions",
+      intro:
+        "Cash A/c or Bank A/c appears only when money is actually paid or received.",
+      groups: [
+        {
+          title: "Credit purchase",
+          items: [
+            "Bought goods on credit from Mohan ₹10,000.",
+            "Entry: Purchases A/c Dr. ₹10,000.",
+            "To Mohan A/c ₹10,000.",
+            "Cash A/c and Bank A/c are not affected at the time of purchase.",
+          ],
+        },
+        {
+          title: "Credit sale",
+          items: [
+            "Sold goods on credit to Riya ₹8,000.",
+            "Entry: Riya A/c Dr. ₹8,000.",
+            "To Sales A/c ₹8,000.",
+            "Cash A/c and Bank A/c are not affected at the time of sale.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "cash-bank-decision-process",
+      eyebrow: "Decision process",
+      title: "Cash-versus-bank decision process",
+      body:
+        "Use this process before writing the journal entry.",
+      steps: [
+        { label: "Read the payment-mode wording", detail: "Look for cash, bank, cheque, UPI, NEFT, RTGS, credit, deposit, or withdrawal clues." },
+        { label: "Choose Cash or Bank", detail: "Decide whether physical cash or the business bank account is involved." },
+        { label: "Identify the money movement", detail: "Decide whether money is received, paid, deposited, or withdrawn." },
+        { label: "Identify the other account", detail: "Name the other affected account, such as Purchases, Sales, Rent, Commission, or Drawings." },
+        { label: "Decide increase or decrease", detail: "Ask what happens to each account." },
+        { label: "Apply debit and credit rules", detail: "Debit asset increases and credit asset decreases; apply rules to the other account too." },
+        { label: "Check business or personal use", detail: "Office use and business use differ from personal use." },
+        { label: "Avoid Cash/Bank for credit", detail: "Do not use Cash A/c or Bank A/c for a credit transaction unless money is paid or received." },
+        { label: "Write the journal entry", detail: "Use Dr. for the debit line and To for the credit line." },
+        { label: "Confirm Debit equals Credit", detail: "Total debit must equal total credit." },
+      ],
+    },
+    {
+      type: "common-mistakes",
+      id: "cash-bank-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Cash and Bank mistakes",
+      mistakes: [
+        "Using Cash A/c when payment is through bank.",
+        "Using Bank A/c when payment is in cash.",
+        "Using Cash A/c or Bank A/c for a credit transaction.",
+        "Treating cash deposited into bank as income.",
+        "Treating cash withdrawn from bank for office use as drawings.",
+        "Treating personal withdrawal as an ordinary cash-bank transfer.",
+        "Ignoring cheque, UPI, NEFT, or RTGS wording.",
+        "Using Purchases A/c for an asset purchase.",
+        "Entering the correct accounts on the wrong sides.",
+        "Forgetting named Drawings A/c for personal withdrawals.",
+      ],
+    },
+    {
+      type: "recap",
+      id: "cash-bank-checklist",
+      title: "Display-only checklist",
+      points: [
+        "Cash A/c means physical cash held by the business.",
+        "Bank A/c means the business bank account.",
+        "Cash receipt debits Cash A/c.",
+        "Cash payment credits Cash A/c.",
+        "Bank receipt debits Bank A/c.",
+        "Bank payment credits Bank A/c.",
+        "Cash deposited into bank is not income.",
+        "Cash withdrawn for office use is not drawings.",
+        "Personal withdrawal uses Drawings A/c.",
+        "Credit transactions normally do not use Cash A/c or Bank A/c at that moment.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "cash-bank-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Where did the money move—from cash, from bank, into cash, into bank, or outside the business?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -1697,6 +2205,7 @@ const journalEntriesSubtopics = [
   typesOfAccountsJournalEntriesSubtopic,
   debitAndCreditRulesJournalEntriesSubtopic,
   journalFormatAndNarrationJournalEntriesSubtopic,
+  cashAndBankTransactionsJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -1713,7 +2222,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 6,
+      value: 7,
     },
   },
   outline: [
@@ -1765,7 +2274,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Formal journal layout, Dr./To placement, narration, and totals.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG}`,
     },
-    { id: "cash-and-bank-transactions", title: "Cash and Bank Transactions", order: 7, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+      title: "Cash and Bank Transactions",
+      order: 7,
+      status: "available",
+      shortDescription: "Cash A/c, Bank A/c, transfers, withdrawals, and credit-transaction warnings.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG}`,
+    },
     { id: "capital", title: "Capital", order: 8, status: "upcoming" },
     { id: "drawings", title: "Drawings", order: 9, status: "upcoming" },
     { id: "purchases", title: "Purchases", order: 10, status: "upcoming" },
