@@ -153,6 +153,26 @@ Target platform planning note:
   - `Paid salary by bank ₹8,000`
 - Phase 3M does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/drawings`, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
 - Phase 3M does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
+- Phase 3N now adds the ninth routed Journal Entries learning section inside the isolated `/platform-preview` shell:
+  - `/platform-preview/chapters/journal-entries/drawings`
+- The Journal Entries preview now contains nine routed learning sections:
+  - `Introduction to Journal Entries and Journal Format`
+  - `Business Transactions`
+  - `Accounts Affected`
+  - `Types of Accounts`
+  - `Debit and Credit Rules`
+  - `Journal Format and Narration`
+  - `Cash and Bank Transactions`
+  - `Capital`
+  - `Drawings`
+- The Drawings section teaches drawings meaning, why Drawings A/c is debited, accounting-equation impact, cash drawings, bank drawings, business-versus-personal withdrawal treatment, goods withdrawn for personal use, personal expenses paid by the business, named Drawings A/c treatment, two-partner display-only examples, drawings versus business expenses, drawings versus capital, an interest-on-drawings design-needed note, five solved illustrations, common mistakes, a 10-step process, a display-only checklist, and a non-checking reflection prompt.
+- Capital now links forward to Drawings, while Drawings links back to Capital and shows `Purchases` as an upcoming disabled next step.
+- Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions, Accounts Affected, Types of Accounts, Debit and Credit Rules, Journal Format and Narration, Cash and Bank Transactions, Capital, and Drawings remain explanation-only.
+- The supported checking scope remains exactly two questions:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- Phase 3N does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/purchases`, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
+- Phase 3N does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 

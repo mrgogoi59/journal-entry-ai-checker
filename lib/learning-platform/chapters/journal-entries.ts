@@ -17,6 +17,7 @@ export const JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG = "debit-and-cr
 export const JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG = "journal-format-and-narration";
 export const JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG = "cash-and-bank-transactions";
 export const JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG = "capital";
+export const JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG = "drawings";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -185,10 +186,19 @@ const capitalSubtopicReference: ChapterSubtopicReference = {
 };
 
 const drawingsSubtopicReference: ChapterSubtopicReference = {
-  id: "drawings",
-  slug: "drawings",
+  id: JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
   title: "Drawings",
   order: 9,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG}`,
+};
+
+const purchasesSubtopicReference: ChapterSubtopicReference = {
+  id: "purchases",
+  slug: "purchases",
+  title: "Purchases",
+  order: 10,
   availabilityStatus: "upcoming",
 };
 
@@ -2705,6 +2715,481 @@ export const capitalJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   ],
 };
 
+export const drawingsJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...drawingsSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG}`,
+  shortDescription:
+    "Learn drawings, named Drawings A/c, cash and bank withdrawals, goods withdrawn, and personal expenses paid by the business.",
+  learningObjective:
+    "Students learn that personal withdrawals increase Drawings, reduce assets or goods available to the business, and are not business expenses.",
+  progressLabel: "Section 9 of 16",
+  previousSection: capitalSubtopicReference,
+  nextSection: purchasesSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "drawings",
+      eyebrow: "Learning objective",
+      title: "Drawings",
+      body:
+        "By the end of this section, you should be able to record cash, bank, goods, and personal-expense drawings, use named Drawings A/c, and separate personal withdrawals from business withdrawals.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-drawings",
+      eyebrow: "Concept explanation",
+      title: "What drawings mean",
+      paragraphs: [
+        "Drawings are cash, bank funds, goods, or other value withdrawn by the owner or partner for personal use.",
+        "Drawings are not a business expense.",
+        "Drawings reduce the owner's or partner's claim in the business.",
+        "Drawings may happen through cash, bank, goods, or payment of personal expenses.",
+        "In a partnership, each partner should have a separate Drawings A/c.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "why-drawings-is-debited",
+      eyebrow: "Debit logic",
+      title: "Why Drawings A/c is debited",
+      paragraphs: [
+        "Owner or partner takes value for personal use → Drawings increases → Asset or goods available to the business decreases.",
+        "Drawings reduce Capital / Equity, but they are recorded separately during the accounting period.",
+        "An increase in Drawings is debited.",
+        "The asset or value leaving the business is credited.",
+        "Drawings A/c will later be adjusted against Capital A/c. This section does not teach closing-entry mechanics in detail.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "drawings-accounting-equation-impact",
+      eyebrow: "Accounting equation",
+      title: "Drawings reduce the owner's claim",
+      intro:
+        "Assets = Capital + Liabilities. When value is withdrawn for personal use, assets or goods available to the business decrease and capital presentation is reduced through Drawings.",
+      groups: [
+        {
+          title: "Amit withdraws cash ₹5,000",
+          items: [
+            "Cash decreases by ₹5,000.",
+            "Amit's capital claim is reduced by ₹5,000 through Drawings.",
+            "Liability is unchanged.",
+          ],
+        },
+        {
+          title: "Final accounts impact",
+          items: [
+            "Balance Sheet is affected.",
+            "Profit & Loss is not directly affected.",
+            "Drawings are deducted from Capital in final presentation.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "cash-drawings-format",
+      eyebrow: "Cash drawings",
+      title: "Cash withdrawn for personal use",
+      paragraphs: [
+        "Transaction: Amit withdrew cash ₹5,000 for personal use.",
+        "Amit Drawings increases, so Amit Drawings A/c is debited. Cash asset decreases, so Cash A/c is credited.",
+        "Use Cash A/c because physical cash leaves the business. Do not debit a business expense account.",
+      ],
+      formatRows: [
+        { id: "cash-drawings-debit", particulars: "Amit Drawings A/c Dr.", lf: "", debitDisplay: "5,000" },
+        { id: "cash-drawings-credit", particulars: "To Cash A/c", lf: "", creditDisplay: "5,000" },
+        { id: "cash-drawings-narration", particulars: "(Being cash withdrawn by Amit for personal use.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "bank-drawings-format",
+      eyebrow: "Bank drawings",
+      title: "Amount withdrawn through bank for personal use",
+      paragraphs: [
+        "Transaction: Riya withdrew ₹4,000 from bank for personal use.",
+        "Riya Drawings A/c is debited because Riya takes value for personal use. Bank A/c is credited because money leaves the business bank account.",
+        "Use Bank A/c because the withdrawal is through bank. Cash A/c is not affected, and this is not a normal business cash withdrawal.",
+      ],
+      formatRows: [
+        { id: "bank-drawings-debit", particulars: "Riya Drawings A/c Dr.", lf: "", debitDisplay: "4,000" },
+        { id: "bank-drawings-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "4,000" },
+        { id: "bank-drawings-narration", particulars: "(Being amount withdrawn by Riya from bank for personal use.)" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "business-withdrawal-versus-personal-drawings",
+      eyebrow: "Business use versus personal use",
+      title: "Purpose changes the entry",
+      intro:
+        "Office use, business use, and personal use are not small words. They decide whether the entry is a business cash-bank transfer or drawings.",
+      groups: [
+        {
+          title: "Business use",
+          items: [
+            "Transaction: Cash withdrawn from bank ₹3,000 for office use.",
+            "Entry: Cash A/c Dr. ₹3,000.",
+            "To Bank A/c ₹3,000.",
+            "Value remains inside the business.",
+            "It is not drawings.",
+          ],
+        },
+        {
+          title: "Personal use",
+          items: [
+            "Transaction: Amit withdrew ₹3,000 from bank for personal use.",
+            "Entry: Amit Drawings A/c Dr. ₹3,000.",
+            "To Bank A/c ₹3,000.",
+            "Value leaves the business for personal use.",
+            "Drawings increases.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "goods-drawings-format",
+      eyebrow: "Goods drawings",
+      title: "Goods withdrawn for personal use",
+      paragraphs: [
+        "Transaction: Amit withdrew goods costing ₹3,000 for personal use.",
+        "The goods were originally purchased for resale, but they are no longer available for business sale.",
+        "Under the school journal convention used here, Drawings is debited and Purchases A/c is credited at cost.",
+        "Use cost value, not selling price. Do not credit Sales A/c, and do not add GST treatment in this phase.",
+      ],
+      formatRows: [
+        { id: "goods-drawings-debit", particulars: "Amit Drawings A/c Dr.", lf: "", debitDisplay: "3,000" },
+        { id: "goods-drawings-credit", particulars: "To Purchases A/c", lf: "", creditDisplay: "3,000" },
+        { id: "goods-drawings-narration", particulars: "(Being goods withdrawn by Amit for personal use.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "personal-expense-paid-by-business-format",
+      eyebrow: "Personal expense",
+      title: "Personal expenses paid by the business",
+      paragraphs: [
+        "If the business pays an owner's or partner's personal expense, it is drawings.",
+        "Transaction: The business paid Amit's personal mobile bill ₹2,000 through bank.",
+        "It is not Telephone Expense A/c of the business because the expense is personal. Bank decreases and Amit Drawings increases.",
+      ],
+      formatRows: [
+        { id: "personal-mobile-bill-drawings-debit", particulars: "Amit Drawings A/c Dr.", lf: "", debitDisplay: "2,000" },
+        { id: "personal-mobile-bill-bank-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "2,000" },
+        { id: "personal-mobile-bill-narration", particulars: "(Being Amit's personal mobile bill paid through bank.)" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "named-drawings-accounts",
+      eyebrow: "Named Drawings A/c",
+      title: "Use the person's Drawings A/c when a name is given",
+      intro:
+        "Named accounts are important when the transaction identifies the proprietor or partner.",
+      groups: [
+        {
+          title: "Use named accounts",
+          items: [
+            "Amit Drawings A/c.",
+            "Riya Drawings A/c.",
+            "Kuldeep Drawings A/c.",
+            "Priyanka Drawings A/c.",
+          ],
+        },
+        {
+          title: "Partnership reminder",
+          items: [
+            "Each partner's drawings must be recorded separately.",
+            "One partner's withdrawal must not be posted to another partner's Drawings A/c.",
+            "Multiple partners should not be combined into one generic Drawings A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "two-partners-drawings-format",
+      eyebrow: "Two partners",
+      title: "Two partners withdraw separately",
+      paragraphs: [
+        "Transaction: Amit withdrew cash ₹5,000 and Riya withdrew ₹3,000 through bank for personal use.",
+        "Show them as two separate entries for clarity because the payment modes differ.",
+        "Each partner has a separate Drawings A/c. This combined wording does not add checking support in this phase.",
+      ],
+      formatRows: [
+        { id: "two-partners-entry-one-label", particulars: "Entry 1: Amit withdrew cash" },
+        { id: "two-partners-amit-drawings-debit", particulars: "Amit Drawings A/c Dr.", lf: "", debitDisplay: "5,000" },
+        { id: "two-partners-cash-credit", particulars: "To Cash A/c", lf: "", creditDisplay: "5,000" },
+        { id: "two-partners-entry-two-label", particulars: "Entry 2: Riya withdrew through bank" },
+        { id: "two-partners-riya-drawings-debit", particulars: "Riya Drawings A/c Dr.", lf: "", debitDisplay: "3,000" },
+        { id: "two-partners-bank-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "3,000" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "drawings-versus-business-expense",
+      eyebrow: "Drawings versus expense",
+      title: "Personal benefit is not a business expense",
+      intro:
+        "Both drawings and expenses may involve money leaving the business, but the purpose decides the accounting treatment.",
+      groups: [
+        {
+          title: "Drawings",
+          items: [
+            "Purpose: personal benefit of owner or partner.",
+            "Effect: reduces Capital / Equity presentation.",
+            "Example: Amit Drawings A/c Dr.",
+            "To Bank A/c.",
+          ],
+        },
+        {
+          title: "Business expense",
+          items: [
+            "Purpose: incurred to operate the business or earn revenue.",
+            "Effect: reduces profit.",
+            "Example: Rent A/c Dr.",
+            "To Bank A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "drawings-versus-capital",
+      eyebrow: "Drawings versus capital",
+      title: "Capital enters, drawings leave",
+      intro:
+        "Capital and drawings move in opposite directions for the owner or partner's claim.",
+      groups: [
+        {
+          title: "Capital introduced",
+          items: [
+            "Value enters the business.",
+            "Asset increases.",
+            "Capital increases.",
+            "Example: Bank A/c Dr.",
+            "To Amit's Capital A/c.",
+          ],
+        },
+        {
+          title: "Drawings",
+          items: [
+            "Value leaves for personal use.",
+            "Asset or goods available to business decreases.",
+            "Drawings increases.",
+            "Example: Amit Drawings A/c Dr.",
+            "To Bank A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "interest-on-drawings-design-note",
+      eyebrow: "Later / design-needed",
+      title: "Interest on drawings",
+      paragraphs: [
+        "In Partnership Accounts, interest may be charged on partners' drawings.",
+        "Interest on drawings is marked Later / design-needed in this preview.",
+        "This phase does not teach calculation methods, average periods, product method, or journal entries for interest on drawings.",
+        "This phase does not add solver support or checker support for interest on drawings.",
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "drawings-priyanka-cash",
+      illustration: {
+        id: "drawings-priyanka-cash",
+        title: "Solved Illustration 1: cash drawings",
+        difficulty: "easy",
+        question: "Priyanka withdrew cash ₹6,000 for personal use.",
+        accountsAffected: ["Priyanka Drawings A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Named drawings", detail: "Priyanka Drawings A/c is used because Priyanka is named." },
+          { label: "Cash decreases", detail: "Physical cash leaves the business, so Cash A/c is credited." },
+          { label: "Not expense", detail: "The withdrawal is personal, so it is not a business expense." },
+        ],
+        journalEntry: [
+          { id: "drawings-priyanka-cash-debit", account: "Priyanka Drawings A/c", side: "debit", amount: 6000, drNotation: "Dr." },
+          { id: "drawings-priyanka-cash-credit", account: "Cash A/c", side: "credit", amount: 6000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn by Priyanka for personal use.",
+        explanation:
+          "Priyanka Drawings A/c is debited because drawings increase. Cash A/c is credited because cash leaves the business.",
+        studentTakeaway: "Personal cash withdrawal uses named Drawings A/c and Cash A/c.",
+        commonMistake: "Recording the personal withdrawal as a business expense.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "drawings-kuldeep-bank",
+      illustration: {
+        id: "drawings-kuldeep-bank",
+        title: "Solved Illustration 2: bank drawings",
+        difficulty: "easy",
+        question: "Kuldeep withdrew ₹8,000 through bank for personal use.",
+        accountsAffected: ["Kuldeep Drawings A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Personal use", detail: "Personal-use wording creates drawings." },
+          { label: "Bank mode", detail: "Money leaves through bank, so Bank A/c is credited." },
+          { label: "Cash not affected", detail: "Cash A/c is not used because the question says through bank." },
+        ],
+        journalEntry: [
+          { id: "drawings-kuldeep-bank-debit", account: "Kuldeep Drawings A/c", side: "debit", amount: 8000, drNotation: "Dr." },
+          { id: "drawings-kuldeep-bank-credit", account: "Bank A/c", side: "credit", amount: 8000, displayPrefix: "To" },
+        ],
+        narration: "Being amount withdrawn by Kuldeep through bank for personal use.",
+        explanation:
+          "Kuldeep Drawings A/c is debited because drawings increase. Bank A/c is credited because bank balance decreases.",
+        studentTakeaway: "Use Bank A/c instead of Cash A/c when the personal withdrawal is through bank.",
+        commonMistake: "Treating a personal bank withdrawal as a normal business cash withdrawal.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "drawings-riya-goods",
+      illustration: {
+        id: "drawings-riya-goods",
+        title: "Solved Illustration 3: goods drawings",
+        difficulty: "slightly-harder",
+        question: "Riya withdrew goods costing ₹4,000 for personal use.",
+        accountsAffected: ["Riya Drawings A/c", "Purchases A/c"],
+        reasoningSteps: [
+          { label: "Cost value", detail: "Goods drawings are recorded at cost, not selling price." },
+          { label: "Drawings increases", detail: "Riya Drawings A/c is debited." },
+          { label: "Purchases credited", detail: "Purchases A/c is credited under this school convention." },
+          { label: "Sales not used", detail: "No sale happened, so Sales A/c is not credited." },
+        ],
+        journalEntry: [
+          { id: "drawings-riya-goods-debit", account: "Riya Drawings A/c", side: "debit", amount: 4000, drNotation: "Dr." },
+          { id: "drawings-riya-goods-credit", account: "Purchases A/c", side: "credit", amount: 4000, displayPrefix: "To" },
+        ],
+        narration: "Being goods withdrawn by Riya for personal use.",
+        explanation:
+          "Riya Drawings A/c is debited because Riya takes goods for personal use. Purchases A/c is credited at cost under the school convention used here.",
+        studentTakeaway: "Goods withdrawn personally are drawings; use cost and do not credit Sales A/c.",
+        commonMistake: "Crediting Sales A/c or using selling price for goods withdrawn.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "drawings-amit-personal-insurance",
+      illustration: {
+        id: "drawings-amit-personal-insurance",
+        title: "Solved Illustration 4: personal expense paid by business",
+        difficulty: "slightly-harder",
+        question: "The business paid Amit's personal insurance premium ₹5,000 by bank.",
+        accountsAffected: ["Amit Drawings A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Personal benefit", detail: "The insurance premium is Amit's personal expense." },
+          { label: "Not business expense", detail: "Insurance Expense A/c of the business is not debited." },
+          { label: "Bank decreases", detail: "The business paid through bank, so Bank A/c is credited." },
+        ],
+        journalEntry: [
+          { id: "drawings-amit-insurance-debit", account: "Amit Drawings A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "drawings-amit-insurance-bank-credit", account: "Bank A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being Amit's personal insurance premium paid by bank.",
+        explanation:
+          "Amit Drawings A/c is debited because the payment benefits Amit personally. Bank A/c is credited because the business bank balance decreases.",
+        studentTakeaway: "A personal expense paid by the business is drawings, not a business expense.",
+        commonMistake: "Debiting Insurance Expense A/c for Amit's personal insurance premium.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "drawings-office-use-bank-withdrawal",
+      illustration: {
+        id: "drawings-office-use-bank-withdrawal",
+        title: "Solved Illustration 5: business withdrawal guard case",
+        difficulty: "mixed",
+        question: "Cash withdrawn from bank ₹7,000 for office use.",
+        accountsAffected: ["Cash A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Office use", detail: "The cash remains for business use, so this is not drawings." },
+          { label: "Cash increases", detail: "Cash A/c is debited because office cash increases." },
+          { label: "Bank decreases", detail: "Bank A/c is credited because money leaves the bank account." },
+        ],
+        journalEntry: [
+          { id: "drawings-office-cash-debit", account: "Cash A/c", side: "debit", amount: 7000, drNotation: "Dr." },
+          { id: "drawings-office-bank-credit", account: "Bank A/c", side: "credit", amount: 7000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn from bank for office use.",
+        explanation:
+          "This is a business cash-bank transfer. Value stays inside the business, so Drawings A/c is not used.",
+        studentTakeaway: "Office-use wording means Cash A/c Dr. and Bank A/c Cr., not drawings.",
+        commonMistake: "Treating every withdrawal from bank as drawings.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "drawings-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Drawings mistakes",
+      mistakes: [
+        "Treating drawings as a business expense.",
+        "Treating business cash withdrawal as drawings.",
+        "Using Cash A/c when withdrawal is through bank.",
+        "Using Bank A/c when physical cash is withdrawn.",
+        "Using generic Drawings A/c when a person is named.",
+        "Using Capital A/c directly for every drawing during the period.",
+        "Crediting Drawings A/c when drawings increase.",
+        "Debiting Cash/Bank instead of crediting it.",
+        "Using Sales A/c for goods withdrawn.",
+        "Using selling price instead of cost for goods drawings.",
+        "Recording personal mobile or insurance bills as business expenses.",
+        "Combining two partners' drawings into one account.",
+        "Assuming every payment by the business is an expense.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "drawings-decision-process",
+      eyebrow: "Decision process",
+      title: "Drawings decision process",
+      body:
+        "Use this order whenever value might be leaving the business for personal use.",
+      steps: [
+        { label: "Identify value leaving", detail: "Check whether cash, bank money, goods, or another value leaves the business." },
+        { label: "Identify the person", detail: "Find who receives the personal benefit." },
+        { label: "Confirm purpose", detail: "Decide whether the purpose is personal or business." },
+        { label: "Select named Drawings A/c", detail: "Use the correct person's Drawings A/c." },
+        { label: "Identify what leaves", detail: "Choose Cash, Bank, or goods/Purchases as appropriate." },
+        { label: "Debit Drawings", detail: "Debit Drawings A/c because drawings increase." },
+        { label: "Credit the leaving value", detail: "Credit Cash, Bank, or Purchases A/c as appropriate." },
+        { label: "Enter correct value", detail: "Use the correct amount; goods drawings use cost." },
+        { label: "Confirm totals", detail: "Total debit must equal total credit." },
+        { label: "Write narration", detail: "Explain who withdrew the value and how." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "drawings-checklist",
+      title: "Drawings checklist",
+      points: [
+        "Personal use is clearly identified.",
+        "The correct person's Drawings A/c is used.",
+        "Cash or Bank is selected correctly.",
+        "Goods drawings use cost value.",
+        "Purchases A/c is used for goods withdrawn under this school convention.",
+        "Business-use withdrawals are not classified as drawings.",
+        "Personal expenses are not classified as business expenses.",
+        "Debit and credit totals are equal.",
+        "Narration states who withdrew the value and how.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "drawings-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Did the value remain inside the business, support the business, or leave the business for someone's personal benefit?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -2714,6 +3199,7 @@ const journalEntriesSubtopics = [
   journalFormatAndNarrationJournalEntriesSubtopic,
   cashAndBankTransactionsJournalEntriesSubtopic,
   capitalJournalEntriesSubtopic,
+  drawingsJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -2730,7 +3216,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 8,
+      value: 9,
     },
   },
   outline: [
@@ -2798,7 +3284,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Capital meaning, named Capital A/c, two partners, and additional capital.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG}`,
     },
-    { id: "drawings", title: "Drawings", order: 9, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
+      title: "Drawings",
+      order: 9,
+      status: "available",
+      shortDescription: "Personal withdrawals, named Drawings A/c, goods drawings, and expense-vs-drawings guardrails.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG}`,
+    },
     { id: "purchases", title: "Purchases", order: 10, status: "upcoming" },
     { id: "sales", title: "Sales", order: 11, status: "upcoming" },
     { id: "expenses", title: "Expenses", order: 12, status: "upcoming" },

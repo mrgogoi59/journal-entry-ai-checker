@@ -12,6 +12,7 @@ import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapt
 import CashAndBankTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/cash-and-bank-transactions/page";
 import CapitalChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/capital/page";
 import DebitAndCreditRulesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/debit-and-credit-rules/page";
+import DrawingsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/drawings/page";
 import JournalFormatAndNarrationChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/journal-format-and-narration/page";
 import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
 import {
@@ -20,6 +21,7 @@ import {
   JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
   JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+  JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
@@ -59,6 +61,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
       JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
       JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
+      JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -99,6 +102,11 @@ describe("Platform preview routes", () => {
       order: 8,
       title: "Capital",
       progressLabel: "Section 8 of 16",
+    });
+    expect(journalEntriesChapter.subtopics[8]).toMatchObject({
+      order: 9,
+      title: "Drawings",
+      progressLabel: "Section 9 of 16",
     });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
@@ -143,8 +151,14 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
     );
     expect(journalEntriesChapter.subtopics[7].nextSection).toMatchObject({
-      slug: "drawings",
+      slug: JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
       title: "Drawings",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[8].previousSection?.slug).toBe(JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[8].nextSection).toMatchObject({
+      slug: "purchases",
+      title: "Purchases",
       availabilityStatus: "upcoming",
     });
 
@@ -194,6 +208,15 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "recap")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[7].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "concept-explanation")).toHaveLength(3);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "accounting-format")).toHaveLength(5);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "comparison")).toHaveLength(5);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(5);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "common-mistakes")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "recap")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -664,6 +687,110 @@ describe("Platform preview routes", () => {
 
       expect(section.illustration.journalEntry.map((line) => line.account)).not.toContain("Capital A/c");
     });
+  });
+
+  it("defines Drawings as display-only content with personal-use and business-use guardrails", () => {
+    const drawingsSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
+    );
+    const equationSection = drawingsSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "drawings-accounting-equation-impact",
+    );
+    const businessPersonalSection = drawingsSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "business-withdrawal-versus-personal-drawings",
+    );
+    const drawingsExpenseSection = drawingsSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "drawings-versus-business-expense",
+    );
+    const drawingsCapitalSection = drawingsSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "drawings-versus-capital",
+    );
+    const designNoteSection = drawingsSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "interest-on-drawings-design-note",
+    );
+    const solvedIllustrations = drawingsSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+
+    expect(drawingsSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(drawingsSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(equationSection?.type).toBe("comparison");
+    expect(businessPersonalSection?.type).toBe("comparison");
+    expect(drawingsExpenseSection?.type).toBe("comparison");
+    expect(drawingsCapitalSection?.type).toBe("comparison");
+    expect(designNoteSection?.type).toBe("concept-explanation");
+    expect(solvedIllustrations).toHaveLength(5);
+
+    if (
+      equationSection?.type !== "comparison" ||
+      businessPersonalSection?.type !== "comparison" ||
+      drawingsExpenseSection?.type !== "comparison" ||
+      drawingsCapitalSection?.type !== "comparison" ||
+      designNoteSection?.type !== "concept-explanation"
+    ) {
+      throw new Error("Drawings display sections were not found");
+    }
+
+    expect(equationSection.intro).toContain("Assets = Capital + Liabilities");
+    expect(equationSection.groups[1].items).toContain("Profit & Loss is not directly affected.");
+    expect(businessPersonalSection.groups[0].items.join(" ")).toContain("Cash A/c Dr. ₹3,000");
+    expect(businessPersonalSection.groups[0].items.join(" ")).toContain("It is not drawings.");
+    expect(businessPersonalSection.groups[1].items.join(" ")).toContain("Amit Drawings A/c Dr. ₹3,000");
+    expect(drawingsExpenseSection.groups.map((group) => group.title)).toEqual(["Drawings", "Business expense"]);
+    expect(drawingsCapitalSection.groups.map((group) => group.title)).toEqual(["Capital introduced", "Drawings"]);
+    expect(designNoteSection.paragraphs.join(" ")).toContain("Later / design-needed");
+
+    const cashDrawings = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "drawings-priyanka-cash",
+    );
+    const bankDrawings = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "drawings-kuldeep-bank",
+    );
+    const goodsDrawings = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "drawings-riya-goods",
+    );
+    const personalExpense = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "drawings-amit-personal-insurance",
+    );
+    const businessWithdrawal = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "drawings-office-use-bank-withdrawal",
+    );
+
+    expect(cashDrawings?.type).toBe("solved-illustration");
+    expect(bankDrawings?.type).toBe("solved-illustration");
+    expect(goodsDrawings?.type).toBe("solved-illustration");
+    expect(personalExpense?.type).toBe("solved-illustration");
+    expect(businessWithdrawal?.type).toBe("solved-illustration");
+
+    if (
+      cashDrawings?.type !== "solved-illustration" ||
+      bankDrawings?.type !== "solved-illustration" ||
+      goodsDrawings?.type !== "solved-illustration" ||
+      personalExpense?.type !== "solved-illustration" ||
+      businessWithdrawal?.type !== "solved-illustration"
+    ) {
+      throw new Error("Drawings solved illustrations were not found");
+    }
+
+    expect(cashDrawings.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Priyanka Drawings A/c",
+      "Cash A/c",
+    ]);
+    expect(bankDrawings.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Kuldeep Drawings A/c",
+      "Bank A/c",
+    ]);
+    expect(goodsDrawings.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Riya Drawings A/c",
+      "Purchases A/c",
+    ]);
+    expect(goodsDrawings.illustration.journalEntry.map((line) => line.amount)).toEqual([4000, 4000]);
+    expect(goodsDrawings.illustration.journalEntry.map((line) => line.account)).not.toContain("Sales A/c");
+    expect(personalExpense.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Amit Drawings A/c",
+      "Bank A/c",
+    ]);
+    expect(personalExpense.illustration.journalEntry.map((line) => line.account)).not.toContain("Insurance Expense A/c");
+    expect(businessWithdrawal.illustration.journalEntry.map((line) => line.account)).toEqual(["Cash A/c", "Bank A/c"]);
+    expect(businessWithdrawal.illustration.journalEntry.map((line) => line.account)).not.toContain("Drawings A/c");
   });
 
   it("marks the platform preview routes as noindex and nofollow", () => {
@@ -1180,7 +1307,7 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("renders the Capital section without adding a checker or Drawings route link", () => {
+  it("renders the Capital section with the Drawings next link and without adding a checker", () => {
     const html = renderToStaticMarkup(createElement(CapitalChapterPreviewPage));
 
     expect(html).toContain("Chapters");
@@ -1231,10 +1358,71 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Capital checklist");
     expect(html).toContain("Who gave the value to the business, what asset did the business receive, and whose Capital A/c increased?");
     expect(html).toContain("Previous Cash and Bank Transactions");
-    expect(html).toContain("Continue to Drawings - Preview only");
+    expect(html).toContain("Continue to Drawings");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/capital")).toContain('aria-current="step"');
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/drawings"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/drawings"');
+    expect(html).not.toContain("Continue to Drawings - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Drawings section without adding a checker or Purchases route link", () => {
+    const html = renderToStaticMarkup(createElement(DrawingsChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Drawings");
+    expect(html).toContain("Section 9 of 16");
+    expect(html).toContain("What drawings mean");
+    expect(html).toContain("Drawings are not a business expense.");
+    expect(html).toContain("Why Drawings A/c is debited");
+    expect(html).toContain("Owner or partner takes value for personal use → Drawings increases → Asset or goods available to the business decreases.");
+    expect(html).toContain("Assets = Capital + Liabilities");
+    expect(html).toContain("Drawings are deducted from Capital in final presentation.");
+    expect(html).toContain("Amit withdrew cash ₹5,000 for personal use.");
+    expect(html).toContain("Amit Drawings A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Riya withdrew ₹4,000 from bank for personal use.");
+    expect(html).toContain("Riya Drawings A/c Dr.");
+    expect(html).toContain("To Bank A/c");
+    expect(html).toContain("Purpose changes the entry");
+    expect(html).toContain("Cash withdrawn from bank ₹3,000 for office use.");
+    expect(html).toContain("Cash A/c Dr. ₹3,000.");
+    expect(html).toContain("It is not drawings.");
+    expect(html).toContain("Amit withdrew goods costing ₹3,000 for personal use.");
+    expect(html).toContain("To Purchases A/c");
+    expect(html).toContain("Use cost value, not selling price.");
+    expect(html).toContain("Do not credit Sales A/c");
+    expect(html).toContain("The business paid Amit&#x27;s personal mobile bill ₹2,000 through bank.");
+    expect(html).toContain("It is not Telephone Expense A/c of the business");
+    expect(html).toContain("Use the person&#x27;s Drawings A/c when a name is given");
+    expect(html).toContain("Amit Drawings A/c.");
+    expect(html).toContain("Priyanka Drawings A/c.");
+    expect(html).toContain("Two partners withdraw separately");
+    expect(html).toContain("Entry 1: Amit withdrew cash");
+    expect(html).toContain("Entry 2: Riya withdrew through bank");
+    expect(html).toContain("Personal benefit is not a business expense");
+    expect(html).toContain("Capital enters, drawings leave");
+    expect(html).toContain("Interest on drawings");
+    expect(html).toContain("Later / design-needed");
+    expect(html).toContain("Priyanka withdrew cash ₹6,000 for personal use.");
+    expect(html).toContain("Kuldeep withdrew ₹8,000 through bank for personal use.");
+    expect(html).toContain("Riya withdrew goods costing ₹4,000 for personal use.");
+    expect(html).toContain("The business paid Amit&#x27;s personal insurance premium ₹5,000 by bank.");
+    expect(html).toContain("Cash withdrawn from bank ₹7,000 for office use.");
+    expect(html).toContain("Avoid these Drawings mistakes");
+    expect(html).toContain("Drawings decision process");
+    expect(html).toContain("Drawings checklist");
+    expect(html).toContain("Did the value remain inside the business, support the business, or leave the business for someone&#x27;s personal benefit?");
+    expect(html).toContain("Previous Capital");
+    expect(html).toContain("Continue to Purchases - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/drawings")).toContain('aria-current="step"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/capital"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/purchases"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -1294,5 +1482,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/capital"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/drawings"');
   });
 });

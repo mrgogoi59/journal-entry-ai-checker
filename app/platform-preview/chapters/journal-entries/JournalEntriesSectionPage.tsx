@@ -52,7 +52,7 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
             <PageHeader
-            eyebrow="Phase 3M chapter preview"
+            eyebrow="Phase 3N chapter preview"
             title={chapter.metadata.title}
             description={chapter.metadata.description}
           >
