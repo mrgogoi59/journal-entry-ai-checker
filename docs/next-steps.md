@@ -2,6 +2,40 @@
 
 ## Immediate recommended next step
 
+Phase 3V of the Journal Entries chapter-learning preview is completed.
+
+What this completed audit achieved:
+
+- it creates `docs/journal-entries-preview-audit.md` as the internal audit record
+- it audits the sixteen isolated Journal Entries preview routes under `/platform-preview`
+- it confirms route order, active outline state, `Section X of 16` labels, Previous/Next links, final recap links, and `noindex, nofollow` preview metadata
+- it confirms the preview remains unlinked from the current public homepage/navigation and no live route was redirected or replaced
+- it confirms the checker remains limited to exactly two deterministic Practice It Yourself questions:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- it confirms answer keys remain server-controlled and the client editor does not import server answer keys
+- it records the accessibility, mobile/responsive, desktop UI, architecture, and performance audit findings
+- it records the readiness verdict as `Ready for controlled production migration`
+- it found no critical blockers and required no app/code/test fixes
+- it did not begin Phase 4, did not add production routes, did not add chapter content, did not add checker scope, did not add answer keys, and did not change live app behavior
+
+Phase 4 production migration is technically approved for a controlled route-slice migration after founder manual review. It is not blocked by Phase 3V audit findings, but it should not begin automatically.
+
+The exact recommended next phase is Phase 4A: create the production application shell and Chapters index route as a small controlled slice, with no checker expansion, no live-route redirects, and no changes to beginner `/practice`, `/practice/advanced`, existing solver routes, parser/classifier/validator/checker logic, accounting engines, APIs, persistence, database/auth/payment/backend, analytics, or AI behavior.
+
+Recommended Phase 4 sequence:
+
+1. Production application shell
+2. Chapters index
+3. Journal Entries read-only sections in controlled route slices
+4. The two existing deterministic Practice It Yourself questions
+5. Solver hub mapping
+6. Practice hub mapping while keeping beginner `/practice` stable
+7. Dashboard static/browser-local foundation
+8. AI Assistant later, only after grounded tutor design is approved
+
+## Immediate recommended next step
+
 Phase 3U of the Journal Entries chapter-learning preview is completed.
 
 What this completed final-section slice achieved:

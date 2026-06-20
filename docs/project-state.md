@@ -290,6 +290,15 @@ Target platform planning note:
 - Phase 3U does not change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required for the completed sixteen-section progression before integrating this shell into real routes or adding any further deterministic checker support.
+- Phase 3V now completes the full Journal Entries preview audit in `docs/journal-entries-preview-audit.md`.
+- The Phase 3V readiness verdict is `Ready for controlled production migration`.
+- The audit found no critical route, navigation, accounting-content, checker, accessibility, responsive, architecture, or performance blockers.
+- No small app/code/test fixes were required by the audit; the change is documentation-only.
+- The preview still supports exactly two deterministic Practice It Yourself checker questions:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- Phase 3V did not begin Phase 4, did not add production routes, did not redirect live routes, did not expose public navigation links, and did not add chapter content, answer keys, checker scope, persistence, APIs, AI, database/auth/payment/backend, or accounting functionality.
+- The next gate remains founder manual review, followed by a controlled Phase 4 route-slice migration if approved.
 
 ## Current student-facing routes
 
@@ -774,7 +783,7 @@ The advanced foundation is real code, but much of the topic-pack/report-template
 
 ## Current test status
 
-Latest verification run for the second `Final Accounts Impact` preview slice:
+Latest verification run for the Phase 3V Journal Entries preview audit:
 
 - `npm test`
 - `npm run typecheck`
@@ -783,8 +792,8 @@ Latest verification run for the second `Final Accounts Impact` preview slice:
 
 Observed status:
 
-- `37` test files passed
-- `2116` tests passed
+- `39` test files passed
+- `2223` tests passed
 - typecheck passed
 - lint passed
 - build passed when re-run outside the sandbox
