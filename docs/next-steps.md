@@ -2,19 +2,20 @@
 
 ## Immediate recommended next step
 
-Phase 3F of the Journal Entries chapter-learning preview is completed.
+Phase 3G of the Journal Entries chapter-learning preview is completed.
 
-What this completed second-question slice achieved:
+What this completed reusable subtopic-progression slice achieved:
 
-- it adds exactly one second deterministic Practice It Yourself question inside `/platform-preview/chapters/journal-entries`: `Paid salary by bank ₹8,000`
-- the isolated chapter checker now supports exactly two approved questions: cash sale of goods and salary paid by bank
-- the salary question checks `Salary A/c Dr.`, `To Bank A/c`, ₹8,000 debit/credit amounts, student-entered totals, narration, cash-versus-bank mistakes, rent-versus-salary mistakes, wrong side, missing `Dr.`, missing `To`, extra lines, and balanced-but-conceptually-wrong answers
-- expected answers remain server-controlled by question ID; public chapter data and client props still do not include answer keys
-- the two editors render as `Practice 1 of 2` and `Practice 2 of 2`, with independent rows, totals, narration, pending state, feedback, reset state, and correct-answer reveal state
-- the pure deterministic checker was generalized only through answer-key metadata inside `lib/learning-platform`; no second checker, broad question-bank generator, API route, persistence, or live-route migration was added
+- it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
+- it adds `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
+- the typed learning-platform chapter model now supports routed subtopics, available/upcoming outline state, progress labels, previous/next navigation, comparison blocks, and ordered process-step blocks
+- the first section now links forward to Business Transactions, while the Business Transactions section links back to Introduction and shows `Accounts Affected` as an upcoming disabled next step
+- Business Transactions is static learning content only: concept explanation, transaction-versus-event examples, account-identification process, two worked examples, and common mistakes
+- the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
+- no third question ID, new checker logic, broad question-bank generator, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder manual review is required next for both questions on desktop and mobile. The next phase should refine the reusable Journal Entries section/lesson progression before adding many more questions; do not expand into broad question-bank generation yet.
+Founder manual review is required next for the two-section progression on desktop and mobile. Phase 3H should add the third static subtopic, `Accounts Affected`, using the same reusable section progression; do not add more checkers, broad question-bank generation, or live-route migration yet.
 
 ## Immediate recommended next step
 

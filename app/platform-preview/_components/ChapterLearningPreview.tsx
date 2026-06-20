@@ -4,8 +4,11 @@ import type {
   AccountingFormatPreviewLine,
   ChapterDefinition,
   ChapterMetadata,
+  ChapterSubtopicDefinition,
   CommonMistakesSection,
+  ComparisonSection,
   PracticeItYourselfPreviewQuestion,
+  ProcessStepsSection,
   SimpleExampleSection,
   SolvedIllustration as SolvedIllustrationData,
 } from "@/lib/learning-platform/types";
@@ -25,16 +28,20 @@ type AccountingEntryTableRow = {
   credit?: string;
 };
 
-export function ChapterOutline({ chapter }: { chapter: ChapterDefinition }) {
-  const currentSectionId = chapter.metadata.currentPreviewSectionId;
-
+export function ChapterOutline({
+  chapter,
+  activeSectionId,
+}: {
+  chapter: ChapterDefinition;
+  activeSectionId: string;
+}) {
   return (
     <>
       <details className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:hidden">
         <summary className="cursor-pointer text-sm font-black text-slate-950 outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2">
           Chapter outline
         </summary>
-        <OrderedOutline chapter={chapter} currentSectionId={currentSectionId} className="mt-4" />
+        <OrderedOutline chapter={chapter} activeSectionId={activeSectionId} className="mt-4" />
       </details>
 
       <aside className="hidden lg:block">
@@ -42,9 +49,9 @@ export function ChapterOutline({ chapter }: { chapter: ChapterDefinition }) {
           <SectionHeading
             eyebrow="Outline"
             title={chapter.metadata.title}
-            body="Only the first section is fully rendered in Phase 3C."
+            body="Available sections open in this internal preview. Upcoming sections are shown for sequence only."
           />
-          <OrderedOutline chapter={chapter} currentSectionId={currentSectionId} className="mt-5" />
+          <OrderedOutline chapter={chapter} activeSectionId={activeSectionId} className="mt-5" />
         </div>
       </aside>
     </>
@@ -53,23 +60,25 @@ export function ChapterOutline({ chapter }: { chapter: ChapterDefinition }) {
 
 function OrderedOutline({
   chapter,
-  currentSectionId,
+  activeSectionId,
   className = "",
 }: {
   chapter: ChapterDefinition;
-  currentSectionId: string;
+  activeSectionId: string;
   className?: string;
 }) {
   return (
     <ol className={`space-y-2 ${className}`}>
       {chapter.outline.map((item) => {
-        const isCurrent = item.status === "current";
+        const isActive = item.id === activeSectionId;
+        const isAvailable = item.status === "available" && item.href;
+        const unavailableLabel = item.status === "later" ? "Later" : "Upcoming";
 
         return (
           <li key={item.id}>
-            {isCurrent ? (
+            {isActive ? (
               <a
-                href={`#${currentSectionId}`}
+                href={item.href ?? `#${activeSectionId}`}
                 aria-current="step"
                 className="flex min-h-11 items-start gap-3 rounded-2xl border border-cyan-200 bg-cyan-50 px-3 py-2.5 text-left text-sm font-black text-cyan-950 outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
               >
@@ -77,6 +86,19 @@ function OrderedOutline({
                   {item.order}
                 </span>
                 <span>{item.title}</span>
+              </a>
+            ) : isAvailable ? (
+              <a
+                href={item.href}
+                className="flex min-h-11 items-start gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-bold text-slate-800 outline-none transition hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-950 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs text-slate-700">
+                  {item.order}
+                </span>
+                <span>{item.title}</span>
+                <span className="ml-auto rounded-full border border-cyan-200 bg-cyan-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-cyan-800">
+                  Available
+                </span>
               </a>
             ) : (
               <button
@@ -90,7 +112,7 @@ function OrderedOutline({
                 </span>
                 <span>{item.title}</span>
                 <span className="ml-auto rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-slate-500">
-                  Soon
+                  {unavailableLabel}
                 </span>
               </button>
             )}
@@ -114,6 +136,49 @@ export function ConceptSection({
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <SectionHeading eyebrow={eyebrow} title={title} />
       <div className="mt-5 space-y-4 text-base leading-8 text-slate-700">{children}</div>
+    </section>
+  );
+}
+
+export function ComparisonBlock({ section }: { section: ComparisonSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.intro} />
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        {section.groups.map((group) => (
+          <article key={group.title} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-base font-black text-slate-950">{group.title}</h3>
+            <ul className="mt-4 space-y-3 text-sm font-semibold leading-6 text-slate-700">
+              {group.items.map((item) => (
+                <li key={item} className="rounded-xl border border-slate-200 bg-white p-3">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function ProcessStepsBlock({ section }: { section: ProcessStepsSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <ol className="mt-5 grid gap-3">
+        {section.steps.map((step, index) => (
+          <li key={step.label} className="flex min-w-0 gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-black text-white">
+              {index + 1}
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-sm font-black text-slate-950">{step.label}</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-600">{step.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
@@ -306,17 +371,30 @@ export function CommonMistakes({ section }: { section: CommonMistakesSection }) 
   );
 }
 
-export function ChapterProgressPreview({ metadata }: { metadata: ChapterMetadata }) {
+export function ChapterProgressPreview({
+  metadata,
+  subtopic,
+  totalSections,
+}: {
+  metadata: ChapterMetadata;
+  subtopic: ChapterSubtopicDefinition;
+  totalSections: number;
+}) {
+  const progressValue = Math.round((subtopic.order / totalSections) * 100);
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <SectionHeading eyebrow="Preview progress" title="Current section" body="Introduction to Journal Entries and Journal Format" />
-      {metadata.progressPreview ? (
-        <div className="mt-5">
-          <ProgressBar value={metadata.progressPreview.value} label={metadata.progressPreview.label} />
-        </div>
-      ) : null}
-      <div className="mt-4 inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
-        {metadata.levelLabel}
+      <SectionHeading eyebrow="Preview progress" title={subtopic.title} body={subtopic.shortDescription} />
+      <div className="mt-5">
+        <ProgressBar value={progressValue} label={subtopic.progressLabel} />
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
+          {metadata.levelLabel}
+        </span>
+        <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-slate-700">
+          {subtopic.progressLabel}
+        </span>
       </div>
     </div>
   );

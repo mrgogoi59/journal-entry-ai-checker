@@ -7,7 +7,10 @@ import PlatformPreviewLayout, { metadata as platformPreviewMetadata } from "@/ap
 import PlatformPreviewDashboardPage from "@/app/platform-preview/page";
 import PlatformPreviewChaptersPage from "@/app/platform-preview/chapters/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
+import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
 import {
+  JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   journalEntriesChapter,
   paidSalaryByBankPracticeQuestion,
   soldGoodsForCashPracticeQuestion,
@@ -35,9 +38,34 @@ describe("Platform preview routes", () => {
       Array.from({ length: 16 }, (_, index) => index + 1),
     );
 
+    expect(journalEntriesChapter.subtopics.map((subtopic) => subtopic.slug)).toEqual([
+      JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
+      JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+    ]);
+    expect(journalEntriesChapter.subtopics[0]).toMatchObject({
+      order: 1,
+      title: "Introduction to Journal Entries and Journal Format",
+      progressLabel: "Section 1 of 16",
+    });
+    expect(journalEntriesChapter.subtopics[1]).toMatchObject({
+      order: 2,
+      title: "Business Transactions",
+      progressLabel: "Section 2 of 16",
+    });
+    expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[1].nextSection).toMatchObject({
+      slug: "accounts-affected",
+      title: "Accounts Affected",
+      availabilityStatus: "upcoming",
+    });
+
     expect(journalEntriesChapter.sections.filter((section) => section.type === "concept-explanation")).toHaveLength(1);
     expect(journalEntriesChapter.sections.filter((section) => section.type === "solved-illustration")).toHaveLength(2);
     expect(journalEntriesChapter.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(2);
+    expect(journalEntriesChapter.subtopics[1].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[1].sections.filter((section) => section.type === "comparison")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[1].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -169,7 +197,7 @@ describe("Platform preview routes", () => {
     expect(getLinkMarkup(html, "/platform-preview/chapters")).toContain('aria-current="page"');
   });
 
-  it("renders the Journal Entries chapter learning preview flow with blank fields and one blank-safe checker", () => {
+  it("renders the first Journal Entries section with blank fields, two checkers, and a next-section link", () => {
     const html = renderToStaticMarkup(createElement(JournalEntriesChapterPreviewPage));
     const checkButtons = getButtonMarkups(html, "Check Answer");
 
@@ -177,6 +205,7 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Journal Entries");
     expect(html).toContain("Foundation chapter");
     expect(html).toContain("Introduction to Journal Entries and Journal Format");
+    expect(html).toContain("Section 1 of 16");
     expect(html).toContain("Business Transactions");
     expect(html).toContain("Types of Accounts");
     expect(html).toContain("Chapter Recap and Practice");
@@ -224,7 +253,6 @@ describe("Platform preview routes", () => {
     expect(html).toContain("This preview checker supports this individual question only.");
     expect(html).not.toContain("Show Correct Answer");
     expect(html).toContain("Common mistakes");
-    expect(html).toContain("Continue to Business Transactions - Preview only");
 
     expect(html).not.toContain('value="Cash A/c');
     expect(html).not.toContain('value="Sales A/c');
@@ -244,10 +272,52 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("Being salary paid by bank.");
     expect(html).not.toContain("Correct Answer");
     expect(html).not.toContain("result_status");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries")).toContain('aria-current="step"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/business-transactions"');
+    expect(html).toContain("Continue to Business Transactions");
+    expect(html).not.toContain("Continue to Business Transactions - Preview only");
+  });
+
+  it("renders the Business Transactions section without adding a checker", () => {
+    const html = renderToStaticMarkup(createElement(BusinessTransactionsChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Business Transactions");
+    expect(html).toContain("Section 2 of 16");
+    expect(html).toContain("A business transaction is an economic event that affects the business.");
+    expect(html).toContain("Transaction versus event");
+    expect(html).toContain("Paid office rent by bank ₹5,000.");
+    expect(html).toContain("The owner plans to purchase machinery next month.");
+    expect(html).toContain("Account-identification method");
+    expect(html).toContain("Read the transaction carefully");
+    expect(html).toContain("Confirm total debit equals total credit");
+    expect(html).toContain("Bought goods for cash ₹10,000.");
+    expect(html).toContain("Purchases A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Being goods purchased for cash.");
+    expect(html).toContain("Received a bank loan of ₹50,000 in the bank account.");
+    expect(html).toContain("Bank A/c Dr.");
+    expect(html).toContain("To Loan A/c");
+    expect(html).toContain("Being loan received through bank.");
+    expect(html).toContain("Previous Introduction to Journal Entries and Journal Format");
+    expect(html).toContain("Continue to Accounts Affected - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/business-transactions")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
   });
 
   it("keeps Practice It Yourself constrained to the two approved checking-ready questions", () => {
-    const practiceSections = journalEntriesChapter.sections.filter((section) => section.type === "practice-it-yourself");
+    const practiceSections = journalEntriesChapter.subtopics
+      .flatMap((subtopic) => subtopic.sections)
+      .filter((section) => section.type === "practice-it-yourself");
     const checkingReadySections = practiceSections.filter((section) => section.question.status === "checking-ready");
 
     expect(checkingReadySections).toHaveLength(2);
@@ -289,5 +359,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview"');
     expect(html).not.toContain('href="/platform-preview/chapters"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/business-transactions"');
   });
 });

@@ -59,6 +59,17 @@ Target platform planning note:
 - Phase 3F keeps the two Practice It Yourself editors independently stateful, with separate rows, totals, narration, pending state, feedback, reset state, and correct-answer reveal state.
 - Phase 3F reuses the existing pure deterministic checker with small metadata-driven feedback generalization inside `lib/learning-platform`; it does not create a second checker or add broad question-bank generation.
 - Phase 3F does not change live routes, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
+- Phase 3G now adds reusable Journal Entries subtopic progression inside the isolated `/platform-preview` shell.
+- The Journal Entries preview now has two routed learning sections:
+  - `/platform-preview/chapters/journal-entries` remains `Introduction to Journal Entries and Journal Format`
+  - `/platform-preview/chapters/journal-entries/business-transactions` adds the static `Business Transactions` section
+- Phase 3G extends the typed learning-platform chapter model only enough for routed subtopics, availability-aware outline links, progress labels, previous/next navigation, comparison blocks, and ordered process-step blocks.
+- The first section keeps the two existing checking-enabled Practice It Yourself questions unchanged and first-section-only:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- The new Business Transactions section is explanation-only: it teaches transaction meaning, monetary measurement, business entity, source documents, transaction-versus-event examples, account-identification steps, two worked examples, and common mistakes.
+- Phase 3G does not add a third checker question ID, does not add checker logic to Business Transactions, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
+- Phase 3G does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 

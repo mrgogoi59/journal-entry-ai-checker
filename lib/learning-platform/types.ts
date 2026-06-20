@@ -27,6 +27,7 @@ export type OutlineItem = {
   order: number;
   status: OutlineItemStatus;
   shortDescription?: string;
+  href?: string;
 };
 
 export type AccountingEntryLine = {
@@ -166,6 +167,27 @@ export type ConceptExplanationSection = {
   paragraphs: string[];
 };
 
+export type ComparisonSection = {
+  type: "comparison";
+  id: string;
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  groups: {
+    title: string;
+    items: string[];
+  }[];
+};
+
+export type ProcessStepsSection = {
+  type: "process-steps";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  steps: ReasoningStep[];
+};
+
 export type AccountingFormatSection = {
   type: "accounting-format";
   id: string;
@@ -215,6 +237,8 @@ export type RecapSection = {
 export type ChapterSection =
   | LearningObjectiveSection
   | ConceptExplanationSection
+  | ComparisonSection
+  | ProcessStepsSection
   | AccountingFormatSection
   | SimpleExampleSection
   | SolvedIllustrationSection
@@ -222,8 +246,36 @@ export type ChapterSection =
   | CommonMistakesSection
   | RecapSection;
 
+export type ChapterSubtopicAvailabilityStatus = Exclude<OutlineItemStatus, "current">;
+
+export type ChapterSubtopicReference = {
+  id: string;
+  slug: string;
+  title: string;
+  order: number;
+  availabilityStatus: ChapterSubtopicAvailabilityStatus;
+  href?: string;
+};
+
+export type ChapterSubtopicDefinition = {
+  id: string;
+  slug: string;
+  title: string;
+  order: number;
+  shortDescription: string;
+  learningObjective: string;
+  availabilityStatus: ChapterSubtopicAvailabilityStatus;
+  href: string;
+  progressLabel: string;
+  previousSection?: ChapterSubtopicReference;
+  nextSection?: ChapterSubtopicReference;
+  practiceQuestionIds?: string[];
+  sections: ChapterSection[];
+};
+
 export type ChapterDefinition = {
   metadata: ChapterMetadata;
   outline: OutlineItem[];
+  subtopics: ChapterSubtopicDefinition[];
   sections: ChapterSection[];
 };
