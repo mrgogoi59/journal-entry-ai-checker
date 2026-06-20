@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHeader } from "@/components/student-platform/PageHeader";
 import { StudentAppShell } from "@/components/student-platform/StudentAppShell";
 import {
@@ -20,10 +21,10 @@ export default function ChaptersPage() {
       <PageHeader
         eyebrow="Student platform"
         title="Chapters"
-        description="Choose an Accountancy chapter. The production chapter experience will migrate one safe slice at a time, starting with Journal Entries."
+        description="Choose an Accountancy chapter. Journal Entries is now available as a read-only production chapter, with interactive checking planned as the next controlled step."
       >
         <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-800">
-          Phase 4A live route
+          Phase 4B live route
         </span>
       </PageHeader>
 
@@ -36,8 +37,8 @@ export default function ChaptersPage() {
           Concepts, solved illustrations, Practice It Yourself, and chapter-wise progression
         </h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
-          This index is the first live production step. Journal Entries is ready for the next migration slice, while
-          every other chapter is labelled honestly as planned or later until its learning flow is built and tested.
+          This index is the first live production chapter library. Journal Entries now opens as read-only learning
+          content, while every other chapter is labelled honestly as planned or later until its learning flow is built and tested.
         </p>
       </section>
 
@@ -71,9 +72,18 @@ function ChapterCard({ chapter }: { chapter: ChapterCatalogItem }) {
         {chapter.supportsProgressLater ? "Progress support can be added after the chapter route is approved." : "No progress tracking is wired in this phase."}
       </div>
 
-      <div className="mt-5 inline-flex min-h-10 items-center self-start rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700">
-        {chapter.actionLabel}
-      </div>
+      {chapter.href ? (
+        <Link
+          href={chapter.href}
+          className="mt-5 inline-flex min-h-10 items-center self-start rounded-xl border border-cyan-300 bg-cyan-50 px-4 text-sm font-black text-cyan-950 outline-none transition hover:border-cyan-400 hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          {chapter.actionLabel}
+        </Link>
+      ) : (
+        <div className="mt-5 inline-flex min-h-10 items-center self-start rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700">
+          {chapter.actionLabel}
+        </div>
+      )}
     </article>
   );
 }

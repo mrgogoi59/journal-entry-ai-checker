@@ -312,6 +312,18 @@ Target platform planning note:
   - Journal Entries production content and the two deterministic Practice It Yourself checkers have not migrated yet
   - the existing global mobile bottom navigation is hidden only on `/chapters` and future `/chapters/*` shell routes to avoid duplicate mobile navigation
   - existing Home, Learn, Tools, Practice, Advanced Practice, Explainer, accounting engines, APIs, analytics, storage, and accounting logic were not replaced or rewired
+- Phase 4B now adds the controlled production Journal Entries read-only chapter routes:
+  - `/chapters/journal-entries`
+  - the 15 section routes under `/chapters/journal-entries/<section-slug>`
+  - Journal Entries is now marked `Available` in the production chapter catalogue with action `Start Chapter`
+  - `/chapters` links only the Journal Entries card to `/chapters/journal-entries`; other chapters remain staged as `Planned` or `Later`
+  - the production routes reuse the existing typed content from `lib/learning-platform/chapters/journal-entries.ts`
+  - the production renderer is intentionally read-only and does not import preview server actions, answer keys, or the interactive editor
+  - the two existing deterministic Practice It Yourself checkers remain isolated in `/platform-preview`
+  - production Practice It Yourself blocks show a migration-safe placeholder only, with no inputs, no check button, no answer reveal, no question IDs, and no correct answers
+  - `/platform-preview` and its Journal Entries routes remain preserved and `noindex, nofollow`; the new production chapter routes do not set `noindex`
+  - the homepage still does not link to `/chapters`
+  - Phase 4B did not change beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, or accounting calculations
 
 ## Current student-facing routes
 
@@ -319,6 +331,8 @@ Main routes currently present in `app/`:
 
 - `/`
 - `/chapters`
+- `/chapters/journal-entries`
+- `/chapters/journal-entries/<section-slug>`
 - `/learn`
 - `/practice`
 - `/practice/advanced`

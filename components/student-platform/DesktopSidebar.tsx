@@ -17,8 +17,8 @@ export function DesktopSidebar({ activeItem }: { activeItem: StudentPlatformNavi
         </nav>
 
         <div className="mt-auto rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-          <p className="font-bold text-slate-900">Phase 4A</p>
-          <p className="mt-1">Live shell and chapter index only. Chapter content migration is next.</p>
+          <p className="font-bold text-slate-900">Phase 4B</p>
+          <p className="mt-1">Journal Entries is live as a read-only chapter. Practice checking remains next.</p>
         </div>
       </div>
     </aside>

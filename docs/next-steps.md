@@ -2,33 +2,33 @@
 
 ## Immediate recommended next step
 
-Phase 4A of the controlled production migration is completed.
+Phase 4B of the controlled production migration is completed.
 
 What this completed route-slice achieved:
 
-- it adds a reusable production student-platform shell under `components/student-platform/`
-- it adds a live `/chapters` index route using that shell
-- it adds a typed 12-item production chapter catalogue at `lib/learning-platform/chapter-catalog.ts`
-- it marks Journal Entries as `Ready for migration` without linking to `/platform-preview` or creating `/chapters/journal-entries`
-- it labels the other chapters honestly as `Planned` or `Later`
-- it keeps Dashboard and AI Assistant visually present as `Coming soon` without linking to `/dashboard` or `/assistant`
-- it links Solver to the existing `/tools` route and Practice to the existing `/practice` route
-- it keeps `/platform-preview` internal and `noindex, nofollow`
+- it keeps the Phase 4A production student-platform shell and live `/chapters` index route
+- it adds the production Journal Entries read-only chapter route at `/chapters/journal-entries`
+- it adds all 15 production Journal Entries section routes under `/chapters/journal-entries/<section-slug>`
+- it marks Journal Entries as `Available` with action `Start Chapter` in the production chapter catalogue
+- it links only the Journal Entries card on `/chapters` to the new production chapter route
+- it reuses the existing typed Journal Entries content from `lib/learning-platform/chapters/journal-entries.ts`
+- it uses a production-safe read-only renderer instead of importing preview server actions, answer keys, or the interactive editor
+- it keeps the two deterministic Practice It Yourself checkers isolated in `/platform-preview`
+- it renders production Practice It Yourself blocks as migration-safe placeholders with no inputs, no check button, no answer reveal, no question IDs, and no correct answers
+- it keeps `/platform-preview` preserved and `noindex, nofollow`, while the production Journal Entries routes remain indexable
 - it keeps the current homepage unchanged and does not link `/chapters` from public homepage navigation yet
-- it hides the existing global mobile bottom navigation only on `/chapters` and future `/chapters/*` routes to avoid duplicate mobile navigation
-- it temporarily duplicates the approved preview shell pattern instead of extracting shared preview components, so preview route content and the two deterministic checkers remain untouched
-- it does not migrate Journal Entries production content, answer keys, Practice It Yourself checkers, parser/classifier/validator/checker logic, accounting engines, APIs, persistence, database/auth/payment/backend, analytics, or AI behavior
+- it keeps beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
 
-Founder visual review is required next for the live `/chapters` route on desktop and mobile before linking it from the homepage or migrating chapter content.
+Founder visual/content review is required next for `/chapters` and the new `/chapters/journal-entries` production routes on desktop and mobile before linking Chapters from the homepage.
 
-The exact recommended next phase is Phase 4B: migrate Journal Entries read-only learning routes in controlled production slices. Phase 4B must not migrate the two deterministic Practice It Yourself checkers yet, must not replace the homepage before `/chapters` is approved, and must keep existing live routes stable until production route parity is verified.
+The exact recommended next phase is Phase 4C planning: prepare a tiny controlled migration plan for the two existing deterministic Practice It Yourself checkers. Phase 4C should migrate only the already-approved `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000` checker flow after review, keep server answer keys protected, and avoid adding new checker questions or broad runtime wiring.
 
 Recommended Phase 4 sequence:
 
 1. Production application shell
 2. Chapters index
 3. Journal Entries read-only sections in controlled route slices
-4. The two existing deterministic Practice It Yourself questions
+4. The two existing deterministic Practice It Yourself questions, only after review
 5. Solver hub mapping
 6. Practice hub mapping while keeping beginner `/practice` stable
 7. Dashboard static/browser-local foundation

@@ -1,4 +1,4 @@
-export type ChapterStatus = "migration-ready" | "planned" | "later";
+export type ChapterStatus = "available" | "migration-ready" | "planned" | "later";
 
 export type ChapterCatalogItem = {
   id: string;
@@ -9,15 +9,18 @@ export type ChapterCatalogItem = {
   level?: string;
   supportsProgressLater?: boolean;
   actionLabel: string;
+  href?: string;
 };
 
 export const chapterStatusLabels: Record<ChapterStatus, string> = {
+  available: "Available",
   "migration-ready": "Ready for migration",
   planned: "Planned",
   later: "Later",
 };
 
 export const chapterStatusStyles: Record<ChapterStatus, string> = {
+  available: "border-cyan-200 bg-cyan-50 text-cyan-800",
   "migration-ready": "border-cyan-200 bg-cyan-50 text-cyan-800",
   planned: "border-blue-200 bg-blue-50 text-blue-800",
   later: "border-slate-200 bg-slate-100 text-slate-700",
@@ -39,10 +42,11 @@ export const studentPlatformChapterCatalog: ChapterCatalogItem[] = [
     slug: "journal-entries",
     title: "Journal Entries",
     shortDescription: "The first production migration chapter for transaction logic, debit-credit rules, and journal format.",
-    status: "migration-ready",
-    level: "First migration chapter",
+    status: "available",
+    level: "Production chapter",
     supportsProgressLater: true,
-    actionLabel: "Chapter experience coming in the next migration step",
+    actionLabel: "Start Chapter",
+    href: "/chapters/journal-entries",
   },
   {
     id: "ledger",
