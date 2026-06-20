@@ -48,6 +48,17 @@ Target platform planning note:
 - Phase 3E also improves accessibility/mobile safety with clearer instructions, `aria-busy`, focused feedback, accessible total/remove labels, focus-visible states, stacked mobile fields, and no wide table requirement on mobile.
 - The Phase 3E answer-key boundary is now covered by focused tests: the client editor does not import the server answer-key module, the server action remains the answer-key boundary, the initial page does not render the expected answer, and correct-answer reveal remains explicit after an attempt.
 - Phase 3E does not change the existing public app, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting-core engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, AI behavior, or accounting calculations.
+- Phase 3F now adds the second deterministic Practice It Yourself checker question inside the isolated Journal Entries chapter preview:
+  - `Paid salary by bank ₹8,000. Pass the journal entry.`
+  - expected server-only answer: `Salary A/c Dr.` / `To Bank A/c`
+  - narration: `Being salary paid by bank.`
+- The supported chapter-checking scope is now exactly two questions:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- Phase 3F keeps expected answers in the server-only answer-key module, selected by question ID through server actions; the public chapter data and client props still do not contain expected answers.
+- Phase 3F keeps the two Practice It Yourself editors independently stateful, with separate rows, totals, narration, pending state, feedback, reset state, and correct-answer reveal state.
+- Phase 3F reuses the existing pure deterministic checker with small metadata-driven feedback generalization inside `lib/learning-platform`; it does not create a second checker or add broad question-bank generation.
+- Phase 3F does not change live routes, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 

@@ -2,19 +2,19 @@
 
 ## Immediate recommended next step
 
-Phase 3E of the Journal Entries chapter-learning preview is completed.
+Phase 3F of the Journal Entries chapter-learning preview is completed.
 
-What this completed safety/UX audit achieved:
+What this completed second-question slice achieved:
 
-- it keeps the first Practice It Yourself checker scoped to exactly one question: `Sold goods for cash ₹12,000`
-- it confirms the expected answer remains server-controlled: the client editor does not import the server answer-key module, the initial page does not render the answer, and reveal remains explicit after a check attempt
-- it adds bounded input safety for this isolated checker: at most 6 journal rows, field-length limits, malformed-shape handling, safe amount parsing, and no `NaN`/crash path for unsafe inputs
-- it confirms conceptually wrong but balanced answers still remain incorrect
-- it improves the editor interaction state by disabling blank checks, showing a pending status, clearing stale checked feedback/revealed answers after edits, capping row additions, and keeping reset/retry/reveal explicit
-- it improves accessibility/mobile safety with clearer instructions, accessible labels, `aria-busy`, focus-visible states, focused feedback, and stacked mobile entry fields
-- it does not add a second question, API route, persistence, progress/history, analytics events, AI, database/auth/payment/backend behavior, live-route migration, or changes to existing parser/classifier/validator/checker logic or accounting engines
+- it adds exactly one second deterministic Practice It Yourself question inside `/platform-preview/chapters/journal-entries`: `Paid salary by bank ₹8,000`
+- the isolated chapter checker now supports exactly two approved questions: cash sale of goods and salary paid by bank
+- the salary question checks `Salary A/c Dr.`, `To Bank A/c`, ₹8,000 debit/credit amounts, student-entered totals, narration, cash-versus-bank mistakes, rent-versus-salary mistakes, wrong side, missing `Dr.`, missing `To`, extra lines, and balanced-but-conceptually-wrong answers
+- expected answers remain server-controlled by question ID; public chapter data and client props still do not include answer keys
+- the two editors render as `Practice 1 of 2` and `Practice 2 of 2`, with independent rows, totals, narration, pending state, feedback, reset state, and correct-answer reveal state
+- the pure deterministic checker was generalized only through answer-key metadata inside `lib/learning-platform`; no second checker, broad question-bank generator, API route, persistence, or live-route migration was added
+- beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder functional and mobile review is required next. Phase 3F should either be founder review notes only, or a very small second Practice It Yourself question only after approval. Do not add a second question until the current single-question checker has been manually tested on desktop and mobile.
+Founder manual review is required next for both questions on desktop and mobile. The next phase should refine the reusable Journal Entries section/lesson progression before adding many more questions; do not expand into broad question-bank generation yet.
 
 ## Immediate recommended next step
 

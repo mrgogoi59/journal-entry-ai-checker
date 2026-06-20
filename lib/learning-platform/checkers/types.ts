@@ -33,6 +33,15 @@ export type JournalEntryPracticeAnswerKeyLine = AccountingEntryLine & {
   requiredParticularsHint: string;
   correctMessage: string;
   errorMessage: string;
+  missingMarkerMessage: string;
+  wrongMarkerMessage: string;
+  wrongAmountMessage: string;
+  wrongColumnMessage: string;
+};
+
+export type JournalEntryPracticeUnexpectedAccountFeedback = {
+  errorMessage: string;
+  hint: string;
 };
 
 export type JournalEntryPracticeAnswerKey = {
@@ -41,6 +50,17 @@ export type JournalEntryPracticeAnswerKey = {
   expectedLines: JournalEntryPracticeAnswerKeyLine[];
   acceptedNarrations: string[];
   narrationConceptHints: string[];
+  narrationFeedback: {
+    correctMessage: string;
+    warningMessage: string;
+    errorMessage: string;
+    hint: string;
+  };
+  unsupportedHint: string;
+  blankAttemptHint: string;
+  extraLineHint: string;
+  correctSummary: string;
+  unexpectedAccountFeedback: Partial<Record<string, JournalEntryPracticeUnexpectedAccountFeedback>>;
 };
 
 export type JournalEntryPracticeFieldResult = {

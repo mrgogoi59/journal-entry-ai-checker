@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { checkJournalEntryPracticeAttempt } from "@/lib/learning-platform/checkers/journal-entry-checker";
 import { JOURNAL_ENTRY_PRACTICE_LIMITS, type JournalEntryPracticeAttempt } from "@/lib/learning-platform/checkers/types";
-import { soldGoodsForCashAnswerKey } from "@/lib/learning-platform/chapters/journal-entry-answer-keys.server";
-import { SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID } from "@/lib/learning-platform/chapters/journal-entries";
+import {
+  getJournalEntryPracticeAnswerKey,
+  getJournalEntryPracticeCorrectAnswerReveal,
+  paidSalaryByBankAnswerKey,
+  soldGoodsForCashAnswerKey,
+} from "@/lib/learning-platform/chapters/journal-entry-answer-keys.server";
+import {
+  PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+  SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+} from "@/lib/learning-platform/chapters/journal-entries";
 
 function createAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
   return {
@@ -39,6 +47,43 @@ function createAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): Jo
 
 function check(attempt: JournalEntryPracticeAttempt) {
   return checkJournalEntryPracticeAttempt(attempt, soldGoodsForCashAnswerKey);
+}
+
+function createSalaryAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
+  return {
+    questionId: PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: "Salary A/c Dr.",
+        lf: "J1",
+        debitAmount: "8000",
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: "To Bank A/c",
+        lf: "J1",
+        debitAmount: "",
+        creditAmount: "8000",
+      },
+      {
+        rowOrder: 3,
+        particulars: "",
+        lf: "",
+        debitAmount: "",
+        creditAmount: "",
+      },
+    ],
+    totalDebit: "8000",
+    totalCredit: "8000",
+    narration: "Being salary paid by bank.",
+    ...overrides,
+  };
+}
+
+function checkSalary(attempt: JournalEntryPracticeAttempt = createSalaryAttempt()) {
+  return checkJournalEntryPracticeAttempt(attempt, paidSalaryByBankAnswerKey);
 }
 
 describe("learning-platform journal entry checker", () => {
@@ -454,5 +499,242 @@ describe("learning-platform journal entry checker", () => {
     expect(malformedRowResult.status).toBe("incorrect");
     expect(malformedRowResult.errors).toEqual(expect.arrayContaining(["Row 1 has an invalid row order."]));
     expect(malformedRowResult.errors).toEqual(expect.arrayContaining(["Row 1 particulars are missing, malformed, or too long."]));
+  });
+
+  it("accepts the exact paid-salary-by-bank journal entry with totals and narration", () => {
+    const result = checkSalary();
+
+    expect(result.status).toBe("correct");
+    expect(result.errors).toEqual([]);
+    expect(result.gotRight).toEqual(
+      expect.arrayContaining([
+        "Salary is an expense and is correctly debited.",
+        "Bank is correctly credited because money is paid through bank.",
+        "Narration communicates that salary was paid by bank.",
+        "Debit and credit totals are balanced.",
+      ]),
+    );
+    expect(result.totalsResult).toMatchObject({
+      status: "correct",
+      enteredDebit: 8000,
+      enteredCredit: 8000,
+      rowDebitTotal: 8000,
+      rowCreditTotal: 8000,
+    });
+  });
+
+  it("accepts paid-salary-by-bank formatting and narration variants", () => {
+    const result = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "  salary   dr ",
+            lf: "",
+            debitAmount: "₹8,000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "TO BANK",
+            lf: "",
+            debitAmount: "",
+            creditAmount: "8,000",
+          },
+        ],
+        totalDebit: "8000.00",
+        totalCredit: "₹8,000.00",
+        narration: "Salary paid through bank.",
+      }),
+    );
+
+    expect(result.status).toBe("partially-correct");
+    expect(result.errors).toEqual([]);
+    expect(result.narrationResult.status).toBe("correct");
+    expect(result.warnings.join(" ")).toContain("L.F. is blank");
+  });
+
+  it("rejects Cash instead of Bank for the paid-salary-by-bank question", () => {
+    const result = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          createSalaryAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Cash A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "8000",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("incorrect");
+    expect(result.errors).toEqual(expect.arrayContaining(["Cash A/c is not affected because the transaction states bank."]));
+    expect(result.errors).toEqual(expect.arrayContaining(["To Bank A/c is missing."]));
+  });
+
+  it("rejects Rent instead of Salary for the paid-salary-by-bank question", () => {
+    const result = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Rent A/c Dr.",
+            lf: "J1",
+            debitAmount: "8000",
+            creditAmount: "",
+          },
+          createSalaryAttempt().rows[1],
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("incorrect");
+    expect(result.errors).toEqual(expect.arrayContaining(["Rent A/c is a different expense and is not used here."]));
+    expect(result.errors).toEqual(expect.arrayContaining(["Salary A/c Dr. is missing."]));
+  });
+
+  it("rejects Salary credited and Bank debited for the paid-salary-by-bank question", () => {
+    const salaryCredited = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "To Salary A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "8000",
+          },
+          createSalaryAttempt().rows[1],
+        ],
+      }),
+    );
+    const bankDebited = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          createSalaryAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "Bank A/c Dr.",
+            lf: "J1",
+            debitAmount: "8000",
+            creditAmount: "",
+          },
+        ],
+      }),
+    );
+
+    expect(salaryCredited.status).toBe("incorrect");
+    expect(salaryCredited.errors).toEqual(expect.arrayContaining(["Add Dr. to Salary A/c."]));
+    expect(salaryCredited.errors).toEqual(expect.arrayContaining(["Salary should not be placed in the credit column."]));
+    expect(bankDebited.status).toBe("incorrect");
+    expect(bankDebited.errors).toEqual(expect.arrayContaining(["Prefix the credited Bank A/c with To."]));
+    expect(bankDebited.errors).toEqual(expect.arrayContaining(["Bank should not be placed in the debit column."]));
+  });
+
+  it("rejects wrong amount, incorrect totals, balanced wrong entries, missing markers, extra lines, and unrelated narration for salary", () => {
+    const wrongAmount = checkSalary(
+      createSalaryAttempt({
+        rows: [{ ...createSalaryAttempt().rows[0], debitAmount: "7000" }, createSalaryAttempt().rows[1]],
+        totalDebit: "7000",
+      }),
+    );
+    const wrongTotals = checkSalary(createSalaryAttempt({ totalDebit: "8000", totalCredit: "7000" }));
+    const wrongButBalanced = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Cash A/c Dr.",
+            lf: "J1",
+            debitAmount: "8000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "To Sales A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "8000",
+          },
+        ],
+        totalDebit: "8000",
+        totalCredit: "8000",
+      }),
+    );
+    const missingDr = checkSalary(
+      createSalaryAttempt({ rows: [{ ...createSalaryAttempt().rows[0], particulars: "Salary A/c" }, createSalaryAttempt().rows[1]] }),
+    );
+    const missingTo = checkSalary(
+      createSalaryAttempt({ rows: [createSalaryAttempt().rows[0], { ...createSalaryAttempt().rows[1], particulars: "Bank A/c" }] }),
+    );
+    const extraLine = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          createSalaryAttempt().rows[0],
+          createSalaryAttempt().rows[1],
+          {
+            rowOrder: 3,
+            particulars: "Commission A/c",
+            lf: "J1",
+            debitAmount: "100",
+            creditAmount: "",
+          },
+        ],
+      }),
+    );
+    const unrelatedNarration = checkSalary(createSalaryAttempt({ narration: "Being goods sold for cash." }));
+
+    expect(wrongAmount.errors).toEqual(expect.arrayContaining(["Salary should be debited with ₹8,000."]));
+    expect(wrongAmount.errors).toEqual(expect.arrayContaining(["Total Debit should be ₹8,000."]));
+    expect(wrongTotals.errors).toEqual(expect.arrayContaining(["Total Credit should be ₹8,000."]));
+    expect(wrongTotals.errors).toEqual(expect.arrayContaining(["Entered totals should match the amounts written in the journal rows."]));
+    expect(wrongButBalanced.status).toBe("incorrect");
+    expect(wrongButBalanced.balanceResult.status).toBe("correct");
+    expect(wrongButBalanced.errors).toEqual(expect.arrayContaining(["Cash A/c is not affected because the transaction states bank."]));
+    expect(missingDr.errors).toEqual(expect.arrayContaining(["Add Dr. to Salary A/c."]));
+    expect(missingTo.errors).toEqual(expect.arrayContaining(["Prefix the credited Bank A/c with To."]));
+    expect(extraLine.errors).toEqual(expect.arrayContaining(["Row 3 is an extra non-empty line."]));
+    expect(unrelatedNarration.status).toBe("incorrect");
+    expect(unrelatedNarration.narrationResult.message).toBe("Narration should explain that salary was paid by bank.");
+  });
+
+  it("fails safely for blank salary attempts and unsupported question IDs", () => {
+    const blankSalary = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          { rowOrder: 1, particulars: "", lf: "", debitAmount: "", creditAmount: "" },
+          { rowOrder: 2, particulars: "", lf: "", debitAmount: "", creditAmount: "" },
+        ],
+        totalDebit: "",
+        totalCredit: "",
+        narration: "",
+      }),
+    );
+    const unsupported = checkJournalEntryPracticeAttempt(createSalaryAttempt({ questionId: "unknown-question" }), null);
+
+    expect(blankSalary.status).toBe("incorrect");
+    expect(blankSalary.errors).toEqual(["The answer is blank."]);
+    expect(blankSalary.correctAnswerRevealAvailable).toBe(false);
+    expect(unsupported.status).toBe("incorrect");
+    expect(unsupported.correctAnswerRevealAvailable).toBe(false);
+  });
+
+  it("keeps answer-key lookup and correct-answer reveal isolated by question ID", () => {
+    const cashReveal = getJournalEntryPracticeCorrectAnswerReveal(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
+    const salaryReveal = getJournalEntryPracticeCorrectAnswerReveal(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
+    const unknownReveal = getJournalEntryPracticeCorrectAnswerReveal("unknown-question");
+
+    expect(getJournalEntryPracticeAnswerKey(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID)).toBe(soldGoodsForCashAnswerKey);
+    expect(getJournalEntryPracticeAnswerKey(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID)).toBe(paidSalaryByBankAnswerKey);
+    expect(getJournalEntryPracticeAnswerKey("unknown-question")).toBeNull();
+    expect(cashReveal.lines.map((line) => line.particulars)).toEqual(["Cash A/c Dr.", "To Sales A/c"]);
+    expect(cashReveal.lines.map((line) => `${line.debitAmount ?? ""}${line.creditAmount ?? ""}`).join(" ")).not.toContain("₹8,000");
+    expect(salaryReveal.lines.map((line) => line.particulars)).toEqual(["Salary A/c Dr.", "To Bank A/c"]);
+    expect(salaryReveal.lines.map((line) => `${line.debitAmount ?? ""}${line.creditAmount ?? ""}`).join(" ")).not.toContain("₹12,000");
+    expect(salaryReveal.narration).toBe("Being salary paid by bank.");
+    expect(unknownReveal.available).toBe(false);
   });
 });

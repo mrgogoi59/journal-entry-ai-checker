@@ -20,11 +20,18 @@ import {
 } from "./actions";
 
 const chapter = journalEntriesChapter;
+const practiceSectionCount = chapter.sections.filter((section) => section.type === "practice-it-yourself").length;
 
 const sectionsWithSolvedNumbers = (() => {
   let solvedIllustrationCount = 0;
+  let practiceCount = 0;
 
   return chapter.sections.map((section) => {
+    if (section.type === "practice-it-yourself") {
+      practiceCount += 1;
+      return { section, practiceNumber: practiceCount };
+    }
+
     if (section.type !== "solved-illustration") {
       return { section };
     }
@@ -61,11 +68,12 @@ export default function JournalEntriesChapterPreviewPage() {
 
           <ChapterProgressPreview metadata={chapter.metadata} />
 
-          {sectionsWithSolvedNumbers.map(({ section, solvedIllustrationNumber }) => (
+          {sectionsWithSolvedNumbers.map(({ section, solvedIllustrationNumber, practiceNumber }) => (
             <ChapterSectionRenderer
               key={section.id}
               section={section}
               solvedIllustrationNumber={solvedIllustrationNumber}
+              practiceNumber={practiceNumber}
             />
           ))}
 
@@ -96,9 +104,11 @@ export default function JournalEntriesChapterPreviewPage() {
 function ChapterSectionRenderer({
   section,
   solvedIllustrationNumber,
+  practiceNumber,
 }: {
   section: ChapterSection;
   solvedIllustrationNumber?: number;
+  practiceNumber?: number;
 }) {
   switch (section.type) {
     case "learning-objective":
@@ -147,6 +157,8 @@ function ChapterSectionRenderer({
       return (
         <PracticeItYourselfPreview
           question={toPracticeItYourselfPreviewQuestion(section.question)}
+          practiceNumber={practiceNumber ?? 0}
+          practiceCount={practiceSectionCount}
           checkAnswerAction={checkJournalEntriesPracticeAnswer}
           revealCorrectAnswerAction={revealJournalEntriesPracticeCorrectAnswer}
         />

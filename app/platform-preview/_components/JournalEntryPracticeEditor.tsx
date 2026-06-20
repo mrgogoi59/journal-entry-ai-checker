@@ -49,6 +49,9 @@ export function JournalEntryPracticeEditor({
   const [isChecking, setIsChecking] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
   const feedbackRef = useRef<HTMLDivElement | null>(null);
+  const fieldPrefix = question.id;
+  const instructionId = `practice-editor-instructions-${fieldPrefix}`;
+  const feedbackId = `practice-feedback-${fieldPrefix}`;
   const canAddRow = rows.length < JOURNAL_ENTRY_PRACTICE_LIMITS.maxRows;
   const isCurrentAttemptBlank = isAttemptBlank(createAttempt(question.id, rows, totalDebit, totalCredit, narration));
 
@@ -95,8 +98,6 @@ export function JournalEntryPracticeEditor({
     const attempt = createAttempt(question.id, rows, totalDebit, totalCredit, narration);
 
     if (isAttemptBlank(attempt)) {
-      setResult(createLocalBlankResult(question.id));
-      setReveal(null);
       return;
     }
 
@@ -141,13 +142,13 @@ export function JournalEntryPracticeEditor({
 
   return (
     <>
-      <p id="practice-editor-instructions" className="mt-5 rounded-2xl border border-cyan-100 bg-cyan-50 p-4 text-sm font-semibold leading-6 text-cyan-950">
+      <p id={instructionId} className="mt-5 rounded-2xl border border-cyan-100 bg-cyan-50 p-4 text-sm font-semibold leading-6 text-cyan-950">
         Write the full particulars yourself, including Dr. on the debit line and To on the credit line. Enter your own totals and narration.
       </p>
       <form
         className="mt-4 space-y-4"
-        aria-label="Practice It Yourself journal entry checker"
-        aria-describedby="practice-editor-instructions"
+        aria-label={`${question.title} journal entry checker`}
+        aria-describedby={instructionId}
         aria-busy={isChecking}
         onSubmit={handleSubmit}
       >
@@ -165,6 +166,7 @@ export function JournalEntryPracticeEditor({
             <PracticeDesktopRow
               key={row.rowOrder}
               row={row}
+              fieldPrefix={fieldPrefix}
               canRemove={rows.length > 2}
               onChange={updateRow}
               onRemove={removeRow}
@@ -176,10 +178,10 @@ export function JournalEntryPracticeEditor({
           <div className="flex items-center text-sm font-black text-slate-950">Total</div>
           <div />
           <input
-            id="practice-total-debit"
-            name="practice-total-debit"
+            id={`practice-total-debit-${fieldPrefix}`}
+            name={`practice-total-debit-${fieldPrefix}`}
             inputMode="numeric"
-            aria-label="Total Debit"
+            aria-label={`${question.title} Total Debit`}
             placeholder="Total Debit"
             value={totalDebit}
             maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
@@ -190,10 +192,10 @@ export function JournalEntryPracticeEditor({
             className={inputClass}
           />
           <input
-            id="practice-total-credit"
-            name="practice-total-credit"
+            id={`practice-total-credit-${fieldPrefix}`}
+            name={`practice-total-credit-${fieldPrefix}`}
             inputMode="numeric"
-            aria-label="Total Credit"
+            aria-label={`${question.title} Total Credit`}
             placeholder="Total Credit"
             value={totalCredit}
             maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
@@ -212,6 +214,7 @@ export function JournalEntryPracticeEditor({
           <PracticeMobileRow
             key={row.rowOrder}
             row={row}
+            fieldPrefix={fieldPrefix}
             canRemove={rows.length > 2}
             onChange={updateRow}
             onRemove={removeRow}
@@ -221,12 +224,12 @@ export function JournalEntryPracticeEditor({
           <legend className="px-1 text-sm font-black text-slate-950">Totals</legend>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-bold text-slate-700" htmlFor="practice-mobile-total-debit">
+              <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-total-debit-${fieldPrefix}`}>
                 Total Debit ₹
               </label>
               <input
-                id="practice-mobile-total-debit"
-                name="practice-mobile-total-debit"
+                id={`practice-mobile-total-debit-${fieldPrefix}`}
+                name={`practice-mobile-total-debit-${fieldPrefix}`}
                 inputMode="numeric"
                 placeholder="Total Debit"
                 value={totalDebit}
@@ -239,12 +242,12 @@ export function JournalEntryPracticeEditor({
               />
             </div>
             <div>
-              <label className="text-sm font-bold text-slate-700" htmlFor="practice-mobile-total-credit">
+              <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-total-credit-${fieldPrefix}`}>
                 Total Credit ₹
               </label>
               <input
-                id="practice-mobile-total-credit"
-                name="practice-mobile-total-credit"
+                id={`practice-mobile-total-credit-${fieldPrefix}`}
+                name={`practice-mobile-total-credit-${fieldPrefix}`}
                 inputMode="numeric"
                 placeholder="Total Credit"
                 value={totalCredit}
@@ -279,12 +282,12 @@ export function JournalEntryPracticeEditor({
       </div>
 
       <div>
-        <label htmlFor="practice-narration" className="text-sm font-black text-slate-950">
+        <label htmlFor={`practice-narration-${fieldPrefix}`} className="text-sm font-black text-slate-950">
           Narration
         </label>
         <textarea
-          id="practice-narration"
-          name="practice-narration"
+          id={`practice-narration-${fieldPrefix}`}
+          name={`practice-narration-${fieldPrefix}`}
           rows={3}
           placeholder={question.answerInputSchema.narration.placeholder}
           value={narration}
@@ -299,7 +302,7 @@ export function JournalEntryPracticeEditor({
 
       <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-semibold leading-6 text-slate-600">
-          This preview checker supports only this one cash-sale journal entry. No API route, storage, analytics, or existing checker is called.
+          This preview checker supports this individual question only. No API route, storage, analytics, or existing checker is called.
         </p>
         <button
           type="submit"
@@ -313,7 +316,7 @@ export function JournalEntryPracticeEditor({
 
       <div
         ref={feedbackRef}
-        id="practice-feedback"
+        id={feedbackId}
         tabIndex={-1}
         aria-live="polite"
         className="rounded-3xl border border-slate-200 bg-white p-4 outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 sm:p-5"
@@ -340,59 +343,61 @@ export function JournalEntryPracticeEditor({
 
 function PracticeDesktopRow({
   row,
+  fieldPrefix,
   canRemove,
   onChange,
   onRemove,
 }: {
   row: EditorRow;
+  fieldPrefix: string;
   canRemove: boolean;
   onChange: (rowOrder: number, field: keyof EditorRow, value: string) => void;
   onRemove: (rowOrder: number) => void;
 }) {
   return (
     <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 px-4 py-3">
-      <label className="sr-only" htmlFor={`practice-date-${row.rowOrder}`}>
+      <label className="sr-only" htmlFor={`practice-date-${fieldPrefix}-${row.rowOrder}`}>
         Row {row.rowOrder} date
       </label>
       <input
-        id={`practice-date-${row.rowOrder}`}
-        name={`practice-date-${row.rowOrder}`}
+        id={`practice-date-${fieldPrefix}-${row.rowOrder}`}
+        name={`practice-date-${fieldPrefix}-${row.rowOrder}`}
         placeholder="Date"
         value={row.date}
         maxLength={20}
         onChange={(event) => onChange(row.rowOrder, "date", event.target.value)}
         className={inputClass}
       />
-      <label className="sr-only" htmlFor={`practice-particulars-${row.rowOrder}`}>
+      <label className="sr-only" htmlFor={`practice-particulars-${fieldPrefix}-${row.rowOrder}`}>
         Row {row.rowOrder} particulars
       </label>
       <input
-        id={`practice-particulars-${row.rowOrder}`}
-        name={`practice-particulars-${row.rowOrder}`}
+        id={`practice-particulars-${fieldPrefix}-${row.rowOrder}`}
+        name={`practice-particulars-${fieldPrefix}-${row.rowOrder}`}
         placeholder={`Particulars line ${row.rowOrder}`}
         value={row.particulars}
         maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxParticularsLength}
         onChange={(event) => onChange(row.rowOrder, "particulars", event.target.value)}
         className={inputClass}
       />
-      <label className="sr-only" htmlFor={`practice-lf-${row.rowOrder}`}>
+      <label className="sr-only" htmlFor={`practice-lf-${fieldPrefix}-${row.rowOrder}`}>
         Row {row.rowOrder} ledger folio
       </label>
       <input
-        id={`practice-lf-${row.rowOrder}`}
-        name={`practice-lf-${row.rowOrder}`}
+        id={`practice-lf-${fieldPrefix}-${row.rowOrder}`}
+        name={`practice-lf-${fieldPrefix}-${row.rowOrder}`}
         placeholder="L.F."
         value={row.lf}
         maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxLfLength}
         onChange={(event) => onChange(row.rowOrder, "lf", event.target.value)}
         className={inputClass}
       />
-      <label className="sr-only" htmlFor={`practice-debit-${row.rowOrder}`}>
+      <label className="sr-only" htmlFor={`practice-debit-${fieldPrefix}-${row.rowOrder}`}>
         Row {row.rowOrder} debit amount
       </label>
       <input
-        id={`practice-debit-${row.rowOrder}`}
-        name={`practice-debit-${row.rowOrder}`}
+        id={`practice-debit-${fieldPrefix}-${row.rowOrder}`}
+        name={`practice-debit-${fieldPrefix}-${row.rowOrder}`}
         inputMode="numeric"
         placeholder="Debit"
         value={row.debitAmount}
@@ -400,12 +405,12 @@ function PracticeDesktopRow({
         onChange={(event) => onChange(row.rowOrder, "debitAmount", event.target.value)}
         className={inputClass}
       />
-      <label className="sr-only" htmlFor={`practice-credit-${row.rowOrder}`}>
+      <label className="sr-only" htmlFor={`practice-credit-${fieldPrefix}-${row.rowOrder}`}>
         Row {row.rowOrder} credit amount
       </label>
       <input
-        id={`practice-credit-${row.rowOrder}`}
-        name={`practice-credit-${row.rowOrder}`}
+        id={`practice-credit-${fieldPrefix}-${row.rowOrder}`}
+        name={`practice-credit-${fieldPrefix}-${row.rowOrder}`}
         inputMode="numeric"
         placeholder="Credit"
         value={row.creditAmount}
@@ -428,11 +433,13 @@ function PracticeDesktopRow({
 
 function PracticeMobileRow({
   row,
+  fieldPrefix,
   canRemove,
   onChange,
   onRemove,
 }: {
   row: EditorRow;
+  fieldPrefix: string;
   canRemove: boolean;
   onChange: (rowOrder: number, field: keyof EditorRow, value: string) => void;
   onRemove: (rowOrder: number) => void;
@@ -443,12 +450,12 @@ function PracticeMobileRow({
       <div className="mt-3 grid gap-3">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-date-${row.rowOrder}`}>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-date-${fieldPrefix}-${row.rowOrder}`}>
               Date
             </label>
             <input
-              id={`practice-mobile-date-${row.rowOrder}`}
-              name={`practice-mobile-date-${row.rowOrder}`}
+              id={`practice-mobile-date-${fieldPrefix}-${row.rowOrder}`}
+              name={`practice-mobile-date-${fieldPrefix}-${row.rowOrder}`}
               placeholder="Date"
               value={row.date}
               maxLength={20}
@@ -457,12 +464,12 @@ function PracticeMobileRow({
             />
           </div>
           <div>
-            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-lf-${row.rowOrder}`}>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-lf-${fieldPrefix}-${row.rowOrder}`}>
               L.F.
             </label>
             <input
-              id={`practice-mobile-lf-${row.rowOrder}`}
-              name={`practice-mobile-lf-${row.rowOrder}`}
+              id={`practice-mobile-lf-${fieldPrefix}-${row.rowOrder}`}
+              name={`practice-mobile-lf-${fieldPrefix}-${row.rowOrder}`}
               placeholder="L.F."
               value={row.lf}
               maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxLfLength}
@@ -472,12 +479,12 @@ function PracticeMobileRow({
           </div>
         </div>
         <div>
-          <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-particulars-${row.rowOrder}`}>
+          <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-particulars-${fieldPrefix}-${row.rowOrder}`}>
             Particulars
           </label>
           <input
-            id={`practice-mobile-particulars-${row.rowOrder}`}
-            name={`practice-mobile-particulars-${row.rowOrder}`}
+            id={`practice-mobile-particulars-${fieldPrefix}-${row.rowOrder}`}
+            name={`practice-mobile-particulars-${fieldPrefix}-${row.rowOrder}`}
             placeholder={`Particulars line ${row.rowOrder}`}
             value={row.particulars}
             maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxParticularsLength}
@@ -487,12 +494,12 @@ function PracticeMobileRow({
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-debit-${row.rowOrder}`}>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-debit-${fieldPrefix}-${row.rowOrder}`}>
               Debit ₹
             </label>
             <input
-              id={`practice-mobile-debit-${row.rowOrder}`}
-              name={`practice-mobile-debit-${row.rowOrder}`}
+              id={`practice-mobile-debit-${fieldPrefix}-${row.rowOrder}`}
+              name={`practice-mobile-debit-${fieldPrefix}-${row.rowOrder}`}
               inputMode="numeric"
               placeholder="Debit"
               value={row.debitAmount}
@@ -502,12 +509,12 @@ function PracticeMobileRow({
             />
           </div>
           <div>
-            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-credit-${row.rowOrder}`}>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-credit-${fieldPrefix}-${row.rowOrder}`}>
               Credit ₹
             </label>
             <input
-              id={`practice-mobile-credit-${row.rowOrder}`}
-              name={`practice-mobile-credit-${row.rowOrder}`}
+              id={`practice-mobile-credit-${fieldPrefix}-${row.rowOrder}`}
+              name={`practice-mobile-credit-${fieldPrefix}-${row.rowOrder}`}
               inputMode="numeric"
               placeholder="Credit"
               value={row.creditAmount}
@@ -724,37 +731,4 @@ function isAttemptBlank(attempt: JournalEntryPracticeAttempt) {
     attempt.totalCredit.trim() === "" &&
     attempt.narration.trim() === ""
   );
-}
-
-function createLocalBlankResult(questionId: string): JournalEntryPracticeCheckResult {
-  return {
-    questionId,
-    status: "incorrect",
-    summary: "Enter your journal rows, totals, and narration before checking.",
-    gotRight: [],
-    errors: ["The answer is blank."],
-    warnings: [],
-    rowResults: [],
-    totalsResult: {
-      status: "error",
-      expectedDebit: 12000,
-      expectedCredit: 12000,
-      enteredDebit: null,
-      enteredCredit: null,
-      rowDebitTotal: 0,
-      rowCreditTotal: 0,
-      messages: ["Total Debit and Total Credit are required."],
-    },
-    narrationResult: {
-      status: "error",
-      message: "Narration is required for this Practice It Yourself question.",
-    },
-    balanceResult: {
-      status: "error",
-      message: "The blank entry is not balanced.",
-    },
-    hints: ["Start with the account that receives cash, then write the account credited for the sale."],
-    retryAvailable: true,
-    correctAnswerRevealAvailable: false,
-  };
 }

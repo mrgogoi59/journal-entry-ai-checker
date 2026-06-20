@@ -5,62 +5,93 @@ import type {
 } from "@/lib/learning-platform/types";
 
 export const SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID = "journal-entry-sold-goods-for-cash-practice-preview";
+export const PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID = "journal-entry-paid-salary-by-bank-practice-preview";
 
-export const soldGoodsForCashPracticeQuestion: PracticeItYourselfQuestion = {
-  id: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
-  title: "Practice: cash sale of goods",
-  question: "Sold goods for cash ₹12,000. Pass the journal entry.",
-  difficulty: "easy",
-  learningObjective: "Write a complete journal entry for a simple cash sale without prefilled accounts or amounts.",
-  requiredAnswerFormat: "journal-entry",
-  initialBlankRows: 3,
-  narrationRequired: true,
-  mayAddRows: true,
-  mayRemoveRows: true,
-  inputFieldRequirements: [
-    "date",
-    "particulars",
-    "side",
-    "drNotation",
-    "toTreatment",
-    "lf",
-    "debitAmount",
-    "creditAmount",
-    "narration",
+const defaultJournalEntryInputSchema: PracticeItYourselfQuestion["answerInputSchema"] = {
+  responseType: "journal-entry",
+  rows: [
+    {
+      rowOrder: 1,
+      requiredFields: ["date", "particulars", "side", "drNotation", "lf", "debitAmount", "creditAmount"],
+      particularsPlaceholder: "Particulars line 1",
+    },
+    {
+      rowOrder: 2,
+      requiredFields: ["date", "particulars", "side", "toTreatment", "lf", "debitAmount", "creditAmount"],
+      particularsPlaceholder: "Particulars line 2",
+    },
+    {
+      rowOrder: 3,
+      requiredFields: ["date", "particulars", "side", "lf", "debitAmount", "creditAmount"],
+      particularsPlaceholder: "Optional line",
+    },
   ],
-  answerInputSchema: {
-    responseType: "journal-entry",
-    rows: [
-      {
-        rowOrder: 1,
-        requiredFields: ["date", "particulars", "side", "drNotation", "lf", "debitAmount", "creditAmount"],
-        particularsPlaceholder: "Particulars line 1",
-      },
-      {
-        rowOrder: 2,
-        requiredFields: ["date", "particulars", "side", "toTreatment", "lf", "debitAmount", "creditAmount"],
-        particularsPlaceholder: "Particulars line 2",
-      },
-      {
-        rowOrder: 3,
-        requiredFields: ["date", "particulars", "side", "lf", "debitAmount", "creditAmount"],
-        particularsPlaceholder: "Optional line",
-      },
-    ],
-    narration: {
-      required: true,
-      placeholder: "Write the narration in your own words",
-    },
-    totals: {
-      debitTotal: "future-calculated",
-      creditTotal: "future-calculated",
-    },
-    optionalExtraRows: true,
-    removableRows: true,
-    attemptStatus: "draft",
+  narration: {
+    required: true,
+    placeholder: "Write the narration in your own words",
   },
-  status: "checking-ready",
+  totals: {
+    debitTotal: "future-calculated",
+    creditTotal: "future-calculated",
+  },
+  optionalExtraRows: true,
+  removableRows: true,
+  attemptStatus: "draft",
 };
+
+const defaultInputFieldRequirements: PracticeItYourselfQuestion["inputFieldRequirements"] = [
+  "date",
+  "particulars",
+  "side",
+  "drNotation",
+  "toTreatment",
+  "lf",
+  "debitAmount",
+  "creditAmount",
+  "narration",
+];
+
+function createJournalEntryPracticeQuestion({
+  id,
+  title,
+  question,
+  learningObjective,
+}: {
+  id: string;
+  title: string;
+  question: string;
+  learningObjective: string;
+}): PracticeItYourselfQuestion {
+  return {
+    id,
+    title,
+    question,
+    difficulty: "easy",
+    learningObjective,
+    requiredAnswerFormat: "journal-entry",
+    initialBlankRows: 3,
+    narrationRequired: true,
+    mayAddRows: true,
+    mayRemoveRows: true,
+    inputFieldRequirements: defaultInputFieldRequirements,
+    answerInputSchema: defaultJournalEntryInputSchema,
+    status: "checking-ready",
+  };
+}
+
+export const soldGoodsForCashPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+  title: "Practice 1: cash sale of goods",
+  question: "Sold goods for cash ₹12,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for a simple cash sale without prefilled accounts or amounts.",
+});
+
+export const paidSalaryByBankPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+  title: "Practice 2: paid salary by bank",
+  question: "Paid salary by bank ₹8,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for a salary expense paid through bank.",
+});
 
 export function toPracticeItYourselfPreviewQuestion(
   question: PracticeItYourselfQuestion,
@@ -221,6 +252,11 @@ export const journalEntriesChapter: ChapterDefinition = {
       type: "practice-it-yourself",
       id: "sold-goods-for-cash-practice",
       question: soldGoodsForCashPracticeQuestion,
+    },
+    {
+      type: "practice-it-yourself",
+      id: "paid-salary-by-bank-practice",
+      question: paidSalaryByBankPracticeQuestion,
     },
     {
       type: "common-mistakes",

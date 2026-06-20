@@ -31,7 +31,7 @@ const unsupportedTotalsResult: JournalEntryPracticeTotalsResult = {
   enteredCredit: null,
   rowDebitTotal: 0,
   rowCreditTotal: 0,
-  messages: ["This question is not supported by the Phase 3D preview checker."],
+  messages: ["This question is not supported by the Journal Entries preview checker."],
 };
 
 export function checkJournalEntryPracticeAttempt(
@@ -69,7 +69,7 @@ export function checkJournalEntryPracticeAttempt(
     const expectedLine = expected.expectedLines.find((line) => line.accountKey === row.accountKey);
     const rowFeedback = expectedLine
       ? evaluateExpectedLineRow(row, expectedLine)
-      : evaluateUnexpectedRow(row);
+      : evaluateUnexpectedRow(row, expected);
 
     rowResults.push(rowFeedback.rowResult);
     rowFeedback.errors.forEach((error) => hardErrors.push(error));
@@ -99,7 +99,7 @@ export function checkJournalEntryPracticeAttempt(
     }
   }
 
-  if (hasCorrectLinesInReverseOrder(matchedAccountRows)) {
+  if (hasCorrectLinesInReverseOrder(matchedAccountRows, expected)) {
     warnings.push("Your correct lines are in reverse visual order. Write the debit line before the credit line.");
     hints.add("Journal entries normally show the debited account first, then the credited account with To.");
   }
@@ -114,17 +114,17 @@ export function checkJournalEntryPracticeAttempt(
   const narrationResult = evaluateNarration(attempt.narration, expected);
   if (narrationResult.status === "error") {
     hardErrors.push(narrationResult.message);
-    hints.add("Mention that goods were sold for cash.");
+    hints.add(expected.narrationFeedback.hint);
   } else if (narrationResult.status === "warning") {
     warnings.push(narrationResult.message);
   } else {
-    gotRight.push("Narration communicates that goods were sold for cash.");
+    gotRight.push(expected.narrationFeedback.correctMessage);
   }
 
   const balanceResult = evaluateBalance(activeRows, attempt, expected);
   if (balanceResult.status === "error") {
     hardErrors.push(balanceResult.message);
-    hints.add("Your debit and credit totals must both be ₹12,000 and equal to each other.");
+    hints.add(`Your debit and credit totals must both be ${formatCurrency(expected.expectedAnswer.totals.debit)} and equal to each other.`);
   } else {
     gotRight.push("Debit and credit totals are balanced.");
   }
@@ -136,7 +136,7 @@ export function checkJournalEntryPracticeAttempt(
   return {
     questionId: attempt.questionId,
     status,
-    summary: createSummary(status, uniqueErrors.length, uniqueWarnings.length),
+    summary: createSummary(status, uniqueErrors.length, uniqueWarnings.length, expected),
     gotRight: uniqueMessages(gotRight),
     errors: uniqueErrors,
     warnings: uniqueWarnings,
@@ -325,6 +325,8 @@ function normalizeAccountKey(particulars: string) {
   if (accountText === "sales" || accountText === "sale") return "sales";
   if (accountText === "bank") return "bank";
   if (accountText === "purchases" || accountText === "purchase") return "purchases";
+  if (accountText === "salary" || accountText === "salaries") return "salary";
+  if (accountText === "rent") return "rent";
 
   return accountText;
 }
@@ -349,33 +351,33 @@ function evaluateExpectedLineRow(
 
   if (expectedLine.side === "debit") {
     if (!row.hasDr) {
-      addFieldError(fieldResults, errors, "particulars", "Cash A/c needs Dr. because Cash is debited.");
+      addFieldError(fieldResults, errors, "particulars", expectedLine.missingMarkerMessage);
     }
     if (row.hasTo) {
-      addFieldError(fieldResults, errors, "particulars", "The Cash debit line should not start with To.");
+      addFieldError(fieldResults, errors, "particulars", expectedLine.wrongMarkerMessage);
     }
     if (row.debitFilled && row.debitValue === null) {
       addFieldError(fieldResults, errors, "debitAmount", "Debit amount is not a valid number.");
     } else if (row.debitValue !== expectedLine.amount) {
-      addFieldError(fieldResults, errors, "debitAmount", "Cash should be debited with ₹12,000.");
+      addFieldError(fieldResults, errors, "debitAmount", expectedLine.wrongAmountMessage);
     }
     if (row.creditFilled) {
-      addFieldError(fieldResults, errors, "creditAmount", "Cash should not be placed in the credit column.");
+      addFieldError(fieldResults, errors, "creditAmount", expectedLine.wrongColumnMessage);
     }
   } else {
     if (!row.hasTo) {
-      addFieldError(fieldResults, errors, "particulars", "Sales A/c needs To because Sales is credited.");
+      addFieldError(fieldResults, errors, "particulars", expectedLine.missingMarkerMessage);
     }
     if (row.hasDr) {
-      addFieldError(fieldResults, errors, "particulars", "Sales should be credited, not marked Dr.");
+      addFieldError(fieldResults, errors, "particulars", expectedLine.wrongMarkerMessage);
     }
     if (row.creditFilled && row.creditValue === null) {
       addFieldError(fieldResults, errors, "creditAmount", "Credit amount is not a valid number.");
     } else if (row.creditValue !== expectedLine.amount) {
-      addFieldError(fieldResults, errors, "creditAmount", "Sales should be credited with ₹12,000.");
+      addFieldError(fieldResults, errors, "creditAmount", expectedLine.wrongAmountMessage);
     }
     if (row.debitFilled) {
-      addFieldError(fieldResults, errors, "debitAmount", "Sales should not be placed in the debit column.");
+      addFieldError(fieldResults, errors, "debitAmount", expectedLine.wrongColumnMessage);
     }
   }
 
@@ -416,22 +418,23 @@ function evaluateExpectedLineRow(
   };
 }
 
-function evaluateUnexpectedRow(row: ParsedAttemptRow) {
+function evaluateUnexpectedRow(row: ParsedAttemptRow, expected: JournalEntryPracticeAnswerKey) {
   const fieldResults: JournalEntryPracticeFieldResult[] = [];
   const errors: string[] = [];
   const hints: string[] = [];
 
   if (row.particulars.trim() === "") {
     addFieldError(fieldResults, errors, "particulars", `Row ${row.rowOrder} is partly filled. Add particulars or clear the row.`);
-  } else if (row.accountKey === "purchases") {
-    addFieldError(fieldResults, errors, "particulars", "Purchases A/c is not used when goods are sold.");
-    hints.push("Use Sales A/c for goods sold, not Purchases A/c.");
-  } else if (row.accountKey === "bank") {
-    addFieldError(fieldResults, errors, "particulars", "Bank A/c is not used because cash is received.");
-    hints.push("Use Cash A/c when the question says goods are sold for cash.");
   } else {
-    addFieldError(fieldResults, errors, "particulars", `Row ${row.rowOrder} is an extra non-empty line.`);
-    hints.push("This question needs only Cash A/c Dr. and To Sales A/c.");
+    const feedback = expected.unexpectedAccountFeedback[row.accountKey];
+
+    if (feedback) {
+      addFieldError(fieldResults, errors, "particulars", feedback.errorMessage);
+      hints.push(feedback.hint);
+    } else {
+      addFieldError(fieldResults, errors, "particulars", `Row ${row.rowOrder} is an extra non-empty line.`);
+      hints.push(expected.extraLineHint);
+    }
   }
 
   if (row.debitFilled && row.debitValue === null) {
@@ -466,10 +469,10 @@ function evaluateTotals(
   const messages: string[] = [];
 
   if (enteredDebit !== expected.expectedAnswer.totals.debit) {
-    messages.push("Total Debit should be ₹12,000.");
+    messages.push(`Total Debit should be ${formatCurrency(expected.expectedAnswer.totals.debit)}.`);
   }
   if (enteredCredit !== expected.expectedAnswer.totals.credit) {
-    messages.push("Total Credit should be ₹12,000.");
+    messages.push(`Total Credit should be ${formatCurrency(expected.expectedAnswer.totals.credit)}.`);
   }
   if (rowDebitTotal !== enteredDebit || rowCreditTotal !== enteredCredit) {
     messages.push("Entered totals should match the amounts written in the journal rows.");
@@ -483,7 +486,7 @@ function evaluateTotals(
     enteredCredit,
     rowDebitTotal,
     rowCreditTotal,
-    messages: messages.length > 0 ? messages : ["Debit total and credit total are both ₹12,000."],
+    messages: messages.length > 0 ? messages : [`Debit total and credit total are both ${formatCurrency(expected.expectedAnswer.totals.debit)}.`],
   };
 }
 
@@ -507,20 +510,20 @@ function evaluateNarration(
     };
   }
 
-  const hasCash = normalized.includes("cash");
-  const hasSaleConcept = normalized.includes("sold") || normalized.includes("sale");
-  const hasGoodsOrSales = normalized.includes("goods") || normalized.includes("sales");
+  const hasExpectedConcept = expected.narrationConceptHints.every((hint) =>
+    normalized.includes(normalizeNarration(hint)),
+  );
 
-  if (hasCash && hasSaleConcept && hasGoodsOrSales) {
+  if (hasExpectedConcept) {
     return {
       status: "warning",
-      message: "Narration has the right idea, but use a clearer wording such as 'Being goods sold for cash.'",
+      message: expected.narrationFeedback.warningMessage,
     };
   }
 
   return {
     status: "error",
-    message: "Narration should explain that goods were sold for cash.",
+    message: expected.narrationFeedback.errorMessage,
   };
 }
 
@@ -552,7 +555,7 @@ function evaluateBalance(
   if (rowDebitTotal !== expectedTotal || enteredDebit !== expectedTotal) {
     return {
       status: "error",
-      message: "The entry balances, but it does not balance at the correct ₹12,000 amount.",
+      message: `The entry balances, but it does not balance at the correct ${formatCurrency(expectedTotal)} amount.`,
     };
   }
 
@@ -578,11 +581,21 @@ function rowStatus(errors: string[], warnings: string[]): JournalEntryPracticeFe
   return "correct";
 }
 
-function hasCorrectLinesInReverseOrder(matchedAccountRows: Map<string, ParsedAttemptRow[]>) {
-  const cashRow = matchedAccountRows.get("cash")?.[0];
-  const salesRow = matchedAccountRows.get("sales")?.[0];
+function hasCorrectLinesInReverseOrder(
+  matchedAccountRows: Map<string, ParsedAttemptRow[]>,
+  expected: JournalEntryPracticeAnswerKey,
+) {
+  const matchedRows = expected.expectedLines.map((line) => matchedAccountRows.get(line.accountKey)?.[0]);
 
-  return Boolean(cashRow && salesRow && cashRow.rowOrder > salesRow.rowOrder);
+  if (matchedRows.some((row) => !row)) {
+    return false;
+  }
+
+  return matchedRows.some((row, index) => {
+    const previousRow = matchedRows[index - 1];
+
+    return Boolean(row && previousRow && previousRow.rowOrder > row.rowOrder);
+  });
 }
 
 function isHardTotalMessage(message: string) {
@@ -593,9 +606,14 @@ function isHardTotalMessage(message: string) {
   );
 }
 
-function createSummary(status: JournalEntryPracticeCheckResult["status"], errorCount: number, warningCount: number) {
+function createSummary(
+  status: JournalEntryPracticeCheckResult["status"],
+  errorCount: number,
+  warningCount: number,
+  expected: JournalEntryPracticeAnswerKey,
+) {
   if (status === "correct") {
-    return "Correct. Your journal entry records cash received and sales credited for ₹12,000.";
+    return expected.correctSummary;
   }
 
   if (status === "partially-correct") {
@@ -609,7 +627,7 @@ function createUnsupportedResult(questionId: string): JournalEntryPracticeCheckR
   return {
     questionId,
     status: "incorrect",
-    summary: "This Phase 3D checker supports only the sold-goods-for-cash preview question.",
+    summary: "This checker supports only the approved Journal Entries preview questions.",
     gotRight: [],
     errors: ["Unsupported Practice It Yourself question."],
     warnings: [],
@@ -623,7 +641,7 @@ function createUnsupportedResult(questionId: string): JournalEntryPracticeCheckR
       status: "error",
       message: "Balance was not checked because this question is unsupported.",
     },
-    hints: ["Return to the Journal Entries cash-sale Practice It Yourself question."],
+    hints: ["Return to one of the supported Journal Entries Practice It Yourself questions."],
     retryAvailable: false,
     correctAnswerRevealAvailable: false,
   };
@@ -659,7 +677,7 @@ function createBlankAttemptResult(
       status: "error",
       message: "The blank entry is not balanced.",
     },
-    hints: ["Start with the account that receives cash, then write the account credited for the sale."],
+    hints: [expected.blankAttemptHint],
     retryAvailable: true,
     correctAnswerRevealAvailable: false,
   };
@@ -704,4 +722,8 @@ function createMalformedAttemptResult(
 
 function uniqueMessages(messages: string[]) {
   return Array.from(new Set(messages));
+}
+
+function formatCurrency(amount: number) {
+  return `₹${amount.toLocaleString("en-IN")}`;
 }

@@ -264,19 +264,23 @@ export function SolvedIllustration({
 
 export function PracticeItYourselfPreview({
   question,
+  practiceNumber,
+  practiceCount,
   checkAnswerAction,
   revealCorrectAnswerAction,
 }: {
   question: PracticeItYourselfPreviewQuestion;
+  practiceNumber: number;
+  practiceCount: number;
   checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
   revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
 }) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <SectionHeading
-        eyebrow="Practice It Yourself"
+        eyebrow={`Practice ${practiceNumber} of ${practiceCount}`}
         title={question.question}
-        body="Enter the full journal entry yourself. This preview checker supports this one question only."
+        body="Enter the full journal entry yourself. This preview checker supports this question independently."
       />
       <JournalEntryPracticeEditor
         question={question}
