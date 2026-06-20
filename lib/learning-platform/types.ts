@@ -253,6 +253,22 @@ export type ClassificationExamplesSection = {
   }[];
 };
 
+export type DebitCreditRuleGuideSection = {
+  type: "debit-credit-rule-guide";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  rules: {
+    title: string;
+    rule?: string;
+    increaseTreatment?: string;
+    decreaseTreatment?: string;
+    examples?: string[];
+    note?: string;
+  }[];
+};
+
 export type AccountingFormatSection = {
   type: "accounting-format";
   id: string;
@@ -316,6 +332,7 @@ export type ChapterSection =
   | ClassificationCategorySection
   | ClassificationGuideSection
   | ClassificationExamplesSection
+  | DebitCreditRuleGuideSection
   | AccountingFormatSection
   | SimpleExampleSection
   | SolvedIllustrationSection

@@ -11,6 +11,7 @@ import {
   CommonMistakes,
   ComparisonBlock,
   ConceptSection,
+  DebitCreditRuleGuideBlock,
   formatAccountingFormatRows,
   PracticeItYourselfPreview,
   ProcessStepsBlock,
@@ -50,7 +51,7 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
             <PageHeader
-            eyebrow="Phase 3I chapter preview"
+            eyebrow="Phase 3J chapter preview"
             title={chapter.metadata.title}
             description={chapter.metadata.description}
           >
@@ -160,6 +161,9 @@ function ChapterSectionRenderer({
 
     case "classification-examples":
       return <ClassificationExamplesBlock section={section} />;
+
+    case "debit-credit-rule-guide":
+      return <DebitCreditRuleGuideBlock section={section} />;
 
     case "accounting-format":
       return (

@@ -11,6 +11,7 @@ import type {
   ClueGuideSection,
   CommonMistakesSection,
   ComparisonSection,
+  DebitCreditRuleGuideSection,
   PracticeItYourselfPreviewQuestion,
   ProcessStepsSection,
   ReflectionPromptSection,
@@ -299,6 +300,52 @@ export function ClassificationExamplesBlock({ section }: { section: Classificati
               ))}
             </div>
             <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">{example.explanation}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function DebitCreditRuleGuideBlock({ section }: { section: DebitCreditRuleGuideSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {section.rules.map((rule) => (
+          <article key={rule.title} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-base font-black text-slate-950">{rule.title}</h3>
+            {rule.rule ? (
+              <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 p-3 text-sm font-black leading-6 text-cyan-950">
+                {rule.rule}
+              </p>
+            ) : null}
+            {(rule.increaseTreatment || rule.decreaseTreatment) ? (
+              <div className="mt-4 grid gap-3">
+                {rule.increaseTreatment ? (
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <p className="text-xs font-black uppercase tracking-wide text-cyan-700">Increase</p>
+                    <p className="mt-1 text-sm font-bold leading-6 text-slate-900">{rule.increaseTreatment}</p>
+                  </div>
+                ) : null}
+                {rule.decreaseTreatment ? (
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <p className="text-xs font-black uppercase tracking-wide text-slate-500">Decrease</p>
+                    <p className="mt-1 text-sm font-bold leading-6 text-slate-900">{rule.decreaseTreatment}</p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+            {rule.examples?.length ? (
+              <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-slate-700">
+                {rule.examples.map((example) => (
+                  <li key={example} className="rounded-xl border border-slate-200 bg-white p-3">
+                    {example}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {rule.note ? <p className="mt-3 text-sm leading-6 text-slate-600">{rule.note}</p> : null}
           </article>
         ))}
       </div>

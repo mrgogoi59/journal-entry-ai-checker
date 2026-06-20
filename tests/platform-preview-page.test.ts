@@ -9,10 +9,12 @@ import PlatformPreviewChaptersPage from "@/app/platform-preview/chapters/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
 import AccountsAffectedChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/accounts-affected/page";
 import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
+import DebitAndCreditRulesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/debit-and-credit-rules/page";
 import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
 import {
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
@@ -47,6 +49,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
       JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
       JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
+      JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -68,6 +71,11 @@ describe("Platform preview routes", () => {
       title: "Types of Accounts",
       progressLabel: "Section 4 of 16",
     });
+    expect(journalEntriesChapter.subtopics[4]).toMatchObject({
+      order: 5,
+      title: "Debit and Credit Rules",
+      progressLabel: "Section 5 of 16",
+    });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].nextSection).toMatchObject({
@@ -83,8 +91,14 @@ describe("Platform preview routes", () => {
     });
     expect(journalEntriesChapter.subtopics[3].previousSection?.slug).toBe(JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[3].nextSection).toMatchObject({
-      slug: "debit-and-credit-rules",
+      slug: JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
       title: "Debit and Credit Rules",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[4].previousSection?.slug).toBe(JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[4].nextSection).toMatchObject({
+      slug: "journal-format-and-narration",
+      title: "Journal Format and Narration",
       availabilityStatus: "upcoming",
     });
 
@@ -103,6 +117,12 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "classification-guide")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "classification-examples")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "debit-credit-rule-guide")).toHaveLength(3);
+    expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "comparison")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(6);
+    expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -258,6 +278,96 @@ describe("Platform preview routes", () => {
     ]);
     expect(guideSection.rows.map((row) => row.account)).not.toContain("Capital A/c");
     expect(mistakesSection.mistakes).toContain("Treating Drawings as a business expense.");
+  });
+
+  it("defines Debit and Credit Rules as rule-only content without a checker", () => {
+    const debitCreditSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+    );
+    const modernRulesSection = debitCreditSubtopic?.sections.find(
+      (section) => section.type === "debit-credit-rule-guide" && section.id === "modern-debit-credit-rules",
+    );
+    const matrixSection = debitCreditSubtopic?.sections.find(
+      (section) => section.type === "debit-credit-rule-guide" && section.id === "modern-rule-summary-matrix",
+    );
+    const traditionalRulesSection = debitCreditSubtopic?.sections.find(
+      (section) => section.type === "debit-credit-rule-guide" && section.id === "traditional-golden-rules",
+    );
+    const workedExamples = debitCreditSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+
+    expect(debitCreditSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(debitCreditSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(modernRulesSection?.type).toBe("debit-credit-rule-guide");
+    expect(matrixSection?.type).toBe("debit-credit-rule-guide");
+    expect(traditionalRulesSection?.type).toBe("debit-credit-rule-guide");
+    expect(workedExamples).toHaveLength(6);
+
+    if (
+      modernRulesSection?.type !== "debit-credit-rule-guide" ||
+      matrixSection?.type !== "debit-credit-rule-guide" ||
+      traditionalRulesSection?.type !== "debit-credit-rule-guide"
+    ) {
+      throw new Error("Debit and Credit Rules guide sections were not found");
+    }
+
+    expect(modernRulesSection.rules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ title: "Assets", increaseTreatment: "Debit", decreaseTreatment: "Credit" }),
+        expect.objectContaining({ title: "Liabilities", increaseTreatment: "Credit", decreaseTreatment: "Debit" }),
+        expect.objectContaining({ title: "Capital / Equity", increaseTreatment: "Credit", decreaseTreatment: "Debit" }),
+        expect.objectContaining({ title: "Income / Revenue", increaseTreatment: "Credit", decreaseTreatment: "Debit" }),
+        expect.objectContaining({ title: "Expenses / Losses", increaseTreatment: "Debit", decreaseTreatment: "Credit" }),
+        expect.objectContaining({ title: "Drawings", increaseTreatment: "Debit", decreaseTreatment: "Credit" }),
+      ]),
+    );
+    expect(matrixSection.rules.map((rule) => `${rule.title}:${rule.increaseTreatment}:${rule.decreaseTreatment}`)).toEqual([
+      "Asset:Debit:Credit",
+      "Liability:Credit:Debit",
+      "Capital / Equity:Credit:Debit",
+      "Income / Revenue:Credit:Debit",
+      "Expense / Loss:Debit:Credit",
+      "Drawings:Debit:Credit",
+    ]);
+    expect(traditionalRulesSection.rules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ title: "Personal Account", rule: "Debit the receiver, credit the giver." }),
+        expect.objectContaining({ title: "Real Account", rule: "Debit what comes in, credit what goes out." }),
+        expect.objectContaining({
+          title: "Nominal Account",
+          rule: "Debit all expenses and losses, credit all incomes and gains.",
+        }),
+      ]),
+    );
+
+    const capitalExample = workedExamples.find(
+      (section) => section.type === "solved-illustration" && section.id === "debit-credit-amit-capital-bank",
+    );
+    const businessWithdrawalExample = workedExamples.find(
+      (section) => section.type === "solved-illustration" && section.id === "debit-credit-business-cash-withdrawal",
+    );
+    const personalWithdrawalExample = workedExamples.find(
+      (section) => section.type === "solved-illustration" && section.id === "debit-credit-personal-cash-withdrawal",
+    );
+
+    expect(capitalExample?.type).toBe("solved-illustration");
+    expect(businessWithdrawalExample?.type).toBe("solved-illustration");
+    expect(personalWithdrawalExample?.type).toBe("solved-illustration");
+
+    if (
+      capitalExample?.type !== "solved-illustration" ||
+      businessWithdrawalExample?.type !== "solved-illustration" ||
+      personalWithdrawalExample?.type !== "solved-illustration"
+    ) {
+      throw new Error("Debit and Credit Rules worked examples were not found");
+    }
+
+    expect(capitalExample.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Bank A/c",
+      "Amit's Capital A/c",
+    ]);
+    expect(businessWithdrawalExample.illustration.accountsAffected).toEqual(["Cash A/c", "Bank A/c"]);
+    expect(businessWithdrawalExample.illustration.accountsAffected).not.toContain("Drawings A/c");
+    expect(personalWithdrawalExample.illustration.accountsAffected).toEqual(["Amit Drawings A/c", "Cash A/c"]);
   });
 
   it("marks the platform preview routes as noindex and nofollow", () => {
@@ -531,12 +641,84 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Continue using the named capital account.");
     expect(html).toContain("For every account, ask: What does this account represent to the business?");
     expect(html).toContain("Previous Accounts Affected");
-    expect(html).toContain("Continue to Debit and Credit Rules - Preview only");
+    expect(html).toContain("Continue to Debit and Credit Rules");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/types-of-accounts")).toContain(
       'aria-current="step"',
     );
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
+    expect(html).not.toContain("Continue to Debit and Credit Rules - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Debit and Credit Rules section without adding a checker or next-route link", () => {
+    const html = renderToStaticMarkup(createElement(DebitAndCreditRulesChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Debit and Credit Rules");
+    expect(html).toContain("Section 5 of 16");
+    expect(html).toContain("What debit and credit mean");
+    expect(html).toContain("Debit means the left side of an account.");
+    expect(html).toContain("Credit means the right side of an account.");
+    expect(html).toContain("Cash received is not always credited");
+    expect(html).toContain("Modern rules");
+    expect(html).toContain("Assets");
+    expect(html).toContain("Liabilities");
+    expect(html).toContain("Capital / Equity");
+    expect(html).toContain("Income / Revenue");
+    expect(html).toContain("Expenses / Losses");
+    expect(html).toContain("Drawings");
+    expect(html).toContain("Modern-rule summary matrix");
+    expect(html).toContain("Increase");
+    expect(html).toContain("Decrease");
+    expect(html).toContain("Traditional golden rules");
+    expect(html).toContain("Personal Account");
+    expect(html).toContain("Debit the receiver, credit the giver.");
+    expect(html).toContain("Real Account");
+    expect(html).toContain("Debit what comes in, credit what goes out.");
+    expect(html).toContain("Nominal Account");
+    expect(html).toContain("Debit all expenses and losses, credit all incomes and gains.");
+    expect(html).toContain("Modern + traditional comparison");
+    expect(html).toContain("Result: Salary A/c Dr. ₹8,000; To Bank A/c ₹8,000.");
+    expect(html).toContain("Result: Furniture A/c Dr. ₹20,000; To Cash A/c ₹20,000.");
+    expect(html).toContain("Debit-credit decision process");
+    expect(html).toContain("Read the complete transaction");
+    expect(html).toContain("Add narration where required");
+    expect(html).toContain("Paid rent by bank ₹5,000.");
+    expect(html).toContain("Rent A/c Dr.");
+    expect(html).toContain("To Bank A/c");
+    expect(html).toContain("Being rent paid by bank.");
+    expect(html).toContain("Bought furniture for cash ₹20,000.");
+    expect(html).toContain("Furniture A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Being furniture purchased for cash.");
+    expect(html).toContain("Sold goods on credit to Riya ₹10,000.");
+    expect(html).toContain("Riya A/c Dr.");
+    expect(html).toContain("To Sales A/c");
+    expect(html).toContain("Being goods sold on credit to Riya.");
+    expect(html).toContain("Amit introduced capital of ₹50,000 through bank.");
+    expect(html).toContain("To Amit&#x27;s Capital A/c");
+    expect(html).not.toContain("To Capital A/c");
+    expect(html).toContain("Cash withdrawn from bank ₹3,000 for office use.");
+    expect(html).toContain("Cash A/c Dr.");
+    expect(html).toContain("Being cash withdrawn from bank for office use.");
+    expect(html).toContain("This is not drawings because the withdrawal is for business use.");
+    expect(html).toContain("Amit withdrew cash ₹5,000 for personal use.");
+    expect(html).toContain("Amit Drawings A/c Dr.");
+    expect(html).toContain("Being cash withdrawn by Amit for personal use.");
+    expect(html).toContain("Before choosing Debit or Credit, ask: What account is this, and is it increasing or decreasing?");
+    expect(html).toContain("Previous Types of Accounts");
+    expect(html).toContain("Continue to Journal Format and Narration - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/debit-and-credit-rules")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -592,5 +774,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/business-transactions"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
   });
 });

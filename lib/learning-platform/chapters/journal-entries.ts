@@ -13,6 +13,7 @@ export const JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG = "introduction-to-journa
 export const JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG = "business-transactions";
 export const JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG = "accounts-affected";
 export const JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG = "types-of-accounts";
+export const JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG = "debit-and-credit-rules";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -145,10 +146,19 @@ const typesOfAccountsSubtopicReference: ChapterSubtopicReference = {
 };
 
 const debitAndCreditRulesSubtopicReference: ChapterSubtopicReference = {
-  id: "debit-and-credit-rules",
-  slug: "debit-and-credit-rules",
+  id: JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
   title: "Debit and Credit Rules",
   order: 5,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG}`,
+};
+
+const journalFormatAndNarrationSubtopicReference: ChapterSubtopicReference = {
+  id: "journal-format-and-narration",
+  slug: "journal-format-and-narration",
+  title: "Journal Format and Narration",
+  order: 6,
   availabilityStatus: "upcoming",
 };
 
@@ -871,11 +881,411 @@ export const typesOfAccountsJournalEntriesSubtopic: ChapterSubtopicDefinition = 
   ],
 };
 
+export const debitAndCreditRulesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...debitAndCreditRulesSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG}`,
+  shortDescription:
+    "Learn how account classification and increase/decrease effects decide debit and credit treatment.",
+  learningObjective:
+    "Students learn what debit and credit mean, apply modern and traditional rules, place accounts on the correct side, and confirm that total debit equals total credit.",
+  progressLabel: "Section 5 of 16",
+  previousSection: typesOfAccountsSubtopicReference,
+  nextSection: journalFormatAndNarrationSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "debit-and-credit-rules",
+      eyebrow: "Learning objective",
+      title: "Debit and Credit Rules",
+      body:
+        "By the end of this section, you should be able to identify the affected accounts, classify them, decide whether each one increases or decreases, apply debit-credit rules, and confirm that Debit equals Credit.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-debit-and-credit",
+      eyebrow: "Concept explanation",
+      title: "What debit and credit mean",
+      paragraphs: [
+        "Debit means the left side of an account. Credit means the right side of an account.",
+        "Debit and credit are accounting positions. Debit is not always good, and credit is not always bad.",
+        "The correct side depends on the account's nature and whether that account increases or decreases.",
+        "Every complete journal entry must have equal total debit and total credit amounts.",
+        "Use this order: identify the accounts, classify them, determine increase or decrease, apply debit-credit rules, then confirm Debit equals Credit.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "debit-credit-misconception-note",
+      eyebrow: "Misconception note",
+      title: "Cash received is not always credited",
+      paragraphs: [
+        "Money received is not automatically credited. Money paid is not automatically debited.",
+        "When cash or bank money is received, Cash A/c or Bank A/c usually increases. An asset increase is debited.",
+        "When cash or bank money is paid, Cash A/c or Bank A/c usually decreases. An asset decrease is credited.",
+      ],
+    },
+    {
+      type: "debit-credit-rule-guide",
+      id: "modern-debit-credit-rules",
+      eyebrow: "Modern rules",
+      title: "Apply rules from account nature and effect",
+      body:
+        "First classify the account. Then ask whether that account increases or decreases.",
+      rules: [
+        {
+          title: "Assets",
+          increaseTreatment: "Debit",
+          decreaseTreatment: "Credit",
+          examples: ["Cash received", "Furniture purchased", "Bank balance reduced"],
+        },
+        {
+          title: "Liabilities",
+          increaseTreatment: "Credit",
+          decreaseTreatment: "Debit",
+          examples: ["Loan received", "Creditor created", "Loan repaid"],
+        },
+        {
+          title: "Capital / Equity",
+          increaseTreatment: "Credit",
+          decreaseTreatment: "Debit",
+          examples: ["Capital introduced", "Capital withdrawn or adjusted"],
+        },
+        {
+          title: "Income / Revenue",
+          increaseTreatment: "Credit",
+          decreaseTreatment: "Debit",
+          examples: ["Sales", "Commission received", "Interest received"],
+          note: "A decrease or reversal of income is debited.",
+        },
+        {
+          title: "Expenses / Losses",
+          increaseTreatment: "Debit",
+          decreaseTreatment: "Credit",
+          examples: ["Salary", "Rent", "Electricity expense", "Bad debts later"],
+          note: "A decrease or reversal of expense is credited.",
+        },
+        {
+          title: "Drawings",
+          increaseTreatment: "Debit",
+          decreaseTreatment: "Credit",
+          examples: ["Cash withdrawn for personal use", "Goods withdrawn for personal use later"],
+          note:
+            "Drawings reduce the owner's or partner's claim, but are shown through a separate Drawings account for learning and accounting.",
+        },
+      ],
+    },
+    {
+      type: "debit-credit-rule-guide",
+      id: "modern-rule-summary-matrix",
+      eyebrow: "Modern-rule summary matrix",
+      title: "Increase and decrease side by account nature",
+      body:
+        "Use this compact guide after classifying the account. It is shown as cards so it stays readable on mobile.",
+      rules: [
+        { title: "Asset", increaseTreatment: "Debit", decreaseTreatment: "Credit" },
+        { title: "Liability", increaseTreatment: "Credit", decreaseTreatment: "Debit" },
+        { title: "Capital / Equity", increaseTreatment: "Credit", decreaseTreatment: "Debit" },
+        { title: "Income / Revenue", increaseTreatment: "Credit", decreaseTreatment: "Debit" },
+        { title: "Expense / Loss", increaseTreatment: "Debit", decreaseTreatment: "Credit" },
+        { title: "Drawings", increaseTreatment: "Debit", decreaseTreatment: "Credit" },
+      ],
+    },
+    {
+      type: "debit-credit-rule-guide",
+      id: "traditional-golden-rules",
+      eyebrow: "Traditional golden rules",
+      title: "Personal, real, and nominal rules",
+      body:
+        "These traditional rules should lead to the same entry as the modern approach when the account is classified correctly.",
+      rules: [
+        {
+          title: "Personal Account",
+          rule: "Debit the receiver, credit the giver.",
+          examples: [
+            "A customer who receives goods on credit may be debited.",
+            "A supplier who gives goods on credit may be credited.",
+            "Named capital accounts represent the person contributing value.",
+          ],
+        },
+        {
+          title: "Real Account",
+          rule: "Debit what comes in, credit what goes out.",
+          examples: [
+            "Furniture comes into the business, so Furniture A/c is debited.",
+            "Cash leaves the business, so Cash A/c is credited.",
+          ],
+        },
+        {
+          title: "Nominal Account",
+          rule: "Debit all expenses and losses, credit all incomes and gains.",
+          examples: [
+            "Salary expense is debited.",
+            "Rent expense is debited.",
+            "Sales income is credited.",
+            "Commission received is credited.",
+          ],
+          note: "Representative personal accounts need later adjustment knowledge, so do not over-expand them here.",
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "modern-traditional-rule-comparison",
+      eyebrow: "Modern + traditional comparison",
+      title: "Both approaches should reach the same entry",
+      intro:
+        "Use one logical method consistently. Do not mix incomplete fragments from both methods.",
+      groups: [
+        {
+          title: "Paid salary by bank: modern",
+          items: [
+            "Salary is an expense and increases, so Salary A/c is debited.",
+            "Bank is an asset and decreases, so Bank A/c is credited.",
+          ],
+        },
+        {
+          title: "Paid salary by bank: traditional",
+          items: [
+            "Salary is nominal, so debit all expenses.",
+            "Bank is artificial personal, so credit the giver.",
+            "Result: Salary A/c Dr. ₹8,000; To Bank A/c ₹8,000.",
+          ],
+        },
+        {
+          title: "Bought furniture for cash: modern",
+          items: [
+            "Furniture is an asset and increases, so Furniture A/c is debited.",
+            "Cash is an asset and decreases, so Cash A/c is credited.",
+          ],
+        },
+        {
+          title: "Bought furniture for cash: traditional",
+          items: [
+            "Furniture comes into the business, so Furniture A/c is debited.",
+            "Cash goes out of the business, so Cash A/c is credited.",
+            "Result: Furniture A/c Dr. ₹20,000; To Cash A/c ₹20,000.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "debit-credit-decision-process",
+      eyebrow: "Debit-credit decision process",
+      title: "Use this order before writing the entry",
+      body:
+        "This process keeps the logic clear before the future Journal Format and Narration section teaches formal presentation in more depth.",
+      steps: [
+        { label: "Read the complete transaction", detail: "Read the amount, item, person, purpose, and payment mode." },
+        { label: "Identify every account affected", detail: "Name the exact accounts before choosing sides." },
+        { label: "Classify each account", detail: "Decide the account nature using modern or traditional classification." },
+        { label: "Decide increase or decrease", detail: "Ask what happens to each affected account." },
+        { label: "Apply the relevant rule", detail: "Use the account nature and effect to decide debit or credit." },
+        { label: "Write the debited account first", detail: "The debit line is written first in a journal entry." },
+        { label: "Write the credited account with To", detail: "The credited line is written below with To." },
+        { label: "Enter the amounts", detail: "Put the debit amount and credit amount in the correct columns." },
+        { label: "Confirm Debit equals Credit", detail: "Total debit must equal total credit." },
+        { label: "Add narration where required", detail: "Narration briefly explains the transaction." },
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "debit-credit-paid-rent-by-bank",
+      illustration: {
+        id: "debit-credit-paid-rent-by-bank",
+        title: "Worked Example 1: expense paid by bank",
+        difficulty: "easy",
+        question: "Paid rent by bank ₹5,000.",
+        accountsAffected: ["Rent A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Accounts affected", detail: "Rent A/c and Bank A/c are affected." },
+          { label: "Modern logic", detail: "Rent expense increases, so Rent A/c is debited." },
+          { label: "Bank effect", detail: "Bank is an asset and decreases, so Bank A/c is credited." },
+          { label: "Traditional logic", detail: "Debit all expenses and credit the giver." },
+        ],
+        journalEntry: [
+          { id: "debit-credit-rent-debit", account: "Rent A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "debit-credit-bank-credit", account: "Bank A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being rent paid by bank.",
+        explanation:
+          "Rent is debited because expense increases. Bank is credited because bank balance decreases.",
+        studentTakeaway: "An expense increase is debited, and an asset decrease is credited.",
+        commonMistake: "Crediting Rent because money was paid.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "debit-credit-furniture-for-cash",
+      illustration: {
+        id: "debit-credit-furniture-for-cash",
+        title: "Worked Example 2: asset purchased for cash",
+        difficulty: "easy",
+        question: "Bought furniture for cash ₹20,000.",
+        accountsAffected: ["Furniture A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Accounts affected", detail: "Furniture A/c and Cash A/c are affected." },
+          { label: "Furniture increases", detail: "Furniture is an asset that comes into the business, so it is debited." },
+          { label: "Cash decreases", detail: "Cash is an asset that goes out, so Cash A/c is credited." },
+          { label: "Purchases not used", detail: "Furniture is a business asset, not goods bought for resale." },
+        ],
+        journalEntry: [
+          { id: "debit-credit-furniture-debit", account: "Furniture A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "debit-credit-cash-credit", account: "Cash A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being furniture purchased for cash.",
+        explanation:
+          "Furniture A/c is debited because the asset increases. Cash A/c is credited because cash decreases.",
+        studentTakeaway: "Do not use Purchases A/c for furniture; use the asset account.",
+        commonMistake: "Debiting Purchases A/c for furniture.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "debit-credit-credit-sale-to-riya",
+      illustration: {
+        id: "debit-credit-credit-sale-to-riya",
+        title: "Worked Example 3: credit sale",
+        difficulty: "easy",
+        question: "Sold goods on credit to Riya ₹10,000.",
+        accountsAffected: ["Riya A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Accounts affected", detail: "Riya A/c and Sales A/c are affected." },
+          { label: "Riya becomes debtor", detail: "Riya is a receivable asset, so Riya A/c is debited." },
+          { label: "Sales increases", detail: "Sales income increases, so Sales A/c is credited." },
+          { label: "No cash or bank", detail: "Cash A/c and Bank A/c are not affected because the sale is on credit." },
+        ],
+        journalEntry: [
+          { id: "debit-credit-riya-debit", account: "Riya A/c", side: "debit", amount: 10000, drNotation: "Dr." },
+          { id: "debit-credit-sales-credit", account: "Sales A/c", side: "credit", amount: 10000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold on credit to Riya.",
+        explanation:
+          "Riya is debited because she owes the business. Sales is credited because income increases.",
+        studentTakeaway: "For a credit sale, use the customer's account instead of Cash A/c or Bank A/c.",
+        commonMistake: "Using Cash A/c or Bank A/c even though no money is received now.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "debit-credit-amit-capital-bank",
+      illustration: {
+        id: "debit-credit-amit-capital-bank",
+        title: "Worked Example 4: capital introduced through bank",
+        difficulty: "easy",
+        question: "Amit introduced capital of ₹50,000 through bank.",
+        accountsAffected: ["Bank A/c", "Amit's Capital A/c"],
+        reasoningSteps: [
+          { label: "Accounts affected", detail: "Bank A/c and Amit's Capital A/c are affected." },
+          { label: "Bank increases", detail: "Bank is an asset and increases, so Bank A/c is debited." },
+          { label: "Capital increases", detail: "Amit's Capital increases, so Amit's Capital A/c is credited." },
+          { label: "Named capital", detail: "Use Amit's Capital A/c, not generic Capital A/c." },
+        ],
+        journalEntry: [
+          { id: "debit-credit-capital-bank-debit", account: "Bank A/c", side: "debit", amount: 50000, drNotation: "Dr." },
+          {
+            id: "debit-credit-amit-capital-credit",
+            account: "Amit's Capital A/c",
+            side: "credit",
+            amount: 50000,
+            displayPrefix: "To",
+          },
+        ],
+        narration: "Being capital introduced by Amit through bank.",
+        explanation:
+          "Bank is debited because the business receives money. Amit's Capital is credited because Amit's claim increases.",
+        studentTakeaway: "Continue using the named capital account.",
+        commonMistake: "Using generic Capital A/c when Amit is named.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "debit-credit-business-cash-withdrawal",
+      illustration: {
+        id: "debit-credit-business-cash-withdrawal",
+        title: "Worked Example 5: business cash withdrawal from bank",
+        difficulty: "easy",
+        question: "Cash withdrawn from bank ₹3,000 for office use.",
+        accountsAffected: ["Cash A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Accounts affected", detail: "Cash A/c and Bank A/c are affected." },
+          { label: "Cash increases", detail: "Cash is an asset and increases, so Cash A/c is debited." },
+          { label: "Bank decreases", detail: "Bank is an asset and decreases, so Bank A/c is credited." },
+          { label: "Business use", detail: "This is not drawings because the withdrawal is for business use." },
+        ],
+        journalEntry: [
+          { id: "debit-credit-cash-withdrawal-debit", account: "Cash A/c", side: "debit", amount: 3000, drNotation: "Dr." },
+          { id: "debit-credit-bank-withdrawal-credit", account: "Bank A/c", side: "credit", amount: 3000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn from bank for office use.",
+        explanation:
+          "Cash is debited because cash comes into the office cash balance. Bank is credited because bank balance decreases.",
+        studentTakeaway: "A business cash withdrawal is an asset transfer, not drawings.",
+        commonMistake: "Treating every withdrawal from bank as drawings.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "debit-credit-personal-cash-withdrawal",
+      illustration: {
+        id: "debit-credit-personal-cash-withdrawal",
+        title: "Worked Example 6: personal withdrawal",
+        difficulty: "easy",
+        question: "Amit withdrew cash ₹5,000 for personal use.",
+        accountsAffected: ["Amit Drawings A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Accounts affected", detail: "Amit Drawings A/c and Cash A/c are affected." },
+          { label: "Drawings increases", detail: "Personal withdrawal increases Drawings, so Amit Drawings A/c is debited." },
+          { label: "Cash decreases", detail: "Cash is an asset and decreases, so Cash A/c is credited." },
+          { label: "Personal use", detail: "This contrasts with business cash withdrawal from bank." },
+        ],
+        journalEntry: [
+          { id: "debit-credit-amit-drawings-debit", account: "Amit Drawings A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "debit-credit-cash-drawings-credit", account: "Cash A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn by Amit for personal use.",
+        explanation:
+          "Amit Drawings is debited because drawings increase. Cash is credited because cash leaves the business.",
+        studentTakeaway: "Personal withdrawal is drawings; business withdrawal is usually a cash-bank transfer.",
+        commonMistake: "Writing Cash A/c Dr. for personal withdrawal.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "debit-credit-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these debit-credit mistakes",
+      mistakes: [
+        "Deciding debit and credit before identifying accounts.",
+        "Assuming cash received must be credited.",
+        "Assuming cash paid must be debited.",
+        "Treating every purchase as Purchases A/c.",
+        "Using Bank A/c when the transaction states cash.",
+        "Using Cash A/c for a credit transaction.",
+        "Debiting Sales A/c when sales increase.",
+        "Crediting an expense when it increases.",
+        "Using generic Capital A/c for a named owner or partner.",
+        "Confusing drawings with normal business cash withdrawal.",
+        "Entering balanced amounts with the wrong accounts.",
+        "Forgetting that debit total must equal credit total.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "debit-credit-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Before choosing Debit or Credit, ask: What account is this, and is it increasing or decreasing?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
   accountsAffectedJournalEntriesSubtopic,
   typesOfAccountsJournalEntriesSubtopic,
+  debitAndCreditRulesJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -928,8 +1338,15 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Modern and traditional classification before debit-credit rules.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG}`,
     },
-    { id: "debit-and-credit-rules", title: "Debit and Credit Rules", order: 5, status: "upcoming" },
-    { id: "journal-format", title: "Journal Format", order: 6, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+      title: "Debit and Credit Rules",
+      order: 5,
+      status: "available",
+      shortDescription: "How account nature and increase/decrease decide debit and credit.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG}`,
+    },
+    { id: "journal-format-and-narration", title: "Journal Format and Narration", order: 6, status: "upcoming" },
     { id: "cash-and-bank-transactions", title: "Cash and Bank Transactions", order: 7, status: "upcoming" },
     { id: "capital", title: "Capital", order: 8, status: "upcoming" },
     { id: "drawings", title: "Drawings", order: 9, status: "upcoming" },

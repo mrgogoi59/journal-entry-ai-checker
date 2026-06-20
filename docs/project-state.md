@@ -92,6 +92,19 @@ Target platform planning note:
 - Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions, Accounts Affected, and Types of Accounts remain explanation-only.
 - Phase 3I does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/debit-and-credit-rules`, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
 - Phase 3I does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
+- Phase 3J now adds the fifth routed Journal Entries learning section inside the isolated `/platform-preview` shell:
+  - `/platform-preview/chapters/journal-entries/debit-and-credit-rules`
+- The Journal Entries preview now contains five routed learning sections:
+  - `Introduction to Journal Entries and Journal Format`
+  - `Business Transactions`
+  - `Accounts Affected`
+  - `Types of Accounts`
+  - `Debit and Credit Rules`
+- The Debit and Credit Rules section teaches debit/credit meaning, the modern rules by account nature and increase/decrease, a mobile-safe modern-rule summary matrix, traditional personal/real/nominal golden rules, modern-versus-traditional comparisons, a debit-credit decision process, six solved worked examples, common mistakes, and a non-checking reflection prompt.
+- Types of Accounts now links forward to Debit and Credit Rules, while Debit and Credit Rules links back to Types of Accounts and shows `Journal Format and Narration` as an upcoming disabled next step.
+- Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions, Accounts Affected, Types of Accounts, and Debit and Credit Rules remain explanation-only.
+- Phase 3J does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/journal-format-and-narration`, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
+- Phase 3J does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 

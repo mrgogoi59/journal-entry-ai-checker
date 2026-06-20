@@ -2,22 +2,23 @@
 
 ## Immediate recommended next step
 
-Phase 3I of the Journal Entries chapter-learning preview is completed.
+Phase 3J of the Journal Entries chapter-learning preview is completed.
 
-What this completed fourth-section slice achieved:
+What this completed fifth-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
 - it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
 - it keeps `/platform-preview/chapters/journal-entries/accounts-affected` as Section 3: `Accounts Affected`
-- it adds `/platform-preview/chapters/journal-entries/types-of-accounts` as Section 4: `Types of Accounts`
-- the typed learning-platform chapter model now supports display-only classification category, classification guide, and classification example blocks for this section
-- Accounts Affected now links forward to Types of Accounts, while Types of Accounts links back to Accounts Affected and shows `Debit and Credit Rules` as an upcoming disabled next step
-- Types of Accounts is static learning content only: modern classification, traditional classification, a mapping bridge, classification process, mobile-safe classification cards, four classification-only worked examples, common mistakes, and a non-checking reflection prompt
+- it keeps `/platform-preview/chapters/journal-entries/types-of-accounts` as Section 4: `Types of Accounts`
+- it adds `/platform-preview/chapters/journal-entries/debit-and-credit-rules` as Section 5: `Debit and Credit Rules`
+- the typed learning-platform chapter model now supports display-only debit-credit rule guide cards for modern rules, the summary matrix, and traditional golden rules
+- Types of Accounts now links forward to Debit and Credit Rules, while Debit and Credit Rules links back to Types of Accounts and shows `Journal Format and Narration` as an upcoming disabled next step
+- Debit and Credit Rules is static learning content only: debit/credit meaning, modern rules, traditional golden rules, modern-versus-traditional comparison, a 10-step decision process, six solved worked examples, common mistakes, and a non-checking reflection prompt
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
-- no third question ID, new checker logic, broad question-bank generator, `/debit-and-credit-rules` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
+- no third question ID, new checker logic, broad question-bank generator, `/journal-format-and-narration` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder visual/content review is required next for the four-section progression on desktop and mobile. Phase 3J should add the fifth static subtopic, `Debit and Credit Rules`, using the same reusable section progression; do not add further practice questions, broad question-bank generation, live-route migration, or new checker wiring yet.
+Founder visual/content review is required next for the five-section progression on desktop and mobile. Phase 3K should add the sixth static subtopic, `Journal Format and Narration`, using the same reusable section progression; do not add further practice questions, broad question-bank generation, live-route migration, or new checker wiring yet.
 
 ## Immediate recommended next step
 
