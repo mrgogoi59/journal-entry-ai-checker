@@ -17,6 +17,7 @@ import DrawingsChapterPreviewPage from "@/app/platform-preview/chapters/journal-
 import ExpensesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/expenses/page";
 import IncomeChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/income/page";
 import JournalFormatAndNarrationChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/journal-format-and-narration/page";
+import MixedSimpleEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/mixed-simple-entries/page";
 import PurchasesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/purchases/page";
 import SalesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/sales/page";
 import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
@@ -32,6 +33,7 @@ import {
   JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+  JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
   JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
   JOURNAL_ENTRIES_SALES_SECTION_SLUG,
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
@@ -77,6 +79,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
       JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
       JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
+      JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -147,6 +150,11 @@ describe("Platform preview routes", () => {
       order: 14,
       title: "Assets and Liabilities",
       progressLabel: "Section 14 of 16",
+    });
+    expect(journalEntriesChapter.subtopics[14]).toMatchObject({
+      order: 15,
+      title: "Mixed Simple Entries",
+      progressLabel: "Section 15 of 16",
     });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
@@ -227,8 +235,16 @@ describe("Platform preview routes", () => {
     });
     expect(journalEntriesChapter.subtopics[13].previousSection?.slug).toBe(JOURNAL_ENTRIES_INCOME_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[13].nextSection).toMatchObject({
-      slug: "mixed-simple-entries",
+      slug: JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
       title: "Mixed Simple Entries",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[14].previousSection?.slug).toBe(
+      JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
+    );
+    expect(journalEntriesChapter.subtopics[14].nextSection).toMatchObject({
+      slug: "chapter-recap-and-practice",
+      title: "Chapter Recap and Practice",
       availabilityStatus: "upcoming",
     });
 
@@ -332,6 +348,16 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "recap")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "concept-explanation")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "clue-guide")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "comparison")).toHaveLength(2);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(12);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "try-before-reveal")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "common-mistakes")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "process-steps")).toHaveLength(2);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "recap")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[14].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -1782,6 +1808,113 @@ describe("Platform preview routes", () => {
     expect(outstandingSettlement.illustration.journalEntry.slice(2).map((line) => line.account)).not.toContain("Salary A/c");
   });
 
+  it("defines Mixed Simple Entries as display-only consolidation with reveal-only prompts", () => {
+    const mixedSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
+    );
+    const clueGuide = mixedSubtopic?.sections.find(
+      (section) => section.type === "clue-guide" && section.id === "mixed-transaction-clue-recap",
+    );
+    const wordingChanges = mixedSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "what-changes-the-entry",
+    );
+    const doNotConfuse = mixedSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "mixed-do-not-confuse",
+    );
+    const solvedIllustrations = mixedSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+    const tryBeforeReveal = mixedSubtopic?.sections.find(
+      (section) => section.type === "try-before-reveal" && section.id === "mixed-try-before-reveal",
+    );
+
+    expect(mixedSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(mixedSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(clueGuide?.type).toBe("clue-guide");
+    expect(wordingChanges?.type).toBe("comparison");
+    expect(doNotConfuse?.type).toBe("comparison");
+    expect(solvedIllustrations).toHaveLength(12);
+    expect(tryBeforeReveal?.type).toBe("try-before-reveal");
+
+    if (
+      clueGuide?.type !== "clue-guide" ||
+      wordingChanges?.type !== "comparison" ||
+      doNotConfuse?.type !== "comparison" ||
+      tryBeforeReveal?.type !== "try-before-reveal"
+    ) {
+      throw new Error("Mixed Simple Entries display sections were not found");
+    }
+
+    expect(clueGuide.clues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ clue: "for cash", likelyAccounts: ["Cash A/c"] }),
+        expect.objectContaining({ clue: "through bank / by cheque / UPI / NEFT", likelyAccounts: ["Bank A/c"] }),
+        expect.objectContaining({ clue: "on credit to a customer", likelyAccounts: ["Named debtor A/c"] }),
+        expect.objectContaining({ clue: "received in advance", likelyAccounts: ["Liability"] }),
+      ]),
+    );
+    expect(wordingChanges.groups.map((group) => group.title)).toEqual([
+      "Cash vs bank vs credit purchase",
+      "Cash vs bank vs credit sale",
+      "Business vs personal withdrawal",
+      "Goods vs asset",
+      "Capital vs loan vs income",
+    ]);
+    expect(doNotConfuse.groups.map((group) => group.title)).toEqual([
+      "Purchases A/c vs Furniture A/c",
+      "Sales A/c vs asset disposal",
+      "Expense A/c vs Drawings A/c",
+      "Capital A/c vs Loan A/c",
+      "Income A/c vs debtor collection",
+      "Cash A/c vs Bank A/c",
+      "Debtor A/c vs Cash/Bank receipt",
+      "Creditor A/c vs Purchases A/c during later payment",
+      "Outstanding Expense A/c vs Expense A/c during settlement",
+      "Accrued Income A/c vs Income A/c during later receipt",
+    ]);
+
+    const entriesById = Object.fromEntries(
+      solvedIllustrations.map((section) => {
+        if (section.type !== "solved-illustration") {
+          throw new Error("Expected solved illustration");
+        }
+
+        return [section.id, section.illustration.journalEntry.map((line) => line.account)];
+      }),
+    );
+
+    expect(entriesById["mixed-cash-purchase"]).toEqual(["Purchases A/c", "Cash A/c"]);
+    expect(entriesById["mixed-bank-expense"]).toEqual(["Rent A/c", "Bank A/c"]);
+    expect(entriesById["mixed-credit-sale"]).toEqual(["Priyanka A/c", "Sales A/c"]);
+    expect(entriesById["mixed-capital-through-bank"]).toEqual(["Bank A/c", "Kuldeep's Capital A/c"]);
+    expect(entriesById["mixed-personal-bank-withdrawal"]).toEqual(["Riya Drawings A/c", "Bank A/c"]);
+    expect(entriesById["mixed-asset-on-credit"]).toEqual(["Furniture A/c", "Mohan A/c"]);
+    expect(entriesById["mixed-loan-received"]).toEqual(["Bank A/c", "Bank Loan A/c"]);
+    expect(entriesById["mixed-outstanding-expense-paid"]).toEqual(["Outstanding Salary A/c", "Bank A/c"]);
+    expect(entriesById["mixed-debtor-collection"]).toEqual(["Bank A/c", "Riya A/c"]);
+    expect(entriesById["mixed-accrued-income"]).toEqual(["Accrued Commission A/c", "Commission Received A/c"]);
+    expect(entriesById["mixed-income-received-in-advance"]).toEqual(["Bank A/c", "Rent Received in Advance A/c"]);
+    expect(entriesById["mixed-business-cash-withdrawal"]).toEqual(["Cash A/c", "Bank A/c"]);
+    expect(entriesById["mixed-outstanding-expense-paid"]).not.toContain("Salary A/c");
+    expect(entriesById["mixed-debtor-collection"]).not.toContain("Sales A/c");
+
+    expect(tryBeforeReveal.prompts).toHaveLength(6);
+    expect(tryBeforeReveal.prompts.map((prompt) => prompt.prompt)).toEqual([
+      "Paid electricity bill in cash ₹2,500.",
+      "Sold goods through bank ₹9,000.",
+      "Purchased goods on credit from ABC Traders ₹14,000.",
+      "Amit introduced additional capital through bank ₹20,000.",
+      "Received commission in cash ₹4,000.",
+      "Repaid bank loan through bank ₹15,000.",
+    ]);
+    expect(tryBeforeReveal.prompts[0].journalEntry.map((line) => line.account)).toEqual([
+      "Electricity Expense A/c",
+      "Cash A/c",
+    ]);
+    expect(tryBeforeReveal.prompts[5].journalEntry.map((line) => line.account)).toEqual([
+      "Bank Loan A/c",
+      "Bank A/c",
+    ]);
+  });
+
   it("marks the platform preview routes as noindex and nofollow", () => {
     expect(platformPreviewMetadata.robots).toMatchObject({
       index: false,
@@ -1789,7 +1922,7 @@ describe("Platform preview routes", () => {
     });
   });
 
-  it("marks the active outline state across all fourteen routed Journal Entries sections", () => {
+  it("marks the active outline state across all fifteen routed Journal Entries sections", () => {
     const routedSections = [
       ["/platform-preview/chapters/journal-entries", JournalEntriesChapterPreviewPage],
       ["/platform-preview/chapters/journal-entries/business-transactions", BusinessTransactionsChapterPreviewPage],
@@ -1805,6 +1938,7 @@ describe("Platform preview routes", () => {
       ["/platform-preview/chapters/journal-entries/expenses", ExpensesChapterPreviewPage],
       ["/platform-preview/chapters/journal-entries/income", IncomeChapterPreviewPage],
       ["/platform-preview/chapters/journal-entries/assets-and-liabilities", AssetsAndLiabilitiesChapterPreviewPage],
+      ["/platform-preview/chapters/journal-entries/mixed-simple-entries", MixedSimpleEntriesChapterPreviewPage],
     ] as const;
 
     routedSections.forEach(([href, RoutePage]) => {
@@ -2696,7 +2830,7 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("renders the Assets and Liabilities section with Mixed Simple Entries disabled and without adding a checker", () => {
+  it("renders the Assets and Liabilities section with the Mixed Simple Entries next link and without adding a checker", () => {
     const html = renderToStaticMarkup(createElement(AssetsAndLiabilitiesChapterPreviewPage));
 
     expect(html).toContain("Chapters");
@@ -2755,12 +2889,102 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Assets and liabilities checklist");
     expect(html).toContain("What resource did the business gain or lose, and what obligation was created or settled?");
     expect(html).toContain("Previous Income");
-    expect(html).toContain("Continue to Mixed Simple Entries - Preview only");
+    expect(html).toContain("Continue to Mixed Simple Entries");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/assets-and-liabilities")).toContain(
       'aria-current="step"',
     );
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/income"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/mixed-simple-entries"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/mixed-simple-entries"');
+    expect(html).not.toContain("Continue to Mixed Simple Entries - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Mixed Simple Entries route with reveal-only exercises and no checker", () => {
+    const html = renderToStaticMarkup(createElement(MixedSimpleEntriesChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Mixed Simple Entries");
+    expect(html).toContain("Section 15 of 16");
+    expect(html).toContain("Use the full sentence before choosing accounts");
+    expect(html).toContain("Think serially before writing the entry");
+    expect(html).toContain("Transaction-clue recap");
+    expect(html).toContain("Clues help, but reasoning decides");
+    expect(html).toContain("What changes the entry?");
+    expect(html).toContain("Cash vs bank vs credit purchase");
+    expect(html).toContain("Cash: Purchases A/c Dr.; To Cash A/c.");
+    expect(html).toContain("Bank: Bank A/c Dr.; To Sales A/c.");
+    expect(html).toContain("Business vs personal withdrawal");
+    expect(html).toContain("Capital vs loan vs income");
+    expect(html).toContain("Solved Illustration 1");
+    expect(html).toContain("Solved Illustration 12");
+    expect(html).toContain("Bought goods for cash ₹10,000.");
+    expect(html).toContain("Purchases A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Paid office rent through bank ₹6,000.");
+    expect(html).toContain("Rent A/c Dr.");
+    expect(html).toContain("To Bank A/c");
+    expect(html).toContain("Sold goods on credit to Priyanka ₹15,000.");
+    expect(html).toContain("Priyanka A/c Dr.");
+    expect(html).toContain("To Sales A/c");
+    expect(html).toContain("Kuldeep introduced capital of ₹50,000 through bank.");
+    expect(html).toContain("To Kuldeep&#x27;s Capital A/c");
+    expect(html).toContain("Riya withdrew ₹4,000 from bank for personal use.");
+    expect(html).toContain("Riya Drawings A/c Dr.");
+    expect(html).toContain("Bought office furniture on credit from Mohan ₹25,000.");
+    expect(html).toContain("Furniture A/c Dr.");
+    expect(html).toContain("To Mohan A/c");
+    expect(html).toContain("Received a bank loan of ₹1,00,000 in the business bank account.");
+    expect(html).toContain("To Bank Loan A/c");
+    expect(html).toContain("Outstanding salary of ₹5,000 was paid through bank.");
+    expect(html).toContain("Outstanding Salary A/c Dr.");
+    expect(html).toContain("should not debit Salary A/c again");
+    expect(html).toContain("Received ₹12,000 from Riya through bank against an earlier credit sale.");
+    expect(html).toContain("To Riya A/c");
+    expect(html).toContain("Sales A/c is not credited again.");
+    expect(html).toContain("Commission ₹3,000 was earned but not yet received.");
+    expect(html).toContain("Accrued Commission A/c Dr.");
+    expect(html).toContain("To Commission Received A/c");
+    expect(html).toContain("Received rent in advance through bank ₹8,000.");
+    expect(html).toContain("To Rent Received in Advance A/c");
+    expect(html).toContain("Cash withdrawn from bank ₹7,000 for office use.");
+    expect(html).toContain("Cash A/c Dr.");
+    expect(html).toContain("Do not confuse");
+    expect(html).toContain("Purchases A/c vs Furniture A/c");
+    expect(html).toContain("Outstanding Expense A/c vs Expense A/c during settlement");
+    expect(html).toContain("Try these mentally, then reveal");
+    expect(html).toContain("Paid electricity bill in cash ₹2,500.");
+    expect(html).toContain("Electricity Expense A/c Dr.");
+    expect(html).toContain("Sold goods through bank ₹9,000.");
+    expect(html).toContain("Purchased goods on credit from ABC Traders ₹14,000.");
+    expect(html).toContain("To ABC Traders A/c");
+    expect(html).toContain("Amit introduced additional capital through bank ₹20,000.");
+    expect(html).toContain("Received commission in cash ₹4,000.");
+    expect(html).toContain("Repaid bank loan through bank ₹15,000.");
+    expect(html).toContain("Bank Loan A/c Dr.");
+    expect(html).toContain("Avoid these Mixed Simple Entries mistakes");
+    expect(html).toContain("Mixed-entry decision process");
+    expect(html).toContain("Mixed-entry checklist");
+    expect(html).toContain("Could the entry change if one word - cash, bank, credit, personal, business, due, or received - changed?");
+    expect(html).toContain("Previous Assets and Liabilities");
+    expect(html).toContain("Continue to Chapter Recap and Practice - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/mixed-simple-entries")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/assets-and-liabilities"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/chapter-recap-and-practice"');
+
+    const revealLabels = html.match(/Reveal explanation/g) ?? [];
+    const detailsTags = html.match(/<details/g) ?? [];
+
+    expect(revealLabels).toHaveLength(6);
+    expect(detailsTags.length).toBeGreaterThanOrEqual(7);
+    expect(html).not.toContain("<input");
+    expect(html).not.toContain("<textarea");
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -2826,5 +3050,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/expenses"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/income"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/assets-and-liabilities"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/mixed-simple-entries"');
   });
 });

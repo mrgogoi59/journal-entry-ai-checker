@@ -18,6 +18,7 @@ import type {
   ReflectionPromptSection,
   SimpleExampleSection,
   SolvedIllustration as SolvedIllustrationData,
+  TryBeforeRevealSection,
 } from "@/lib/learning-platform/types";
 import type {
   JournalEntryCorrectAnswerReveal,
@@ -571,6 +572,43 @@ export function CommonMistakes({ section }: { section: CommonMistakesSection }) 
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+export function TryBeforeRevealBlock({ section }: { section: TryBeforeRevealSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-4">
+        {section.prompts.map((prompt) => (
+          <details
+            key={prompt.id}
+            className="group rounded-2xl border border-slate-200 bg-slate-50 p-4"
+          >
+            <summary className="flex cursor-pointer list-none flex-col gap-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 text-base font-black leading-7 text-slate-950">{prompt.prompt}</span>
+              <span className="inline-flex self-start rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
+                Reveal explanation
+              </span>
+            </summary>
+            <div className="mt-4 border-t border-slate-200 pt-4">
+              <AccountingEntryTable
+                caption={`Display-only journal entry for ${prompt.prompt}`}
+                rows={formatAccountingEntryRows(prompt.journalEntry)}
+              />
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
+                <p>
+                  <span className="font-black text-slate-950">Narration:</span> {prompt.narration}
+                </p>
+                <p className="mt-2">
+                  <span className="font-black text-slate-950">Reasoning:</span> {prompt.reasoning}
+                </p>
+              </div>
+            </div>
+          </details>
+        ))}
+      </div>
     </section>
   );
 }

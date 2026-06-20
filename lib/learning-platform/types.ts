@@ -321,6 +321,21 @@ export type CommonMistakesSection = {
   mistakes: string[];
 };
 
+export type TryBeforeRevealSection = {
+  type: "try-before-reveal";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  prompts: {
+    id: string;
+    prompt: string;
+    journalEntry: AccountingEntryLine[];
+    narration: string;
+    reasoning: string;
+  }[];
+};
+
 export type RecapSection = {
   type: "recap";
   id: string;
@@ -352,6 +367,7 @@ export type ChapterSection =
   | SolvedIllustrationSection
   | PracticeItYourselfSection
   | CommonMistakesSection
+  | TryBeforeRevealSection
   | RecapSection
   | ReflectionPromptSection;
 

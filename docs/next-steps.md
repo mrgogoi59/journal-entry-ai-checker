@@ -2,9 +2,9 @@
 
 ## Immediate recommended next step
 
-Phase 3S of the Journal Entries chapter-learning preview is completed.
+Phase 3T of the Journal Entries chapter-learning preview is completed.
 
-What this completed fourteenth-section slice achieved:
+What this completed fifteenth-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
 - it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
@@ -19,15 +19,17 @@ What this completed fourteenth-section slice achieved:
 - it keeps `/platform-preview/chapters/journal-entries/sales` as Section 11: `Sales`
 - it keeps `/platform-preview/chapters/journal-entries/expenses` as Section 12: `Expenses`
 - it keeps `/platform-preview/chapters/journal-entries/income` as Section 13: `Income`
-- it adds `/platform-preview/chapters/journal-entries/assets-and-liabilities` as Section 14: `Assets and Liabilities`
-- Assets and Liabilities reuses the existing typed learning-platform model and renderer blocks for concept explanations, comparisons, accounting-format displays, solved illustrations, process steps, common mistakes, recap, and reflection prompts
-- Income now links forward to Assets and Liabilities, while Assets and Liabilities links back to Income and shows `Mixed Simple Entries` as an upcoming disabled next step
-- Assets and Liabilities is static learning content only: asset and liability meanings, current/non-current introduction, accounting-equation impact, simple asset purchases through cash/bank/credit, loan receipt, loan repayment, creditor creation and settlement, outstanding liability settlement, asset-versus-purchases, asset-versus-expense, liability-versus-income/capital, named-person context, depreciation/disposal/installation boundaries, seven solved illustrations, common mistakes, a display-only checklist, and a non-checking reflection prompt
+- it keeps `/platform-preview/chapters/journal-entries/assets-and-liabilities` as Section 14: `Assets and Liabilities`
+- it adds `/platform-preview/chapters/journal-entries/mixed-simple-entries` as Section 15: `Mixed Simple Entries`
+- Mixed Simple Entries reuses the existing typed learning-platform model and section renderer, with one small display-only reveal block using native `<details>` / `<summary>`
+- Assets and Liabilities now links forward to Mixed Simple Entries, while Mixed Simple Entries links back to Assets and Liabilities and shows `Chapter Recap and Practice` as an upcoming disabled next step
+- Mixed Simple Entries consolidates Sections 1-14 with a serial solving method, transaction-clue recap, wording-change comparisons, twelve solved mixed illustrations, a `Do not confuse` comparison guide, six reveal-only practice cards, common mistakes, a decision process, checklist, and reflection prompt
+- the reveal cards are display-only: no submission, scoring, persistence, checker, server action, hidden editable expected answer, or new supported question ID was added
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
-- no third question ID, new checker logic, broad question-bank generator, `/mixed-simple-entries` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
+- no third checking-enabled question, new checker logic, broad question-bank generator, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder visual/content review is required next for the fourteen-section progression on desktop and mobile. Phase 3T should add the fifteenth static subtopic, `Mixed Simple Entries`, only after review and using the same reusable section progression; do not add further Practice It Yourself questions, broad question-bank generation, live-route migration, or live-route wiring yet.
+Founder visual/content review is required next for the fifteen-section progression on desktop and mobile. Phase 3U should add the final static `Chapter Recap and Practice` preview section, complete the preview chapter sequence, and plan the next controlled checker expansion without migrating live routes or adding broad runtime wiring.
 
 ## Immediate recommended next step
 

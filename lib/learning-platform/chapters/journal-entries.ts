@@ -23,6 +23,7 @@ export const JOURNAL_ENTRIES_SALES_SECTION_SLUG = "sales";
 export const JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG = "expenses";
 export const JOURNAL_ENTRIES_INCOME_SECTION_SLUG = "income";
 export const JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG = "assets-and-liabilities";
+export const JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG = "mixed-simple-entries";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -245,10 +246,19 @@ const assetsAndLiabilitiesSubtopicReference: ChapterSubtopicReference = {
 };
 
 const mixedSimpleEntriesSubtopicReference: ChapterSubtopicReference = {
-  id: "mixed-simple-entries",
-  slug: "mixed-simple-entries",
+  id: JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
   title: "Mixed Simple Entries",
   order: 15,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG}`,
+};
+
+const chapterRecapAndPracticeSubtopicReference: ChapterSubtopicReference = {
+  id: "chapter-recap-and-practice",
+  slug: "chapter-recap-and-practice",
+  title: "Chapter Recap and Practice",
+  order: 16,
   availabilityStatus: "upcoming",
 };
 
@@ -5972,6 +5982,597 @@ export const assetsAndLiabilitiesJournalEntriesSubtopic: ChapterSubtopicDefiniti
   ],
 };
 
+export const mixedSimpleEntriesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...mixedSimpleEntriesSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG}`,
+  shortDescription:
+    "Consolidate Sections 1-14 by solving simple one-debit, one-credit journal entries without being told the transaction category first.",
+  learningObjective:
+    "Students learn to read the whole transaction, identify exact accounts, classify them, choose cash/bank/credit treatment, apply debit-credit rules, and check that debit equals credit.",
+  progressLabel: "Section 15 of 16",
+  previousSection: assetsAndLiabilitiesSubtopicReference,
+  nextSection: chapterRecapAndPracticeSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "mixed-simple-entries",
+      eyebrow: "Learning objective",
+      title: "Mixed Simple Entries",
+      body:
+        "By the end of this section, you should be able to solve a simple journal-entry transaction without being told whether it is cash, bank, credit, purchase, sale, income, expense, capital, drawings, asset, or liability.",
+    },
+    {
+      type: "concept-explanation",
+      id: "mixed-simple-entry-boundary",
+      eyebrow: "Consolidation section",
+      title: "Use the full sentence before choosing accounts",
+      paragraphs: [
+        "Mixed simple entries bring together the ideas studied so far. The transaction will still be simple: one clear transaction, one clear amount, one debit line, and one credit line.",
+        "The challenge is that the topic is not named for you. You must read the wording, identify the exact accounts, classify them, apply debit and credit rules, and then confirm that debit equals credit.",
+        "This preview does not add compound-entry checking, GST, discounts with multiple lines, depreciation, asset-disposal profit or loss, Partnership admission or retirement, Company allotment or forfeiture, rectification, closing entries, OCR, or AI-generated checking.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "mixed-entry-solving-method",
+      eyebrow: "Mixed-entry solving method",
+      title: "Think serially before writing the entry",
+      body:
+        "Follow this order whenever a transaction category is not given in advance.",
+      steps: [
+        { label: "Read the complete transaction", detail: "Do not decide from one keyword alone." },
+        { label: "Identify the business purpose", detail: "Ask what happened to the business." },
+        { label: "Identify every affected account", detail: "Find the two accounts affected by the transaction." },
+        { label: "Use exact account names", detail: "Preserve named proprietor, partner, debtor, creditor, asset, income, and expense accounts." },
+        { label: "Classify each account", detail: "Decide whether each account is an asset, liability, capital, drawings, income, or expense." },
+        { label: "Decide increase or decrease", detail: "Ask whether each account has increased or decreased." },
+        { label: "Identify cash, bank, or credit treatment", detail: "Use the payment or receipt wording carefully." },
+        { label: "Apply debit and credit rules", detail: "Use account type and increase/decrease logic." },
+        { label: "Write the debit account first", detail: "The debited account is written first with Dr." },
+        { label: "Write the credited account with To", detail: "The credited account is written below with To." },
+        { label: "Enter amounts in the correct columns", detail: "Use the same clear amount on both sides in these simple entries." },
+        { label: "Write concise narration", detail: "Explain what happened in one short sentence." },
+        { label: "Confirm total debit equals total credit", detail: "A journal entry must balance." },
+        { label: "Review special wording", detail: "Check whether a named account, personal use, credit wording, or settlement wording was ignored." },
+      ],
+    },
+    {
+      type: "clue-guide",
+      id: "mixed-transaction-clue-recap",
+      eyebrow: "Transaction-clue recap",
+      title: "Clues help, but reasoning decides",
+      body:
+        "These clues guide account identification. They do not replace reading the whole transaction.",
+      clues: [
+        { clue: "for cash", likelyAccounts: ["Cash A/c"], note: "Cash is affected immediately." },
+        { clue: "through bank / by cheque / UPI / NEFT", likelyAccounts: ["Bank A/c"], note: "Treat the payment or receipt as a bank transaction." },
+        { clue: "on credit to a customer", likelyAccounts: ["Named debtor A/c"], note: "Use the customer's name, not Cash or Bank." },
+        { clue: "on credit from a supplier", likelyAccounts: ["Named creditor A/c"], note: "Use the supplier's name." },
+        { clue: "goods bought for resale", likelyAccounts: ["Purchases A/c"], note: "Do not use the asset name for trading goods." },
+        { clue: "goods sold", likelyAccounts: ["Sales A/c"], note: "Use Sales only for normal goods sold." },
+        { clue: "furniture or machinery bought", likelyAccounts: ["Named Asset A/c"], note: "Use the asset account when the item is for business use." },
+        { clue: "personal use", likelyAccounts: ["Named Drawings A/c"], note: "Personal use changes the treatment." },
+        { clue: "introduced by owner or partner", likelyAccounts: ["Named Capital A/c"], note: "Capital is not income." },
+        { clue: "loan received", likelyAccounts: ["Loan liability"], note: "Borrowed money must be repaid." },
+        { clue: "earned but not received", likelyAccounts: ["Accrued-income asset"], note: "The business has earned income and created a receivable." },
+        { clue: "due but not paid", likelyAccounts: ["Outstanding-expense liability"], note: "Expense is recorded once; liability is created." },
+        { clue: "received in advance", likelyAccounts: ["Liability"], note: "Advance receipt is not current income yet." },
+        { clue: "paid later or received later", likelyAccounts: ["Settlement account"], note: "Do not record the original income or expense again." },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "what-changes-the-entry",
+      eyebrow: "What changes the entry?",
+      title: "One wording change can change the account",
+      intro:
+        "Compare the accounts before applying debit and credit.",
+      groups: [
+        {
+          title: "Cash vs bank vs credit purchase",
+          items: [
+            "Cash: Purchases A/c Dr.; To Cash A/c.",
+            "Bank: Purchases A/c Dr.; To Bank A/c.",
+            "Credit from Mohan: Purchases A/c Dr.; To Mohan A/c.",
+          ],
+        },
+        {
+          title: "Cash vs bank vs credit sale",
+          items: [
+            "Cash: Cash A/c Dr.; To Sales A/c.",
+            "Bank: Bank A/c Dr.; To Sales A/c.",
+            "Credit to Riya: Riya A/c Dr.; To Sales A/c.",
+          ],
+        },
+        {
+          title: "Business vs personal withdrawal",
+          items: [
+            "Business use: Cash A/c Dr.; To Bank A/c.",
+            "Personal use: Amit Drawings A/c Dr.; To Bank A/c.",
+          ],
+        },
+        {
+          title: "Goods vs asset",
+          items: [
+            "Goods for resale: Purchases A/c Dr.; To Cash/Bank/Supplier A/c.",
+            "Furniture for business use: Furniture A/c Dr.; To Cash/Bank/Supplier A/c.",
+          ],
+        },
+        {
+          title: "Capital vs loan vs income",
+          items: [
+            "Capital: Bank A/c Dr.; To Amit's Capital A/c.",
+            "Loan: Bank A/c Dr.; To Bank Loan A/c.",
+            "Income: Bank A/c Dr.; To Commission Received A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-cash-purchase",
+      illustration: {
+        id: "mixed-cash-purchase",
+        title: "Mixed Solved Illustration 1: Cash purchase",
+        difficulty: "mixed",
+        question: "Bought goods for cash ₹10,000.",
+        accountsAffected: ["Purchases A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "Goods are bought for resale." },
+          { label: "Cash treatment", detail: "The transaction says for cash." },
+          { label: "Entry logic", detail: "Purchases increases and Cash decreases." },
+        ],
+        journalEntry: [
+          { id: "mixed-cash-purchase-debit", account: "Purchases A/c", side: "debit", amount: 10000, drNotation: "Dr." },
+          { id: "mixed-cash-purchase-credit", account: "Cash A/c", side: "credit", amount: 10000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased for cash.",
+        explanation:
+          "Goods bought for resale are recorded in Purchases A/c. Cash is credited because cash goes out.",
+        studentTakeaway: "Goods for resale use Purchases A/c, not a fixed asset account.",
+        commonMistake: "Using Furniture or Stock A/c without reading that these are goods purchased.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-bank-expense",
+      illustration: {
+        id: "mixed-bank-expense",
+        title: "Mixed Solved Illustration 2: Expense through bank",
+        difficulty: "mixed",
+        question: "Paid office rent through bank ₹6,000.",
+        accountsAffected: ["Rent A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "Office rent is a business expense." },
+          { label: "Payment mode", detail: "Through bank means Bank A/c is affected." },
+          { label: "Entry logic", detail: "Expense increases and Bank decreases." },
+        ],
+        journalEntry: [
+          { id: "mixed-bank-expense-debit", account: "Rent A/c", side: "debit", amount: 6000, drNotation: "Dr." },
+          { id: "mixed-bank-expense-credit", account: "Bank A/c", side: "credit", amount: 6000, displayPrefix: "To" },
+        ],
+        narration: "Being office rent paid through bank.",
+        explanation:
+          "Rent A/c is debited because the expense is incurred. Bank A/c is credited because payment is made through bank.",
+        studentTakeaway: "Business expense plus bank payment usually means Expense A/c Dr.; To Bank A/c.",
+        commonMistake: "Debiting Bank just because the word bank appears.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-credit-sale",
+      illustration: {
+        id: "mixed-credit-sale",
+        title: "Mixed Solved Illustration 3: Credit sale",
+        difficulty: "mixed",
+        question: "Sold goods on credit to Priyanka ₹15,000.",
+        accountsAffected: ["Priyanka A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "Goods are sold in the normal course of business." },
+          { label: "Credit treatment", detail: "Priyanka becomes a debtor because cash or bank is not received now." },
+          { label: "Entry logic", detail: "Debtor increases and Sales income increases." },
+        ],
+        journalEntry: [
+          { id: "mixed-credit-sale-debit", account: "Priyanka A/c", side: "debit", amount: 15000, drNotation: "Dr." },
+          { id: "mixed-credit-sale-credit", account: "Sales A/c", side: "credit", amount: 15000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold on credit to Priyanka.",
+        explanation:
+          "Priyanka A/c is debited as debtor. Sales A/c is credited because goods are sold.",
+        studentTakeaway: "For credit sales, use the customer's account instead of Cash or Bank.",
+        commonMistake: "Debiting Cash A/c even though the sale is on credit.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-capital-through-bank",
+      illustration: {
+        id: "mixed-capital-through-bank",
+        title: "Mixed Solved Illustration 4: Capital through bank",
+        difficulty: "mixed",
+        question: "Kuldeep introduced capital of ₹50,000 through bank.",
+        accountsAffected: ["Bank A/c", "Kuldeep's Capital A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "The owner or partner brings capital into the business." },
+          { label: "Receipt mode", detail: "Through bank means Bank A/c increases." },
+          { label: "Entry logic", detail: "Capital increases and is credited to the named capital account." },
+        ],
+        journalEntry: [
+          { id: "mixed-capital-bank-debit", account: "Bank A/c", side: "debit", amount: 50000, drNotation: "Dr." },
+          { id: "mixed-capital-bank-credit", account: "Kuldeep's Capital A/c", side: "credit", amount: 50000, displayPrefix: "To" },
+        ],
+        narration: "Being capital introduced by Kuldeep through bank.",
+        explanation:
+          "Bank increases, so Bank A/c is debited. Kuldeep's Capital A/c is credited because capital is not income.",
+        studentTakeaway: "Preserve the named Capital A/c instead of writing generic Capital A/c.",
+        commonMistake: "Crediting Income A/c or generic Capital A/c.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-personal-bank-withdrawal",
+      illustration: {
+        id: "mixed-personal-bank-withdrawal",
+        title: "Mixed Solved Illustration 5: Personal bank withdrawal",
+        difficulty: "mixed",
+        question: "Riya withdrew ₹4,000 from bank for personal use.",
+        accountsAffected: ["Riya Drawings A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "The transaction is for personal use, not business use." },
+          { label: "Payment mode", detail: "The amount leaves the bank." },
+          { label: "Entry logic", detail: "Drawings increase and Bank decreases." },
+        ],
+        journalEntry: [
+          { id: "mixed-drawings-bank-debit", account: "Riya Drawings A/c", side: "debit", amount: 4000, drNotation: "Dr." },
+          { id: "mixed-drawings-bank-credit", account: "Bank A/c", side: "credit", amount: 4000, displayPrefix: "To" },
+        ],
+        narration: "Being amount withdrawn by Riya from bank for personal use.",
+        explanation:
+          "Personal-use wording creates Drawings A/c. Bank A/c is credited because money leaves the bank.",
+        studentTakeaway: "Personal use changes the debit account from Cash to Drawings.",
+        commonMistake: "Treating the transaction as Cash A/c Dr.; To Bank A/c.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-asset-on-credit",
+      illustration: {
+        id: "mixed-asset-on-credit",
+        title: "Mixed Solved Illustration 6: Asset on credit",
+        difficulty: "mixed",
+        question: "Bought office furniture on credit from Mohan ₹25,000.",
+        accountsAffected: ["Furniture A/c", "Mohan A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "Furniture is a business asset, not goods for resale." },
+          { label: "Credit treatment", detail: "Mohan is the creditor because payment is not made now." },
+          { label: "Entry logic", detail: "Asset increases and creditor liability increases." },
+        ],
+        journalEntry: [
+          { id: "mixed-asset-credit-debit", account: "Furniture A/c", side: "debit", amount: 25000, drNotation: "Dr." },
+          { id: "mixed-asset-credit-credit", account: "Mohan A/c", side: "credit", amount: 25000, displayPrefix: "To" },
+        ],
+        narration: "Being office furniture purchased on credit from Mohan.",
+        explanation:
+          "Furniture A/c is debited because a business asset increases. Mohan A/c is credited as the named creditor.",
+        studentTakeaway: "Credit asset purchases use the asset account and the named creditor.",
+        commonMistake: "Using Purchases A/c or Bank A/c for a credit furniture purchase.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-loan-received",
+      illustration: {
+        id: "mixed-loan-received",
+        title: "Mixed Solved Illustration 7: Loan received",
+        difficulty: "mixed",
+        question: "Received a bank loan of ₹1,00,000 in the business bank account.",
+        accountsAffected: ["Bank A/c", "Bank Loan A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "The business borrows money." },
+          { label: "Receipt mode", detail: "Money enters the bank account." },
+          { label: "Entry logic", detail: "Bank asset increases and loan liability increases." },
+        ],
+        journalEntry: [
+          { id: "mixed-loan-received-debit", account: "Bank A/c", side: "debit", amount: 100000, drNotation: "Dr." },
+          { id: "mixed-loan-received-credit", account: "Bank Loan A/c", side: "credit", amount: 100000, displayPrefix: "To" },
+        ],
+        narration: "Being bank loan received in the business bank account.",
+        explanation:
+          "The receipt is a liability, not income. Bank increases and Bank Loan A/c is credited.",
+        studentTakeaway: "Loan receipts affect the Balance Sheet and are not profit.",
+        commonMistake: "Crediting Commission Received A/c or Capital A/c for a loan.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-outstanding-expense-paid",
+      illustration: {
+        id: "mixed-outstanding-expense-paid",
+        title: "Mixed Solved Illustration 8: Outstanding expense paid later",
+        difficulty: "mixed",
+        question: "Outstanding salary of ₹5,000 was paid through bank.",
+        accountsAffected: ["Outstanding Salary A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "The business settles an earlier salary liability." },
+          { label: "Payment mode", detail: "The payment is through bank." },
+          { label: "Entry logic", detail: "Outstanding liability decreases and Bank decreases." },
+        ],
+        journalEntry: [
+          { id: "mixed-outstanding-paid-debit", account: "Outstanding Salary A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "mixed-outstanding-paid-credit", account: "Bank A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being outstanding salary paid through bank.",
+        explanation:
+          "The salary expense was already recorded when it became outstanding. Payment later settles Outstanding Salary A/c and should not debit Salary A/c again.",
+        studentTakeaway: "Settlements do not duplicate the original expense.",
+        commonMistake: "Debiting Salary A/c again when paying the outstanding liability.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-debtor-collection",
+      illustration: {
+        id: "mixed-debtor-collection",
+        title: "Mixed Solved Illustration 9: Debtor collection",
+        difficulty: "mixed",
+        question: "Received ₹12,000 from Riya through bank against an earlier credit sale.",
+        accountsAffected: ["Bank A/c", "Riya A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "The business collects an amount already due from a debtor." },
+          { label: "Receipt mode", detail: "The receipt comes through bank." },
+          { label: "Entry logic", detail: "Bank increases and the debtor balance decreases." },
+        ],
+        journalEntry: [
+          { id: "mixed-debtor-bank-debit", account: "Bank A/c", side: "debit", amount: 12000, drNotation: "Dr." },
+          { id: "mixed-debtor-riya-credit", account: "Riya A/c", side: "credit", amount: 12000, displayPrefix: "To" },
+        ],
+        narration: "Being amount received from Riya through bank.",
+        explanation:
+          "This is collection from a debtor, not a new sale. Sales A/c is not credited again.",
+        studentTakeaway: "Debtor collections reduce the debtor account and do not repeat income.",
+        commonMistake: "Crediting Sales A/c again during collection.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-accrued-income",
+      illustration: {
+        id: "mixed-accrued-income",
+        title: "Mixed Solved Illustration 10: Accrued income",
+        difficulty: "mixed",
+        question: "Commission ₹3,000 was earned but not yet received.",
+        accountsAffected: ["Accrued Commission A/c", "Commission Received A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "Income has been earned." },
+          { label: "Receipt timing", detail: "Cash or Bank is not received yet." },
+          { label: "Entry logic", detail: "A receivable asset is created and income is credited." },
+        ],
+        journalEntry: [
+          { id: "mixed-accrued-income-debit", account: "Accrued Commission A/c", side: "debit", amount: 3000, drNotation: "Dr." },
+          { id: "mixed-accrued-income-credit", account: "Commission Received A/c", side: "credit", amount: 3000, displayPrefix: "To" },
+        ],
+        narration: "Being commission earned but not yet received.",
+        explanation:
+          "Accrued Commission A/c is debited as an asset. Commission Received A/c is credited because income is earned.",
+        studentTakeaway: "Earned but not received creates an accrued-income asset.",
+        commonMistake: "Debiting Cash A/c even though money is not yet received.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-income-received-in-advance",
+      illustration: {
+        id: "mixed-income-received-in-advance",
+        title: "Mixed Solved Illustration 11: Income received in advance",
+        difficulty: "mixed",
+        question: "Received rent in advance through bank ₹8,000.",
+        accountsAffected: ["Bank A/c", "Rent Received in Advance A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "The business receives money before earning rent income." },
+          { label: "Receipt mode", detail: "The receipt is through bank." },
+          { label: "Entry logic", detail: "Bank increases and an advance-income liability is created." },
+        ],
+        journalEntry: [
+          { id: "mixed-advance-income-bank-debit", account: "Bank A/c", side: "debit", amount: 8000, drNotation: "Dr." },
+          { id: "mixed-advance-income-credit", account: "Rent Received in Advance A/c", side: "credit", amount: 8000, displayPrefix: "To" },
+        ],
+        narration: "Being rent received in advance through bank.",
+        explanation:
+          "The business has not earned the rent yet, so Rent Received in Advance A/c is credited as a liability.",
+        studentTakeaway: "Advance receipts are not current income yet.",
+        commonMistake: "Crediting Rent Received A/c immediately for an advance.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "mixed-business-cash-withdrawal",
+      illustration: {
+        id: "mixed-business-cash-withdrawal",
+        title: "Mixed Solved Illustration 12: Business cash withdrawal",
+        difficulty: "mixed",
+        question: "Cash withdrawn from bank ₹7,000 for office use.",
+        accountsAffected: ["Cash A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Business purpose", detail: "Cash is withdrawn for office use, so value stays in the business." },
+          { label: "Transfer type", detail: "One asset changes form from Bank to Cash." },
+          { label: "Entry logic", detail: "Cash increases and Bank decreases." },
+        ],
+        journalEntry: [
+          { id: "mixed-business-cash-debit", account: "Cash A/c", side: "debit", amount: 7000, drNotation: "Dr." },
+          { id: "mixed-business-bank-credit", account: "Bank A/c", side: "credit", amount: 7000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn from bank for office use.",
+        explanation:
+          "This is a business cash transfer, not drawings, because the purpose is office use.",
+        studentTakeaway: "Business use keeps the value inside the business.",
+        commonMistake: "Debiting Drawings A/c even though the transaction says office use.",
+      },
+    },
+    {
+      type: "comparison",
+      id: "mixed-do-not-confuse",
+      eyebrow: "Do not confuse",
+      title: "Pairs that look similar but behave differently",
+      intro:
+        "Use these short distinctions before finalising the entry.",
+      groups: [
+        { title: "Purchases A/c vs Furniture A/c", items: ["Purchases is for goods bought for resale; Furniture is an asset used by the business."] },
+        { title: "Sales A/c vs asset disposal", items: ["Sales is for goods sold in trading; asset disposal needs separate design when profit or loss is involved."] },
+        { title: "Expense A/c vs Drawings A/c", items: ["Business cost is expense; personal use by owner or partner is drawings."] },
+        { title: "Capital A/c vs Loan A/c", items: ["Capital is owner/partner contribution; loan is repayable to an outside party."] },
+        { title: "Income A/c vs debtor collection", items: ["Income is credited when earned; debtor collection credits the debtor, not income again."] },
+        { title: "Cash A/c vs Bank A/c", items: ["Cash means physical cash; cheque, UPI, NEFT, or bank transfer uses Bank A/c."] },
+        { title: "Debtor A/c vs Cash/Bank receipt", items: ["Credit sale creates debtor; later receipt debits Cash/Bank and credits debtor."] },
+        { title: "Creditor A/c vs Purchases A/c during later payment", items: ["Paying a creditor reduces creditor; Purchases is not debited again."] },
+        { title: "Outstanding Expense A/c vs Expense A/c during settlement", items: ["Paying the due amount reduces the outstanding liability; expense is not recorded twice."] },
+        { title: "Accrued Income A/c vs Income A/c during later receipt", items: ["Later receipt credits accrued income, not income again."] },
+      ],
+    },
+    {
+      type: "try-before-reveal",
+      id: "mixed-try-before-reveal",
+      eyebrow: "Try before reveal",
+      title: "Try these mentally, then reveal",
+      body:
+        "These are display-only practice cards. They do not submit answers, score responses, save progress, or use the deterministic checker.",
+      prompts: [
+        {
+          id: "mixed-reveal-electricity-cash",
+          prompt: "Paid electricity bill in cash ₹2,500.",
+          journalEntry: [
+            { id: "mixed-reveal-electricity-debit", account: "Electricity Expense A/c", side: "debit", amount: 2500, drNotation: "Dr." },
+            { id: "mixed-reveal-electricity-credit", account: "Cash A/c", side: "credit", amount: 2500, displayPrefix: "To" },
+          ],
+          narration: "Being electricity bill paid in cash.",
+          reasoning: "Electricity is a business expense, and cash leaves the business.",
+        },
+        {
+          id: "mixed-reveal-sales-bank",
+          prompt: "Sold goods through bank ₹9,000.",
+          journalEntry: [
+            { id: "mixed-reveal-sales-bank-debit", account: "Bank A/c", side: "debit", amount: 9000, drNotation: "Dr." },
+            { id: "mixed-reveal-sales-bank-credit", account: "Sales A/c", side: "credit", amount: 9000, displayPrefix: "To" },
+          ],
+          narration: "Being goods sold through bank.",
+          reasoning: "Bank increases because money is received through bank, and Sales is credited for goods sold.",
+        },
+        {
+          id: "mixed-reveal-credit-purchase",
+          prompt: "Purchased goods on credit from ABC Traders ₹14,000.",
+          journalEntry: [
+            { id: "mixed-reveal-credit-purchase-debit", account: "Purchases A/c", side: "debit", amount: 14000, drNotation: "Dr." },
+            { id: "mixed-reveal-credit-purchase-credit", account: "ABC Traders A/c", side: "credit", amount: 14000, displayPrefix: "To" },
+          ],
+          narration: "Being goods purchased on credit from ABC Traders.",
+          reasoning: "Goods for resale are debited to Purchases, and ABC Traders is credited as creditor.",
+        },
+        {
+          id: "mixed-reveal-amit-capital-bank",
+          prompt: "Amit introduced additional capital through bank ₹20,000.",
+          journalEntry: [
+            { id: "mixed-reveal-capital-bank-debit", account: "Bank A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+            { id: "mixed-reveal-capital-bank-credit", account: "Amit's Capital A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+          ],
+          narration: "Being additional capital introduced by Amit through bank.",
+          reasoning: "Bank increases, and Amit's Capital A/c is credited because capital increases.",
+        },
+        {
+          id: "mixed-reveal-commission-cash",
+          prompt: "Received commission in cash ₹4,000.",
+          journalEntry: [
+            { id: "mixed-reveal-commission-cash-debit", account: "Cash A/c", side: "debit", amount: 4000, drNotation: "Dr." },
+            { id: "mixed-reveal-commission-cash-credit", account: "Commission Received A/c", side: "credit", amount: 4000, displayPrefix: "To" },
+          ],
+          narration: "Being commission received in cash.",
+          reasoning: "Cash increases, and Commission Received A/c is credited as income.",
+        },
+        {
+          id: "mixed-reveal-bank-loan-repaid",
+          prompt: "Repaid bank loan through bank ₹15,000.",
+          journalEntry: [
+            { id: "mixed-reveal-bank-loan-debit", account: "Bank Loan A/c", side: "debit", amount: 15000, drNotation: "Dr." },
+            { id: "mixed-reveal-bank-loan-credit", account: "Bank A/c", side: "credit", amount: 15000, displayPrefix: "To" },
+          ],
+          narration: "Being bank loan repaid through bank.",
+          reasoning: "The loan liability decreases, and Bank decreases because repayment is through bank.",
+        },
+      ],
+    },
+    {
+      type: "common-mistakes",
+      id: "mixed-simple-entries-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Mixed Simple Entries mistakes",
+      mistakes: [
+        "Choosing accounts from one keyword without reading the full transaction.",
+        "Using Cash instead of Bank.",
+        "Using Cash or Bank for credit transactions.",
+        "Using Purchases for a business asset.",
+        "Using Sales for an asset disposal.",
+        "Treating capital or loan as income.",
+        "Treating personal expenses as business expenses.",
+        "Treating business withdrawal as drawings.",
+        "Recording income or expense twice during later settlement.",
+        "Ignoring named debtors, creditors, owners, and partners.",
+        "Balancing an entry with conceptually wrong accounts.",
+        "Forgetting Dr. or To.",
+        "Using incorrect narration.",
+        "Entering only amounts without particulars.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "mixed-entry-decision-process",
+      eyebrow: "Decision process",
+      title: "Mixed-entry decision process",
+      body:
+        "Use this final process before completing a mixed simple entry.",
+      steps: [
+        { label: "Read the whole transaction", detail: "Avoid reacting to only one familiar word." },
+        { label: "Identify transaction purpose", detail: "Decide whether the business bought, sold, paid, received, borrowed, contributed, withdrew, or settled something." },
+        { label: "Identify all affected accounts", detail: "Find exactly two accounts for these simple entries." },
+        { label: "Use exact account names", detail: "Preserve names and specific account titles." },
+        { label: "Classify the accounts", detail: "Classify before applying rules." },
+        { label: "Identify increase or decrease", detail: "Ask what went up or down." },
+        { label: "Identify cash, bank, or credit treatment", detail: "Payment and receipt mode changes the account." },
+        { label: "Check new transaction or settlement", detail: "Do not record income or expense twice during settlement." },
+        { label: "Apply debit and credit", detail: "Use account type plus increase/decrease." },
+        { label: "Write the debit line with Dr.", detail: "Debit line comes first." },
+        { label: "Write the credit line with To", detail: "Credit line comes below." },
+        { label: "Enter amounts", detail: "Simple entries use equal debit and credit amounts." },
+        { label: "Write narration", detail: "Keep it short and clear." },
+        { label: "Confirm Debit equals Credit", detail: "Totals must match." },
+        { label: "Re-read key distinctions", detail: "Check personal/business, goods/asset, capital/loan/income, and paid/due/received wording." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "mixed-entry-checklist",
+      title: "Mixed-entry checklist",
+      points: [
+        "Both accounts were identified.",
+        "Exact account names were used.",
+        "Goods were not confused with assets.",
+        "Expense was not confused with drawings.",
+        "Capital was not confused with income or loan.",
+        "Cash/Bank was not used for a credit transaction.",
+        "A settlement did not record income or expense twice.",
+        "Payment mode was followed.",
+        "Debit and credit sides are correct.",
+        "Amounts are correct and balanced.",
+        "Narration describes the transaction clearly.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "mixed-simple-entries-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Could the entry change if one word - cash, bank, credit, personal, business, due, or received - changed?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -5987,6 +6588,7 @@ const journalEntriesSubtopics = [
   expensesJournalEntriesSubtopic,
   incomeJournalEntriesSubtopic,
   assetsAndLiabilitiesJournalEntriesSubtopic,
+  mixedSimpleEntriesJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -6003,7 +6605,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 14,
+      value: 15,
     },
   },
   outline: [
@@ -6119,8 +6721,15 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Asset and liability increases, decreases, creation, settlement, and deferred boundaries.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG}`,
     },
-    { id: "mixed-simple-entries", title: "Mixed Simple Entries", order: 15, status: "upcoming" },
-    { id: "chapter-recap-and-practice", title: "Chapter Recap and Practice", order: 16, status: "later" },
+    {
+      id: JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
+      title: "Mixed Simple Entries",
+      order: 15,
+      status: "available",
+      shortDescription: "Mixed one-debit, one-credit consolidation without a checker.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG}`,
+    },
+    { id: "chapter-recap-and-practice", title: "Chapter Recap and Practice", order: 16, status: "upcoming" },
   ],
   subtopics: journalEntriesSubtopics,
   sections: introductionJournalEntriesSections,

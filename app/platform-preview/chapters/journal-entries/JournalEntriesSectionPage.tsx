@@ -18,6 +18,7 @@ import {
   ProcessStepsBlock,
   ReflectionPrompt,
   SolvedIllustration,
+  TryBeforeRevealBlock,
   WorkedExample,
 } from "../../_components/ChapterLearningPreview";
 import { PageHeader } from "../../_components/PageHeader";
@@ -52,7 +53,7 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
           <PageHeader
-            eyebrow="Phase 3S chapter preview"
+            eyebrow="Phase 3T chapter preview"
             title={chapter.metadata.title}
             description={chapter.metadata.description}
           >
@@ -206,6 +207,9 @@ function ChapterSectionRenderer({
 
     case "common-mistakes":
       return <CommonMistakes section={section} />;
+
+    case "try-before-reveal":
+      return <TryBeforeRevealBlock section={section} />;
 
     case "recap":
       return (
