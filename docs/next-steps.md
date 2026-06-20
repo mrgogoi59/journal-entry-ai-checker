@@ -2,9 +2,9 @@
 
 ## Immediate recommended next step
 
-Phase 4H of the production Practice hub and controlled beginner-practice migration is completed.
+Phase 4I of the Practice migration safety audit and readiness assessment is completed.
 
-What this completed Practice hub slice achieved:
+What this completed audit slice achieved:
 
 - it keeps the Phase 4A production student-platform shell and live `/chapters` index route
 - it keeps the Phase 4B production Journal Entries chapter route and all 15 section routes under `/chapters/journal-entries/<section-slug>`
@@ -18,6 +18,10 @@ What this completed Practice hub slice achieved:
 - Journal Entries is the only available chapter-practice card and links to `/practice/journal-entries`
 - the existing beginner topic-wise Journal Entry Practice experience now lives at `/practice/journal-entries`
 - `/practice/advanced` remains unchanged and is linked separately as Advanced Practice Beta
+- `docs/practice-migration-audit.md` now records the Phase 4I verdict: `Ready for continued platform integration`
+- focused audit assertions now cover Practice hub metadata, catalogue order, route/link classification, no preview links, no redirects, no upload/camera controls, mobile-navigation scoping, and Advanced Practice isolation
+- the audit found no critical route, link, beginner-practice parity, Advanced Practice isolation, mobile-navigation, accessibility, security/data, or documentation-rule blockers
+- `docs/ai-coding-rules.md` was reviewed; its Phase 4H `/practice`, `/practice/journal-entries`, and `/practice/advanced` guidance is narrow and did not need a Phase 4I edit
 - `/tools` remains available and unchanged as the legacy tools/checker hub
 - AI Assistant remains `Coming soon`, non-clickable, and has no `/assistant` route
 - OCR/notebook/photo checking remains unavailable; no image upload, camera access, OCR, login, database, saved progress, localStorage/sessionStorage, recent-activity persistence, API route, custom analytics event, or AI Assistant behavior was added
@@ -26,9 +30,9 @@ What this completed Practice hub slice achieved:
 - it keeps `/learn`, `/tools`, `/practice`, `/practice/advanced`, `/how-to-use`, and `/supported-transactions` available
 - it keeps beginner practice/checker behavior, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside route migration, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
 
-Founder desktop/mobile Practice-hub review is recommended next, especially active navigation, mobile drawer behavior, chapter-card clarity, Journal Entries route access, Advanced Practice Beta labelling, keyboard focus, and phone-width no-overflow behavior.
+Founder desktop/mobile Practice-hub review is still recommended, especially active navigation, mobile drawer behavior, chapter-card clarity, Journal Entries route access, Advanced Practice Beta labelling, keyboard focus, answer/feedback readability, and phone-width no-overflow behavior.
 
-The exact recommended next phase is Phase 4I: Practice migration safety audit and route/backward-compatibility QA. Phase 4I should verify `/practice`, `/practice/journal-entries`, `/practice/advanced`, old contextual practice links, mobile navigation hiding, and full checker behavior without adding more chapter practice, OCR, login, database, progress persistence, AI Assistant behavior, or new accounting logic.
+The exact recommended next phase is Phase 4J: Solver tool route shell-readiness audit and one-page migration plan. Phase 4J should review the existing live solver/tool pages and choose exactly one low-risk available tool route for a later shell migration, most likely Journal Entry Explainer because it is already stable and student-facing. Phase 4J should remain audit/planning-first unless explicitly approved to wrap one route, and it must not change solver logic, parser/classifier/validator/checker behavior, APIs, accounting calculations, persistence, OCR, uploads, database/auth, custom analytics, or AI Assistant behavior.
 
 Recommended Phase 4 sequence:
 
@@ -42,7 +46,8 @@ Recommended Phase 4 sequence:
 8. Phase 4G controlled Solver hub migration
 9. Phase 4H production Practice hub migration while preserving beginner practice behavior at `/practice/journal-entries`
 10. Phase 4I Practice migration safety audit and backward-compatibility QA
-11. AI Assistant later, only after grounded tutor design is approved
+11. Phase 4J Solver tool route shell-readiness audit and one-page migration plan
+12. AI Assistant later, only after grounded tutor design is approved
 
 ## Immediate recommended next step
 

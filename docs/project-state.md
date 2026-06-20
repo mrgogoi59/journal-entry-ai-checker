@@ -377,6 +377,14 @@ Target platform planning note:
   - existing beginner practice question generation, answer checking, feedback, supported topics, attempt-history saving, next/reset behavior, APIs, and accounting logic were not changed
   - `/practice/advanced` remains unchanged as a controlled Advanced Practice Beta and is linked from a separate beta card on the Practice hub
   - OCR, image upload, camera access, notebook/photo answer checking, new questions, new answer keys, login, database, progress persistence, API routes, and AI Assistant behavior were not added
+- Phase 4I now completes the Practice migration safety audit and readiness assessment in `docs/practice-migration-audit.md`:
+  - the verdict is `Ready for continued platform integration`
+  - the audited route structure remains `/practice`, `/practice/journal-entries`, and `/practice/advanced`
+  - focused audit assertions were added for Practice hub metadata, catalogue order, route/link classification, no preview links, no redirects, no upload/camera controls, mobile-navigation scoping, and Advanced Practice isolation
+  - no runtime/app fixes were required after the audit
+  - `docs/ai-coding-rules.md` was reviewed; the Phase 4H route-split guidance is narrow and no Phase 4I rule edit was needed
+  - beginner Practice parity, Advanced Practice isolation, mobile-navigation scope, security/data boundaries, and accessibility basics passed with founder manual desktop/mobile review still recommended
+  - Practice/checker/accounting logic remained unchanged, including beginner and advanced checkers, Journal Entry Explainer, parser/classifier/validator logic, Ledger/Trial Balance/Final Accounts logic, accounting engines, API routes, persistence, database/auth/payment/backend, OCR, AI behavior, analytics setup, and accounting calculations
 
 ## Current student-facing routes
 
