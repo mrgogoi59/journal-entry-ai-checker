@@ -34,7 +34,7 @@ const navItems = [
 export function MobileBottomNav() {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/platform-preview")) {
+  if (pathname.startsWith("/platform-preview") || pathname === "/chapters" || pathname.startsWith("/chapters/")) {
     return null;
   }
 

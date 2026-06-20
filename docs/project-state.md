@@ -299,12 +299,26 @@ Target platform planning note:
   - `Paid salary by bank ₹8,000`
 - Phase 3V did not begin Phase 4, did not add production routes, did not redirect live routes, did not expose public navigation links, and did not add chapter content, answer keys, checker scope, persistence, APIs, AI, database/auth/payment/backend, or accounting functionality.
 - The next gate remains founder manual review, followed by a controlled Phase 4 route-slice migration if approved.
+- Phase 4A has now started the controlled production migration with a small live route slice:
+  - a reusable production student-platform shell now exists under `components/student-platform/`
+  - a typed production chapter catalogue now exists at `lib/learning-platform/chapter-catalog.ts`
+  - a live `/chapters` index route now exists and uses the production shell
+  - the `/chapters` route is indexable production UI, while `/platform-preview` remains internal and `noindex, nofollow`
+  - the current homepage and existing public navigation do not link to `/chapters` yet
+  - the production shell temporarily duplicates the approved preview shell patterns instead of extracting shared preview components, so preview routes and checkers remain untouched
+  - Dashboard and AI Assistant are visible as `Coming soon` navigation items but do not link to `/dashboard` or `/assistant`
+  - Solver links to the existing `/tools` page and Practice links to the existing `/practice` page
+  - Journal Entries is marked `Ready for migration`, but `/chapters/journal-entries` has not been created yet and cards do not link into `/platform-preview`
+  - Journal Entries production content and the two deterministic Practice It Yourself checkers have not migrated yet
+  - the existing global mobile bottom navigation is hidden only on `/chapters` and future `/chapters/*` shell routes to avoid duplicate mobile navigation
+  - existing Home, Learn, Tools, Practice, Advanced Practice, Explainer, accounting engines, APIs, analytics, storage, and accounting logic were not replaced or rewired
 
 ## Current student-facing routes
 
 Main routes currently present in `app/`:
 
 - `/`
+- `/chapters`
 - `/learn`
 - `/practice`
 - `/practice/advanced`

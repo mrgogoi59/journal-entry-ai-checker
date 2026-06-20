@@ -2,26 +2,26 @@
 
 ## Immediate recommended next step
 
-Phase 3V of the Journal Entries chapter-learning preview is completed.
+Phase 4A of the controlled production migration is completed.
 
-What this completed audit achieved:
+What this completed route-slice achieved:
 
-- it creates `docs/journal-entries-preview-audit.md` as the internal audit record
-- it audits the sixteen isolated Journal Entries preview routes under `/platform-preview`
-- it confirms route order, active outline state, `Section X of 16` labels, Previous/Next links, final recap links, and `noindex, nofollow` preview metadata
-- it confirms the preview remains unlinked from the current public homepage/navigation and no live route was redirected or replaced
-- it confirms the checker remains limited to exactly two deterministic Practice It Yourself questions:
-  - `Sold goods for cash ₹12,000`
-  - `Paid salary by bank ₹8,000`
-- it confirms answer keys remain server-controlled and the client editor does not import server answer keys
-- it records the accessibility, mobile/responsive, desktop UI, architecture, and performance audit findings
-- it records the readiness verdict as `Ready for controlled production migration`
-- it found no critical blockers and required no app/code/test fixes
-- it did not begin Phase 4, did not add production routes, did not add chapter content, did not add checker scope, did not add answer keys, and did not change live app behavior
+- it adds a reusable production student-platform shell under `components/student-platform/`
+- it adds a live `/chapters` index route using that shell
+- it adds a typed 12-item production chapter catalogue at `lib/learning-platform/chapter-catalog.ts`
+- it marks Journal Entries as `Ready for migration` without linking to `/platform-preview` or creating `/chapters/journal-entries`
+- it labels the other chapters honestly as `Planned` or `Later`
+- it keeps Dashboard and AI Assistant visually present as `Coming soon` without linking to `/dashboard` or `/assistant`
+- it links Solver to the existing `/tools` route and Practice to the existing `/practice` route
+- it keeps `/platform-preview` internal and `noindex, nofollow`
+- it keeps the current homepage unchanged and does not link `/chapters` from public homepage navigation yet
+- it hides the existing global mobile bottom navigation only on `/chapters` and future `/chapters/*` routes to avoid duplicate mobile navigation
+- it temporarily duplicates the approved preview shell pattern instead of extracting shared preview components, so preview route content and the two deterministic checkers remain untouched
+- it does not migrate Journal Entries production content, answer keys, Practice It Yourself checkers, parser/classifier/validator/checker logic, accounting engines, APIs, persistence, database/auth/payment/backend, analytics, or AI behavior
 
-Phase 4 production migration is technically approved for a controlled route-slice migration after founder manual review. It is not blocked by Phase 3V audit findings, but it should not begin automatically.
+Founder visual review is required next for the live `/chapters` route on desktop and mobile before linking it from the homepage or migrating chapter content.
 
-The exact recommended next phase is Phase 4A: create the production application shell and Chapters index route as a small controlled slice, with no checker expansion, no live-route redirects, and no changes to beginner `/practice`, `/practice/advanced`, existing solver routes, parser/classifier/validator/checker logic, accounting engines, APIs, persistence, database/auth/payment/backend, analytics, or AI behavior.
+The exact recommended next phase is Phase 4B: migrate Journal Entries read-only learning routes in controlled production slices. Phase 4B must not migrate the two deterministic Practice It Yourself checkers yet, must not replace the homepage before `/chapters` is approved, and must keep existing live routes stable until production route parity is verified.
 
 Recommended Phase 4 sequence:
 
