@@ -20,8 +20,10 @@ const learningFlow = ["Chapters", "Concept", "Illustration", "Practice It Yourse
 const platformAreas = [
   {
     label: "Dashboard",
-    status: "Coming soon",
-    description: "A personal learning overview for recent chapters, practice, and progress once the foundation is ready.",
+    status: "Available",
+    description: "Learning shortcuts are available now; personal saved progress remains planned for a later phase.",
+    href: "/dashboard",
+    actionLabel: "Open Dashboard",
   },
   {
     label: "Chapters",
@@ -166,7 +168,7 @@ export default function Home() {
           <SectionHeader
             eyebrow="The platform"
             title="Five clear areas, with honest availability"
-            body="Chapters, Solver, and Practice are available today. Dashboard and AI Assistant stay clearly marked as coming soon until their foundations are ready."
+            body="Dashboard, Chapters, Solver, and Practice are available today. AI Assistant stays clearly marked as coming soon until its foundation is ready."
           />
           <div className="mt-8 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {platformAreas.map((area) => (

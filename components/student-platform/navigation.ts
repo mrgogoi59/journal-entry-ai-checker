@@ -3,8 +3,8 @@ export const studentPlatformNavigationItems = [
     id: "dashboard",
     label: "Dashboard",
     mark: "D",
-    status: "coming-soon",
-    href: undefined,
+    status: "available",
+    href: "/dashboard",
   },
   {
     id: "chapters",

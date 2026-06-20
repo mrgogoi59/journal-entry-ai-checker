@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import DashboardPage, { metadata as dashboardMetadata } from "@/app/dashboard/page";
 import ChaptersPage, { metadata as chaptersMetadata } from "@/app/chapters/page";
 import JournalEntriesChapterPage, { metadata as journalEntriesMetadata } from "@/app/chapters/journal-entries/page";
 import {
@@ -109,6 +110,66 @@ function createPracticeAttempt({
 }
 
 describe("Production Chapters route", () => {
+  it("renders the production Dashboard route with honest empty states and real shell navigation", () => {
+    const html = renderToStaticMarkup(createElement(DashboardPage));
+    const hrefs = getHrefValues(html);
+
+    expect(dashboardMetadata).toMatchObject({
+      title: "Dashboard | AccyWise AI",
+    });
+    expect(dashboardMetadata.description).toContain("student learning overview");
+    expect(html).toContain('id="student-platform-content"');
+    expect(getLinkMarkup(html, "/dashboard")).toContain('aria-current="page"');
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/tools");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).toContain("AI Assistant");
+    expect(html).toContain("Coming soon");
+    expect(html).toContain("Dashboard");
+    expect(html).toContain("Start Learning");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("16 learning sections");
+    expect(html).toContain("2 interactive Practice It Yourself questions");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Open Journal Entries")).toContain(
+      "Open Journal Entries",
+    );
+    expect(html).toContain("Available Now");
+    expect(html).toContain("1 production chapter available");
+    expect(html).toContain("2 deterministic chapter questions available");
+    expect(html).toContain("Recent Activity");
+    expect(html).toContain("Your recent learning activity will appear here after progress tracking is introduced.");
+    expect(html).toContain("Learning Progress");
+    expect(html).toContain("Chapter completion tracking is not enabled yet.");
+    expect(html).toContain("Recommended Next Step");
+    expect(html).toContain("Begin with Journal Entries to build the foundation for Ledger, Trial Balance, and Final Accounts.");
+    expect(html).toContain("Upcoming Dashboard capabilities");
+    expect(html).toContain("Saved progress: Planned");
+    expect(html).not.toContain("Welcome back");
+    expect(html).not.toContain("study streak");
+    expect(html).not.toContain("questions attempted");
+    expect(html).not.toContain("recently completed");
+    expect(html).not.toContain("0%");
+    expect(html).not.toContain("/platform-preview");
+  });
+
+  it("keeps Dashboard quick actions limited to valid production routes and avoids storage/persistence code", () => {
+    const html = renderToStaticMarkup(createElement(DashboardPage));
+    const source = readFileSync("app/dashboard/page.tsx", "utf8");
+    const hrefs = getHrefValues(html);
+
+    ["/dashboard", "/chapters", "/tools", "/practice", "/chapters/journal-entries"].forEach((href) => {
+      expect(hrefs).toContain(href);
+    });
+    expect(hrefs).not.toContain("/assistant");
+    expect(hrefs).not.toContain("/platform-preview");
+    expect(source).not.toContain("localStorage");
+    expect(source).not.toContain("sessionStorage");
+    expect(source).not.toContain("document.cookie");
+    expect(source).not.toContain("redirect(");
+  });
+
   it("defines the production chapter catalogue with Journal Entries available and the other chapters honestly staged", () => {
     expect(studentPlatformChapterCatalog).toHaveLength(12);
     expect(studentPlatformChapterCatalog.map((chapter) => chapter.title)).toEqual([
@@ -145,10 +206,10 @@ describe("Production Chapters route", () => {
     });
 
     expect(getLinkMarkup(html, "/chapters")).toContain('aria-current="page"');
+    expect(html).toContain('href="/dashboard"');
     expect(html).toContain('href="/tools"');
     expect(html).toContain('href="/practice"');
     expect(html).toContain("Coming soon");
-    expect(html).not.toContain('href="/dashboard"');
     expect(html).not.toContain('href="/assistant"');
   });
 
@@ -480,7 +541,7 @@ describe("Production Chapters route", () => {
     expect(previewEditorSource).toContain("Show Correct Answer");
   });
 
-  it("integrates the homepage with the five-section platform navigation without fake upcoming links", () => {
+  it("integrates the homepage with Dashboard available and AI Assistant still upcoming", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
     const hrefs = getHrefValues(html);
 
@@ -488,11 +549,11 @@ describe("Production Chapters route", () => {
     ["Dashboard", "Chapters", "Solver", "Practice", "AI Assistant"].forEach((label) => {
       expect(html).toContain(label);
     });
+    expect(hrefs).toContain("/dashboard");
     expect(hrefs).toContain("/chapters");
     expect(hrefs).toContain("/tools");
     expect(hrefs).toContain("/practice");
     expect(html).toContain("Coming soon");
-    expect(hrefs).not.toContain("/dashboard");
     expect(hrefs).not.toContain("/assistant");
     expect(html).not.toContain("/platform-preview");
     expect(homeMetadata).toMatchObject({
@@ -526,8 +587,8 @@ describe("Production Chapters route", () => {
     const practiceCard = getOverviewCardMarkup(html, "Practice");
     const assistantCard = getOverviewCardMarkup(html, "AI Assistant");
 
-    expect(dashboardCard).toContain("Coming soon");
-    expect(dashboardCard).toContain("No live route yet");
+    expect(dashboardCard).toContain("Available");
+    expect(dashboardCard).toContain('href="/dashboard"');
     expect(chaptersCard).toContain("Available");
     expect(chaptersCard).toContain('href="/chapters"');
     expect(solverCard).toContain("Available");
@@ -543,6 +604,7 @@ describe("Production Chapters route", () => {
     const hrefs = getHrefValues(html);
 
     expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/dashboard");
     expect(hrefs).toContain("/tools");
     expect(hrefs).toContain("/practice");
     expect(hrefs).toContain("/how-to-use");
@@ -557,6 +619,7 @@ describe("Production Chapters route", () => {
     const source = readFileSync("components/MobileBottomNav.tsx", "utf8");
 
     expect(source).toContain('pathname.startsWith("/platform-preview")');
+    expect(source).toContain('pathname === "/dashboard"');
     expect(source).toContain('pathname === "/chapters"');
     expect(source).toContain('pathname.startsWith("/chapters/")');
     expect(source).toContain('href: "/learn"');

@@ -347,12 +347,23 @@ Target platform planning note:
   - the homepage now includes a restrained `Journal Entries chapter is now available` callout linking to `/chapters/journal-entries`
   - `/platform-preview` remains unlinked from production homepage/navigation and stays internal/noindex
   - Phase 4E did not change live tool logic, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, the two production Journal Entries checkers, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, API routes, persistence/progress/history, database/auth/payment/backend, OCR, AI behavior, analytics setup, or accounting calculations
+- Phase 4F now completes the production Dashboard foundation:
+  - `/dashboard` now renders inside the existing production `StudentAppShell` instead of redirecting to `/learn`
+  - Dashboard is now an available shared navigation destination, active on `/dashboard`
+  - the Dashboard provides real navigation shortcuts to `/chapters`, `/chapters/journal-entries`, `/tools`, and `/practice`
+  - Dashboard content uses honest empty states for Recent Activity and Learning Progress
+  - the Dashboard does not show fake student names, fake progress percentages, fake recent activity, fake accuracy, fake streaks, or personalised recommendations
+  - no authentication, login, database, localStorage/sessionStorage, saved progress, personal history, API route, custom analytics event, or persistence layer was added
+  - AI Assistant remains `Coming soon` and no `/assistant` route was created
+  - the homepage now links Dashboard to `/dashboard` and marks Dashboard as `Available`, while AI Assistant remains non-clickable and `Coming soon`
+  - Phase 4F did not change live tool logic, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, the two production Journal Entries checkers, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, Vercel Analytics setup, API routes, database/auth/payment/backend, OCR, AI behavior, or accounting calculations
 
 ## Current student-facing routes
 
 Main routes currently present in `app/`:
 
 - `/`
+- `/dashboard`
 - `/chapters`
 - `/chapters/journal-entries`
 - `/chapters/journal-entries/<section-slug>`
@@ -375,7 +386,7 @@ Main routes currently present in `app/`:
 
 Notes:
 
-- `/dashboard` currently redirects to `/learn`.
+- `/dashboard` is a production student-platform foundation with real shortcuts and honest empty states only; it does not store personal progress or recent activity yet.
 - Lesson routes live under `/learn/<lesson-slug>`.
 - API routes currently present are:
   - `POST /api/check-entry`
