@@ -2,9 +2,9 @@
 
 ## Immediate recommended next step
 
-Phase 3Q of the Journal Entries chapter-learning preview is completed.
+Phase 3R of the Journal Entries chapter-learning preview is completed.
 
-What this completed twelfth-section slice achieved:
+What this completed thirteenth-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
 - it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
@@ -17,15 +17,16 @@ What this completed twelfth-section slice achieved:
 - it keeps `/platform-preview/chapters/journal-entries/drawings` as Section 9: `Drawings`
 - it keeps `/platform-preview/chapters/journal-entries/purchases` as Section 10: `Purchases`
 - it keeps `/platform-preview/chapters/journal-entries/sales` as Section 11: `Sales`
-- it adds `/platform-preview/chapters/journal-entries/expenses` as Section 12: `Expenses`
-- Expenses reuses the existing typed learning-platform model and renderer blocks for concept explanations, comparisons, accounting-format displays, solved illustrations, process steps, common mistakes, recap, and reflection prompts
-- Sales now links forward to Expenses, while Expenses links back to Sales and shows `Income` as an upcoming disabled next step
-- Expenses is static learning content only: specific business expense accounts, cash-paid expenses, bank-paid expenses, outstanding expenses, later settlement of outstanding expenses, business-versus-personal treatment, expense-versus-asset treatment, expense-versus-purchases treatment, direct/indirect expense boundaries, prepaid/outstanding terminology, source documents, six solved illustrations, common mistakes, a display-only checklist, and a non-checking reflection prompt
+- it keeps `/platform-preview/chapters/journal-entries/expenses` as Section 12: `Expenses`
+- it adds `/platform-preview/chapters/journal-entries/income` as Section 13: `Income`
+- Income reuses the existing typed learning-platform model and renderer blocks for concept explanations, comparisons, accounting-format displays, solved illustrations, process steps, common mistakes, recap, and reflection prompts
+- Expenses now links forward to Income, while Income links back to Expenses and shows `Assets and Liabilities` as an upcoming disabled next step
+- Income is static learning content only: business income meaning, specific income accounts, cash income, bank income, accrued income, later receipt of accrued income, income received in advance, later recognition of advance income, receipt-versus-income distinctions, Sales versus other income, debtor-collection guardrails, capital/loan/debtor receipt distinctions, source documents, seven solved illustrations, common mistakes, a display-only checklist, and a non-checking reflection prompt
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
-- no third question ID, new checker logic, broad question-bank generator, `/income` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
+- no third question ID, new checker logic, broad question-bank generator, `/assets-and-liabilities` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder visual/content review is required next for the twelve-section progression on desktop and mobile. Phase 3R should add the thirteenth static subtopic, `Income`, only after review and using the same reusable section progression; do not add further Practice It Yourself questions, broad question-bank generation, live-route migration, or new checker wiring yet.
+Founder visual/content review is required next for the thirteen-section progression on desktop and mobile. Phase 3S should add the fourteenth static subtopic, `Assets and Liabilities`, only after review and using the same reusable section progression; do not add further Practice It Yourself questions, broad question-bank generation, live-route migration, or new checker wiring yet.
 
 ## Immediate recommended next step
 

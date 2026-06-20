@@ -21,6 +21,7 @@ export const JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG = "drawings";
 export const JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG = "purchases";
 export const JOURNAL_ENTRIES_SALES_SECTION_SLUG = "sales";
 export const JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG = "expenses";
+export const JOURNAL_ENTRIES_INCOME_SECTION_SLUG = "income";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -225,10 +226,19 @@ const expensesSubtopicReference: ChapterSubtopicReference = {
 };
 
 const incomeSubtopicReference: ChapterSubtopicReference = {
-  id: "income",
-  slug: "income",
+  id: JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
   title: "Income",
   order: 13,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_INCOME_SECTION_SLUG}`,
+};
+
+const assetsAndLiabilitiesSubtopicReference: ChapterSubtopicReference = {
+  id: "assets-and-liabilities",
+  slug: "assets-and-liabilities",
+  title: "Assets and Liabilities",
+  order: 14,
   availabilityStatus: "upcoming",
 };
 
@@ -4695,6 +4705,607 @@ export const expensesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   ],
 };
 
+export const incomeJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...incomeSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_INCOME_SECTION_SLUG}`,
+  shortDescription:
+    "Learn specific income accounts, cash/bank receipts, accrued income, advance receipts, and receipt-versus-income guardrails.",
+  learningObjective:
+    "Students learn to credit the specific income account when income is earned, then debit Cash, Bank, or an accrued-income receivable depending on receipt status.",
+  progressLabel: "Section 13 of 16",
+  previousSection: expensesSubtopicReference,
+  nextSection: assetsAndLiabilitiesSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "income",
+      eyebrow: "Learning objective",
+      title: "Income",
+      body:
+        "By the end of this section, you should be able to record income received in cash or through bank, recognise accrued income and income received in advance, and avoid treating capital, loans, or debtor collections as current income.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-income",
+      eyebrow: "Concept explanation",
+      title: "What business income means",
+      paragraphs: [
+        "Income is value earned by the business through operations or other business-related activities.",
+        "Income generally increases profit.",
+        "Examples include Sales A/c, Commission Received A/c, Interest Received A/c, Rent Received A/c, and Fees Received A/c.",
+        "Use the exact income account name in the journal. Generic Income A/c should not replace a known specific account such as Commission Received A/c.",
+        "Income may be received immediately or may remain receivable.",
+        "Receiving money does not automatically mean income has been earned. Capital introduced, loans received, and debtor collections are not current income.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "central-income-rule",
+      eyebrow: "Central rule",
+      title: "Start with whether income is earned",
+      paragraphs: [
+        "Income earned by the business → Income A/c increases → Credit the specific Income A/c.",
+        "If received in cash, debit Cash A/c.",
+        "If received through bank, debit Bank A/c.",
+        "If earned but not yet received, debit the suitable Accrued Income or Receivable account.",
+        "If cash or bank is received before the income is earned, credit Income Received in Advance A/c as a liability.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "income-classification",
+      eyebrow: "Classification",
+      title: "How income accounts are classified here",
+      intro:
+        "This section explains journal-entry recognition only. Complete Profit and Loss Account preparation comes later.",
+      groups: [
+        {
+          title: "Modern view",
+          items: [
+            "Income / Revenue account.",
+            "Increase in income → Credit.",
+            "Decrease or reversal of income → Debit.",
+          ],
+        },
+        {
+          title: "Traditional view",
+          items: [
+            "Income accounts are Nominal Accounts.",
+            "The golden rule is credit all incomes and gains.",
+            "Examples include Sales A/c, Commission Received A/c, Interest Received A/c, Rent Received A/c, Fees Received A/c, and Discount Received A/c later.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "specific-income-account-names",
+      eyebrow: "Specific account names",
+      title: "Use the exact income account",
+      intro:
+        "The specific account name tells the source of income. Avoid vague names when the transaction gives clear detail.",
+      groups: [
+        {
+          title: "Use these specific accounts",
+          items: [
+            "Commission earned → Commission Received A/c.",
+            "Interest earned → Interest Received A/c.",
+            "Rent earned → Rent Received A/c.",
+            "Fees earned → Fees Received A/c.",
+            "Goods sold → Sales A/c.",
+          ],
+        },
+        {
+          title: "Avoid vague names",
+          items: [
+            "Do not write Income A/c when a specific income is known.",
+            "Do not write Receipt A/c.",
+            "Do not write Money Received A/c.",
+            "Do not write Earnings A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "cash-income-format",
+      eyebrow: "Cash income",
+      title: "Income received in cash",
+      paragraphs: [
+        "Transaction: Received commission in cash ₹5,000.",
+        "Cash asset increases because physical cash is received, so Cash A/c is debited.",
+        "Commission income increases because the business earned commission, so Commission Received A/c is credited.",
+        "Cash A/c is used because physical cash is received. Bank A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "cash-income-cash-debit", particulars: "Cash A/c Dr.", lf: "", debitDisplay: "5,000" },
+        { id: "cash-income-commission-credit", particulars: "To Commission Received A/c", lf: "", creditDisplay: "5,000" },
+        { id: "cash-income-narration", particulars: "(Being commission received in cash.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "bank-income-format",
+      eyebrow: "Bank income",
+      title: "Income received through bank",
+      paragraphs: [
+        "Transaction: Received interest through bank ₹4,000.",
+        "Bank asset increases because the amount enters the business bank account, so Bank A/c is debited.",
+        "Interest income increases, so Interest Received A/c is credited.",
+        "Bank A/c is used because the receipt is through bank. Cash A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "bank-income-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "4,000" },
+        { id: "bank-income-interest-credit", particulars: "To Interest Received A/c", lf: "", creditDisplay: "4,000" },
+        { id: "bank-income-narration", particulars: "(Being interest received through bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "accrued-income-format",
+      eyebrow: "Accrued income",
+      title: "Income earned but not yet received",
+      paragraphs: [
+        "Transaction: Commission ₹3,000 was earned but not yet received.",
+        "Accrued Commission is an asset or receivable because the business now has a right to receive the amount, so Accrued Commission A/c is debited.",
+        "Commission income has been earned, so Commission Received A/c is credited.",
+        "Cash and Bank are not affected yet because no money has been received.",
+      ],
+      formatRows: [
+        { id: "accrued-commission-debit", particulars: "Accrued Commission A/c Dr.", lf: "", debitDisplay: "3,000" },
+        { id: "accrued-commission-credit", particulars: "To Commission Received A/c", lf: "", creditDisplay: "3,000" },
+        { id: "accrued-commission-narration", particulars: "(Being commission earned but not yet received.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "accrued-income-later-receipt-format",
+      eyebrow: "Accrued then received",
+      title: "Earning income and receiving it later are separate",
+      paragraphs: [
+        "When commission is earned, record Accrued Commission A/c Dr. and To Commission Received A/c.",
+        "When the accrued commission is later received through bank, record Bank A/c Dr. and To Accrued Commission A/c.",
+        "Commission Received A/c is not credited again. The later receipt converts the receivable asset into Bank and avoids recording the same income twice.",
+      ],
+      formatRows: [
+        { id: "commission-earned-label", particulars: "Transaction 1: Commission ₹3,000 was earned but not yet received" },
+        { id: "commission-earned-accrued-debit", particulars: "Accrued Commission A/c Dr.", lf: "", debitDisplay: "3,000" },
+        { id: "commission-earned-income-credit", particulars: "To Commission Received A/c", lf: "", creditDisplay: "3,000" },
+        { id: "commission-received-label", particulars: "Transaction 2: Accrued commission later received through bank" },
+        { id: "commission-received-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "3,000" },
+        { id: "commission-received-accrued-credit", particulars: "To Accrued Commission A/c", lf: "", creditDisplay: "3,000" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "income-received-in-advance-format",
+      eyebrow: "Income received in advance",
+      title: "Cash received before income is earned",
+      paragraphs: [
+        "Transaction: Received rent in advance through bank ₹6,000.",
+        "Bank increases because money enters the business bank account, so Bank A/c is debited.",
+        "Rent Received in Advance is a liability because the related service or period has not yet been completed, so Rent Received in Advance A/c is credited.",
+        "The amount is not current income yet. Do not credit Rent Received A/c immediately for the unearned amount.",
+      ],
+      formatRows: [
+        { id: "advance-rent-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "6,000" },
+        { id: "advance-rent-liability-credit", particulars: "To Rent Received in Advance A/c", lf: "", creditDisplay: "6,000" },
+        { id: "advance-rent-narration", particulars: "(Being rent received in advance through bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "advance-income-later-recognition-format",
+      eyebrow: "Later / linked to Final Accounts",
+      title: "Recognising income received in advance later",
+      paragraphs: [
+        "When the related rent is later earned, the liability is reduced and income is recognised.",
+        "The introductory adjustment is Rent Received in Advance A/c Dr. and To Rent Received A/c.",
+        "Detailed period calculations and Final Accounts adjustments come later. This preview does not add checker support or complex calculations.",
+      ],
+      formatRows: [
+        { id: "advance-rent-earned-debit", particulars: "Rent Received in Advance A/c Dr.", lf: "", debitDisplay: "6,000" },
+        { id: "advance-rent-earned-credit", particulars: "To Rent Received A/c", lf: "", creditDisplay: "6,000" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "income-earned-versus-cash-received",
+      eyebrow: "Earned versus received",
+      title: "Income earned and cash received are related but separate",
+      intro:
+        "Accounting asks whether income has been earned. Receipt timing decides whether Cash, Bank, a receivable, or a liability is used.",
+      groups: [
+        {
+          title: "Income earned and received",
+          items: ["Cash/Bank A/c Dr.", "To Specific Income A/c."],
+        },
+        {
+          title: "Income earned but not received",
+          items: ["Accrued Income A/c Dr.", "To Specific Income A/c."],
+        },
+        {
+          title: "Cash received but income not yet earned",
+          items: ["Cash/Bank A/c Dr.", "To Income Received in Advance A/c."],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "income-versus-ordinary-receipts",
+      eyebrow: "Income versus receipts",
+      title: "Not every receipt is income",
+      intro:
+        "All these examples may increase Cash or Bank, but only the amount earned through business activity is current income.",
+      groups: [
+        {
+          title: "Income receipt",
+          items: [
+            "Source: value earned by business activity.",
+            "Entry: Bank A/c Dr.; To Commission Received A/c.",
+          ],
+        },
+        {
+          title: "Capital receipt",
+          items: [
+            "Source: owner or partner.",
+            "Entry: Bank A/c Dr.; To Amit's Capital A/c.",
+          ],
+        },
+        {
+          title: "Loan receipt",
+          items: [
+            "Source: lender.",
+            "Entry: Bank A/c Dr.; To Bank Loan A/c.",
+          ],
+        },
+        {
+          title: "Collection from debtor",
+          items: [
+            "Source: settlement of an existing receivable.",
+            "Entry: Bank A/c Dr.; To Riya A/c.",
+            "Receiving money from a debtor does not create income again.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "sales-versus-other-income",
+      eyebrow: "Sales versus other income",
+      title: "Use Sales only for goods sold in trading",
+      intro:
+        "Do not combine all income under Sales A/c. Match the account name to the income source.",
+      groups: [
+        {
+          title: "Sales A/c",
+          items: [
+            "Records goods sold in ordinary trading activities.",
+            "Use Sales A/c when trading goods are sold.",
+          ],
+        },
+        {
+          title: "Other income accounts",
+          items: [
+            "Commission Received A/c.",
+            "Interest Received A/c.",
+            "Rent Received A/c.",
+            "Fees Received A/c.",
+          ],
+        },
+        {
+          title: "Commission example",
+          items: [
+            "Transaction: Received commission through bank ₹5,000.",
+            "Correct: Bank A/c Dr.; To Commission Received A/c.",
+            "Incorrect: Bank A/c Dr.; To Sales A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "debtor-collection-not-income-format",
+      eyebrow: "Debtor collection",
+      title: "Collection from a debtor is not new income",
+      paragraphs: [
+        "Transaction: Received ₹10,000 from Riya through bank against an earlier credit sale.",
+        "Bank increases because money is received through bank, so Bank A/c is debited.",
+        "Riya A/c is credited because the existing debtor balance is reduced.",
+        "Sales income was recorded when the goods were sold on credit. The later receipt does not credit Sales A/c or another Income A/c again.",
+      ],
+      formatRows: [
+        { id: "debtor-riya-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "10,000" },
+        { id: "debtor-riya-credit", particulars: "To Riya A/c", lf: "", creditDisplay: "10,000" },
+        { id: "debtor-riya-narration", particulars: "(Being amount received from Riya through bank.)" },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "income-refund-reversal-note",
+      eyebrow: "Later / design-needed",
+      title: "Refunds and reversals need careful design",
+      paragraphs: [
+        "If income previously recorded must be refunded, reversed, or adjusted, the treatment depends on the underlying account and reason.",
+        "This preview marks refund or reversal treatment as Later / design-needed.",
+        "No checker, broad solver support, or adjustment engine is added in this section.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "direct-indirect-income-note",
+      eyebrow: "Later / linked to Final Accounts",
+      title: "Direct and indirect income placement comes later",
+      paragraphs: [
+        "Sales is usually the main operating or trading income.",
+        "Commission Received, Rent Received, and Interest Received may be other incomes depending on the business.",
+        "Detailed Trading Account and Profit and Loss Account placement belongs to the Final Accounts chapter.",
+        "This preview stays with journal-entry recognition only.",
+      ],
+    },
+    {
+      type: "recap",
+      id: "income-source-documents",
+      title: "Common source documents",
+      points: [
+        "Cash receipt.",
+        "Bank statement.",
+        "Commission statement.",
+        "Rent receipt.",
+        "Interest advice.",
+        "Customer payment record.",
+        "Income voucher.",
+        "Source documents support the amount, date, income source, payment mode, and whether the amount was earned or received in advance; this preview does not add uploads, OCR, extraction, or document parsing.",
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "income-commission-cash",
+      illustration: {
+        id: "income-commission-cash",
+        title: "Solved Illustration 1: commission received in cash",
+        difficulty: "easy",
+        question: "Received commission in cash ₹6,000.",
+        accountsAffected: ["Cash A/c", "Commission Received A/c"],
+        reasoningSteps: [
+          { label: "Cash received", detail: "Physical cash enters the business, so Cash A/c is debited." },
+          { label: "Specific income", detail: "Commission was earned, so Commission Received A/c is used." },
+          { label: "Income credited", detail: "Income increases on the credit side." },
+        ],
+        journalEntry: [
+          { id: "income-commission-cash-debit", account: "Cash A/c", side: "debit", amount: 6000, drNotation: "Dr." },
+          { id: "income-commission-cash-credit", account: "Commission Received A/c", side: "credit", amount: 6000, displayPrefix: "To" },
+        ],
+        narration: "Being commission received in cash.",
+        explanation:
+          "Cash A/c is debited because cash is received. Commission Received A/c is credited because commission income is earned.",
+        studentTakeaway: "For cash income, debit Cash and credit the specific income account.",
+        commonMistake: "Using Bank A/c or a generic Income A/c.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "income-interest-bank",
+      illustration: {
+        id: "income-interest-bank",
+        title: "Solved Illustration 2: interest through bank",
+        difficulty: "easy",
+        question: "Received interest through bank ₹4,500.",
+        accountsAffected: ["Bank A/c", "Interest Received A/c"],
+        reasoningSteps: [
+          { label: "Bank received", detail: "The amount enters the business bank account, so Bank A/c is debited." },
+          { label: "Interest income", detail: "Interest Received A/c is the specific income account." },
+          { label: "Income credited", detail: "Interest income increases on the credit side." },
+        ],
+        journalEntry: [
+          { id: "income-interest-bank-debit", account: "Bank A/c", side: "debit", amount: 4500, drNotation: "Dr." },
+          { id: "income-interest-bank-credit", account: "Interest Received A/c", side: "credit", amount: 4500, displayPrefix: "To" },
+        ],
+        narration: "Being interest received through bank.",
+        explanation:
+          "Bank A/c is debited instead of Cash A/c because the receipt is through bank. Interest Received A/c is credited.",
+        studentTakeaway: "Receipt mode decides Cash or Bank; the earned income is still credited.",
+        commonMistake: "Debiting Cash A/c when the question says through bank.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "income-accrued-commission",
+      illustration: {
+        id: "income-accrued-commission",
+        title: "Solved Illustration 3: accrued income",
+        difficulty: "slightly-harder",
+        question: "Commission ₹3,500 was earned but not yet received.",
+        accountsAffected: ["Accrued Commission A/c", "Commission Received A/c"],
+        reasoningSteps: [
+          { label: "Income earned", detail: "Commission has been earned, so Commission Received A/c is credited." },
+          { label: "Receivable created", detail: "The amount is not yet received, so Accrued Commission A/c is debited." },
+          { label: "No cash or bank", detail: "Cash A/c and Bank A/c are not used because no receipt happened yet." },
+        ],
+        journalEntry: [
+          { id: "income-accrued-commission-debit", account: "Accrued Commission A/c", side: "debit", amount: 3500, drNotation: "Dr." },
+          { id: "income-accrued-commission-credit", account: "Commission Received A/c", side: "credit", amount: 3500, displayPrefix: "To" },
+        ],
+        narration: "Being commission earned but not yet received.",
+        explanation:
+          "The business has a right to receive commission, so an accrued income asset is recorded. Commission Received A/c is credited because the income is earned.",
+        studentTakeaway: "Accrued income is an asset until the amount is received.",
+        commonMistake: "Debiting Cash A/c or Bank A/c before money is received.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "income-accrued-interest-later-received",
+      illustration: {
+        id: "income-accrued-interest-later-received",
+        title: "Solved Illustration 4: accrued income later received",
+        difficulty: "slightly-harder",
+        question: "Interest ₹5,000 was earned but not yet received. The accrued interest was later received through bank.",
+        accountsAffected: ["Accrued Interest A/c", "Interest Received A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "When earned", detail: "Accrued Interest A/c Dr. and To Interest Received A/c record the earned income." },
+          { label: "When later received", detail: "Bank A/c Dr. and To Accrued Interest A/c settle the receivable." },
+          { label: "No double income", detail: "Interest Received A/c is not credited again on later receipt." },
+        ],
+        journalEntry: [
+          { id: "income-interest-earned-debit", account: "Accrued Interest A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "income-interest-earned-credit", account: "Interest Received A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+          { id: "income-interest-received-bank-debit", account: "Bank A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "income-interest-received-accrued-credit", account: "Accrued Interest A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being interest earned and later accrued interest received through bank.",
+        explanation:
+          "Income is recognised once when earned. The later bank receipt only converts Accrued Interest into Bank.",
+        studentTakeaway: "Do not credit the income account again when an accrued receivable is collected.",
+        commonMistake: "Crediting Interest Received A/c again at the receipt date.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "income-rent-received-in-advance",
+      illustration: {
+        id: "income-rent-received-in-advance",
+        title: "Solved Illustration 5: income received in advance",
+        difficulty: "slightly-harder",
+        question: "Received rent in advance through bank ₹8,000.",
+        accountsAffected: ["Bank A/c", "Rent Received in Advance A/c"],
+        reasoningSteps: [
+          { label: "Bank increases", detail: "Money enters the business bank account, so Bank A/c is debited." },
+          { label: "Liability created", detail: "The rent is not earned yet, so Rent Received in Advance A/c is credited." },
+          { label: "Not current income", detail: "Rent Received A/c is not credited for the unearned amount yet." },
+        ],
+        journalEntry: [
+          { id: "income-advance-rent-bank-debit", account: "Bank A/c", side: "debit", amount: 8000, drNotation: "Dr." },
+          { id: "income-advance-rent-credit", account: "Rent Received in Advance A/c", side: "credit", amount: 8000, displayPrefix: "To" },
+        ],
+        narration: "Being rent received in advance through bank.",
+        explanation:
+          "The business has received money before earning the related rent, so the credit is a liability rather than current Rent Received income.",
+        studentTakeaway: "Income received in advance is a liability until it is earned.",
+        commonMistake: "Crediting Rent Received A/c immediately for unearned rent.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "income-debtor-collection-guard",
+      illustration: {
+        id: "income-debtor-collection-guard",
+        title: "Solved Illustration 6: debtor collection guard case",
+        difficulty: "mixed",
+        question: "Received ₹12,000 from Mohan through bank against an earlier credit sale.",
+        accountsAffected: ["Bank A/c", "Mohan A/c"],
+        reasoningSteps: [
+          { label: "Bank received", detail: "The business receives money through bank, so Bank A/c is debited." },
+          { label: "Debtor reduced", detail: "Mohan A/c is credited because the existing debtor balance is settled." },
+          { label: "No new income", detail: "Sales was recorded at the earlier credit sale and is not credited again." },
+        ],
+        journalEntry: [
+          { id: "income-mohan-bank-debit", account: "Bank A/c", side: "debit", amount: 12000, drNotation: "Dr." },
+          { id: "income-mohan-credit", account: "Mohan A/c", side: "credit", amount: 12000, displayPrefix: "To" },
+        ],
+        narration: "Being amount received from Mohan through bank.",
+        explanation:
+          "This is collection of an existing debtor, not new income. Sales A/c is not credited again.",
+        studentTakeaway: "Debtor collection settles a receivable; it does not create a second income entry.",
+        commonMistake: "Crediting Sales A/c when a debtor pays later.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "income-capital-receipt-guard",
+      illustration: {
+        id: "income-capital-receipt-guard",
+        title: "Solved Illustration 7: capital receipt guard case",
+        difficulty: "mixed",
+        question: "Amit introduced ₹20,000 through bank as additional capital.",
+        accountsAffected: ["Bank A/c", "Amit's Capital A/c"],
+        reasoningSteps: [
+          { label: "Bank received", detail: "Money enters the business bank account, so Bank A/c is debited." },
+          { label: "Capital source", detail: "The source is Amit as owner/partner, not income earned from business activity." },
+          { label: "Named capital", detail: "Use Amit's Capital A/c, not Income A/c or generic Capital A/c." },
+        ],
+        journalEntry: [
+          { id: "income-capital-bank-debit", account: "Bank A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "income-capital-amit-credit", account: "Amit's Capital A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being additional capital introduced by Amit through bank.",
+        explanation:
+          "The receipt is capital, not income. Bank increases and Amit's Capital increases.",
+        studentTakeaway: "A money receipt from the owner or partner is capital unless the business has earned income.",
+        commonMistake: "Crediting Income A/c merely because bank balance increases.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "income-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Income mistakes",
+      mistakes: [
+        "Debiting Income A/c when income increases.",
+        "Using a generic Income A/c.",
+        "Using Cash A/c when receipt is through bank.",
+        "Using Bank A/c when physical cash is received.",
+        "Using Cash or Bank when income is only accrued.",
+        "Treating income received in advance as current income.",
+        "Treating capital introduced as income.",
+        "Treating loan received as income.",
+        "Crediting Sales A/c for commission or interest.",
+        "Crediting income again when a debtor pays.",
+        "Recording accrued income again when it is later received.",
+        "Using the wrong receivable account.",
+        "Treating all receipts as profit.",
+        "Ignoring whether income has been earned.",
+        "Confusing income with asset or liability settlement.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "income-decision-process",
+      eyebrow: "Decision process",
+      title: "Income decision process",
+      body:
+        "Use this order before writing an income-related journal entry.",
+      steps: [
+        { label: "Identify entitlement", detail: "Ask why the business is entitled to the amount." },
+        { label: "Classify the receipt", detail: "Decide whether the amount is earned income, capital, loan, or debtor collection." },
+        { label: "Use specific income", detail: "Use the specific Income A/c if income is earned." },
+        { label: "Check receipt status", detail: "Determine whether the amount is received in cash, through bank, or remains receivable." },
+        { label: "Debit Cash for cash", detail: "Use Cash A/c when physical cash is received." },
+        { label: "Debit Bank for bank", detail: "Use Bank A/c when money enters the business bank account." },
+        { label: "Debit accrued income if unpaid", detail: "Use Accrued Income or a receivable account if income is earned but not received." },
+        { label: "Credit specific income", detail: "Credit the specific Income A/c when income is earned." },
+        { label: "Handle advances carefully", detail: "If received before earning, credit Income Received in Advance A/c instead." },
+        { label: "Avoid double income", detail: "Confirm later collection does not record the same income twice." },
+        { label: "Confirm totals", detail: "Total debit must equal total credit." },
+        { label: "Write narration", detail: "State the income source and receipt status clearly." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "income-checklist",
+      title: "Income checklist",
+      points: [
+        "The amount was earned by the business.",
+        "A specific income account is used.",
+        "The amount is not capital, loan, or debtor collection.",
+        "Cash, Bank, or Accrued Income is selected correctly.",
+        "Income received in advance is treated as a liability.",
+        "The income account is credited only once.",
+        "The payment or receipt mode is correct.",
+        "Debit and credit totals are equal.",
+        "Narration states the income source and receipt status.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "income-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Did the business earn this amount now, receive it before earning it, or simply collect an amount already due?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -4708,6 +5319,7 @@ const journalEntriesSubtopics = [
   purchasesJournalEntriesSubtopic,
   salesJournalEntriesSubtopic,
   expensesJournalEntriesSubtopic,
+  incomeJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -4724,7 +5336,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 12,
+      value: 13,
     },
   },
   outline: [
@@ -4824,10 +5436,17 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Business expenses, cash/bank payments, outstanding expenses, and adjustment guardrails.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG}`,
     },
-    { id: "income", title: "Income", order: 13, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
+      title: "Income",
+      order: 13,
+      status: "available",
+      shortDescription: "Income earned, cash/bank receipts, accrued income, advances, and receipt guardrails.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_INCOME_SECTION_SLUG}`,
+    },
     { id: "assets-and-liabilities", title: "Assets and Liabilities", order: 14, status: "upcoming" },
-    { id: "mixed-simple-entries", title: "Mixed Simple Entries", order: 15, status: "upcoming" },
-    { id: "chapter-recap-and-practice", title: "Chapter Recap and Practice", order: 16, status: "upcoming" },
+    { id: "mixed-simple-entries", title: "Mixed Simple Entries", order: 15, status: "later" },
+    { id: "chapter-recap-and-practice", title: "Chapter Recap and Practice", order: 16, status: "later" },
   ],
   subtopics: journalEntriesSubtopics,
   sections: introductionJournalEntriesSections,

@@ -239,8 +239,20 @@ Target platform planning note:
   - `Paid salary by bank ₹8,000`
 - Phase 3Q does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/income`, does not link preview routes from public navigation, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
 - Phase 3Q does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
+- Phase 3R now adds the thirteenth routed Journal Entries learning section inside the isolated `/platform-preview` shell:
+  - `/platform-preview/chapters/journal-entries/income`
+- The Journal Entries preview now contains thirteen routed learning sections, adding `Income` after `Expenses`.
+- The Income section teaches business income meaning, specific income account names, cash income, bank income, accrued income, later receipt of accrued income, income received in advance, later recognition of advance income, income-versus-receipt distinctions, Sales versus other income, debtor-collection guardrails, capital/loan/debtor receipt distinctions, source documents, solved illustrations, common mistakes, a decision process, a checklist, and a non-checking reflection prompt.
+- Expenses now links forward to Income, while Income links back to Expenses and shows `Assets and Liabilities` as an upcoming disabled next step.
+- Cash, bank, accrued, advance-income, and receipt-versus-income treatment are taught as static learning content only.
+- Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions, Accounts Affected, Types of Accounts, Debit and Credit Rules, Journal Format and Narration, Cash and Bank Transactions, Capital, Drawings, Purchases, Sales, Expenses, and Income remain explanation-only.
+- The supported checking scope remains exactly two questions:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- Phase 3R does not add a third checker question ID, does not modify the existing two checkers or answer keys, does not create `/assets-and-liabilities`, does not link preview routes from public navigation, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
+- Phase 3R does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
-- Founder visual review is required for the twelve-section progression before integrating this shell into real routes or beginning the next phase.
+- Founder visual review is required for the thirteen-section progression before integrating this shell into real routes or beginning the next phase.
 
 ## Current student-facing routes
 
