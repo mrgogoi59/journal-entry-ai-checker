@@ -331,6 +331,13 @@ Target platform planning note:
   - expected answers remain server-controlled through the existing server-only answer-key module; production clients send only the question ID and typed student attempt
   - no third checking question, broad Journal Entry checker, API route, persistence/progress/history, homepage replacement, or preview link from production was added
   - existing beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts logic, analytics, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
+- Phase 4D now completes the production Journal Entries checker safety audit and chapter-launch QA in `docs/journal-entries-production-launch-audit.md`:
+  - the launch-readiness verdict is `Ready for homepage/navigation integration`
+  - the audit found no critical production route, checker-security, answer-key isolation, accounting-content, mobile-layout, accessibility, architecture, or performance blockers
+  - exactly two production Practice It Yourself questions remain live: `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
+  - no runtime/app fixes were required; only focused audit assertions were added for route-link resolution, recap review-challenge count, salary duplicate/partial-row feedback, and overlong-field safety
+  - the current homepage remains unchanged and does not link to `/chapters` yet
+  - Phase 4D did not add a third question, new answer key, broad checker scope, API route, persistence/progress/history, homepage integration, Dashboard route, AI Assistant route, database/auth/payment/backend, OCR, AI logic, analytics event, or accounting-calculation change
 
 ## Current student-facing routes
 

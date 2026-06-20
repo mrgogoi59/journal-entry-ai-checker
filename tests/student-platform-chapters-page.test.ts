@@ -36,6 +36,10 @@ function getLinkMarkup(html: string, href: string) {
   return html.match(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`))?.[0] ?? "";
 }
 
+function getHrefValues(html: string) {
+  return Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]);
+}
+
 function escapeHtmlText(text: string) {
   return text
     .replace(/&/g, "&amp;")
@@ -228,6 +232,21 @@ describe("Production Chapters route", () => {
     });
   });
 
+  it("keeps all production Journal Entries links pointed at existing production routes", () => {
+    const validJournalEntryRoutes = new Set(productionJournalEntriesSectionRoutes.map((route) => route.href));
+
+    journalEntriesChapter.subtopics.forEach((subtopic) => {
+      const html = renderProductionSection(subtopic.slug);
+      const journalEntryHrefs = getHrefValues(html).filter((href) => href.startsWith("/chapters/journal-entries"));
+
+      journalEntryHrefs.forEach((href) => {
+        const routeWithoutHash = href.split("#")[0];
+
+        expect(validJournalEntryRoutes.has(routeWithoutHash), `${subtopic.slug} links to ${href}`).toBe(true);
+      });
+    });
+  });
+
   it("renders exactly the two approved production Journal Entries practice checkers", () => {
     const html = renderToStaticMarkup(createElement(JournalEntriesChapterPage));
     const source = [
@@ -275,12 +294,15 @@ describe("Production Chapters route", () => {
 
   it("links the production recap back to the two interactive practice questions without duplicating editors", () => {
     const html = renderProductionSection("chapter-recap-and-practice");
+    const reviewChallengeDetails = html.match(/<details class="group rounded-2xl/g) ?? [];
 
     expect(html).toContain("Interactive Practice Available");
     expect(html).toContain("Sold goods for cash ₹12,000");
     expect(html).toContain("Paid salary by bank ₹8,000");
     expect(html).toContain('href="/chapters/journal-entries#practice-it-yourself"');
     expect(html).toContain("Practice the interactive questions");
+    expect(reviewChallengeDetails).toHaveLength(8);
+    expect(html).toContain("Mastery self-check");
     expect(html).not.toContain("Interactive chapter practice will be enabled after the production checker migration is approved.");
     expect(html).not.toContain("Check Answer");
     expect(html).not.toContain("practice-feedback-");

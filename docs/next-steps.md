@@ -2,25 +2,26 @@
 
 ## Immediate recommended next step
 
-Phase 4C of the controlled production checker migration is completed.
+Phase 4D of the production Journal Entries checker safety audit and chapter-launch QA is completed.
 
 What this completed route-slice achieved:
 
 - it keeps the Phase 4A production student-platform shell and live `/chapters` index route
 - it keeps the Phase 4B production Journal Entries chapter route and all 15 section routes under `/chapters/journal-entries/<section-slug>`
-- it migrates exactly the two audited deterministic Practice It Yourself checkers into `/chapters/journal-entries` Section 1
-- the live production questions are exactly `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
-- it reuses the audited editor UI through `components/learning-platform/JournalEntryPracticeEditor.tsx`
-- production and preview use separate server actions, and expected answers remain selected on the server from the existing server-only answer-key module
-- the production client sends only question ID plus typed student attempt; expected answers are not client props, hidden inputs, or data attributes
-- the production recap now shows `Interactive Practice Available`, lists exactly the two live questions, and links to `/chapters/journal-entries#practice-it-yourself`
+- it keeps the Phase 4C migration of exactly two audited deterministic Practice It Yourself checkers in `/chapters/journal-entries` Section 1
+- the live production questions remain exactly `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
+- it creates `docs/journal-entries-production-launch-audit.md` as the internal Phase 4D launch audit
+- the launch-readiness verdict is `Ready for homepage/navigation integration`
+- the audit found no critical route, checker-security, answer-key isolation, accounting-content, mobile-layout, accessibility, architecture, or performance blockers
+- focused audit assertions now cover production route-link resolution, exact recap review-challenge count, salary duplicate/partial-row feedback, and overlong-field safety
+- production and preview still use separate server actions, and expected answers remain selected on the server from the existing server-only answer-key module
 - `/platform-preview` remains preserved and `noindex, nofollow`, and production routes do not link to preview routes
 - it keeps the current homepage unchanged and does not link `/chapters` from public homepage navigation yet
 - it keeps beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
 
-Founder desktop/mobile functional review is required next for `/chapters/journal-entries`, especially the two production editors, independent editor state, answer reveal, recap link, keyboard/focus behavior, and mobile no-overflow behavior.
+Founder desktop/mobile functional review is still recommended before Phase 4E is merged, especially the two production editors, independent editor state, answer reveal, recap link, keyboard/focus behavior, and mobile no-overflow behavior.
 
-The exact recommended next phase is Phase 4D: production checker safety audit and chapter-launch QA. Phase 4D should verify the live two-question flow end to end, answer-key isolation, unsupported-ID failures, preview preservation, desktop/mobile usability, and chapter navigation. Do not add a third checking question, broaden Journal Entry checking, replace the homepage, or migrate other practice systems before Phase 4D approval.
+The exact recommended next phase is Phase 4E: controlled homepage and primary-navigation integration. Phase 4E is approved by the Phase 4D audit verdict but must not begin automatically in Phase 4D. It should add only controlled entry points to the audited `/chapters` and Journal Entries flow. Do not add a third checking question, broaden Journal Entry checking, replace old routes by redirect, add Dashboard/AI Assistant routes, or migrate other practice systems in Phase 4E unless explicitly scoped.
 
 Recommended Phase 4 sequence:
 
@@ -29,10 +30,11 @@ Recommended Phase 4 sequence:
 3. Journal Entries read-only sections in controlled route slices
 4. The two existing deterministic Practice It Yourself questions in production
 5. Phase 4D production checker safety audit and chapter-launch QA
-6. Solver hub mapping
-7. Practice hub mapping while keeping beginner `/practice` stable
-8. Dashboard static/browser-local foundation
-9. AI Assistant later, only after grounded tutor design is approved
+6. Controlled homepage and primary-navigation integration
+7. Solver hub mapping
+8. Practice hub mapping while keeping beginner `/practice` stable
+9. Dashboard static/browser-local foundation
+10. AI Assistant later, only after grounded tutor design is approved
 
 ## Immediate recommended next step
 

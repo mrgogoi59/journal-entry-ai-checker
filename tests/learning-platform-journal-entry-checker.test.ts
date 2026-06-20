@@ -491,6 +491,24 @@ describe("learning-platform journal entry checker", () => {
       },
       soldGoodsForCashAnswerKey,
     );
+    const overlongResult = checkJournalEntryPracticeAttempt(
+      {
+        questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "x".repeat(JOURNAL_ENTRY_PRACTICE_LIMITS.maxParticularsLength + 1),
+            lf: "J1",
+            debitAmount: "12000",
+            creditAmount: "",
+          },
+        ],
+        totalDebit: "12000",
+        totalCredit: "12000",
+        narration: "x".repeat(JOURNAL_ENTRY_PRACTICE_LIMITS.maxNarrationLength + 1),
+      },
+      soldGoodsForCashAnswerKey,
+    );
 
     expect(nullResult.status).toBe("incorrect");
     expect(nullResult.errors).toEqual(["Unsupported Practice It Yourself question."]);
@@ -499,6 +517,10 @@ describe("learning-platform journal entry checker", () => {
     expect(malformedRowResult.status).toBe("incorrect");
     expect(malformedRowResult.errors).toEqual(expect.arrayContaining(["Row 1 has an invalid row order."]));
     expect(malformedRowResult.errors).toEqual(expect.arrayContaining(["Row 1 particulars are missing, malformed, or too long."]));
+    expect(overlongResult.status).toBe("incorrect");
+    expect(overlongResult.errors).toEqual(expect.arrayContaining(["Row 1 particulars are missing, malformed, or too long."]));
+    expect(overlongResult.errors).toEqual(expect.arrayContaining(["Narration is missing, malformed, or too long."]));
+    expect(overlongResult.correctAnswerRevealAvailable).toBe(false);
   });
 
   it("accepts the exact paid-salary-by-bank journal entry with totals and narration", () => {
@@ -634,7 +656,7 @@ describe("learning-platform journal entry checker", () => {
     expect(bankDebited.errors).toEqual(expect.arrayContaining(["Bank should not be placed in the debit column."]));
   });
 
-  it("rejects wrong amount, incorrect totals, balanced wrong entries, missing markers, extra lines, and unrelated narration for salary", () => {
+  it("rejects wrong amount, incorrect totals, balanced wrong entries, missing markers, duplicate/extra rows, and unrelated narration for salary", () => {
     const wrongAmount = checkSalary(
       createSalaryAttempt({
         rows: [{ ...createSalaryAttempt().rows[0], debitAmount: "7000" }, createSalaryAttempt().rows[1]],
@@ -685,6 +707,30 @@ describe("learning-platform journal entry checker", () => {
         ],
       }),
     );
+    const duplicateSalary = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          createSalaryAttempt().rows[0],
+          { ...createSalaryAttempt().rows[0], rowOrder: 2 },
+          createSalaryAttempt().rows[1],
+        ],
+      }),
+    );
+    const partialLine = checkSalary(
+      createSalaryAttempt({
+        rows: [
+          createSalaryAttempt().rows[0],
+          createSalaryAttempt().rows[1],
+          {
+            rowOrder: 3,
+            particulars: "",
+            lf: "J2",
+            debitAmount: "",
+            creditAmount: "",
+          },
+        ],
+      }),
+    );
     const unrelatedNarration = checkSalary(createSalaryAttempt({ narration: "Being goods sold for cash." }));
 
     expect(wrongAmount.errors).toEqual(expect.arrayContaining(["Salary should be debited with ₹8,000."]));
@@ -697,6 +743,8 @@ describe("learning-platform journal entry checker", () => {
     expect(missingDr.errors).toEqual(expect.arrayContaining(["Add Dr. to Salary A/c."]));
     expect(missingTo.errors).toEqual(expect.arrayContaining(["Prefix the credited Bank A/c with To."]));
     expect(extraLine.errors).toEqual(expect.arrayContaining(["Row 3 is an extra non-empty line."]));
+    expect(duplicateSalary.errors).toEqual(expect.arrayContaining(["Salary A/c Dr. appears more than once."]));
+    expect(partialLine.errors).toEqual(expect.arrayContaining(["Row 3 is partly filled. Add particulars or clear the row."]));
     expect(unrelatedNarration.status).toBe("incorrect");
     expect(unrelatedNarration.narrationResult.message).toBe("Narration should explain that salary was paid by bank.");
   });
