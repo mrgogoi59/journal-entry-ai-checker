@@ -1,0 +1,760 @@
+"use client";
+
+import { FormEvent, useEffect, useRef, useState } from "react";
+import type { PracticeItYourselfPreviewQuestion } from "@/lib/learning-platform/types";
+import type {
+  JournalEntryCorrectAnswerReveal,
+  JournalEntryPracticeAttempt,
+  JournalEntryPracticeCheckResult,
+  JournalEntryPracticeFeedbackStatus,
+} from "@/lib/learning-platform/checkers/types";
+import { JOURNAL_ENTRY_PRACTICE_LIMITS } from "@/lib/learning-platform/checkers/types";
+
+type EditorRow = {
+  rowOrder: number;
+  date: string;
+  particulars: string;
+  lf: string;
+  debitAmount: string;
+  creditAmount: string;
+};
+
+type JournalEntryPracticeEditorProps = {
+  question: PracticeItYourselfPreviewQuestion;
+  checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
+  revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
+};
+
+const inputClass =
+  "min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20";
+
+const statusStyles: Record<JournalEntryPracticeFeedbackStatus, string> = {
+  correct: "border-emerald-200 bg-emerald-50 text-emerald-900",
+  warning: "border-amber-200 bg-amber-50 text-amber-900",
+  error: "border-rose-200 bg-rose-50 text-rose-900",
+};
+
+export function JournalEntryPracticeEditor({
+  question,
+  checkAnswerAction,
+  revealCorrectAnswerAction,
+}: JournalEntryPracticeEditorProps) {
+  const [rows, setRows] = useState<EditorRow[]>(() => createInitialRows(question));
+  const [totalDebit, setTotalDebit] = useState("");
+  const [totalCredit, setTotalCredit] = useState("");
+  const [narration, setNarration] = useState("");
+  const [result, setResult] = useState<JournalEntryPracticeCheckResult | null>(null);
+  const [reveal, setReveal] = useState<JournalEntryCorrectAnswerReveal | null>(null);
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [isChecking, setIsChecking] = useState(false);
+  const [isRevealing, setIsRevealing] = useState(false);
+  const feedbackRef = useRef<HTMLDivElement | null>(null);
+  const canAddRow = rows.length < JOURNAL_ENTRY_PRACTICE_LIMITS.maxRows;
+  const isCurrentAttemptBlank = isAttemptBlank(createAttempt(question.id, rows, totalDebit, totalCredit, narration));
+
+  useEffect(() => {
+    if (result) {
+      feedbackRef.current?.focus();
+    }
+  }, [result]);
+
+  function updateRow(rowOrder: number, field: keyof EditorRow, value: string) {
+    clearCheckedFeedback();
+    setRows((currentRows) =>
+      currentRows.map((row) => (row.rowOrder === rowOrder ? { ...row, [field]: value } : row)),
+    );
+  }
+
+  function addRow() {
+    if (!canAddRow) return;
+    clearCheckedFeedback();
+    setRows((currentRows) => {
+      const nextRowOrder = Math.max(...currentRows.map((row) => row.rowOrder)) + 1;
+
+      return [...currentRows, createBlankRow(nextRowOrder)];
+    });
+  }
+
+  function removeRow(rowOrder: number) {
+    clearCheckedFeedback();
+    setRows((currentRows) =>
+      currentRows.length <= 2 ? currentRows : currentRows.filter((row) => row.rowOrder !== rowOrder),
+    );
+  }
+
+  function clearCheckedFeedback() {
+    setResult(null);
+    setReveal(null);
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isChecking) return;
+
+    const attempt = createAttempt(question.id, rows, totalDebit, totalCredit, narration);
+
+    if (isAttemptBlank(attempt)) {
+      setResult(createLocalBlankResult(question.id));
+      setReveal(null);
+      return;
+    }
+
+    setIsChecking(true);
+    setReveal(null);
+
+    try {
+      const checkedResult = await checkAnswerAction(attempt);
+      setResult(checkedResult);
+      setAttemptCount((count) => count + 1);
+    } finally {
+      setIsChecking(false);
+    }
+  }
+
+  async function handleReveal() {
+    if (attemptCount === 0 || isRevealing) return;
+
+    setIsRevealing(true);
+
+    try {
+      setReveal(await revealCorrectAnswerAction(question.id));
+    } finally {
+      setIsRevealing(false);
+    }
+  }
+
+  function handleTryAgain() {
+    setReveal(null);
+    feedbackRef.current?.focus();
+  }
+
+  function handleReset() {
+    setRows(createInitialRows(question));
+    setTotalDebit("");
+    setTotalCredit("");
+    setNarration("");
+    setResult(null);
+    setReveal(null);
+    setAttemptCount(0);
+  }
+
+  return (
+    <>
+      <p id="practice-editor-instructions" className="mt-5 rounded-2xl border border-cyan-100 bg-cyan-50 p-4 text-sm font-semibold leading-6 text-cyan-950">
+        Write the full particulars yourself, including Dr. on the debit line and To on the credit line. Enter your own totals and narration.
+      </p>
+      <form
+        className="mt-4 space-y-4"
+        aria-label="Practice It Yourself journal entry checker"
+        aria-describedby="practice-editor-instructions"
+        aria-busy={isChecking}
+        onSubmit={handleSubmit}
+      >
+      <div className="hidden overflow-hidden rounded-2xl border border-slate-200 lg:block">
+        <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-600">
+          <div>Date</div>
+          <div>Particulars</div>
+          <div>L.F.</div>
+          <div>Debit ₹</div>
+          <div>Credit ₹</div>
+          <div>Row</div>
+        </div>
+        <div className="divide-y divide-slate-200">
+          {rows.map((row) => (
+            <PracticeDesktopRow
+              key={row.rowOrder}
+              row={row}
+              canRemove={rows.length > 2}
+              onChange={updateRow}
+              onRemove={removeRow}
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 border-t border-slate-200 bg-slate-50 px-4 py-3">
+          <div />
+          <div className="flex items-center text-sm font-black text-slate-950">Total</div>
+          <div />
+          <input
+            id="practice-total-debit"
+            name="practice-total-debit"
+            inputMode="numeric"
+            aria-label="Total Debit"
+            placeholder="Total Debit"
+            value={totalDebit}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+            onChange={(event) => {
+              clearCheckedFeedback();
+              setTotalDebit(event.target.value);
+            }}
+            className={inputClass}
+          />
+          <input
+            id="practice-total-credit"
+            name="practice-total-credit"
+            inputMode="numeric"
+            aria-label="Total Credit"
+            placeholder="Total Credit"
+            value={totalCredit}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+            onChange={(event) => {
+              clearCheckedFeedback();
+              setTotalCredit(event.target.value);
+            }}
+            className={inputClass}
+          />
+          <div />
+        </div>
+      </div>
+
+      <div className="space-y-3 lg:hidden">
+        {rows.map((row) => (
+          <PracticeMobileRow
+            key={row.rowOrder}
+            row={row}
+            canRemove={rows.length > 2}
+            onChange={updateRow}
+            onRemove={removeRow}
+          />
+        ))}
+        <fieldset className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <legend className="px-1 text-sm font-black text-slate-950">Totals</legend>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="text-sm font-bold text-slate-700" htmlFor="practice-mobile-total-debit">
+                Total Debit ₹
+              </label>
+              <input
+                id="practice-mobile-total-debit"
+                name="practice-mobile-total-debit"
+                inputMode="numeric"
+                placeholder="Total Debit"
+                value={totalDebit}
+                maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+                onChange={(event) => {
+                  clearCheckedFeedback();
+                  setTotalDebit(event.target.value);
+                }}
+                className={`${inputClass} mt-2`}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-slate-700" htmlFor="practice-mobile-total-credit">
+                Total Credit ₹
+              </label>
+              <input
+                id="practice-mobile-total-credit"
+                name="practice-mobile-total-credit"
+                inputMode="numeric"
+                placeholder="Total Credit"
+                value={totalCredit}
+                maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+                onChange={(event) => {
+                  clearCheckedFeedback();
+                  setTotalCredit(event.target.value);
+                }}
+                className={`${inputClass} mt-2`}
+              />
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={!canAddRow}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          {canAddRow ? "Add row" : "Maximum 6 rows"}
+        </button>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+        >
+          Reset Answer
+        </button>
+      </div>
+
+      <div>
+        <label htmlFor="practice-narration" className="text-sm font-black text-slate-950">
+          Narration
+        </label>
+        <textarea
+          id="practice-narration"
+          name="practice-narration"
+          rows={3}
+          placeholder={question.answerInputSchema.narration.placeholder}
+          value={narration}
+          maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxNarrationLength}
+          onChange={(event) => {
+            clearCheckedFeedback();
+            setNarration(event.target.value);
+          }}
+          className={`${inputClass} mt-2 resize-y`}
+        />
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm font-semibold leading-6 text-slate-600">
+          This preview checker supports only this one cash-sale journal entry. No API route, storage, analytics, or existing checker is called.
+        </p>
+        <button
+          type="submit"
+          disabled={isChecking || isCurrentAttemptBlank}
+          aria-disabled={isChecking || isCurrentAttemptBlank}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isChecking ? "Checking..." : "Check Answer"}
+        </button>
+      </div>
+
+      <div
+        ref={feedbackRef}
+        id="practice-feedback"
+        tabIndex={-1}
+        aria-live="polite"
+        className="rounded-3xl border border-slate-200 bg-white p-4 outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 sm:p-5"
+      >
+        {isChecking ? (
+          <p role="status" className="text-sm font-semibold text-slate-600">Checking your answer...</p>
+        ) : result ? (
+          <FeedbackPanel
+            result={result}
+            reveal={reveal}
+            canReveal={attemptCount > 0}
+            isRevealing={isRevealing}
+            onTryAgain={handleTryAgain}
+            onReveal={handleReveal}
+          />
+        ) : (
+          <p className="text-sm font-semibold text-slate-600">Feedback will appear here after you check your answer.</p>
+        )}
+      </div>
+      </form>
+    </>
+  );
+}
+
+function PracticeDesktopRow({
+  row,
+  canRemove,
+  onChange,
+  onRemove,
+}: {
+  row: EditorRow;
+  canRemove: boolean;
+  onChange: (rowOrder: number, field: keyof EditorRow, value: string) => void;
+  onRemove: (rowOrder: number) => void;
+}) {
+  return (
+    <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 px-4 py-3">
+      <label className="sr-only" htmlFor={`practice-date-${row.rowOrder}`}>
+        Row {row.rowOrder} date
+      </label>
+      <input
+        id={`practice-date-${row.rowOrder}`}
+        name={`practice-date-${row.rowOrder}`}
+        placeholder="Date"
+        value={row.date}
+        maxLength={20}
+        onChange={(event) => onChange(row.rowOrder, "date", event.target.value)}
+        className={inputClass}
+      />
+      <label className="sr-only" htmlFor={`practice-particulars-${row.rowOrder}`}>
+        Row {row.rowOrder} particulars
+      </label>
+      <input
+        id={`practice-particulars-${row.rowOrder}`}
+        name={`practice-particulars-${row.rowOrder}`}
+        placeholder={`Particulars line ${row.rowOrder}`}
+        value={row.particulars}
+        maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxParticularsLength}
+        onChange={(event) => onChange(row.rowOrder, "particulars", event.target.value)}
+        className={inputClass}
+      />
+      <label className="sr-only" htmlFor={`practice-lf-${row.rowOrder}`}>
+        Row {row.rowOrder} ledger folio
+      </label>
+      <input
+        id={`practice-lf-${row.rowOrder}`}
+        name={`practice-lf-${row.rowOrder}`}
+        placeholder="L.F."
+        value={row.lf}
+        maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxLfLength}
+        onChange={(event) => onChange(row.rowOrder, "lf", event.target.value)}
+        className={inputClass}
+      />
+      <label className="sr-only" htmlFor={`practice-debit-${row.rowOrder}`}>
+        Row {row.rowOrder} debit amount
+      </label>
+      <input
+        id={`practice-debit-${row.rowOrder}`}
+        name={`practice-debit-${row.rowOrder}`}
+        inputMode="numeric"
+        placeholder="Debit"
+        value={row.debitAmount}
+        maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+        onChange={(event) => onChange(row.rowOrder, "debitAmount", event.target.value)}
+        className={inputClass}
+      />
+      <label className="sr-only" htmlFor={`practice-credit-${row.rowOrder}`}>
+        Row {row.rowOrder} credit amount
+      </label>
+      <input
+        id={`practice-credit-${row.rowOrder}`}
+        name={`practice-credit-${row.rowOrder}`}
+        inputMode="numeric"
+        placeholder="Credit"
+        value={row.creditAmount}
+        maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+        onChange={(event) => onChange(row.rowOrder, "creditAmount", event.target.value)}
+        className={inputClass}
+      />
+      <button
+        type="button"
+        disabled={!canRemove}
+        aria-label={`Remove entry row ${row.rowOrder}`}
+        onClick={() => onRemove(row.rowOrder)}
+        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-3 text-xs font-black text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Remove
+      </button>
+    </div>
+  );
+}
+
+function PracticeMobileRow({
+  row,
+  canRemove,
+  onChange,
+  onRemove,
+}: {
+  row: EditorRow;
+  canRemove: boolean;
+  onChange: (rowOrder: number, field: keyof EditorRow, value: string) => void;
+  onRemove: (rowOrder: number) => void;
+}) {
+  return (
+    <fieldset className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <legend className="px-1 text-sm font-black text-slate-950">Entry row {row.rowOrder}</legend>
+      <div className="mt-3 grid gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-date-${row.rowOrder}`}>
+              Date
+            </label>
+            <input
+              id={`practice-mobile-date-${row.rowOrder}`}
+              name={`practice-mobile-date-${row.rowOrder}`}
+              placeholder="Date"
+              value={row.date}
+              maxLength={20}
+              onChange={(event) => onChange(row.rowOrder, "date", event.target.value)}
+              className={`${inputClass} mt-2`}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-lf-${row.rowOrder}`}>
+              L.F.
+            </label>
+            <input
+              id={`practice-mobile-lf-${row.rowOrder}`}
+              name={`practice-mobile-lf-${row.rowOrder}`}
+              placeholder="L.F."
+              value={row.lf}
+              maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxLfLength}
+              onChange={(event) => onChange(row.rowOrder, "lf", event.target.value)}
+              className={`${inputClass} mt-2`}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-particulars-${row.rowOrder}`}>
+            Particulars
+          </label>
+          <input
+            id={`practice-mobile-particulars-${row.rowOrder}`}
+            name={`practice-mobile-particulars-${row.rowOrder}`}
+            placeholder={`Particulars line ${row.rowOrder}`}
+            value={row.particulars}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxParticularsLength}
+            onChange={(event) => onChange(row.rowOrder, "particulars", event.target.value)}
+            className={`${inputClass} mt-2`}
+          />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-debit-${row.rowOrder}`}>
+              Debit ₹
+            </label>
+            <input
+              id={`practice-mobile-debit-${row.rowOrder}`}
+              name={`practice-mobile-debit-${row.rowOrder}`}
+              inputMode="numeric"
+              placeholder="Debit"
+              value={row.debitAmount}
+              maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+              onChange={(event) => onChange(row.rowOrder, "debitAmount", event.target.value)}
+              className={`${inputClass} mt-2`}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-credit-${row.rowOrder}`}>
+              Credit ₹
+            </label>
+            <input
+              id={`practice-mobile-credit-${row.rowOrder}`}
+              name={`practice-mobile-credit-${row.rowOrder}`}
+              inputMode="numeric"
+              placeholder="Credit"
+              value={row.creditAmount}
+              maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+              onChange={(event) => onChange(row.rowOrder, "creditAmount", event.target.value)}
+              className={`${inputClass} mt-2`}
+            />
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled={!canRemove}
+          aria-label={`Remove entry row ${row.rowOrder}`}
+          onClick={() => onRemove(row.rowOrder)}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Remove row
+        </button>
+      </div>
+    </fieldset>
+  );
+}
+
+function FeedbackPanel({
+  result,
+  reveal,
+  canReveal,
+  isRevealing,
+  onTryAgain,
+  onReveal,
+}: {
+  result: JournalEntryPracticeCheckResult;
+  reveal: JournalEntryCorrectAnswerReveal | null;
+  canReveal: boolean;
+  isRevealing: boolean;
+  onTryAgain: () => void;
+  onReveal: () => void;
+}) {
+  const summaryStyle =
+    result.status === "correct"
+      ? statusStyles.correct
+      : result.status === "partially-correct"
+        ? statusStyles.warning
+        : statusStyles.error;
+
+  return (
+    <div className="space-y-4">
+      <div className={`rounded-2xl border p-4 ${summaryStyle}`}>
+        <p className="text-xs font-black uppercase tracking-wide">Overall result</p>
+        <h3 className="mt-1 text-lg font-black">{result.summary}</h3>
+      </div>
+
+      <FeedbackList title="What you got right" items={result.gotRight} emptyText="Nothing confirmed yet." />
+      <FeedbackList title="Specific errors" items={result.errors} emptyText="No hard errors." />
+      <FeedbackList title="Warnings" items={result.warnings} emptyText="No presentation warnings." />
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        <FeedbackStatusCard title="Totals" status={result.totalsResult.status} messages={result.totalsResult.messages} />
+        <FeedbackStatusCard title="Narration" status={result.narrationResult.status} messages={[result.narrationResult.message]} />
+        <FeedbackStatusCard title="Balance" status={result.balanceResult.status} messages={[result.balanceResult.message]} />
+      </div>
+
+      <div>
+        <h4 className="text-sm font-black text-slate-950">Row-level feedback</h4>
+        <div className="mt-3 grid gap-3">
+          {result.rowResults.length > 0 ? (
+            result.rowResults.map((rowResult) => (
+              <div key={rowResult.rowOrder} className={`rounded-2xl border p-4 ${statusStyles[rowResult.status]}`}>
+                <p className="text-sm font-black">Row {rowResult.rowOrder}: {rowResult.summary}</p>
+                {rowResult.fieldResults.length > 0 ? (
+                  <ul className="mt-2 space-y-1 text-sm font-semibold">
+                    {rowResult.fieldResults.map((fieldResult) => (
+                      <li key={`${rowResult.rowOrder}-${fieldResult.field}-${fieldResult.message}`}>
+                        {fieldResult.message}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ))
+          ) : (
+            <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-600">
+              No row feedback yet.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <FeedbackList title="Hints" items={result.hints} emptyText="No hints needed." />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <button
+          type="button"
+          onClick={onTryAgain}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Try Again
+        </button>
+        <button
+          type="button"
+          disabled={!canReveal || isRevealing || !result.correctAnswerRevealAvailable}
+          onClick={onReveal}
+          aria-disabled={!canReveal || isRevealing || !result.correctAnswerRevealAvailable}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isRevealing ? "Loading answer..." : "Show Correct Answer"}
+        </button>
+      </div>
+
+      {reveal?.available ? <CorrectAnswerReveal reveal={reveal} /> : null}
+    </div>
+  );
+}
+
+function FeedbackList({ title, items, emptyText }: { title: string; items: string[]; emptyText: string }) {
+  return (
+    <div>
+      <h4 className="text-sm font-black text-slate-950">{title}</h4>
+      {items.length > 0 ? (
+        <ul className="mt-2 space-y-2 text-sm font-semibold leading-6 text-slate-700">
+          {items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-sm font-semibold text-slate-500">{emptyText}</p>
+      )}
+    </div>
+  );
+}
+
+function FeedbackStatusCard({
+  title,
+  status,
+  messages,
+}: {
+  title: string;
+  status: JournalEntryPracticeFeedbackStatus;
+  messages: string[];
+}) {
+  return (
+    <div className={`rounded-2xl border p-4 ${statusStyles[status]}`}>
+      <h4 className="text-sm font-black">{title}</h4>
+      <ul className="mt-2 space-y-1 text-sm font-semibold leading-6">
+        {messages.map((message) => (
+          <li key={message}>{message}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function CorrectAnswerReveal({ reveal }: { reveal: JournalEntryCorrectAnswerReveal }) {
+  return (
+    <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-950">
+      <h4 className="font-black">Correct Answer</h4>
+      <div className="mt-3 grid gap-2">
+        {reveal.lines.map((line) => (
+          <div key={line.id} className="grid gap-2 rounded-xl bg-white/70 p-3 sm:grid-cols-[1fr_auto_auto]">
+            <span className="font-bold">{line.particulars}</span>
+            <span className="font-black">{line.debitAmount ?? ""}</span>
+            <span className="font-black">{line.creditAmount ?? ""}</span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 font-semibold">{reveal.narration}</p>
+    </div>
+  );
+}
+
+function createInitialRows(question: PracticeItYourselfPreviewQuestion): EditorRow[] {
+  return question.answerInputSchema.rows.slice(0, question.initialBlankRows).map((row) => createBlankRow(row.rowOrder));
+}
+
+function createBlankRow(rowOrder: number): EditorRow {
+  return {
+    rowOrder,
+    date: "",
+    particulars: "",
+    lf: "",
+    debitAmount: "",
+    creditAmount: "",
+  };
+}
+
+function createAttempt(
+  questionId: string,
+  rows: EditorRow[],
+  totalDebit: string,
+  totalCredit: string,
+  narration: string,
+): JournalEntryPracticeAttempt {
+  return {
+    questionId,
+    rows: rows.map((row) => ({
+      rowOrder: row.rowOrder,
+      particulars: row.particulars,
+      lf: row.lf,
+      debitAmount: row.debitAmount,
+      creditAmount: row.creditAmount,
+    })),
+    totalDebit,
+    totalCredit,
+    narration,
+  };
+}
+
+function isAttemptBlank(attempt: JournalEntryPracticeAttempt) {
+  return (
+    attempt.rows.every((row) =>
+      [row.particulars, row.lf, row.debitAmount, row.creditAmount].every((value) => value.trim() === ""),
+    ) &&
+    attempt.totalDebit.trim() === "" &&
+    attempt.totalCredit.trim() === "" &&
+    attempt.narration.trim() === ""
+  );
+}
+
+function createLocalBlankResult(questionId: string): JournalEntryPracticeCheckResult {
+  return {
+    questionId,
+    status: "incorrect",
+    summary: "Enter your journal rows, totals, and narration before checking.",
+    gotRight: [],
+    errors: ["The answer is blank."],
+    warnings: [],
+    rowResults: [],
+    totalsResult: {
+      status: "error",
+      expectedDebit: 12000,
+      expectedCredit: 12000,
+      enteredDebit: null,
+      enteredCredit: null,
+      rowDebitTotal: 0,
+      rowCreditTotal: 0,
+      messages: ["Total Debit and Total Credit are required."],
+    },
+    narrationResult: {
+      status: "error",
+      message: "Narration is required for this Practice It Yourself question.",
+    },
+    balanceResult: {
+      status: "error",
+      message: "The blank entry is not balanced.",
+    },
+    hints: ["Start with the account that receives cash, then write the account credited for the sale."],
+    retryAvailable: true,
+    correctAnswerRevealAvailable: false,
+  };
+}

@@ -9,6 +9,12 @@ import type {
   SimpleExampleSection,
   SolvedIllustration as SolvedIllustrationData,
 } from "@/lib/learning-platform/types";
+import type {
+  JournalEntryCorrectAnswerReveal,
+  JournalEntryPracticeAttempt,
+  JournalEntryPracticeCheckResult,
+} from "@/lib/learning-platform/checkers/types";
+import { JournalEntryPracticeEditor } from "./JournalEntryPracticeEditor";
 import { ProgressBar, SectionHeading } from "./PreviewCards";
 
 type AccountingEntryTableRow = {
@@ -18,9 +24,6 @@ type AccountingEntryTableRow = {
   debit?: string;
   credit?: string;
 };
-
-const inputClass =
-  "min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20";
 
 export function ChapterOutline({ chapter }: { chapter: ChapterDefinition }) {
   const currentSectionId = chapter.metadata.currentPreviewSectionId;
@@ -259,157 +262,28 @@ export function SolvedIllustration({
   );
 }
 
-export function PracticeItYourselfPreview({ question }: { question: PracticeItYourselfPreviewQuestion }) {
-  const rows = question.answerInputSchema.rows.slice(0, question.initialBlankRows);
-
+export function PracticeItYourselfPreview({
+  question,
+  checkAnswerAction,
+  revealCorrectAnswerAction,
+}: {
+  question: PracticeItYourselfPreviewQuestion;
+  checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
+  revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
+}) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <SectionHeading
         eyebrow="Practice It Yourself"
         title={question.question}
-        body="This is an input-experience preview only. Checking comes in a later phase."
+        body="Enter the full journal entry yourself. This preview checker supports this one question only."
       />
-      <form className="mt-5 space-y-4" aria-label="Practice It Yourself journal entry preview">
-        <div className="hidden overflow-hidden rounded-2xl border border-slate-200 lg:block">
-          <div className="grid grid-cols-[1.1fr_2fr_0.7fr_1fr_1fr] bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-600">
-            <div>Date</div>
-            <div>Particulars</div>
-            <div>L.F.</div>
-            <div>Debit ₹</div>
-            <div>Credit ₹</div>
-          </div>
-          <div className="divide-y divide-slate-200">
-            {rows.map((row) => (
-              <PracticeDesktopRow key={row.rowOrder} row={row.rowOrder} placeholder={row.particularsPlaceholder} />
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-3 lg:hidden">
-          {rows.map((row) => (
-            <PracticeMobileRow key={row.rowOrder} row={row.rowOrder} placeholder={row.particularsPlaceholder} />
-          ))}
-        </div>
-
-        <div>
-          <label htmlFor="practice-narration" className="text-sm font-black text-slate-950">
-            Narration
-          </label>
-          <textarea
-            id="practice-narration"
-            name="practice-narration"
-            rows={3}
-            placeholder={question.answerInputSchema.narration.placeholder}
-            className={`${inputClass} mt-2 resize-y`}
-          />
-        </div>
-
-        <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm font-semibold leading-6 text-slate-600">
-            Checking is intentionally disabled in Phase 3C. No solver, parser, checker, storage, or analytics is called.
-          </p>
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            className="inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white opacity-60"
-          >
-            Check Answer - Preview only
-          </button>
-        </div>
-      </form>
+      <JournalEntryPracticeEditor
+        question={question}
+        checkAnswerAction={checkAnswerAction}
+        revealCorrectAnswerAction={revealCorrectAnswerAction}
+      />
     </section>
-  );
-}
-
-function PracticeDesktopRow({ row, placeholder }: { row: number; placeholder: string }) {
-  return (
-    <div className="grid grid-cols-[1.1fr_2fr_0.7fr_1fr_1fr] gap-3 px-4 py-3">
-      <label className="sr-only" htmlFor={`practice-date-${row}`}>
-        Row {row} date
-      </label>
-      <input id={`practice-date-${row}`} name={`practice-date-${row}`} placeholder="Date" className={inputClass} />
-      <label className="sr-only" htmlFor={`practice-particulars-${row}`}>
-        Row {row} particulars
-      </label>
-      <input
-        id={`practice-particulars-${row}`}
-        name={`practice-particulars-${row}`}
-        placeholder={placeholder}
-        className={inputClass}
-      />
-      <label className="sr-only" htmlFor={`practice-lf-${row}`}>
-        Row {row} ledger folio
-      </label>
-      <input id={`practice-lf-${row}`} name={`practice-lf-${row}`} placeholder="L.F." className={inputClass} />
-      <label className="sr-only" htmlFor={`practice-debit-${row}`}>
-        Row {row} debit amount
-      </label>
-      <input id={`practice-debit-${row}`} name={`practice-debit-${row}`} inputMode="numeric" placeholder="Debit" className={inputClass} />
-      <label className="sr-only" htmlFor={`practice-credit-${row}`}>
-        Row {row} credit amount
-      </label>
-      <input id={`practice-credit-${row}`} name={`practice-credit-${row}`} inputMode="numeric" placeholder="Credit" className={inputClass} />
-    </div>
-  );
-}
-
-function PracticeMobileRow({ row, placeholder }: { row: number; placeholder: string }) {
-  return (
-    <fieldset className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <legend className="px-1 text-sm font-black text-slate-950">Entry row {row}</legend>
-      <div className="mt-3 grid gap-3">
-        <div className="grid gap-2 sm:grid-cols-2">
-          <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-date-${row}`}>
-            Date
-          </label>
-          <input id={`practice-mobile-date-${row}`} name={`practice-mobile-date-${row}`} placeholder="Date" className={inputClass} />
-        </div>
-        <div>
-          <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-particulars-${row}`}>
-            Particulars
-          </label>
-          <input
-            id={`practice-mobile-particulars-${row}`}
-            name={`practice-mobile-particulars-${row}`}
-            placeholder={placeholder}
-            className={`${inputClass} mt-2`}
-          />
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div>
-            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-lf-${row}`}>
-              L.F.
-            </label>
-            <input id={`practice-mobile-lf-${row}`} name={`practice-mobile-lf-${row}`} placeholder="L.F." className={`${inputClass} mt-2`} />
-          </div>
-          <div>
-            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-debit-${row}`}>
-              Debit ₹
-            </label>
-            <input
-              id={`practice-mobile-debit-${row}`}
-              name={`practice-mobile-debit-${row}`}
-              inputMode="numeric"
-              placeholder="Debit"
-              className={`${inputClass} mt-2`}
-            />
-          </div>
-          <div>
-            <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-credit-${row}`}>
-              Credit ₹
-            </label>
-            <input
-              id={`practice-mobile-credit-${row}`}
-              name={`practice-mobile-credit-${row}`}
-              inputMode="numeric"
-              placeholder="Credit"
-              className={`${inputClass} mt-2`}
-            />
-          </div>
-        </div>
-      </div>
-    </fieldset>
   );
 }
 

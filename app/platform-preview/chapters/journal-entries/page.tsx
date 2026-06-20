@@ -14,6 +14,10 @@ import { PageHeader } from "../../_components/PageHeader";
 import { StudentAppShell } from "../../_components/StudentAppShell";
 import { journalEntriesChapter, toPracticeItYourselfPreviewQuestion } from "@/lib/learning-platform/chapters/journal-entries";
 import type { ChapterSection } from "@/lib/learning-platform/types";
+import {
+  checkJournalEntriesPracticeAnswer,
+  revealJournalEntriesPracticeCorrectAnswer,
+} from "./actions";
 
 const chapter = journalEntriesChapter;
 
@@ -140,7 +144,13 @@ function ChapterSectionRenderer({
       );
 
     case "practice-it-yourself":
-      return <PracticeItYourselfPreview question={toPracticeItYourselfPreviewQuestion(section.question)} />;
+      return (
+        <PracticeItYourselfPreview
+          question={toPracticeItYourselfPreviewQuestion(section.question)}
+          checkAnswerAction={checkJournalEntriesPracticeAnswer}
+          revealCorrectAnswerAction={revealJournalEntriesPracticeCorrectAnswer}
+        />
+      );
 
     case "common-mistakes":
       return <CommonMistakes section={section} />;

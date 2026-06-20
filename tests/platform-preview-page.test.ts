@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -8,12 +9,18 @@ import PlatformPreviewChaptersPage from "@/app/platform-preview/chapters/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
 import {
   journalEntriesChapter,
-  soldGoodsForCashExpectedAnswer,
   soldGoodsForCashPracticeQuestion,
 } from "@/lib/learning-platform/chapters/journal-entries";
+import { soldGoodsForCashExpectedAnswer } from "@/lib/learning-platform/chapters/journal-entry-answer-keys.server";
 
 function getLinkMarkup(html: string, href: string) {
   return html.match(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`))?.[0] ?? "";
+}
+
+function getButtonMarkup(html: string, label: string) {
+  return Array.from(html.matchAll(/<button[^>]*>[\s\S]*?<\/button>/g))
+    .map((match) => match[0])
+    .find((button) => button.includes(label)) ?? "";
 }
 
 describe("Platform preview routes", () => {
@@ -47,7 +54,7 @@ describe("Platform preview routes", () => {
         expect.objectContaining({ account: "Sales A/c", side: "credit", amount: 12000 }),
       ]),
     );
-    expect(soldGoodsForCashPracticeQuestion.expectedAnswer).toBe(soldGoodsForCashExpectedAnswer);
+    expect("expectedAnswer" in soldGoodsForCashPracticeQuestion).toBe(false);
   });
 
   it("keeps the named-capital illustration specific to Amit instead of generic Capital", () => {
@@ -137,8 +144,9 @@ describe("Platform preview routes", () => {
     expect(getLinkMarkup(html, "/platform-preview/chapters")).toContain('aria-current="page"');
   });
 
-  it("renders the Journal Entries chapter learning preview flow without answer checking", () => {
+  it("renders the Journal Entries chapter learning preview flow with blank fields and one blank-safe checker", () => {
     const html = renderToStaticMarkup(createElement(JournalEntriesChapterPreviewPage));
+    const checkButton = getButtonMarkup(html, "Check Answer");
 
     expect(html).toContain("Chapters");
     expect(html).toContain("Journal Entries");
@@ -166,12 +174,22 @@ describe("Platform preview routes", () => {
     expect(html).toContain("To Amit&#x27;s Capital A/c");
     expect(html).toContain("Practice It Yourself");
     expect(html).toContain("Sold goods for cash ₹12,000. Pass the journal entry.");
+    expect(html).toContain("This preview checker supports this one question only.");
     expect(html).toContain("practice-particulars-1");
     expect(html).toContain("practice-debit-1");
     expect(html).toContain("practice-credit-1");
     expect(html).toContain("practice-narration");
-    expect(html).toContain("Check Answer - Preview only");
-    expect(html).toContain("Checking is intentionally disabled in Phase 3C");
+    expect(html).toContain("practice-total-debit");
+    expect(html).toContain("practice-total-credit");
+    expect(html).toContain("Check Answer");
+    expect(checkButton).toContain("disabled=");
+    expect(checkButton).toContain('aria-disabled="true"');
+    expect(html).toContain("Write the full particulars yourself");
+    expect(html).toContain('id="practice-feedback"');
+    expect(html).toContain('aria-live="polite"');
+    expect(html).toContain("Feedback will appear here after you check your answer.");
+    expect(html).toContain("This preview checker supports only this one cash-sale journal entry.");
+    expect(html).not.toContain("Show Correct Answer");
     expect(html).toContain("Common mistakes");
     expect(html).toContain("Continue to Business Transactions - Preview only");
 
@@ -181,11 +199,42 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('value="To');
     expect(html).not.toContain('value="12000"');
     expect(html).not.toContain('value="12,000"');
-    expect(html).not.toContain("Cash A/c Dr. 12,000");
-    expect(html).not.toContain("To Sales A/c 12,000");
+    expect(html).not.toContain("Cash A/c Dr. ₹12,000");
+    expect(html).not.toContain("To Sales A/c ₹12,000");
     expect(html).not.toContain("Being goods sold for cash.");
     expect(html).not.toContain("Correct Answer");
     expect(html).not.toContain("result_status");
+  });
+
+  it("keeps the first Practice It Yourself checker constrained to the single cash-sale question", () => {
+    const practiceSections = journalEntriesChapter.sections.filter((section) => section.type === "practice-it-yourself");
+    const checkingReadySections = practiceSections.filter((section) => section.question.status === "checking-ready");
+
+    expect(checkingReadySections).toHaveLength(1);
+    expect(checkingReadySections[0]?.question).toMatchObject({
+      id: soldGoodsForCashPracticeQuestion.id,
+      question: "Sold goods for cash ₹12,000. Pass the journal entry.",
+      status: "checking-ready",
+    });
+  });
+
+  it("keeps answer keys server-controlled and the editor bounded for the Phase 3E safety slice", () => {
+    const editorSource = readFileSync("app/platform-preview/_components/JournalEntryPracticeEditor.tsx", "utf8");
+    const actionsSource = readFileSync("app/platform-preview/chapters/journal-entries/actions.ts", "utf8");
+    const answerKeySource = readFileSync(
+      "lib/learning-platform/chapters/journal-entry-answer-keys.server.ts",
+      "utf8",
+    );
+
+    expect(editorSource).not.toContain("journal-entry-answer-keys.server");
+    expect(actionsSource).toContain("journal-entry-answer-keys.server");
+    expect(answerKeySource).toContain("soldGoodsForCashAnswerKey");
+    expect(editorSource).toContain("JOURNAL_ENTRY_PRACTICE_LIMITS.maxRows");
+    expect(editorSource).toContain("Maximum 6 rows");
+    expect(editorSource).toContain("clearCheckedFeedback");
+    expect(editorSource).toContain("Checking your answer...");
+    expect(editorSource).toContain("aria-busy");
+    expect(editorSource).toContain("disabled={isChecking || isCurrentAttemptBlank}");
   });
 
   it("does not link the internal preview routes from the existing public homepage", () => {

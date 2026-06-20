@@ -145,11 +145,10 @@ export type PracticeItYourselfQuestion = {
   mayRemoveRows: boolean;
   inputFieldRequirements: JournalEntryInputFieldRequirement[];
   answerInputSchema: JournalEntryAnswerInputSchema;
-  expectedAnswer: JournalEntryExpectedAnswer;
   status: PracticeQuestionStatus;
 };
 
-export type PracticeItYourselfPreviewQuestion = Omit<PracticeItYourselfQuestion, "expectedAnswer">;
+export type PracticeItYourselfPreviewQuestion = PracticeItYourselfQuestion;
 
 export type LearningObjectiveSection = {
   type: "learning-objective";

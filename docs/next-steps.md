@@ -2,6 +2,22 @@
 
 ## Immediate recommended next step
 
+Phase 3E of the Journal Entries chapter-learning preview is completed.
+
+What this completed safety/UX audit achieved:
+
+- it keeps the first Practice It Yourself checker scoped to exactly one question: `Sold goods for cash ₹12,000`
+- it confirms the expected answer remains server-controlled: the client editor does not import the server answer-key module, the initial page does not render the answer, and reveal remains explicit after a check attempt
+- it adds bounded input safety for this isolated checker: at most 6 journal rows, field-length limits, malformed-shape handling, safe amount parsing, and no `NaN`/crash path for unsafe inputs
+- it confirms conceptually wrong but balanced answers still remain incorrect
+- it improves the editor interaction state by disabling blank checks, showing a pending status, clearing stale checked feedback/revealed answers after edits, capping row additions, and keeping reset/retry/reveal explicit
+- it improves accessibility/mobile safety with clearer instructions, accessible labels, `aria-busy`, focus-visible states, focused feedback, and stacked mobile entry fields
+- it does not add a second question, API route, persistence, progress/history, analytics events, AI, database/auth/payment/backend behavior, live-route migration, or changes to existing parser/classifier/validator/checker logic or accounting engines
+
+Founder functional and mobile review is required next. Phase 3F should either be founder review notes only, or a very small second Practice It Yourself question only after approval. Do not add a second question until the current single-question checker has been manually tested on desktop and mobile.
+
+## Immediate recommended next step
+
 Phase 3C of the Journal Entries chapter-learning preview is completed.
 
 What this completed data-model slice achieved:

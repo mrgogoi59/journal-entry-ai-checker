@@ -1,41 +1,13 @@
 import type {
-  AccountingEntryLine,
   ChapterDefinition,
-  JournalEntryExpectedAnswer,
   PracticeItYourselfPreviewQuestion,
   PracticeItYourselfQuestion,
 } from "@/lib/learning-platform/types";
 
-const soldGoodsForCashExpectedLines: AccountingEntryLine[] = [
-  {
-    id: "cash-debit",
-    account: "Cash A/c",
-    side: "debit",
-    amount: 12000,
-    drNotation: "Dr.",
-  },
-  {
-    id: "sales-credit",
-    account: "Sales A/c",
-    side: "credit",
-    amount: 12000,
-    displayPrefix: "To",
-  },
-];
-
-export const soldGoodsForCashExpectedAnswer: JournalEntryExpectedAnswer = {
-  responseType: "journal-entry",
-  lines: soldGoodsForCashExpectedLines,
-  narration: "Being goods sold for cash.",
-  totals: {
-    debit: 12000,
-    credit: 12000,
-  },
-  balanced: true,
-};
+export const SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID = "journal-entry-sold-goods-for-cash-practice-preview";
 
 export const soldGoodsForCashPracticeQuestion: PracticeItYourselfQuestion = {
-  id: "journal-entry-sold-goods-for-cash-practice-preview",
+  id: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
   title: "Practice: cash sale of goods",
   question: "Sold goods for cash ₹12,000. Pass the journal entry.",
   difficulty: "easy",
@@ -87,16 +59,13 @@ export const soldGoodsForCashPracticeQuestion: PracticeItYourselfQuestion = {
     removableRows: true,
     attemptStatus: "draft",
   },
-  expectedAnswer: soldGoodsForCashExpectedAnswer,
-  status: "preview-only",
+  status: "checking-ready",
 };
 
 export function toPracticeItYourselfPreviewQuestion(
   question: PracticeItYourselfQuestion,
 ): PracticeItYourselfPreviewQuestion {
-  const { expectedAnswer, ...previewQuestion } = question;
-  void expectedAnswer;
-  return previewQuestion;
+  return question;
 }
 
 export const journalEntriesChapter: ChapterDefinition = {
