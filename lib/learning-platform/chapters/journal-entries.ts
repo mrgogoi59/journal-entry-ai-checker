@@ -11,6 +11,7 @@ export const SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID = "journal-entry-sold-good
 export const PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID = "journal-entry-paid-salary-by-bank-practice-preview";
 export const JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG = "introduction-to-journal-entries";
 export const JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG = "business-transactions";
+export const JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG = "accounts-affected";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -125,10 +126,19 @@ const businessTransactionsSubtopicReference: ChapterSubtopicReference = {
 };
 
 const accountsAffectedSubtopicReference: ChapterSubtopicReference = {
-  id: "accounts-affected",
-  slug: "accounts-affected",
+  id: JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
   title: "Accounts Affected",
   order: 3,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG}`,
+};
+
+const typesOfAccountsSubtopicReference: ChapterSubtopicReference = {
+  id: "types-of-accounts",
+  slug: "types-of-accounts",
+  title: "Types of Accounts",
+  order: 4,
   availabilityStatus: "upcoming",
 };
 
@@ -423,9 +433,210 @@ export const businessTransactionsJournalEntriesSubtopic: ChapterSubtopicDefiniti
   ],
 };
 
+export const accountsAffectedJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...accountsAffectedSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG}`,
+  shortDescription:
+    "Learn how to name the exact accounts affected by a transaction before deciding debit and credit treatment.",
+  learningObjective:
+    "Students learn to identify every affected account, separate goods from assets, choose Cash or Bank correctly, and recognise named capital or drawings accounts.",
+  progressLabel: "Section 3 of 16",
+  previousSection: businessTransactionsSubtopicReference,
+  nextSection: typesOfAccountsSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "accounts-affected",
+      eyebrow: "Learning objective",
+      title: "Accounts Affected",
+      body:
+        "Before writing Dr. or To, first identify which accounts changed. Every journal entry affects at least two accounts, and each account name should be specific.",
+    },
+    {
+      type: "concept-explanation",
+      id: "identify-accounts-before-rules",
+      eyebrow: "Concept explanation",
+      title: "Identify accounts before applying rules",
+      paragraphs: [
+        "Every business transaction affects at least two accounts. If you identify only one account, the journal entry is not complete.",
+        "Account names must be specific. Write Cash A/c, Bank A/c, Riya A/c, Amit's Capital A/c, Furniture A/c, or Purchases A/c as the transaction requires.",
+        "The payment mode often reveals whether Cash A/c or Bank A/c is affected. Words like cash, bank, cheque, or bank transfer are important clues.",
+        "Buying goods affects Purchases A/c, but buying an asset affects the named asset account, such as Furniture A/c or Machinery A/c.",
+        "Credit transactions usually involve a named debtor or creditor. For example, selling goods on credit to Riya affects Riya A/c and Sales A/c.",
+        "Capital and drawings should use the owner's or partner's name where appropriate, such as Amit's Capital A/c or Amit Drawings A/c.",
+        "Only after the affected accounts are clear should you decide which account is debited and which account is credited.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "accounts-affected-process",
+      eyebrow: "Account-identification process",
+      title: "Read, identify, then apply rules",
+      body:
+        "Use this order every time: read the transaction, identify the accounts, understand the effect, then apply debit and credit rules.",
+      steps: [
+        { label: "Read the complete transaction", detail: "Do not decide from one word only. Read the amount, person, item, and payment mode." },
+        { label: "Identify what the business receives", detail: "This may be cash, bank money, goods, an asset, a service benefit, or a debtor." },
+        { label: "Identify what the business gives or becomes liable for", detail: "This may be cash, bank money, goods, income, capital claim, loan, or a creditor." },
+        { label: "Look for account clues", detail: "Check whether cash, bank, a person, goods, an asset, income, expense, capital, or drawings are involved." },
+        { label: "Write the exact account names", detail: "Use the specific account name from the transaction instead of a vague account name." },
+        { label: "Confirm no account is missed", detail: "A journal entry needs at least two affected accounts." },
+        { label: "Move to classification and treatment", detail: "After account names are clear, classify them and decide debit-credit treatment." },
+      ],
+    },
+    {
+      type: "clue-guide",
+      id: "transaction-clue-guide",
+      eyebrow: "Transaction clue guide",
+      title: "Common clues and likely accounts",
+      body:
+        "These are learning clues, not a promise that every wording variation is supported by the live Explainer.",
+      clues: [
+        { clue: "cash", likelyAccounts: ["Cash A/c"] },
+        { clue: "bank, cheque, or bank transfer", likelyAccounts: ["Bank A/c"] },
+        { clue: "goods purchased", likelyAccounts: ["Purchases A/c"] },
+        { clue: "goods sold", likelyAccounts: ["Sales A/c"] },
+        { clue: "furniture purchased", likelyAccounts: ["Furniture A/c"], note: "Use the asset name when the item is for business use." },
+        { clue: "rent paid", likelyAccounts: ["Rent A/c"] },
+        { clue: "capital introduced by Amit", likelyAccounts: ["Amit's Capital A/c"] },
+        { clue: "withdrawn for personal use", likelyAccounts: ["Drawings A/c"], note: "Use a named drawings account when a person is named." },
+        { clue: "sold on credit to Riya", likelyAccounts: ["Riya A/c", "Sales A/c"] },
+        { clue: "purchased on credit from Mohan", likelyAccounts: ["Purchases A/c", "Mohan A/c"] },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "goods-versus-assets",
+      eyebrow: "Important comparison",
+      title: "Goods purchased versus asset purchased",
+      intro:
+        "Do not use Purchases A/c for every purchase. First ask whether the item is bought for resale or for use in the business.",
+      groups: [
+        {
+          title: "Goods purchased",
+          items: [
+            "Transaction: Bought goods for cash ₹10,000.",
+            "Accounts affected: Purchases A/c and Cash A/c.",
+            "Reason: The items were purchased for resale.",
+          ],
+        },
+        {
+          title: "Asset purchased",
+          items: [
+            "Transaction: Bought furniture for cash ₹10,000.",
+            "Accounts affected: Furniture A/c and Cash A/c.",
+            "Reason: Furniture is used in the business and is not purchased for resale.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "credit-sale-to-riya-worked-example",
+      illustration: {
+        id: "credit-sale-to-riya-worked-example",
+        title: "Worked Example 1: credit sale to Riya",
+        difficulty: "easy",
+        question: "Sold goods on credit to Riya ₹8,000.",
+        accountsAffected: ["Riya A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Riya A/c is affected", detail: "Riya becomes a debtor because goods are sold to her on credit." },
+          { label: "Sales A/c is affected", detail: "Goods are sold, so Sales A/c is affected." },
+          { label: "Cash/Bank not affected", detail: "Cash A/c and Bank A/c are not affected because the sale is on credit." },
+          { label: "Then apply rules", detail: "After identifying accounts, Riya is debited and Sales is credited." },
+        ],
+        journalEntry: [
+          { id: "riya-debit", account: "Riya A/c", side: "debit", amount: 8000, drNotation: "Dr." },
+          { id: "sales-credit", account: "Sales A/c", side: "credit", amount: 8000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold on credit to Riya.",
+        explanation:
+          "The first job is to identify accounts: Riya A/c and Sales A/c. Cash or Bank is not used because no money is received immediately.",
+        studentTakeaway: "For a credit sale, use the customer's account instead of Cash A/c or Bank A/c.",
+        commonMistake: "Using Cash A/c just because goods are sold.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "furniture-on-credit-from-mohan-worked-example",
+      illustration: {
+        id: "furniture-on-credit-from-mohan-worked-example",
+        title: "Worked Example 2: furniture bought on credit",
+        difficulty: "easy",
+        question: "Bought furniture on credit from Mohan ₹20,000.",
+        accountsAffected: ["Furniture A/c", "Mohan A/c"],
+        reasoningSteps: [
+          { label: "Furniture A/c is affected", detail: "Furniture is an asset used in the business." },
+          { label: "Mohan A/c is affected", detail: "Mohan becomes a creditor because the purchase is on credit." },
+          { label: "Purchases is not used", detail: "Furniture is an asset, not goods bought for resale." },
+          { label: "Cash/Bank not affected", detail: "Cash A/c and Bank A/c are not affected because payment is not made now." },
+        ],
+        journalEntry: [
+          { id: "furniture-debit", account: "Furniture A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "mohan-credit", account: "Mohan A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being furniture purchased on credit from Mohan.",
+        explanation:
+          "The account affected is Furniture A/c because an asset is purchased. Mohan A/c is credited because Mohan is the creditor.",
+        studentTakeaway: "Use Purchases A/c for goods, but use the asset name for business assets.",
+        commonMistake: "Debiting Purchases A/c for furniture.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "amit-cash-drawings-worked-example",
+      illustration: {
+        id: "amit-cash-drawings-worked-example",
+        title: "Worked Example 3: drawings in cash",
+        difficulty: "easy",
+        question: "Amit withdrew cash ₹5,000 for personal use.",
+        accountsAffected: ["Amit Drawings A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Amit Drawings A/c is affected", detail: "Value is withdrawn by Amit for personal use." },
+          { label: "Cash A/c is affected", detail: "Cash leaves the business." },
+          { label: "Not an office cash withdrawal", detail: "The words personal use make this drawings, not a normal business cash withdrawal." },
+          { label: "Then apply rules", detail: "Amit Drawings is debited and Cash is credited." },
+        ],
+        journalEntry: [
+          { id: "amit-drawings-debit", account: "Amit Drawings A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "cash-drawings-credit", account: "Cash A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being cash withdrawn by Amit for personal use.",
+        explanation:
+          "Personal-use wording changes the affected account to Amit Drawings A/c. Cash is credited because cash leaves the business.",
+        studentTakeaway: "Personal withdrawal is drawings, not an ordinary business cash withdrawal.",
+        commonMistake: "Writing Cash A/c Dr. as if the business withdrew cash for office use.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "accounts-affected-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these account-identification mistakes",
+      mistakes: [
+        "Identifying only one account.",
+        "Using Cash A/c when the transaction is on credit.",
+        "Using Purchases A/c for an asset.",
+        "Using a generic Capital A/c instead of the named proprietor or partner account.",
+        "Treating personal withdrawal as an ordinary business cash withdrawal.",
+        "Ignoring payment mode.",
+        "Applying debit-credit rules before identifying the accounts.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "accounts-affected-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Before writing any journal entry, ask: Which accounts changed, and why?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
+  accountsAffectedJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -462,7 +673,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "What makes an event recordable in accounting.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG}`,
     },
-    { id: "accounts-affected", title: "Accounts Affected", order: 3, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+      title: "Accounts Affected",
+      order: 3,
+      status: "available",
+      shortDescription: "How to name every account affected before applying debit-credit rules.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG}`,
+    },
     { id: "types-of-accounts", title: "Types of Accounts", order: 4, status: "upcoming" },
     { id: "debit-and-credit-rules", title: "Debit and Credit Rules", order: 5, status: "upcoming" },
     { id: "journal-format", title: "Journal Format", order: 6, status: "upcoming" },

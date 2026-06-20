@@ -7,8 +7,10 @@ import PlatformPreviewLayout, { metadata as platformPreviewMetadata } from "@/ap
 import PlatformPreviewDashboardPage from "@/app/platform-preview/page";
 import PlatformPreviewChaptersPage from "@/app/platform-preview/chapters/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
+import AccountsAffectedChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/accounts-affected/page";
 import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
 import {
+  JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   journalEntriesChapter,
@@ -41,6 +43,7 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics.map((subtopic) => subtopic.slug)).toEqual([
       JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
       JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+      JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -52,11 +55,22 @@ describe("Platform preview routes", () => {
       title: "Business Transactions",
       progressLabel: "Section 2 of 16",
     });
+    expect(journalEntriesChapter.subtopics[2]).toMatchObject({
+      order: 3,
+      title: "Accounts Affected",
+      progressLabel: "Section 3 of 16",
+    });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].nextSection).toMatchObject({
-      slug: "accounts-affected",
+      slug: JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
       title: "Accounts Affected",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[2].previousSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[2].nextSection).toMatchObject({
+      slug: "types-of-accounts",
+      title: "Types of Accounts",
       availabilityStatus: "upcoming",
     });
 
@@ -66,6 +80,10 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[1].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
     expect(journalEntriesChapter.subtopics[1].sections.filter((section) => section.type === "comparison")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[1].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[2].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[2].sections.filter((section) => section.type === "clue-guide")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[2].sections.filter((section) => section.type === "comparison")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[2].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -129,6 +147,41 @@ describe("Platform preview routes", () => {
     expect(capitalIllustrationSection.illustration.journalEntry).not.toEqual(
       expect.arrayContaining([expect.objectContaining({ account: "Capital A/c" })]),
     );
+  });
+
+  it("defines the Accounts Affected worked examples with account-identification-safe entries", () => {
+    const accountsAffectedSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+    );
+
+    const creditSaleExample = accountsAffectedSubtopic?.sections.find(
+      (section) => section.type === "solved-illustration" && section.id === "credit-sale-to-riya-worked-example",
+    );
+    const furnitureExample = accountsAffectedSubtopic?.sections.find(
+      (section) => section.type === "solved-illustration" && section.id === "furniture-on-credit-from-mohan-worked-example",
+    );
+    const drawingsExample = accountsAffectedSubtopic?.sections.find(
+      (section) => section.type === "solved-illustration" && section.id === "amit-cash-drawings-worked-example",
+    );
+
+    expect(creditSaleExample?.type).toBe("solved-illustration");
+    expect(furnitureExample?.type).toBe("solved-illustration");
+    expect(drawingsExample?.type).toBe("solved-illustration");
+
+    if (
+      creditSaleExample?.type !== "solved-illustration" ||
+      furnitureExample?.type !== "solved-illustration" ||
+      drawingsExample?.type !== "solved-illustration"
+    ) {
+      throw new Error("Accounts Affected worked examples were not found");
+    }
+
+    expect(creditSaleExample.illustration.journalEntry.map((line) => line.account)).toEqual(["Riya A/c", "Sales A/c"]);
+    expect(creditSaleExample.illustration.journalEntry.map((line) => line.account)).not.toContain("Cash A/c");
+    expect(creditSaleExample.illustration.journalEntry.map((line) => line.account)).not.toContain("Bank A/c");
+    expect(furnitureExample.illustration.journalEntry.map((line) => line.account)).toEqual(["Furniture A/c", "Mohan A/c"]);
+    expect(furnitureExample.illustration.journalEntry.map((line) => line.account)).not.toContain("Purchases A/c");
+    expect(drawingsExample.illustration.journalEntry.map((line) => line.account)).toEqual(["Amit Drawings A/c", "Cash A/c"]);
   });
 
   it("marks the platform preview routes as noindex and nofollow", () => {
@@ -301,12 +354,59 @@ describe("Platform preview routes", () => {
     expect(html).toContain("To Loan A/c");
     expect(html).toContain("Being loan received through bank.");
     expect(html).toContain("Previous Introduction to Journal Entries and Journal Format");
-    expect(html).toContain("Continue to Accounts Affected - Preview only");
+    expect(html).toContain("Continue to Accounts Affected");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/business-transactions")).toContain(
       'aria-current="step"',
     );
     expect(html).toContain('href="/platform-preview/chapters/journal-entries"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
+    expect(html).not.toContain("Continue to Accounts Affected - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Accounts Affected section without adding a checker", () => {
+    const html = renderToStaticMarkup(createElement(AccountsAffectedChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Accounts Affected");
+    expect(html).toContain("Section 3 of 16");
+    expect(html).toContain("Every business transaction affects at least two accounts.");
+    expect(html).toContain("Read, identify, then apply rules");
+    expect(html).toContain("Read the complete transaction");
+    expect(html).toContain("Move to classification and treatment");
+    expect(html).toContain("Common clues and likely accounts");
+    expect(html).toContain("bank, cheque, or bank transfer");
+    expect(html).toContain("Amit&#x27;s Capital A/c");
+    expect(html).toContain("Goods purchased versus asset purchased");
+    expect(html).toContain("Transaction: Bought goods for cash ₹10,000.");
+    expect(html).toContain("Accounts affected: Purchases A/c and Cash A/c.");
+    expect(html).toContain("Transaction: Bought furniture for cash ₹10,000.");
+    expect(html).toContain("Accounts affected: Furniture A/c and Cash A/c.");
+    expect(html).toContain("Sold goods on credit to Riya ₹8,000.");
+    expect(html).toContain("Riya A/c Dr.");
+    expect(html).toContain("To Sales A/c");
+    expect(html).toContain("Being goods sold on credit to Riya.");
+    expect(html).toContain("Bought furniture on credit from Mohan ₹20,000.");
+    expect(html).toContain("Furniture A/c Dr.");
+    expect(html).toContain("To Mohan A/c");
+    expect(html).toContain("Being furniture purchased on credit from Mohan.");
+    expect(html).toContain("Amit withdrew cash ₹5,000 for personal use.");
+    expect(html).toContain("Amit Drawings A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Being cash withdrawn by Amit for personal use.");
+    expect(html).toContain("Before writing any journal entry, ask: Which accounts changed, and why?");
+    expect(html).toContain("Previous Business Transactions");
+    expect(html).toContain("Continue to Types of Accounts - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/accounts-affected")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/business-transactions"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -360,5 +460,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/business-transactions"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
   });
 });

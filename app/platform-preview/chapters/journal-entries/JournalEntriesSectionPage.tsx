@@ -4,12 +4,14 @@ import {
   AccountingEntryTable,
   ChapterOutline,
   ChapterProgressPreview,
+  ClueGuideBlock,
   CommonMistakes,
   ComparisonBlock,
   ConceptSection,
   formatAccountingFormatRows,
   PracticeItYourselfPreview,
   ProcessStepsBlock,
+  ReflectionPrompt,
   SolvedIllustration,
   WorkedExample,
 } from "../../_components/ChapterLearningPreview";
@@ -44,8 +46,8 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
         <ChapterOutline chapter={chapter} activeSectionId={subtopic.id} />
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
-          <PageHeader
-            eyebrow="Phase 3G chapter preview"
+            <PageHeader
+            eyebrow="Phase 3H chapter preview"
             title={chapter.metadata.title}
             description={chapter.metadata.description}
           >
@@ -144,6 +146,9 @@ function ChapterSectionRenderer({
     case "process-steps":
       return <ProcessStepsBlock section={section} />;
 
+    case "clue-guide":
+      return <ClueGuideBlock section={section} />;
+
     case "accounting-format":
       return (
         <ConceptSection eyebrow={section.eyebrow} title={section.title}>
@@ -193,6 +198,9 @@ function ChapterSectionRenderer({
           </ul>
         </section>
       );
+
+    case "reflection-prompt":
+      return <ReflectionPrompt section={section} />;
 
     default: {
       const _exhaustive: never = section;

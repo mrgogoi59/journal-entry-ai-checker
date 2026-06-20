@@ -5,10 +5,12 @@ import type {
   ChapterDefinition,
   ChapterMetadata,
   ChapterSubtopicDefinition,
+  ClueGuideSection,
   CommonMistakesSection,
   ComparisonSection,
   PracticeItYourselfPreviewQuestion,
   ProcessStepsSection,
+  ReflectionPromptSection,
   SimpleExampleSection,
   SolvedIllustration as SolvedIllustrationData,
 } from "@/lib/learning-platform/types";
@@ -179,6 +181,35 @@ export function ProcessStepsBlock({ section }: { section: ProcessStepsSection })
           </li>
         ))}
       </ol>
+    </section>
+  );
+}
+
+export function ClueGuideBlock({ section }: { section: ClueGuideSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {section.clues.map((item) => (
+          <article key={item.clue} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-black uppercase tracking-wide text-slate-500">Clue</p>
+            <h3 className="mt-1 text-sm font-black text-slate-950">{item.clue}</h3>
+            <p className="mt-3 text-xs font-black uppercase tracking-wide text-cyan-700">Likely account(s)</p>
+            <p className="mt-1 text-sm font-bold leading-6 text-slate-800">{item.likelyAccounts.join(" and ")}</p>
+            {item.note ? <p className="mt-2 text-sm leading-6 text-slate-600">{item.note}</p> : null}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function ReflectionPrompt({ section }: { section: ReflectionPromptSection }) {
+  return (
+    <section className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">{section.eyebrow}</p>
+      <h2 className="mt-2 text-xl font-black tracking-tight text-cyan-950 sm:text-2xl">{section.prompt}</h2>
+      {section.body ? <p className="mt-3 text-sm font-semibold leading-6 text-cyan-900">{section.body}</p> : null}
     </section>
   );
 }

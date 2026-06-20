@@ -70,6 +70,16 @@ Target platform planning note:
 - The new Business Transactions section is explanation-only: it teaches transaction meaning, monetary measurement, business entity, source documents, transaction-versus-event examples, account-identification steps, two worked examples, and common mistakes.
 - Phase 3G does not add a third checker question ID, does not add checker logic to Business Transactions, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
 - Phase 3G does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
+- Phase 3H now adds the third routed Journal Entries learning section inside the isolated `/platform-preview` shell:
+  - `/platform-preview/chapters/journal-entries/accounts-affected`
+- The Journal Entries preview now contains three routed learning sections:
+  - `Introduction to Journal Entries and Journal Format`
+  - `Business Transactions`
+  - `Accounts Affected`
+- The Accounts Affected section teaches students to identify exact affected accounts before applying debit-credit rules, with account-identification steps, a transaction clue guide, goods-versus-assets comparison, three worked examples, common mistakes, and a non-checking reflection prompt.
+- Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions and Accounts Affected remain explanation-only.
+- Phase 3H does not add a third checker question ID, does not modify the existing two checkers, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
+- Phase 3H does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 

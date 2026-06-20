@@ -188,6 +188,19 @@ export type ProcessStepsSection = {
   steps: ReasoningStep[];
 };
 
+export type ClueGuideSection = {
+  type: "clue-guide";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  clues: {
+    clue: string;
+    likelyAccounts: string[];
+    note?: string;
+  }[];
+};
+
 export type AccountingFormatSection = {
   type: "accounting-format";
   id: string;
@@ -234,17 +247,27 @@ export type RecapSection = {
   points: string[];
 };
 
+export type ReflectionPromptSection = {
+  type: "reflection-prompt";
+  id: string;
+  eyebrow: string;
+  prompt: string;
+  body?: string;
+};
+
 export type ChapterSection =
   | LearningObjectiveSection
   | ConceptExplanationSection
   | ComparisonSection
   | ProcessStepsSection
+  | ClueGuideSection
   | AccountingFormatSection
   | SimpleExampleSection
   | SolvedIllustrationSection
   | PracticeItYourselfSection
   | CommonMistakesSection
-  | RecapSection;
+  | RecapSection
+  | ReflectionPromptSection;
 
 export type ChapterSubtopicAvailabilityStatus = Exclude<OutlineItemStatus, "current">;
 

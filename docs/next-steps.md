@@ -2,20 +2,21 @@
 
 ## Immediate recommended next step
 
-Phase 3G of the Journal Entries chapter-learning preview is completed.
+Phase 3H of the Journal Entries chapter-learning preview is completed.
 
-What this completed reusable subtopic-progression slice achieved:
+What this completed third-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
-- it adds `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
-- the typed learning-platform chapter model now supports routed subtopics, available/upcoming outline state, progress labels, previous/next navigation, comparison blocks, and ordered process-step blocks
-- the first section now links forward to Business Transactions, while the Business Transactions section links back to Introduction and shows `Accounts Affected` as an upcoming disabled next step
-- Business Transactions is static learning content only: concept explanation, transaction-versus-event examples, account-identification process, two worked examples, and common mistakes
+- it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
+- it adds `/platform-preview/chapters/journal-entries/accounts-affected` as Section 3: `Accounts Affected`
+- the typed learning-platform chapter model now supports the display-only clue-guide and reflection-prompt blocks needed for this section
+- Business Transactions now links forward to Accounts Affected, while Accounts Affected links back to Business Transactions and shows `Types of Accounts` as an upcoming disabled next step
+- Accounts Affected is static learning content only: account-identification process, transaction clue guide, goods-versus-assets comparison, three worked examples, common mistakes, and a non-checking reflection prompt
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
 - no third question ID, new checker logic, broad question-bank generator, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder manual review is required next for the two-section progression on desktop and mobile. Phase 3H should add the third static subtopic, `Accounts Affected`, using the same reusable section progression; do not add more checkers, broad question-bank generation, or live-route migration yet.
+Founder visual/content review is required next for the three-section progression on desktop and mobile. Phase 3I should add the fourth static subtopic, `Types of Accounts`, using the same reusable section progression; do not add further practice questions, broad question-bank generation, or live-route migration yet.
 
 ## Immediate recommended next step
 
