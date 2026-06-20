@@ -26,7 +26,10 @@ Target platform planning note:
 - `docs/accountancy-concept-map.md` now records the Accountancy chapter scaffold and a detailed Journal Entries chapter concept map.
 - The target platform has five primary sections: Dashboard, Chapters, Solver, Practice, and AI Assistant.
 - The blueprint defines the chapter learning flow, solved illustration model, Practice It Yourself model, proposed route architecture, mobile-first UI principles, reusable content model, Journal Entries first slice, Trial Balance second validation slice, migration phases, and guardrails.
-- No redesign code, app routes, runtime logic, tests, accounting engines, or UI changes have been implemented from this blueprint yet.
+- Phase 3A of the redesign now exists as an internal preview-only shell at `/platform-preview` and `/platform-preview/chapters`.
+- The Phase 3A preview includes the five-section navigation, desktop sidebar, mobile header/menu, static Dashboard preview, static Chapters preview, and restrained visual design system for founder review.
+- The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
+- Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 
 ## Current student-facing routes
 

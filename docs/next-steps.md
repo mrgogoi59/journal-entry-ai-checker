@@ -2,6 +2,20 @@
 
 ## Immediate recommended next step
 
+Phase 3A of the redesigned platform preview shell is completed.
+
+What this completed UI prototype slice achieved:
+
+- it adds temporary internal preview routes at `/platform-preview` and `/platform-preview/chapters`
+- it adds a responsive preview shell with five-section navigation, desktop sidebar, compact mobile header/menu, Dashboard preview, and Chapters listing preview
+- it uses static mock/preview data only and does not add real progress tracking, storage, APIs, analytics events, authentication, database, payment, backend, or AI behavior
+- it keeps the existing public homepage, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, accounting engines, parser/classifier/validator/checker logic, Ledger/Trial Balance/Final Accounts impact logic, and accounting calculations unchanged
+- it marks the preview route metadata as `noindex, nofollow` and does not link these preview routes from the existing public application navigation
+
+Founder visual review is required next. Do not begin the next redesign phase or integrate the shell into real routes until this preview is approved.
+
+## Immediate recommended next step
+
 The platform blueprint revision and Journal Entries concept-map planning slice is completed.
 
 What this completed planning slice achieved:

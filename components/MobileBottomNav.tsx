@@ -34,6 +34,10 @@ const navItems = [
 export function MobileBottomNav() {
   const pathname = usePathname();
 
+  if (pathname.startsWith("/platform-preview")) {
+    return null;
+  }
+
   return (
     <nav
       aria-label="Mobile primary navigation"
