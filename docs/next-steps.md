@@ -2,23 +2,24 @@
 
 ## Immediate recommended next step
 
-Phase 3J of the Journal Entries chapter-learning preview is completed.
+Phase 3K of the Journal Entries chapter-learning preview is completed.
 
-What this completed fifth-section slice achieved:
+What this completed sixth-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
 - it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
 - it keeps `/platform-preview/chapters/journal-entries/accounts-affected` as Section 3: `Accounts Affected`
 - it keeps `/platform-preview/chapters/journal-entries/types-of-accounts` as Section 4: `Types of Accounts`
-- it adds `/platform-preview/chapters/journal-entries/debit-and-credit-rules` as Section 5: `Debit and Credit Rules`
-- the typed learning-platform chapter model now supports display-only debit-credit rule guide cards for modern rules, the summary matrix, and traditional golden rules
-- Types of Accounts now links forward to Debit and Credit Rules, while Debit and Credit Rules links back to Types of Accounts and shows `Journal Format and Narration` as an upcoming disabled next step
-- Debit and Credit Rules is static learning content only: debit/credit meaning, modern rules, traditional golden rules, modern-versus-traditional comparison, a 10-step decision process, six solved worked examples, common mistakes, and a non-checking reflection prompt
+- it keeps `/platform-preview/chapters/journal-entries/debit-and-credit-rules` as Section 5: `Debit and Credit Rules`
+- it adds `/platform-preview/chapters/journal-entries/journal-format-and-narration` as Section 6: `Journal Format and Narration`
+- the typed learning-platform chapter model now supports a display-only journal-column guide for Date, Particulars, L.F., Debit amount, and Credit amount
+- Debit and Credit Rules now links forward to Journal Format and Narration, while Journal Format and Narration links back to Debit and Credit Rules and shows `Cash and Bank Transactions` as an upcoming disabled next step
+- Journal Format and Narration is static learning content only: formal journal columns, Dr./To placement, L.F. meaning, narration writing, debit/credit total confirmation, a 10-step presentation process, four solved format illustrations, simple-versus-compound presentation, correct-versus-incorrect presentation, common mistakes, a display-only checklist, and a non-checking reflection prompt
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
-- no third question ID, new checker logic, broad question-bank generator, `/journal-format-and-narration` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
+- no third question ID, new checker logic, broad question-bank generator, `/cash-and-bank-transactions` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder visual/content review is required next for the five-section progression on desktop and mobile. Phase 3K should add the sixth static subtopic, `Journal Format and Narration`, using the same reusable section progression; do not add further practice questions, broad question-bank generation, live-route migration, or new checker wiring yet.
+Founder visual/content review is required next for the six-section progression on desktop and mobile. Phase 3L should add the seventh static subtopic, `Cash and Bank Transactions`, only after review and using the same reusable section progression; do not add further practice questions, broad question-bank generation, live-route migration, or new checker wiring yet.
 
 ## Immediate recommended next step
 

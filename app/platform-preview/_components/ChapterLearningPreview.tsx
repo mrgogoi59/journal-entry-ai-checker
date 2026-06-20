@@ -12,6 +12,7 @@ import type {
   CommonMistakesSection,
   ComparisonSection,
   DebitCreditRuleGuideSection,
+  JournalColumnGuideSection,
   PracticeItYourselfPreviewQuestion,
   ProcessStepsSection,
   ReflectionPromptSection,
@@ -346,6 +347,29 @@ export function DebitCreditRuleGuideBlock({ section }: { section: DebitCreditRul
               </ul>
             ) : null}
             {rule.note ? <p className="mt-3 text-sm leading-6 text-slate-600">{rule.note}</p> : null}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function JournalColumnGuideBlock({ section }: { section: JournalColumnGuideSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {section.columns.map((column) => (
+          <article key={column.title} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-base font-black text-slate-950">{column.title}</h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-cyan-800">{column.purpose}</p>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-700">
+              {column.guidance.map((item) => (
+                <li key={item} className="rounded-xl border border-slate-200 bg-white p-3">
+                  {item}
+                </li>
+              ))}
+            </ul>
           </article>
         ))}
       </div>

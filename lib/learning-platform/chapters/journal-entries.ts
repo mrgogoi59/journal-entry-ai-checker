@@ -14,6 +14,7 @@ export const JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG = "business-tran
 export const JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG = "accounts-affected";
 export const JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG = "types-of-accounts";
 export const JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG = "debit-and-credit-rules";
+export const JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG = "journal-format-and-narration";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -155,10 +156,19 @@ const debitAndCreditRulesSubtopicReference: ChapterSubtopicReference = {
 };
 
 const journalFormatAndNarrationSubtopicReference: ChapterSubtopicReference = {
-  id: "journal-format-and-narration",
-  slug: "journal-format-and-narration",
+  id: JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
   title: "Journal Format and Narration",
   order: 6,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG}`,
+};
+
+const cashAndBankTransactionsSubtopicReference: ChapterSubtopicReference = {
+  id: "cash-and-bank-transactions",
+  slug: "cash-and-bank-transactions",
+  title: "Cash and Bank Transactions",
+  order: 7,
   availabilityStatus: "upcoming",
 };
 
@@ -1280,12 +1290,413 @@ export const debitAndCreditRulesJournalEntriesSubtopic: ChapterSubtopicDefinitio
   ],
 };
 
+export const journalFormatAndNarrationJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...journalFormatAndNarrationSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG}`,
+  shortDescription:
+    "Learn the formal journal entry layout, column use, Dr./To placement, narration, and debit-credit total checks.",
+  learningObjective:
+    "Students learn every journal column, how to present debit and credit lines, how to write narration, and how to confirm a clean balanced entry.",
+  progressLabel: "Section 6 of 16",
+  previousSection: debitAndCreditRulesSubtopicReference,
+  nextSection: cashAndBankTransactionsSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "journal-format-and-narration",
+      eyebrow: "Learning objective",
+      title: "Journal Format and Narration",
+      body:
+        "By the end of this section, you should be able to present a journal entry neatly with Date, Particulars, L.F., Debit, Credit, and a clear narration.",
+    },
+    {
+      type: "concept-explanation",
+      id: "purpose-of-journal-format",
+      eyebrow: "Concept explanation",
+      title: "Why journal format matters",
+      paragraphs: [
+        "The journal records transactions in chronological order. That means entries are written in the order in which transactions happen.",
+        "A standard format keeps entries clear and consistent. It shows which account is debited, which account is credited, and the respective amounts.",
+        "Narration briefly explains the transaction below the entry. The format also helps later ledger posting because the accounts and amounts are easy to trace.",
+        "This section teaches complete formal presentation. Section 1 only introduced the format briefly.",
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "standard-journal-format",
+      eyebrow: "Journal format",
+      title: "Standard journal columns",
+      paragraphs: [
+        "A journal entry uses Date, Particulars, L.F., Debit ₹, and Credit ₹ columns.",
+        "The debit account is written first with Dr. The credited account is written below it with To. Narration is written below the account lines.",
+      ],
+      formatRows: [
+        { id: "format-date-header", particulars: "Debit account Dr.", lf: "", debitDisplay: "Debit amount" },
+        { id: "format-credit-line", particulars: "To Credit account", lf: "", creditDisplay: "Credit amount" },
+        { id: "format-narration-line", particulars: "(Being short explanation of the transaction)" },
+      ],
+    },
+    {
+      type: "journal-column-guide",
+      id: "journal-column-guide",
+      eyebrow: "Column guide",
+      title: "What each journal column means",
+      body:
+        "Use column meaning, not colour or layout alone, to understand where each part of the entry belongs.",
+      columns: [
+        {
+          title: "Date",
+          purpose: "Shows when the transaction occurred.",
+          guidance: [
+            "The year and month may be written once and repeated only when required by the chosen school format.",
+            "Do not over-expand into date-book conventions here.",
+          ],
+        },
+        {
+          title: "Particulars",
+          purpose: "Contains the debit account, Dr., credited account with To, and narration.",
+          guidance: [
+            "Write the account to be debited first.",
+            "Write the credited account below it with To.",
+            "Write narration below the account lines.",
+          ],
+        },
+        {
+          title: "L.F.",
+          purpose: "L.F. means Ledger Folio.",
+          guidance: [
+            "It records the ledger page or reference after posting.",
+            "Students may leave it blank while initially preparing the journal.",
+            "It is not an amount column.",
+          ],
+        },
+        {
+          title: "Debit amount",
+          purpose: "Contains the amount debited.",
+          guidance: ["Only the debit line receives the amount in this column."],
+        },
+        {
+          title: "Credit amount",
+          purpose: "Contains the amount credited.",
+          guidance: ["Only the credit line receives the amount in this column."],
+        },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "how-to-write-debit-line",
+      eyebrow: "Debit line",
+      title: "How to write the debit line",
+      paragraphs: [
+        "The account to be debited is written first.",
+        "Add Dr. after the debit account name.",
+        "Enter its amount in the Debit column.",
+        "Do not prefix the debit line with To. Example: Rent A/c Dr. ₹5,000.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "how-to-write-credit-line",
+      eyebrow: "Credit line",
+      title: "How to write the credit line",
+      paragraphs: [
+        "The credited account is written below the debit line.",
+        "Prefix it with To in the standard school-learning format used by AccyWise AI.",
+        "Enter its amount in the Credit column.",
+        "Do not add Dr. to the credited account. Example: To Bank A/c ₹5,000.",
+        "To is a presentation convention. It does not change the account name itself.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "debit-credit-totals",
+      eyebrow: "Totals",
+      title: "Debit and credit totals",
+      paragraphs: [
+        "Total debit must equal total credit.",
+        "A simple entry may contain one debit and one credit.",
+        "A compound entry may contain more than one debit or credit line.",
+        "Even in a compound entry, total debit must equal total credit. Detailed compound-entry practice will come later.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "narration-examples",
+      eyebrow: "Narration",
+      title: "How to write a clear narration",
+      intro:
+        "Narration is a short explanation below the entry. It usually begins with Being and is not a separate account line.",
+      groups: [
+        {
+          title: "Good narration",
+          items: [
+            "Being rent paid by bank.",
+            "Being goods purchased for cash.",
+            "Being goods sold on credit to Riya.",
+            "Being capital introduced by Amit through bank.",
+          ],
+        },
+        {
+          title: "Weak narration",
+          items: [
+            "Being transaction done.",
+            "Being payment made.",
+            "Being entry passed.",
+            "These are weak because they are too vague and do not clearly describe the transaction.",
+          ],
+        },
+        {
+          title: "Narration reminders",
+          items: [
+            "Narration should not introduce a different accounting meaning.",
+            "Narration should not contain debit or credit amounts unless a specific format requires it.",
+            "Narration is written below the journal entry, not as another account line.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "journal-presentation-process",
+      eyebrow: "Presentation process",
+      title: "Date, Dr., To, amounts, narration, totals",
+      body:
+        "Use this order after account identification, classification, and debit-credit treatment are already clear.",
+      steps: [
+        { label: "Write the transaction date", detail: "Use the date format your class or school requires." },
+        { label: "Write the account to be debited", detail: "The debit account appears first in Particulars." },
+        { label: "Add Dr. after the debit account", detail: "Dr. marks the account being debited." },
+        { label: "Enter the debit amount", detail: "Put this amount in the Debit column." },
+        { label: "Write the credited account next", detail: "The credited account appears on the next line." },
+        { label: "Prefix the credited account with To", detail: "To shows the credited account in school journal format." },
+        { label: "Enter the credit amount", detail: "Put this amount in the Credit column." },
+        { label: "Write a concise narration", detail: "Explain the transaction below the account lines." },
+        { label: "Check Debit equals Credit", detail: "Total debit must equal total credit." },
+        { label: "Review details", detail: "Check spelling, account names, Cash/Bank treatment, and named accounts." },
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "journal-format-cash-purchase",
+      illustration: {
+        id: "journal-format-cash-purchase",
+        title: "Solved Illustration 1: cash purchase",
+        difficulty: "easy",
+        question: "Bought goods for cash ₹10,000.",
+        accountsAffected: ["Purchases A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Debit line first", detail: "Purchases A/c is written first with Dr." },
+          { label: "Credit line with To", detail: "Cash A/c is written below with To." },
+          { label: "Amount columns", detail: "₹10,000 appears in the Debit column for Purchases and Credit column for Cash." },
+          { label: "Narration below", detail: "Narration is written below the entry." },
+        ],
+        journalEntry: [
+          { id: "journal-format-purchases-debit", account: "Purchases A/c", side: "debit", amount: 10000, drNotation: "Dr." },
+          { id: "journal-format-cash-credit", account: "Cash A/c", side: "credit", amount: 10000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased for cash.",
+        explanation:
+          "The debit line, credit line, amount columns, and narration together make the entry complete.",
+        studentTakeaway: "Write the debit account first, then the To line, then narration below.",
+        commonMistake: "Writing only account names without Dr., To, amounts, or narration.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "journal-format-salary-by-bank",
+      illustration: {
+        id: "journal-format-salary-by-bank",
+        title: "Solved Illustration 2: expense paid by bank",
+        difficulty: "easy",
+        question: "Paid salary by bank ₹8,000.",
+        accountsAffected: ["Salary A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Debit account", detail: "Salary A/c is written with Dr. because salary expense is debited." },
+          { label: "Credit account", detail: "Bank A/c is written with To because payment is through bank." },
+          { label: "Cash not used", detail: "Cash A/c must not be used because the question says bank." },
+          { label: "L.F. optional now", detail: "L.F. may remain blank before ledger posting." },
+        ],
+        journalEntry: [
+          { id: "journal-format-salary-debit", account: "Salary A/c", side: "debit", amount: 8000, drNotation: "Dr." },
+          { id: "journal-format-bank-credit", account: "Bank A/c", side: "credit", amount: 8000, displayPrefix: "To" },
+        ],
+        narration: "Being salary paid by bank.",
+        explanation:
+          "The presentation clearly shows Salary A/c as the debit line and Bank A/c as the credited account.",
+        studentTakeaway: "Use Bank A/c when the payment mode is bank.",
+        commonMistake: "Using Cash A/c even though the transaction states bank.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "journal-format-credit-sale-riya",
+      illustration: {
+        id: "journal-format-credit-sale-riya",
+        title: "Solved Illustration 3: credit sale",
+        difficulty: "easy",
+        question: "Sold goods on credit to Riya ₹12,000.",
+        accountsAffected: ["Riya A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Named debtor", detail: "Riya A/c is written because the sale is on credit to Riya." },
+          { label: "Credit line", detail: "Sales A/c is written with To on the credit line." },
+          { label: "No cash or bank", detail: "Cash A/c and Bank A/c are not used in a credit sale." },
+          { label: "Clear narration", detail: "Narration states that goods were sold on credit to Riya." },
+        ],
+        journalEntry: [
+          { id: "journal-format-riya-debit", account: "Riya A/c", side: "debit", amount: 12000, drNotation: "Dr." },
+          { id: "journal-format-sales-credit", account: "Sales A/c", side: "credit", amount: 12000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold on credit to Riya.",
+        explanation:
+          "The entry uses the named debtor account, correct credit line, and clear narration.",
+        studentTakeaway: "For credit sales, use the customer's name instead of Cash or Bank.",
+        commonMistake: "Using Cash A/c or Bank A/c for a credit transaction.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "journal-format-amit-capital-bank",
+      illustration: {
+        id: "journal-format-amit-capital-bank",
+        title: "Solved Illustration 4: named capital",
+        difficulty: "easy",
+        question: "Amit introduced capital of ₹50,000 through bank.",
+        accountsAffected: ["Bank A/c", "Amit's Capital A/c"],
+        reasoningSteps: [
+          { label: "Bank debit", detail: "Bank A/c is written first with Dr. because bank increases." },
+          { label: "Named capital credit", detail: "Amit's Capital A/c is written below with To." },
+          { label: "No generic capital", detail: "Use Amit's Capital A/c, not generic Capital A/c." },
+          { label: "Narration", detail: "Narration names Amit and the bank mode." },
+        ],
+        journalEntry: [
+          { id: "journal-format-bank-debit", account: "Bank A/c", side: "debit", amount: 50000, drNotation: "Dr." },
+          {
+            id: "journal-format-amit-capital-credit",
+            account: "Amit's Capital A/c",
+            side: "credit",
+            amount: 50000,
+            displayPrefix: "To",
+          },
+        ],
+        narration: "Being capital introduced by Amit through bank.",
+        explanation:
+          "The entry keeps the named capital account and presents the debit and credit amounts in the correct columns.",
+        studentTakeaway: "When a person is named, keep the named capital account in the journal.",
+        commonMistake: "Writing generic Capital A/c when Amit is named.",
+      },
+    },
+    {
+      type: "comparison",
+      id: "simple-versus-compound-entry",
+      eyebrow: "Simple versus compound entry",
+      title: "One debit/credit pair or multiple lines",
+      intro:
+        "This is only a formatting introduction. Detailed compound-entry practice will come later.",
+      groups: [
+        {
+          title: "Simple entry",
+          items: [
+            "One debit and one credit.",
+            "Example: Rent A/c Dr.",
+            "To Bank A/c",
+          ],
+        },
+        {
+          title: "Compound entry",
+          items: [
+            "More than one debit or credit line, while totals remain equal.",
+            "Salary A/c Dr. ₹5,000",
+            "Rent A/c Dr. ₹3,000",
+            "To Bank A/c ₹8,000",
+            "Narration: Being salary and rent paid by bank.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "correct-versus-incorrect-presentation",
+      eyebrow: "Presentation check",
+      title: "Correct versus incorrect presentation",
+      intro:
+        "Look at the missing pieces, not only the visual style. The correct version is understandable even without colour.",
+      groups: [
+        {
+          title: "Incorrect",
+          items: [
+            "Rent A/c",
+            "Bank A/c Cr.",
+            "₹5,000",
+            "Problems: missing Dr., missing To, unclear amount placement, and no narration.",
+          ],
+        },
+        {
+          title: "Correct",
+          items: [
+            "Rent A/c Dr. ₹5,000",
+            "To Bank A/c ₹5,000",
+            "Being rent paid by bank.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "common-mistakes",
+      id: "journal-format-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these presentation mistakes",
+      mistakes: [
+        "Forgetting Dr.",
+        "Forgetting To.",
+        "Adding To before the debit account.",
+        "Adding Dr. to the credited account.",
+        "Entering the amount in the wrong column.",
+        "Writing only the amounts without particulars.",
+        "Writing only account names without amounts.",
+        "Using Cash instead of Bank.",
+        "Using Bank instead of Cash.",
+        "Omitting a named debtor, creditor, proprietor, or partner.",
+        "Writing generic Capital A/c when a person is named.",
+        "Writing vague narration.",
+        "Entering unequal debit and credit totals.",
+        "Treating narration as another account line.",
+        "Filling L.F. with an amount.",
+      ],
+    },
+    {
+      type: "recap",
+      id: "journal-format-presentation-checklist",
+      title: "Presentation checklist",
+      points: [
+        "Date is present where required.",
+        "Debit account is written first.",
+        "Dr. is present.",
+        "Credited account has To.",
+        "Account names are specific.",
+        "Debit amount is in the debit column.",
+        "Credit amount is in the credit column.",
+        "Narration is clear.",
+        "L.F. is used correctly or left blank.",
+        "Debit total equals credit total.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "journal-format-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Can another student understand the transaction only by reading your journal entry and narration?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
   accountsAffectedJournalEntriesSubtopic,
   typesOfAccountsJournalEntriesSubtopic,
   debitAndCreditRulesJournalEntriesSubtopic,
+  journalFormatAndNarrationJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -1346,7 +1757,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "How account nature and increase/decrease decide debit and credit.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG}`,
     },
-    { id: "journal-format-and-narration", title: "Journal Format and Narration", order: 6, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+      title: "Journal Format and Narration",
+      order: 6,
+      status: "available",
+      shortDescription: "Formal journal layout, Dr./To placement, narration, and totals.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG}`,
+    },
     { id: "cash-and-bank-transactions", title: "Cash and Bank Transactions", order: 7, status: "upcoming" },
     { id: "capital", title: "Capital", order: 8, status: "upcoming" },
     { id: "drawings", title: "Drawings", order: 9, status: "upcoming" },

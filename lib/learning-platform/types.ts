@@ -269,6 +269,19 @@ export type DebitCreditRuleGuideSection = {
   }[];
 };
 
+export type JournalColumnGuideSection = {
+  type: "journal-column-guide";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  columns: {
+    title: string;
+    purpose: string;
+    guidance: string[];
+  }[];
+};
+
 export type AccountingFormatSection = {
   type: "accounting-format";
   id: string;
@@ -333,6 +346,7 @@ export type ChapterSection =
   | ClassificationGuideSection
   | ClassificationExamplesSection
   | DebitCreditRuleGuideSection
+  | JournalColumnGuideSection
   | AccountingFormatSection
   | SimpleExampleSection
   | SolvedIllustrationSection

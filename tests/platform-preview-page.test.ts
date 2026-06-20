@@ -10,12 +10,14 @@ import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/jo
 import AccountsAffectedChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/accounts-affected/page";
 import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
 import DebitAndCreditRulesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/debit-and-credit-rules/page";
+import JournalFormatAndNarrationChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/journal-format-and-narration/page";
 import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
 import {
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
+  JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
   paidSalaryByBankPracticeQuestion,
@@ -50,6 +52,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
       JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
       JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+      JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -76,6 +79,11 @@ describe("Platform preview routes", () => {
       title: "Debit and Credit Rules",
       progressLabel: "Section 5 of 16",
     });
+    expect(journalEntriesChapter.subtopics[5]).toMatchObject({
+      order: 6,
+      title: "Journal Format and Narration",
+      progressLabel: "Section 6 of 16",
+    });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].nextSection).toMatchObject({
@@ -97,8 +105,14 @@ describe("Platform preview routes", () => {
     });
     expect(journalEntriesChapter.subtopics[4].previousSection?.slug).toBe(JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[4].nextSection).toMatchObject({
-      slug: "journal-format-and-narration",
+      slug: JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
       title: "Journal Format and Narration",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[5].previousSection?.slug).toBe(JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[5].nextSection).toMatchObject({
+      slug: "cash-and-bank-transactions",
+      title: "Cash and Bank Transactions",
       availabilityStatus: "upcoming",
     });
 
@@ -123,6 +137,14 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(6);
     expect(journalEntriesChapter.subtopics[4].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "accounting-format")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "journal-column-guide")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "comparison")).toHaveLength(3);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(4);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "recap")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[5].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -368,6 +390,57 @@ describe("Platform preview routes", () => {
     expect(businessWithdrawalExample.illustration.accountsAffected).toEqual(["Cash A/c", "Bank A/c"]);
     expect(businessWithdrawalExample.illustration.accountsAffected).not.toContain("Drawings A/c");
     expect(personalWithdrawalExample.illustration.accountsAffected).toEqual(["Amit Drawings A/c", "Cash A/c"]);
+  });
+
+  it("defines Journal Format and Narration as presentation-only content without a checker", () => {
+    const journalFormatSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+    );
+    const columnGuideSection = journalFormatSubtopic?.sections.find((section) => section.type === "journal-column-guide");
+    const solvedIllustrations = journalFormatSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+    const checklistSection = journalFormatSubtopic?.sections.find(
+      (section) => section.type === "recap" && section.id === "journal-format-presentation-checklist",
+    );
+
+    expect(journalFormatSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(journalFormatSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(columnGuideSection?.type).toBe("journal-column-guide");
+    expect(checklistSection?.type).toBe("recap");
+    expect(solvedIllustrations).toHaveLength(4);
+
+    if (columnGuideSection?.type !== "journal-column-guide" || checklistSection?.type !== "recap") {
+      throw new Error("Journal Format and Narration display sections were not found");
+    }
+
+    expect(columnGuideSection.columns.map((column) => column.title)).toEqual([
+      "Date",
+      "Particulars",
+      "L.F.",
+      "Debit amount",
+      "Credit amount",
+    ]);
+    expect(columnGuideSection.columns[2]).toMatchObject({
+      title: "L.F.",
+      purpose: "L.F. means Ledger Folio.",
+    });
+
+    const capitalIllustration = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "journal-format-amit-capital-bank",
+    );
+
+    expect(capitalIllustration?.type).toBe("solved-illustration");
+    if (capitalIllustration?.type !== "solved-illustration") {
+      throw new Error("Journal Format named-capital illustration was not found");
+    }
+
+    expect(capitalIllustration.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Bank A/c",
+      "Amit's Capital A/c",
+    ]);
+    expect(capitalIllustration.illustration.journalEntry.map((line) => line.account)).not.toContain("Capital A/c");
+    expect(checklistSection.points).toContain("Debit account is written first.");
+    expect(checklistSection.points).toContain("L.F. is used correctly or left blank.");
+    expect(checklistSection.points).toContain("Debit total equals credit total.");
   });
 
   it("marks the platform preview routes as noindex and nofollow", () => {
@@ -713,12 +786,88 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Being cash withdrawn by Amit for personal use.");
     expect(html).toContain("Before choosing Debit or Credit, ask: What account is this, and is it increasing or decreasing?");
     expect(html).toContain("Previous Types of Accounts");
-    expect(html).toContain("Continue to Journal Format and Narration - Preview only");
+    expect(html).toContain("Continue to Journal Format and Narration");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/debit-and-credit-rules")).toContain(
       'aria-current="step"',
     );
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
+    expect(html).not.toContain("Continue to Journal Format and Narration - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Journal Format and Narration section without adding a checker or next-route link", () => {
+    const html = renderToStaticMarkup(createElement(JournalFormatAndNarrationChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Journal Format and Narration");
+    expect(html).toContain("Section 6 of 16");
+    expect(html).toContain("Why journal format matters");
+    expect(html).toContain("Standard journal columns");
+    expect(html).toContain("Date");
+    expect(html).toContain("Particulars");
+    expect(html).toContain("L.F.");
+    expect(html).toContain("Debit ₹");
+    expect(html).toContain("Credit ₹");
+    expect(html).toContain("What each journal column means");
+    expect(html).toContain("L.F. means Ledger Folio.");
+    expect(html).toContain("It is not an amount column.");
+    expect(html).toContain("How to write the debit line");
+    expect(html).toContain("Add Dr. after the debit account name.");
+    expect(html).toContain("Do not prefix the debit line with To.");
+    expect(html).toContain("How to write the credit line");
+    expect(html).toContain("Prefix it with To");
+    expect(html).toContain("Do not add Dr. to the credited account.");
+    expect(html).toContain("To is a presentation convention.");
+    expect(html).toContain("Debit and credit totals");
+    expect(html).toContain("A compound entry may contain more than one debit or credit line.");
+    expect(html).toContain("How to write a clear narration");
+    expect(html).toContain("Being rent paid by bank.");
+    expect(html).toContain("Being transaction done.");
+    expect(html).toContain("These are weak because they are too vague");
+    expect(html).toContain("Date, Dr., To, amounts, narration, totals");
+    expect(html).toContain("Write the transaction date");
+    expect(html).toContain("Review details");
+    expect(html).toContain("Bought goods for cash ₹10,000.");
+    expect(html).toContain("Purchases A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Being goods purchased for cash.");
+    expect(html).toContain("Paid salary by bank ₹8,000.");
+    expect(html).toContain("Salary A/c Dr.");
+    expect(html).toContain("To Bank A/c");
+    expect(html).toContain("Being salary paid by bank.");
+    expect(html).toContain("Sold goods on credit to Riya ₹12,000.");
+    expect(html).toContain("Riya A/c Dr.");
+    expect(html).toContain("To Sales A/c");
+    expect(html).toContain("Being goods sold on credit to Riya.");
+    expect(html).toContain("Amit introduced capital of ₹50,000 through bank.");
+    expect(html).toContain("To Amit&#x27;s Capital A/c");
+    expect(html).not.toContain("To Capital A/c");
+    expect(html).toContain("Being capital introduced by Amit through bank.");
+    expect(html).toContain("Simple versus compound entry");
+    expect(html).toContain("One debit and one credit.");
+    expect(html).toContain("Salary A/c Dr. ₹5,000");
+    expect(html).toContain("Rent A/c Dr. ₹3,000");
+    expect(html).toContain("To Bank A/c ₹8,000");
+    expect(html).toContain("Correct versus incorrect presentation");
+    expect(html).toContain("Problems: missing Dr., missing To, unclear amount placement, and no narration.");
+    expect(html).toContain("Presentation checklist");
+    expect(html).toContain("Debit account is written first.");
+    expect(html).toContain("L.F. is used correctly or left blank.");
+    expect(html).toContain("Debit total equals credit total.");
+    expect(html).toContain("Can another student understand the transaction only by reading your journal entry and narration?");
+    expect(html).toContain("Previous Debit and Credit Rules");
+    expect(html).toContain("Continue to Cash and Bank Transactions - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/journal-format-and-narration")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/cash-and-bank-transactions"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -775,5 +924,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/journal-format-and-narration"');
   });
 });
