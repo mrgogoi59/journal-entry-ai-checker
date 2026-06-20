@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 type ChapterStatus = "Available" | "Planned" | "Later";
 
@@ -69,13 +70,18 @@ export function ChapterCard({
   status,
   progress,
   actionLabel,
+  href,
 }: {
   title: string;
   description: string;
   status: ChapterStatus;
   progress?: number;
   actionLabel: string;
+  href?: string;
 }) {
+  const actionClass =
+    "mt-5 inline-flex min-h-10 items-center self-start rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 outline-none transition focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2";
+
   return (
     <article className="flex min-w-0 flex-col rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -92,9 +98,13 @@ export function ChapterCard({
           </div>
         )}
       </div>
-      <div className="mt-5 inline-flex min-h-10 items-center self-start rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700">
-        {actionLabel}
-      </div>
+      {href ? (
+        <Link href={href} className={`${actionClass} hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900`}>
+          {actionLabel}
+        </Link>
+      ) : (
+        <div className={actionClass}>{actionLabel}</div>
+      )}
     </article>
   );
 }

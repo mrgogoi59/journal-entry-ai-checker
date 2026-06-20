@@ -28,6 +28,14 @@ Target platform planning note:
 - The blueprint defines the chapter learning flow, solved illustration model, Practice It Yourself model, proposed route architecture, mobile-first UI principles, reusable content model, Journal Entries first slice, Trial Balance second validation slice, migration phases, and guardrails.
 - Phase 3A of the redesign now exists as an internal preview-only shell at `/platform-preview` and `/platform-preview/chapters`.
 - The Phase 3A preview includes the five-section navigation, desktop sidebar, mobile header/menu, static Dashboard preview, static Chapters preview, and restrained visual design system for founder review.
+- Phase 3B now adds an isolated Journal Entries chapter-learning preview at `/platform-preview/chapters/journal-entries`.
+- The Phase 3B preview demonstrates the intended chapter flow: introduction, ordered outline, concept explanation, journal format, simple example, two solved illustrations, Practice It Yourself blank-entry inputs, common mistakes, and preview-only continue controls.
+- Phase 3B does not implement answer checking, solver/parser/checker calls, persistence, analytics events, or real progress tracking.
+- Phase 3C now adds a reusable typed learning-platform content model in `lib/learning-platform/types.ts`.
+- The Journal Entries preview content now lives in structured chapter data at `lib/learning-platform/chapters/journal-entries.ts`, and `/platform-preview/chapters/journal-entries` renders from that typed content definition.
+- The first Journal Entry Practice It Yourself answer-input schema now exists for `Sold goods for cash ₹12,000`, with an internal balanced expected answer key of `Cash A/c Dr.` / `Sales A/c Cr.` and narration `Being goods sold for cash.`
+- The Phase 3C expected answer is not rendered into the preview page or prefilled into student fields; the student editor remains blank and `Check Answer` remains disabled/preview-only.
+- Phase 3C does not implement checking, scoring, validation, persistence, API routes, solver/parser/checker calls, analytics events, or migration into live routes.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
 - Founder visual review is required before integrating this shell into real routes or beginning the next phase.
 

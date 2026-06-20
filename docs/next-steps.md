@@ -2,6 +2,36 @@
 
 ## Immediate recommended next step
 
+Phase 3C of the Journal Entries chapter-learning preview is completed.
+
+What this completed data-model slice achieved:
+
+- it adds a reusable typed learning-platform content model in `lib/learning-platform/types.ts`
+- it moves the isolated Journal Entries preview content into structured data at `lib/learning-platform/chapters/journal-entries.ts`
+- it renders `/platform-preview/chapters/journal-entries` from that typed chapter definition while preserving the Phase 3B visual flow
+- it defines the first typed Journal Entry Practice It Yourself answer-input schema for `Sold goods for cash ₹12,000`
+- it defines an internal balanced expected answer key for that question: `Cash A/c Dr.` / `Sales A/c Cr.` with narration `Being goods sold for cash.`
+- it keeps the expected answer out of the rendered preview and leaves the student editor blank
+- it keeps `Check Answer` disabled and does not implement checking, scoring, validation, persistence, API routes, solver/parser/checker calls, or live-route migration
+
+Founder review is required next for the Phase 3A-3C preview foundation. Phase 3D should be the first isolated Practice It Yourself checker for one safe Journal Entry question only. That checker should reuse or carefully adapt deterministic helpers where appropriate, but it should not create a broad AI-based checker, migrate the preview into live routes, or change existing beginner/runtime accounting behavior.
+
+## Immediate recommended next step
+
+Phase 3B of the Journal Entries chapter-learning preview is completed.
+
+What this completed UI prototype slice achieved:
+
+- it adds `/platform-preview/chapters/journal-entries` inside the existing Phase 3A preview shell
+- it links only the Journal Entries card on `/platform-preview/chapters` to the new preview route
+- it renders the intended chapter-learning flow with introduction, ordered outline, concept explanation, journal format, one simple example, two solved illustrations, Practice It Yourself blank-entry fields, common mistakes, and preview-only bottom actions
+- it keeps checking disabled and does not call solver, parser, validator, checker, storage, APIs, analytics events, authentication, database, payment, backend, or AI behavior
+- it keeps the existing public homepage, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, and accounting calculations unchanged
+
+Founder visual review is required next. Phase 3C should be the reusable chapter content/data model and first real Practice It Yourself answer schema, not broad route migration or answer checking yet.
+
+## Immediate recommended next step
+
 Phase 3A of the redesigned platform preview shell is completed.
 
 What this completed UI prototype slice achieved:

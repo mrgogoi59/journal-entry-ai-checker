@@ -12,7 +12,7 @@ export default function PlatformPreviewChaptersPage() {
         description="A static chapter library preview based on the curriculum concept map. Only Journal Entries is shown as the first active prototype chapter."
       >
         <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-black uppercase tracking-wide text-slate-600">
-          No chapter pages yet
+          Only Journal Entries opens
         </span>
       </PageHeader>
 

@@ -23,7 +23,8 @@ export const chapterCards = [
     description: "First active prototype chapter for format, debit-credit logic, examples, and practice.",
     status: "Available",
     progress: 18,
-    actionLabel: "First prototype",
+    actionLabel: "Open preview",
+    href: "/platform-preview/chapters/journal-entries",
   },
   {
     title: "Ledger",
