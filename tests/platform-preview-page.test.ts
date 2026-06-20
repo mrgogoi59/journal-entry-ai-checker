@@ -13,6 +13,7 @@ import CashAndBankTransactionsChapterPreviewPage from "@/app/platform-preview/ch
 import CapitalChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/capital/page";
 import DebitAndCreditRulesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/debit-and-credit-rules/page";
 import DrawingsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/drawings/page";
+import ExpensesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/expenses/page";
 import JournalFormatAndNarrationChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/journal-format-and-narration/page";
 import PurchasesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/purchases/page";
 import SalesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/sales/page";
@@ -24,6 +25,7 @@ import {
   JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
   JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
   JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
+  JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
   JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
@@ -68,6 +70,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
       JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
       JOURNAL_ENTRIES_SALES_SECTION_SLUG,
+      JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -123,6 +126,11 @@ describe("Platform preview routes", () => {
       order: 11,
       title: "Sales",
       progressLabel: "Section 11 of 16",
+    });
+    expect(journalEntriesChapter.subtopics[11]).toMatchObject({
+      order: 12,
+      title: "Expenses",
+      progressLabel: "Section 12 of 16",
     });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
@@ -185,8 +193,14 @@ describe("Platform preview routes", () => {
     });
     expect(journalEntriesChapter.subtopics[10].previousSection?.slug).toBe(JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[10].nextSection).toMatchObject({
-      slug: "expenses",
+      slug: JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
       title: "Expenses",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[11].previousSection?.slug).toBe(JOURNAL_ENTRIES_SALES_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[11].nextSection).toMatchObject({
+      slug: "income",
+      title: "Income",
       availabilityStatus: "upcoming",
     });
 
@@ -263,6 +277,15 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[10].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[10].sections.filter((section) => section.type === "recap")).toHaveLength(2);
     expect(journalEntriesChapter.subtopics[10].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "concept-explanation")).toHaveLength(4);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "accounting-format")).toHaveLength(4);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "comparison")).toHaveLength(6);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(6);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "common-mistakes")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "recap")).toHaveLength(2);
+    expect(journalEntriesChapter.subtopics[11].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -1069,6 +1092,198 @@ describe("Platform preview routes", () => {
     expect(assetGuard.illustration.narration).toContain("Later / design-needed");
   });
 
+  it("defines Expenses as display-only content with cash, bank, outstanding, personal, and asset guardrails", () => {
+    const expensesSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
+    );
+    const cashExpenseFormat = expensesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "cash-expense-format",
+    );
+    const bankExpenseFormat = expensesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "bank-expense-format",
+    );
+    const outstandingExpenseFormat = expensesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "outstanding-expense-format",
+    );
+    const laterPaymentFormat = expensesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "outstanding-expense-later-payment-format",
+    );
+    const specificNamesComparison = expensesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "specific-expense-account-names",
+    );
+    const personalExpenseComparison = expensesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "business-expense-versus-personal-expense",
+    );
+    const assetExpenseComparison = expensesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "expense-versus-asset-purchase",
+    );
+    const purchasesExpenseComparison = expensesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "expense-versus-purchase-of-goods",
+    );
+    const directIndirectNote = expensesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "direct-and-indirect-expense-note",
+    );
+    const prepaidNote = expensesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "prepaid-expense-note",
+    );
+    const terminologyNote = expensesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "accrued-and-outstanding-terminology",
+    );
+    const sourceDocuments = expensesSubtopic?.sections.find(
+      (section) => section.type === "recap" && section.id === "expense-source-documents",
+    );
+    const solvedIllustrations =
+      expensesSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+
+    expect(expensesSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(expensesSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(cashExpenseFormat?.type).toBe("accounting-format");
+    expect(bankExpenseFormat?.type).toBe("accounting-format");
+    expect(outstandingExpenseFormat?.type).toBe("accounting-format");
+    expect(laterPaymentFormat?.type).toBe("accounting-format");
+    expect(specificNamesComparison?.type).toBe("comparison");
+    expect(personalExpenseComparison?.type).toBe("comparison");
+    expect(assetExpenseComparison?.type).toBe("comparison");
+    expect(purchasesExpenseComparison?.type).toBe("comparison");
+    expect(directIndirectNote?.type).toBe("comparison");
+    expect(prepaidNote?.type).toBe("concept-explanation");
+    expect(terminologyNote?.type).toBe("concept-explanation");
+    expect(sourceDocuments?.type).toBe("recap");
+    expect(solvedIllustrations).toHaveLength(6);
+
+    if (
+      cashExpenseFormat?.type !== "accounting-format" ||
+      bankExpenseFormat?.type !== "accounting-format" ||
+      outstandingExpenseFormat?.type !== "accounting-format" ||
+      laterPaymentFormat?.type !== "accounting-format" ||
+      specificNamesComparison?.type !== "comparison" ||
+      personalExpenseComparison?.type !== "comparison" ||
+      assetExpenseComparison?.type !== "comparison" ||
+      purchasesExpenseComparison?.type !== "comparison" ||
+      directIndirectNote?.type !== "comparison" ||
+      prepaidNote?.type !== "concept-explanation" ||
+      terminologyNote?.type !== "concept-explanation" ||
+      sourceDocuments?.type !== "recap"
+    ) {
+      throw new Error("Expenses display sections were not found");
+    }
+
+    expect(specificNamesComparison.groups[0].items.join(" ")).toContain("Salary paid → Salary A/c");
+    expect(specificNamesComparison.groups[1].items.join(" ")).toContain("Do not write Expense A/c");
+    expect(cashExpenseFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Rent A/c Dr.",
+      "To Cash A/c",
+      "(Being office rent paid in cash.)",
+    ]);
+    expect(cashExpenseFormat.formatRows.map((row) => row.particulars)).not.toContain("To Bank A/c");
+    expect(bankExpenseFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Salary A/c Dr.",
+      "To Bank A/c",
+      "(Being salary paid by bank.)",
+    ]);
+    expect(bankExpenseFormat.formatRows.map((row) => row.particulars)).not.toContain("To Cash A/c");
+    expect(outstandingExpenseFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Salary A/c Dr.",
+      "To Outstanding Salary A/c",
+      "(Being salary due but not yet paid.)",
+    ]);
+    expect(outstandingExpenseFormat.formatRows.map((row) => row.particulars)).not.toContain("To Cash A/c");
+    expect(outstandingExpenseFormat.formatRows.map((row) => row.particulars)).not.toContain("To Bank A/c");
+    expect(laterPaymentFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Transaction 1: Salary ₹4,000 became due but was not paid",
+      "Salary A/c Dr.",
+      "To Outstanding Salary A/c",
+      "Transaction 2: Outstanding salary later paid by bank",
+      "Outstanding Salary A/c Dr.",
+      "To Bank A/c",
+    ]);
+    expect(laterPaymentFormat.formatRows.slice(3).map((row) => row.particulars)).not.toContain("Salary A/c Dr.");
+    expect(personalExpenseComparison.groups[1].items.join(" ")).toContain("Amit Drawings A/c Dr.");
+    expect(personalExpenseComparison.groups[1].items.join(" ")).toContain("rather than a business expense");
+    expect(assetExpenseComparison.groups[1].items.join(" ")).toContain("Machinery A/c Dr.");
+    expect(assetExpenseComparison.groups[1].items.join(" ")).toContain("Later / design-needed");
+    expect(purchasesExpenseComparison.groups.map((group) => group.title)).toEqual([
+      "Goods bought for resale",
+      "Cost incurred to operate the business",
+    ]);
+    expect(directIndirectNote.eyebrow).toBe("Later / linked to Final Accounts");
+    expect(directIndirectNote.groups[0].items.join(" ")).toContain("Carriage inward");
+    expect(prepaidNote.paragraphs.join(" ")).toContain("Prepaid Insurance A/c Dr.; To Insurance A/c");
+    expect(prepaidNote.paragraphs.join(" ")).toContain("Later / design-needed");
+    expect(terminologyNote.paragraphs.join(" ")).toContain("Outstanding expense");
+    expect(terminologyNote.paragraphs.join(" ")).toContain("Accrued expense");
+    expect(sourceDocuments.points).toEqual(
+      expect.arrayContaining(["Salary sheet.", "Rent receipt.", "Electricity bill.", "Payment voucher."]),
+    );
+
+    const cashRent = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "expenses-cash-rent",
+    );
+    const bankSalary = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "expenses-bank-salary",
+    );
+    const outstandingElectricity = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "expenses-outstanding-electricity",
+    );
+    const outstandingSalaryPaidLater = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "expenses-outstanding-salary-paid-later",
+    );
+    const personalInsuranceGuard = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "expenses-personal-insurance-guard",
+    );
+    const furnitureAssetGuard = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "expenses-furniture-asset-guard",
+    );
+
+    expect(cashRent?.type).toBe("solved-illustration");
+    expect(bankSalary?.type).toBe("solved-illustration");
+    expect(outstandingElectricity?.type).toBe("solved-illustration");
+    expect(outstandingSalaryPaidLater?.type).toBe("solved-illustration");
+    expect(personalInsuranceGuard?.type).toBe("solved-illustration");
+    expect(furnitureAssetGuard?.type).toBe("solved-illustration");
+
+    if (
+      cashRent?.type !== "solved-illustration" ||
+      bankSalary?.type !== "solved-illustration" ||
+      outstandingElectricity?.type !== "solved-illustration" ||
+      outstandingSalaryPaidLater?.type !== "solved-illustration" ||
+      personalInsuranceGuard?.type !== "solved-illustration" ||
+      furnitureAssetGuard?.type !== "solved-illustration"
+    ) {
+      throw new Error("Expenses solved illustrations were not found");
+    }
+
+    expect(cashRent.illustration.journalEntry.map((line) => line.account)).toEqual(["Rent A/c", "Cash A/c"]);
+    expect(bankSalary.illustration.journalEntry.map((line) => line.account)).toEqual(["Salary A/c", "Bank A/c"]);
+    expect(outstandingElectricity.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Electricity Expense A/c",
+      "Outstanding Electricity Expense A/c",
+    ]);
+    expect(outstandingElectricity.illustration.journalEntry.map((line) => line.account)).not.toContain("Cash A/c");
+    expect(outstandingElectricity.illustration.journalEntry.map((line) => line.account)).not.toContain("Bank A/c");
+    expect(outstandingSalaryPaidLater.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Salary A/c",
+      "Outstanding Salary A/c",
+      "Outstanding Salary A/c",
+      "Bank A/c",
+    ]);
+    expect(outstandingSalaryPaidLater.illustration.journalEntry.slice(2).map((line) => line.account)).not.toContain(
+      "Salary A/c",
+    );
+    expect(personalInsuranceGuard.illustration.journalEntry.map((line) => line.account)).toEqual([
+      "Priyanka Drawings A/c",
+      "Bank A/c",
+    ]);
+    expect(personalInsuranceGuard.illustration.journalEntry.map((line) => line.account)).not.toContain(
+      "Insurance Expense A/c",
+    );
+    expect(furnitureAssetGuard.illustration.journalEntry.map((line) => line.account)).toEqual(["Furniture A/c", "Bank A/c"]);
+    expect(furnitureAssetGuard.illustration.journalEntry.map((line) => line.account)).not.toContain(
+      "Furniture Expense A/c",
+    );
+    expect(furnitureAssetGuard.illustration.journalEntry.map((line) => line.account)).not.toContain("Purchases A/c");
+  });
+
   it("marks the platform preview routes as noindex and nofollow", () => {
     expect(platformPreviewMetadata.robots).toMatchObject({
       index: false,
@@ -1759,7 +1974,7 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("renders the Sales section with Expenses disabled and without adding a checker", () => {
+  it("renders the Sales section with the Expenses next link and without adding a checker", () => {
     const html = renderToStaticMarkup(createElement(SalesChapterPreviewPage));
 
     expect(html).toContain("Chapters");
@@ -1804,10 +2019,81 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Sales checklist");
     expect(html).toContain("Was the business selling its normal goods, disposing of an asset, or receiving money for some other reason");
     expect(html).toContain("Previous Purchases");
-    expect(html).toContain("Continue to Expenses - Preview only");
+    expect(html).toContain("Continue to Expenses");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/sales")).toContain('aria-current="step"');
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/purchases"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/expenses"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/expenses"');
+    expect(html).not.toContain("Continue to Expenses - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Expenses section with Income disabled and without adding a checker", () => {
+    const html = renderToStaticMarkup(createElement(ExpensesChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Expenses");
+    expect(html).toContain("Section 12 of 16");
+    expect(html).toContain("What a business expense means");
+    expect(html).toContain("An expense is a cost incurred to operate the business or earn revenue.");
+    expect(html).toContain("Expense incurred for business purpose → Expense A/c increases → Debit the specific Expense A/c.");
+    expect(html).toContain("How expense accounts are classified here");
+    expect(html).toContain("Expense / Loss account.");
+    expect(html).toContain("The golden rule is debit all expenses and losses.");
+    expect(html).toContain("Use the exact expense account");
+    expect(html).toContain("Salary paid → Salary A/c.");
+    expect(html).toContain("Do not write Expense A/c when a specific expense is known.");
+    expect(html).toContain("Expense paid in cash");
+    expect(html).toContain("Paid office rent in cash ₹5,000.");
+    expect(html).toContain("Rent A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Expense paid through bank");
+    expect(html).toContain("Paid salary by bank ₹8,000.");
+    expect(html).toContain("Salary A/c Dr.");
+    expect(html).toContain("To Bank A/c");
+    expect(html).toContain("Expense incurred but not yet paid");
+    expect(html).toContain("To Outstanding Salary A/c");
+    expect(html).toContain("Cash and Bank are not affected because payment has not occurred.");
+    expect(html).toContain("Recording the expense and later payment are separate");
+    expect(html).toContain("Outstanding Salary A/c Dr.");
+    expect(html).toContain("Salary A/c is not debited again when the liability is settled.");
+    expect(html).toContain("Purpose decides whether it is expense or drawings");
+    expect(html).toContain("Amit Drawings A/c Dr.");
+    expect(html).toContain("rather than a business expense");
+    expect(html).toContain("Repairing an asset is different from buying an asset");
+    expect(html).toContain("Repairs A/c Dr.");
+    expect(html).toContain("Machinery A/c Dr.");
+    expect(html).toContain("Detailed capital-versus-revenue expenditure treatment is Later / design-needed.");
+    expect(html).toContain("Purchases A/c and Expense A/c are not interchangeable");
+    expect(html).toContain("Specific Expense A/c Dr.");
+    expect(html).toContain("Direct and indirect expense placement comes later");
+    expect(html).toContain("Later / linked to Final Accounts");
+    expect(html).toContain("Prepaid expenses are adjustment topics");
+    expect(html).toContain("Prepaid Insurance A/c Dr.; To Insurance A/c");
+    expect(html).toContain("Outstanding and accrued expense");
+    expect(html).toContain("Common source documents");
+    expect(html).toContain("Salary sheet.");
+    expect(html).toContain("Payment voucher.");
+    expect(html).toContain("Solved Illustration 1");
+    expect(html).toContain("Paid office rent in cash ₹6,000.");
+    expect(html).toContain("Solved Illustration 6");
+    expect(html).toContain("Bought office furniture through bank ₹30,000.");
+    expect(html).toContain("Priyanka Drawings A/c Dr.");
+    expect(html).toContain("Avoid these Expenses mistakes");
+    expect(html).toContain("Expense decision process");
+    expect(html).toContain("Expense checklist");
+    expect(html).toContain("Was this cost incurred for the business, for an asset, for goods to resell, or for someone&#x27;s personal benefit");
+    expect(html).toContain("Previous Sales");
+    expect(html).toContain("Continue to Income - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/expenses")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/sales"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/income"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -1870,5 +2156,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/drawings"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/purchases"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/sales"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/expenses"');
   });
 });

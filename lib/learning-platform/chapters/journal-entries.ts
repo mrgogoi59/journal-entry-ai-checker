@@ -20,6 +20,7 @@ export const JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG = "capital";
 export const JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG = "drawings";
 export const JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG = "purchases";
 export const JOURNAL_ENTRIES_SALES_SECTION_SLUG = "sales";
+export const JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG = "expenses";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -215,10 +216,19 @@ const salesSubtopicReference: ChapterSubtopicReference = {
 };
 
 const expensesSubtopicReference: ChapterSubtopicReference = {
-  id: "expenses",
-  slug: "expenses",
+  id: JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
   title: "Expenses",
   order: 12,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG}`,
+};
+
+const incomeSubtopicReference: ChapterSubtopicReference = {
+  id: "income",
+  slug: "income",
+  title: "Income",
+  order: 13,
   availabilityStatus: "upcoming",
 };
 
@@ -4140,6 +4150,551 @@ export const salesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   ],
 };
 
+export const expensesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...expensesSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG}`,
+  shortDescription:
+    "Learn specific expense accounts, cash/bank payments, outstanding expenses, and business-purpose guardrails.",
+  learningObjective:
+    "Students learn to debit the specific expense account when a business cost is incurred, then credit Cash, Bank, or an outstanding liability depending on payment status.",
+  progressLabel: "Section 12 of 16",
+  previousSection: salesSubtopicReference,
+  nextSection: incomeSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "expenses",
+      eyebrow: "Learning objective",
+      title: "Expenses",
+      body:
+        "By the end of this section, you should be able to record expenses paid in cash or through bank, identify outstanding expenses, and avoid treating personal expenses, assets, or goods purchases as ordinary expenses.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-expense",
+      eyebrow: "Concept explanation",
+      title: "What a business expense means",
+      paragraphs: [
+        "An expense is a cost incurred to operate the business or earn revenue.",
+        "Expenses normally reduce business profit.",
+        "Examples include salary, rent, electricity, repairs, insurance, carriage, and advertising.",
+        "Use the exact expense name in the journal. Do not write generic Expense A/c when Salary A/c, Rent A/c, or another specific account is known.",
+        "An expense may be paid immediately or may remain payable.",
+        "Drawings are not business expenses because the benefit is personal.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "central-expense-rule",
+      eyebrow: "Central rule",
+      title: "Start with the business purpose",
+      paragraphs: [
+        "Expense incurred for business purpose → Expense A/c increases → Debit the specific Expense A/c.",
+        "If paid in cash, credit Cash A/c.",
+        "If paid through bank, credit Bank A/c.",
+        "If incurred but not yet paid, credit the appropriate Outstanding or Payable account.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "expense-classification",
+      eyebrow: "Classification",
+      title: "How expense accounts are classified here",
+      intro:
+        "This section stays in journal-entry recognition and does not prepare the full Trading Account or Profit and Loss Account.",
+      groups: [
+        {
+          title: "Modern view",
+          items: [
+            "Expense / Loss account.",
+            "Increase in expense → Debit.",
+            "Decrease or reversal of an expense → Credit.",
+          ],
+        },
+        {
+          title: "Traditional view",
+          items: [
+            "Expense accounts are Nominal Accounts.",
+            "The golden rule is debit all expenses and losses.",
+            "Therefore the expense account is debited when the expense is incurred.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "specific-expense-account-names",
+      eyebrow: "Specific account names",
+      title: "Use the exact expense account",
+      intro:
+        "A journal entry should name the actual cost wherever the question gives enough detail.",
+      groups: [
+        {
+          title: "Use these specific accounts",
+          items: [
+            "Salary paid → Salary A/c.",
+            "Office rent paid → Rent A/c.",
+            "Electricity bill paid → Electricity Expense A/c.",
+            "Machinery repaired → Repairs A/c.",
+            "Business insurance paid → Insurance A/c.",
+            "Advertisement paid → Advertising A/c.",
+            "Carriage paid → Carriage A/c.",
+          ],
+        },
+        {
+          title: "Avoid generic names",
+          items: [
+            "Do not write Expense A/c when a specific expense is known.",
+            "Do not write Payment A/c.",
+            "Do not write General Cost A/c.",
+            "Do not treat every payment as an expense.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "cash-expense-format",
+      eyebrow: "Cash expense",
+      title: "Expense paid in cash",
+      paragraphs: [
+        "Transaction: Paid office rent in cash ₹5,000.",
+        "Rent expense increases because the business incurred office rent, so Rent A/c is debited.",
+        "Cash asset decreases because physical cash is paid, so Cash A/c is credited. Bank A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "cash-expense-rent-debit", particulars: "Rent A/c Dr.", lf: "", debitDisplay: "5,000" },
+        { id: "cash-expense-cash-credit", particulars: "To Cash A/c", lf: "", creditDisplay: "5,000" },
+        { id: "cash-expense-narration", particulars: "(Being office rent paid in cash.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "bank-expense-format",
+      eyebrow: "Bank expense",
+      title: "Expense paid through bank",
+      paragraphs: [
+        "Transaction: Paid salary by bank ₹8,000.",
+        "Salary expense increases, so Salary A/c is debited.",
+        "Bank asset decreases because payment is through bank, so Bank A/c is credited. Cash A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "bank-expense-salary-debit", particulars: "Salary A/c Dr.", lf: "", debitDisplay: "8,000" },
+        { id: "bank-expense-bank-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "8,000" },
+        { id: "bank-expense-narration", particulars: "(Being salary paid by bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "outstanding-expense-format",
+      eyebrow: "Outstanding expense",
+      title: "Expense incurred but not yet paid",
+      paragraphs: [
+        "Transaction: Salary ₹4,000 became due but was not paid.",
+        "Salary expense is incurred, so Salary A/c is debited.",
+        "Outstanding Salary is a liability because payment is still due, so Outstanding Salary A/c is credited.",
+        "Cash and Bank are not affected because payment has not occurred. This is an introductory adjustment entry.",
+      ],
+      formatRows: [
+        { id: "outstanding-salary-debit", particulars: "Salary A/c Dr.", lf: "", debitDisplay: "4,000" },
+        { id: "outstanding-salary-credit", particulars: "To Outstanding Salary A/c", lf: "", creditDisplay: "4,000" },
+        { id: "outstanding-salary-narration", particulars: "(Being salary due but not yet paid.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "outstanding-expense-later-payment-format",
+      eyebrow: "Outstanding and payment",
+      title: "Recording the expense and later payment are separate",
+      paragraphs: [
+        "When the expense first becomes due, record the expense and the outstanding liability.",
+        "When the liability is later paid, reduce Outstanding Salary and Bank.",
+        "Salary A/c is not debited again when the liability is settled. This avoids recording the same expense twice.",
+      ],
+      formatRows: [
+        { id: "salary-due-label", particulars: "Transaction 1: Salary ₹4,000 became due but was not paid" },
+        { id: "salary-due-debit", particulars: "Salary A/c Dr.", lf: "", debitDisplay: "4,000" },
+        { id: "salary-due-credit", particulars: "To Outstanding Salary A/c", lf: "", creditDisplay: "4,000" },
+        { id: "salary-paid-label", particulars: "Transaction 2: Outstanding salary later paid by bank" },
+        { id: "salary-paid-debit", particulars: "Outstanding Salary A/c Dr.", lf: "", debitDisplay: "4,000" },
+        { id: "salary-paid-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "4,000" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "business-expense-versus-personal-expense",
+      eyebrow: "Business versus personal",
+      title: "Purpose decides whether it is expense or drawings",
+      intro:
+        "Both transactions may be paid through Bank A/c, but the purpose decides the debit account.",
+      groups: [
+        {
+          title: "Business expense",
+          items: [
+            "Transaction: Paid office electricity bill through bank ₹3,000.",
+            "Entry: Electricity Expense A/c Dr. ₹3,000; To Bank A/c ₹3,000.",
+            "Reason: The cost relates to the business.",
+          ],
+        },
+        {
+          title: "Personal expense",
+          items: [
+            "Transaction: The business paid Amit's personal mobile bill through bank ₹3,000.",
+            "Entry: Amit Drawings A/c Dr. ₹3,000; To Bank A/c ₹3,000.",
+            "Reason: The benefit is personal, so the amount is drawings rather than a business expense.",
+            "Do not use Telephone Expense A/c or Mobile Expense A/c for the business when the benefit is personal.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "expense-versus-asset-purchase",
+      eyebrow: "Expense versus asset",
+      title: "Repairing an asset is different from buying an asset",
+      intro:
+        "Buying an asset is not automatically an expense. The distinction between capital and revenue expenditure is studied more deeply later.",
+      groups: [
+        {
+          title: "Expense",
+          items: [
+            "Transaction: Paid machinery repair charges by bank ₹5,000.",
+            "Entry: Repairs A/c Dr. ₹5,000; To Bank A/c ₹5,000.",
+            "Reason: The repair maintains the existing asset.",
+          ],
+        },
+        {
+          title: "Asset purchase",
+          items: [
+            "Transaction: Bought machinery through bank ₹50,000.",
+            "Entry: Machinery A/c Dr. ₹50,000; To Bank A/c ₹50,000.",
+            "Reason: A new business asset is acquired.",
+            "Major improvements or installation costs may need different treatment.",
+            "Detailed capital-versus-revenue expenditure treatment is Later / design-needed.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "expense-versus-purchase-of-goods",
+      eyebrow: "Expense versus purchases",
+      title: "Purchases A/c and Expense A/c are not interchangeable",
+      intro:
+        "Both may appear on the debit side, but they represent different business purposes.",
+      groups: [
+        {
+          title: "Goods bought for resale",
+          items: [
+            "Purchases A/c Dr.",
+            "To Cash/Bank/Supplier A/c.",
+            "Purchases A/c is for trading goods bought for resale.",
+          ],
+        },
+        {
+          title: "Cost incurred to operate the business",
+          items: [
+            "Specific Expense A/c Dr.",
+            "To Cash/Bank/Payable A/c.",
+            "Expense accounts record operating or revenue costs.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "direct-and-indirect-expense-note",
+      eyebrow: "Later / linked to Final Accounts",
+      title: "Direct and indirect expense placement comes later",
+      intro:
+        "This preview focuses only on journal-entry recognition. Detailed placement in Trading Account and Profit and Loss Account belongs to the Final Accounts chapter.",
+      groups: [
+        {
+          title: "Common direct expense examples",
+          items: [
+            "Carriage inward.",
+            "Wages directly related to production.",
+            "Freight inward.",
+          ],
+        },
+        {
+          title: "Common indirect expense examples",
+          items: [
+            "Office salary.",
+            "Office rent.",
+            "Advertising.",
+            "Electricity.",
+            "General repairs.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "prepaid-expense-note",
+      eyebrow: "Later / design-needed",
+      title: "Prepaid expenses are adjustment topics",
+      paragraphs: [
+        "Sometimes an expense is paid before the benefit is fully used.",
+        "Example: insurance paid may include an amount relating to the next accounting period.",
+        "A possible adjustment concept is Prepaid Insurance A/c Dr.; To Insurance A/c.",
+        "Prepaid expense is an asset.",
+        "Detailed adjustment calculations belong to Final Accounts.",
+        "Detailed prepaid expense treatment is Later / design-needed.",
+        "This preview does not add a full solved checking question for prepaid expense.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "accrued-and-outstanding-terminology",
+      eyebrow: "Terminology",
+      title: "Outstanding and accrued expense",
+      paragraphs: [
+        "Outstanding expense means an expense has been incurred but remains unpaid.",
+        "Accrued expense may be used with similar meaning in some contexts.",
+        "Use the terminology followed by the applicable textbook or exam format.",
+        "The accounting concept is that expense and liability both increase.",
+      ],
+    },
+    {
+      type: "recap",
+      id: "expense-source-documents",
+      title: "Common source documents",
+      points: [
+        "Salary sheet.",
+        "Rent receipt.",
+        "Electricity bill.",
+        "Insurance receipt.",
+        "Repair invoice.",
+        "Bank statement.",
+        "Payment voucher.",
+        "Source documents support the amount, date, business purpose, and payment mode; this preview does not add uploads, OCR, invoice extraction, or document parsing.",
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "expenses-cash-rent",
+      illustration: {
+        id: "expenses-cash-rent",
+        title: "Solved Illustration 1: cash rent",
+        difficulty: "easy",
+        question: "Paid office rent in cash ₹6,000.",
+        accountsAffected: ["Rent A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Business cost", detail: "Office rent is a business expense, so Rent A/c is used." },
+          { label: "Expense increases", detail: "Rent expense increases, so Rent A/c is debited." },
+          { label: "Cash paid", detail: "Physical cash leaves the business, so Cash A/c is credited." },
+        ],
+        journalEntry: [
+          { id: "expenses-rent-cash-debit", account: "Rent A/c", side: "debit", amount: 6000, drNotation: "Dr." },
+          { id: "expenses-rent-cash-credit", account: "Cash A/c", side: "credit", amount: 6000, displayPrefix: "To" },
+        ],
+        narration: "Being office rent paid in cash.",
+        explanation:
+          "Rent A/c is debited because the business incurred rent. Cash A/c is credited because cash is paid.",
+        studentTakeaway: "For cash-paid expenses, debit the specific expense and credit Cash A/c.",
+        commonMistake: "Crediting Bank A/c when the transaction says cash.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "expenses-bank-salary",
+      illustration: {
+        id: "expenses-bank-salary",
+        title: "Solved Illustration 2: salary by bank",
+        difficulty: "easy",
+        question: "Paid staff salary through bank ₹12,000.",
+        accountsAffected: ["Salary A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Salary expense", detail: "Salary is a business expense, so Salary A/c is debited." },
+          { label: "Bank paid", detail: "Money leaves the bank account, so Bank A/c is credited." },
+          { label: "No cash", detail: "Cash A/c is not affected." },
+        ],
+        journalEntry: [
+          { id: "expenses-salary-bank-debit", account: "Salary A/c", side: "debit", amount: 12000, drNotation: "Dr." },
+          { id: "expenses-salary-bank-credit", account: "Bank A/c", side: "credit", amount: 12000, displayPrefix: "To" },
+        ],
+        narration: "Being staff salary paid through bank.",
+        explanation:
+          "Salary A/c is debited because the expense increases. Bank A/c is credited because payment is through bank.",
+        studentTakeaway: "Through bank means Bank A/c, not Cash A/c.",
+        commonMistake: "Using Cash A/c for a bank-paid expense.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "expenses-outstanding-electricity",
+      illustration: {
+        id: "expenses-outstanding-electricity",
+        title: "Solved Illustration 3: outstanding expense",
+        difficulty: "slightly-harder",
+        question: "Electricity expense ₹4,500 became due but was not paid.",
+        accountsAffected: ["Electricity Expense A/c", "Outstanding Electricity Expense A/c"],
+        reasoningSteps: [
+          { label: "Expense incurred", detail: "Electricity Expense A/c is debited because the expense is due." },
+          { label: "Liability created", detail: "Outstanding Electricity Expense A/c is credited because payment remains due." },
+          { label: "No payment yet", detail: "Cash A/c and Bank A/c are not affected." },
+        ],
+        journalEntry: [
+          { id: "expenses-electricity-outstanding-debit", account: "Electricity Expense A/c", side: "debit", amount: 4500, drNotation: "Dr." },
+          { id: "expenses-electricity-outstanding-credit", account: "Outstanding Electricity Expense A/c", side: "credit", amount: 4500, displayPrefix: "To" },
+        ],
+        narration: "Being electricity expense due but not yet paid.",
+        explanation:
+          "The expense has been incurred, so Electricity Expense A/c is debited. A liability is created, so Outstanding Electricity Expense A/c is credited.",
+        studentTakeaway: "For unpaid expenses, credit the outstanding liability instead of Cash or Bank.",
+        commonMistake: "Crediting Cash A/c or Bank A/c even though no payment has happened.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "expenses-outstanding-salary-paid-later",
+      illustration: {
+        id: "expenses-outstanding-salary-paid-later",
+        title: "Solved Illustration 4: outstanding expense later paid",
+        difficulty: "slightly-harder",
+        question: "Salary ₹5,000 became due but was not paid. The outstanding salary was later paid through bank.",
+        accountsAffected: ["Salary A/c", "Outstanding Salary A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Expense creation", detail: "Salary A/c Dr. and To Outstanding Salary A/c record the unpaid expense." },
+          { label: "Liability settlement", detail: "Outstanding Salary A/c Dr. and To Bank A/c settle the liability later." },
+          { label: "No duplicate salary", detail: "Salary A/c is not debited again when the outstanding amount is paid." },
+        ],
+        journalEntry: [
+          { id: "expenses-salary-due-debit", account: "Salary A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "expenses-salary-due-credit", account: "Outstanding Salary A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+          { id: "expenses-salary-paid-later-debit", account: "Outstanding Salary A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "expenses-salary-paid-later-credit", account: "Bank A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being salary due and later outstanding salary paid through bank.",
+        explanation:
+          "The first entry records the expense and liability. The second entry settles the liability through bank without recording Salary A/c again.",
+        studentTakeaway: "Do not debit the expense a second time when an outstanding liability is paid.",
+        commonMistake: "Recording Salary A/c Dr. again on the payment date.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "expenses-personal-insurance-guard",
+      illustration: {
+        id: "expenses-personal-insurance-guard",
+        title: "Solved Illustration 5: personal expense guard",
+        difficulty: "mixed",
+        question: "The business paid Priyanka's personal insurance premium ₹4,000 through bank.",
+        accountsAffected: ["Priyanka Drawings A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Personal benefit", detail: "The insurance premium benefits Priyanka personally, not the business." },
+          { label: "Drawings increase", detail: "Priyanka Drawings A/c is debited." },
+          { label: "Bank paid", detail: "Bank A/c is credited because payment is through bank." },
+        ],
+        journalEntry: [
+          { id: "expenses-priyanka-drawings-debit", account: "Priyanka Drawings A/c", side: "debit", amount: 4000, drNotation: "Dr." },
+          { id: "expenses-priyanka-bank-credit", account: "Bank A/c", side: "credit", amount: 4000, displayPrefix: "To" },
+        ],
+        narration: "Being Priyanka's personal insurance premium paid through bank.",
+        explanation:
+          "Because the benefit is personal, the debit is Priyanka Drawings A/c. It is not Insurance Expense A/c of the business.",
+        studentTakeaway: "Personal expenses paid by the business are drawings, not business expenses.",
+        commonMistake: "Debiting Insurance Expense A/c for a personal insurance premium.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "expenses-furniture-asset-guard",
+      illustration: {
+        id: "expenses-furniture-asset-guard",
+        title: "Solved Illustration 6: asset versus expense guard",
+        difficulty: "mixed",
+        question: "Bought office furniture through bank ₹30,000.",
+        accountsAffected: ["Furniture A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Asset acquired", detail: "Office furniture is a business asset." },
+          { label: "Asset increases", detail: "Furniture A/c is debited." },
+          { label: "Bank paid", detail: "Bank A/c is credited because payment is through bank." },
+        ],
+        journalEntry: [
+          { id: "expenses-furniture-debit", account: "Furniture A/c", side: "debit", amount: 30000, drNotation: "Dr." },
+          { id: "expenses-furniture-bank-credit", account: "Bank A/c", side: "credit", amount: 30000, displayPrefix: "To" },
+        ],
+        narration: "Being office furniture purchased through bank.",
+        explanation:
+          "Furniture A/c is debited because a business asset is acquired. It is not Furniture Expense A/c and not Purchases A/c.",
+        studentTakeaway: "Do not treat asset purchases as ordinary expenses.",
+        commonMistake: "Debiting Furniture Expense A/c or Purchases A/c for office furniture.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "expenses-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Expenses mistakes",
+      mistakes: [
+        "Crediting an expense when it increases.",
+        "Using a generic Expense A/c.",
+        "Using Cash A/c when payment is through bank.",
+        "Using Bank A/c when payment is in cash.",
+        "Using Cash or Bank for an unpaid expense.",
+        "Treating a personal expense as a business expense.",
+        "Treating drawings as an expense.",
+        "Treating an asset purchase as an expense.",
+        "Treating a repair as purchase of machinery.",
+        "Recording the expense again when an outstanding liability is later paid.",
+        "Debiting Bank or Cash instead of the expense.",
+        "Ignoring the payment mode.",
+        "Assuming every business payment is an expense.",
+        "Confusing Purchases A/c with an operating expense.",
+        "Treating prepaid expense as a current-period expense without adjustment.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "expense-decision-process",
+      eyebrow: "Decision process",
+      title: "Expense decision process",
+      body:
+        "Use this order before writing an expense-related journal entry.",
+      steps: [
+        { label: "Identify the cost", detail: "Read what cost was incurred and the amount." },
+        { label: "Confirm business purpose", detail: "Check that the cost relates to the business, not someone's personal benefit." },
+        { label: "Use a specific expense account", detail: "Use Salary A/c, Rent A/c, Electricity Expense A/c, Repairs A/c, or another exact account." },
+        { label: "Check payment status", detail: "Decide whether payment was in cash, through bank, or remains unpaid." },
+        { label: "Debit the expense", detail: "Debit the specific Expense A/c because the expense increases." },
+        { label: "Credit Cash for cash payment", detail: "Use Cash A/c when physical cash is paid." },
+        { label: "Credit Bank for bank payment", detail: "Use Bank A/c when payment is through bank." },
+        { label: "Credit outstanding if unpaid", detail: "Use the appropriate Outstanding or Payable account if the expense remains unpaid." },
+        { label: "Check other treatments", detail: "Confirm the item is not an asset, purchase of goods, drawings, or another type of transaction." },
+        { label: "Confirm totals", detail: "Total debit must equal total credit." },
+        { label: "Write narration", detail: "State the expense and whether it was paid or remains outstanding." },
+        { label: "Mark later adjustments", detail: "Prepaid or other adjustment treatment may belong to a later topic." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "expenses-checklist",
+      title: "Expense checklist",
+      points: [
+        "The cost relates to the business.",
+        "A specific expense account is used.",
+        "The item is not an asset.",
+        "The item is not goods for resale.",
+        "The item is not a personal expense or drawings.",
+        "Cash, Bank, or Outstanding account is selected correctly.",
+        "The Expense A/c is debited.",
+        "The expense is not recorded twice when later paid.",
+        "Debit and credit totals are equal.",
+        "Narration explains the expense and payment status.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "expenses-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Was this cost incurred for the business, for an asset, for goods to resell, or for someone's personal benefit—and has it been paid yet?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -4152,6 +4707,7 @@ const journalEntriesSubtopics = [
   drawingsJournalEntriesSubtopic,
   purchasesJournalEntriesSubtopic,
   salesJournalEntriesSubtopic,
+  expensesJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -4168,7 +4724,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 11,
+      value: 12,
     },
   },
   outline: [
@@ -4260,7 +4816,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Goods sold in normal trading, cash/bank/credit sales, and debtor treatment.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_SALES_SECTION_SLUG}`,
     },
-    { id: "expenses", title: "Expenses", order: 12, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
+      title: "Expenses",
+      order: 12,
+      status: "available",
+      shortDescription: "Business expenses, cash/bank payments, outstanding expenses, and adjustment guardrails.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG}`,
+    },
     { id: "income", title: "Income", order: 13, status: "upcoming" },
     { id: "assets-and-liabilities", title: "Assets and Liabilities", order: 14, status: "upcoming" },
     { id: "mixed-simple-entries", title: "Mixed Simple Entries", order: 15, status: "upcoming" },
