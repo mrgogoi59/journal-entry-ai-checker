@@ -12,6 +12,7 @@ export const PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID = "journal-entry-paid-sala
 export const JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG = "introduction-to-journal-entries";
 export const JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG = "business-transactions";
 export const JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG = "accounts-affected";
+export const JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG = "types-of-accounts";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -135,10 +136,19 @@ const accountsAffectedSubtopicReference: ChapterSubtopicReference = {
 };
 
 const typesOfAccountsSubtopicReference: ChapterSubtopicReference = {
-  id: "types-of-accounts",
-  slug: "types-of-accounts",
+  id: JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   title: "Types of Accounts",
   order: 4,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG}`,
+};
+
+const debitAndCreditRulesSubtopicReference: ChapterSubtopicReference = {
+  id: "debit-and-credit-rules",
+  slug: "debit-and-credit-rules",
+  title: "Debit and Credit Rules",
+  order: 5,
   availabilityStatus: "upcoming",
 };
 
@@ -633,10 +643,239 @@ export const accountsAffectedJournalEntriesSubtopic: ChapterSubtopicDefinition =
   ],
 };
 
+export const typesOfAccountsJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...typesOfAccountsSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG}`,
+  shortDescription:
+    "Classify accounts through modern and traditional approaches before learning debit-credit rules.",
+  learningObjective:
+    "Students learn why accounts are classified, identify modern account categories, connect them with personal, real, and nominal accounts, and prepare for debit-credit rules.",
+  progressLabel: "Section 4 of 16",
+  previousSection: accountsAffectedSubtopicReference,
+  nextSection: debitAndCreditRulesSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "types-of-accounts",
+      eyebrow: "Learning objective",
+      title: "Types of Accounts",
+      body:
+        "By the end of this section, you should be able to classify an account using the modern approach, connect it with the traditional approach, and understand the account's nature before applying debit-credit rules.",
+    },
+    {
+      type: "concept-explanation",
+      id: "why-accounts-are-classified",
+      eyebrow: "Concept explanation",
+      title: "Why accounts are classified",
+      paragraphs: [
+        "A business may have hundreds of accounts. Classification helps you understand what each account represents instead of memorising every account separately.",
+        "The account's nature helps decide how an increase or decrease will be treated later. That is why classification should come before debit-credit rules.",
+        "The same account can be understood through both modern and traditional classification. These are two learning approaches, not two different journal entries.",
+        "Modern classification is easier to understand economically, so we start there. Traditional classification is then connected because many textbooks and exams still use it.",
+      ],
+    },
+    {
+      type: "classification-categories",
+      id: "modern-classification",
+      eyebrow: "Modern classification",
+      title: "Classify by what the account represents",
+      body:
+        "Modern classification groups accounts by their economic nature: asset, liability, capital, income, expense, or drawings.",
+      categories: [
+        {
+          title: "Assets",
+          description: "Resources owned or controlled by the business.",
+          examples: ["Cash A/c", "Bank A/c", "Furniture A/c", "Machinery A/c", "Building A/c", "Debtors / Accounts Receivable"],
+          note: "Assets may be current or non-current, but detailed Balance Sheet classification comes later.",
+        },
+        {
+          title: "Liabilities",
+          description: "Amounts payable by the business to outsiders.",
+          examples: ["Bank Loan A/c", "Creditors / Accounts Payable", "Outstanding Salary A/c", "Bills Payable A/c"],
+        },
+        {
+          title: "Capital / Equity",
+          description: "The owner's or partners' claim in the business.",
+          examples: ["Amit's Capital A/c", "Riya's Capital A/c", "Share Capital A/c"],
+          note: "Use named capital accounts when a named proprietor or partner is involved.",
+        },
+        {
+          title: "Income / Revenue",
+          description: "Amounts earned by the business.",
+          examples: ["Sales A/c", "Commission Received A/c", "Interest Received A/c", "Rent Received A/c"],
+        },
+        {
+          title: "Expenses / Losses",
+          description: "Costs incurred to earn revenue or run the business.",
+          examples: ["Salary A/c", "Rent A/c", "Electricity Expense A/c", "Purchases A/c", "Bad Debts A/c"],
+          note: "In this journal-entry learning context, Purchases A/c is treated as a goods/expense account, not a fixed asset.",
+        },
+        {
+          title: "Drawings",
+          description: "Value withdrawn by the owner or partner for personal use.",
+          examples: ["Amit Drawings A/c", "Riya Drawings A/c"],
+          note: "Drawings is not a business expense; it is adjusted against capital.",
+        },
+      ],
+    },
+    {
+      type: "classification-categories",
+      id: "traditional-classification",
+      eyebrow: "Traditional classification",
+      title: "Classify as personal, real, or nominal",
+      body:
+        "Traditional classification is another way to understand accounts. Learn the category now; the full golden rules come in the next section.",
+      categories: [
+        {
+          title: "Personal Accounts",
+          description: "Accounts related to persons or entities.",
+          examples: ["Amit A/c", "Bank A/c", "Outstanding Salary A/c"],
+          subcategories: [
+            { title: "Natural persons", examples: ["Amit A/c", "Riya A/c", "Mohan A/c"] },
+            { title: "Artificial persons", examples: ["Bank A/c", "Company A/c", "Institution A/c"] },
+            {
+              title: "Representative personal accounts",
+              examples: ["Outstanding Salary A/c", "Prepaid Rent A/c", "Accrued Interest A/c"],
+              note: "Detailed adjustment entries are later learning.",
+            },
+          ],
+        },
+        {
+          title: "Real Accounts",
+          description: "Accounts related to assets and property.",
+          examples: ["Cash A/c", "Furniture A/c", "Goodwill A/c"],
+          subcategories: [
+            { title: "Tangible real accounts", examples: ["Cash A/c", "Furniture A/c", "Machinery A/c", "Building A/c"] },
+            {
+              title: "Intangible real accounts",
+              examples: ["Goodwill A/c", "Patent A/c", "Trademark A/c"],
+              note: "This is classification only. Goodwill journal entries are not added here.",
+            },
+          ],
+        },
+        {
+          title: "Nominal Accounts",
+          description: "Accounts related to expenses, losses, incomes, and gains.",
+          examples: ["Salary A/c", "Rent A/c", "Purchases A/c", "Sales A/c", "Commission Received A/c", "Interest Received A/c"],
+        },
+      ],
+    },
+    {
+      type: "classification-guide",
+      id: "classification-mapping-guide",
+      eyebrow: "Modern + traditional bridge",
+      title: "Same account, two classification views",
+      body:
+        "This mapping is a learning bridge. It does not mean you should write two account names in one journal entry.",
+      rows: [
+        { account: "Cash A/c", modernClassification: "Asset", traditionalClassification: "Real Account" },
+        { account: "Bank A/c", modernClassification: "Asset", traditionalClassification: "Artificial Personal Account" },
+        { account: "Furniture A/c", modernClassification: "Asset", traditionalClassification: "Real Account" },
+        { account: "Bank Loan A/c", modernClassification: "Liability", traditionalClassification: "Personal Account" },
+        { account: "Amit's Capital A/c", modernClassification: "Capital / Equity", traditionalClassification: "Personal Account" },
+        { account: "Amit Drawings A/c", modernClassification: "Drawings / Capital reduction", traditionalClassification: "Personal Account" },
+        { account: "Salary A/c", modernClassification: "Expense", traditionalClassification: "Nominal Account" },
+        { account: "Sales A/c", modernClassification: "Income / Revenue", traditionalClassification: "Nominal Account" },
+        { account: "Riya A/c as debtor", modernClassification: "Asset / Receivable", traditionalClassification: "Personal Account" },
+        { account: "Mohan A/c as creditor", modernClassification: "Liability / Payable", traditionalClassification: "Personal Account" },
+        { account: "Outstanding Salary A/c", modernClassification: "Liability", traditionalClassification: "Representative Personal Account" },
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "classification-decision-process",
+      eyebrow: "Classification process",
+      title: "How to classify an account",
+      body:
+        "Use this sequence before debit-credit rules. It keeps the account nature clear.",
+      steps: [
+        { label: "Read the account name", detail: "Start with the exact account, not the full transaction." },
+        { label: "Ask what it represents", detail: "Decide what this account represents to the business." },
+        { label: "Choose the modern category", detail: "Ask whether it is an asset, liability, capital, income, expense, or drawings." },
+        { label: "Choose the traditional category", detail: "If using the traditional method, ask whether it relates to a person, property, or income/expense." },
+        { label: "Use transaction context", detail: "A person may be a debtor, creditor, owner, or partner depending on the transaction." },
+        { label: "Confirm before rules", detail: "Confirm the classification before applying debit and credit rules." },
+      ],
+    },
+    {
+      type: "classification-examples",
+      id: "classification-worked-examples",
+      eyebrow: "Classification examples",
+      title: "Classify the accounts only",
+      body:
+        "These examples stop at classification. The next section teaches how classification connects to debit-credit treatment.",
+      examples: [
+        {
+          title: "Worked Example 1",
+          question: "Paid salary by bank ₹8,000.",
+          accounts: [
+            { account: "Salary A/c", modernClassification: "Expense", traditionalClassification: "Nominal Account" },
+            { account: "Bank A/c", modernClassification: "Asset", traditionalClassification: "Artificial Personal Account" },
+          ],
+          explanation: "Debit-credit treatment will be learned in the next section.",
+        },
+        {
+          title: "Worked Example 2",
+          question: "Bought furniture for cash ₹20,000.",
+          accounts: [
+            { account: "Furniture A/c", modernClassification: "Asset", traditionalClassification: "Real Account" },
+            { account: "Cash A/c", modernClassification: "Asset", traditionalClassification: "Real Account" },
+          ],
+          explanation:
+            "Both accounts are assets in the modern view, but one asset increases and another asset decreases. This prepares you for debit-credit rules.",
+        },
+        {
+          title: "Worked Example 3",
+          question: "Sold goods on credit to Riya ₹10,000.",
+          accounts: [
+            { account: "Riya A/c", modernClassification: "Asset / Receivable", traditionalClassification: "Personal Account" },
+            { account: "Sales A/c", modernClassification: "Income / Revenue", traditionalClassification: "Nominal Account" },
+          ],
+          explanation: "The person's role in the transaction determines whether they are a debtor or creditor.",
+        },
+        {
+          title: "Worked Example 4",
+          question: "Amit introduced capital of ₹50,000 by bank.",
+          accounts: [
+            { account: "Bank A/c", modernClassification: "Asset", traditionalClassification: "Artificial Personal Account" },
+            { account: "Amit's Capital A/c", modernClassification: "Capital / Equity", traditionalClassification: "Personal Account" },
+          ],
+          explanation: "Continue using the named capital account. Do not use generic Capital A/c when Amit is named.",
+        },
+      ],
+    },
+    {
+      type: "common-mistakes",
+      id: "types-of-accounts-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these classification mistakes",
+      mistakes: [
+        "Classifying the transaction instead of the account.",
+        "Treating Bank A/c as a Real Account under the traditional system.",
+        "Treating Purchases A/c as a fixed asset.",
+        "Treating Drawings as a business expense.",
+        "Treating Sales A/c as an asset.",
+        "Treating a creditor as an expense.",
+        "Using generic Capital A/c when a named proprietor or partner is given.",
+        "Mixing modern and traditional labels in one classification answer.",
+        "Trying to apply debit-credit rules before identifying account nature.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "types-of-accounts-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "For every account, ask: What does this account represent to the business?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
   accountsAffectedJournalEntriesSubtopic,
+  typesOfAccountsJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -681,7 +920,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "How to name every account affected before applying debit-credit rules.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG}`,
     },
-    { id: "types-of-accounts", title: "Types of Accounts", order: 4, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
+      title: "Types of Accounts",
+      order: 4,
+      status: "available",
+      shortDescription: "Modern and traditional classification before debit-credit rules.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG}`,
+    },
     { id: "debit-and-credit-rules", title: "Debit and Credit Rules", order: 5, status: "upcoming" },
     { id: "journal-format", title: "Journal Format", order: 6, status: "upcoming" },
     { id: "cash-and-bank-transactions", title: "Cash and Bank Transactions", order: 7, status: "upcoming" },

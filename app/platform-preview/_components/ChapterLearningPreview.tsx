@@ -5,6 +5,9 @@ import type {
   ChapterDefinition,
   ChapterMetadata,
   ChapterSubtopicDefinition,
+  ClassificationCategorySection,
+  ClassificationExamplesSection,
+  ClassificationGuideSection,
   ClueGuideSection,
   CommonMistakesSection,
   ComparisonSection,
@@ -197,6 +200,105 @@ export function ClueGuideBlock({ section }: { section: ClueGuideSection }) {
             <p className="mt-3 text-xs font-black uppercase tracking-wide text-cyan-700">Likely account(s)</p>
             <p className="mt-1 text-sm font-bold leading-6 text-slate-800">{item.likelyAccounts.join(" and ")}</p>
             {item.note ? <p className="mt-2 text-sm leading-6 text-slate-600">{item.note}</p> : null}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function ClassificationCategoriesBlock({ section }: { section: ClassificationCategorySection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        {section.categories.map((category) => (
+          <article key={category.title} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-base font-black text-slate-950">{category.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{category.description}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {category.examples.map((example) => (
+                <span
+                  key={example}
+                  className="min-w-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-black text-slate-700"
+                >
+                  {example}
+                </span>
+              ))}
+            </div>
+            {category.subcategories ? (
+              <div className="mt-4 grid gap-3">
+                {category.subcategories.map((subcategory) => (
+                  <div key={subcategory.title} className="rounded-xl border border-slate-200 bg-white p-3">
+                    <h4 className="text-sm font-black text-slate-950">{subcategory.title}</h4>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                      {subcategory.examples.join(", ")}
+                    </p>
+                    {subcategory.note ? (
+                      <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">{subcategory.note}</p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            {category.note ? <p className="mt-4 text-sm font-semibold leading-6 text-slate-600">{category.note}</p> : null}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function ClassificationGuideBlock({ section }: { section: ClassificationGuideSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {section.rows.map((row) => (
+          <article key={row.account} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-base font-black text-slate-950">{row.account}</h3>
+            <div className="mt-4 grid gap-3">
+              <div className="rounded-xl border border-slate-200 bg-white p-3">
+                <p className="text-xs font-black uppercase tracking-wide text-cyan-700">Modern</p>
+                <p className="mt-1 text-sm font-bold leading-6 text-slate-900">{row.modernClassification}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-3">
+                <p className="text-xs font-black uppercase tracking-wide text-slate-500">Traditional</p>
+                <p className="mt-1 text-sm font-bold leading-6 text-slate-900">{row.traditionalClassification}</p>
+              </div>
+            </div>
+            {row.note ? <p className="mt-3 text-sm leading-6 text-slate-600">{row.note}</p> : null}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function ClassificationExamplesBlock({ section }: { section: ClassificationExamplesSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-4">
+        {section.examples.map((example) => (
+          <article key={example.title} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-black uppercase tracking-wide text-cyan-700">{example.title}</p>
+            <h3 className="mt-2 text-base font-black text-slate-950">{example.question}</h3>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {example.accounts.map((account) => (
+                <div key={account.account} className="rounded-xl border border-slate-200 bg-white p-3">
+                  <h4 className="text-sm font-black text-slate-950">{account.account}</h4>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">
+                    <span className="font-black text-cyan-800">Modern:</span> {account.modernClassification}
+                  </p>
+                  <p className="text-sm leading-6 text-slate-700">
+                    <span className="font-black text-slate-700">Traditional:</span> {account.traditionalClassification}
+                  </p>
+                  {account.note ? <p className="mt-2 text-sm leading-6 text-slate-600">{account.note}</p> : null}
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">{example.explanation}</p>
           </article>
         ))}
       </div>

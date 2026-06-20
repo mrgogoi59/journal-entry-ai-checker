@@ -4,6 +4,9 @@ import {
   AccountingEntryTable,
   ChapterOutline,
   ChapterProgressPreview,
+  ClassificationCategoriesBlock,
+  ClassificationExamplesBlock,
+  ClassificationGuideBlock,
   ClueGuideBlock,
   CommonMistakes,
   ComparisonBlock,
@@ -47,7 +50,7 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
             <PageHeader
-            eyebrow="Phase 3H chapter preview"
+            eyebrow="Phase 3I chapter preview"
             title={chapter.metadata.title}
             description={chapter.metadata.description}
           >
@@ -148,6 +151,15 @@ function ChapterSectionRenderer({
 
     case "clue-guide":
       return <ClueGuideBlock section={section} />;
+
+    case "classification-categories":
+      return <ClassificationCategoriesBlock section={section} />;
+
+    case "classification-guide":
+      return <ClassificationGuideBlock section={section} />;
+
+    case "classification-examples":
+      return <ClassificationExamplesBlock section={section} />;
 
     case "accounting-format":
       return (

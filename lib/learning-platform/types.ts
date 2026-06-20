@@ -201,6 +201,58 @@ export type ClueGuideSection = {
   }[];
 };
 
+export type ClassificationCategorySection = {
+  type: "classification-categories";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  categories: {
+    title: string;
+    description: string;
+    examples: string[];
+    note?: string;
+    subcategories?: {
+      title: string;
+      examples: string[];
+      note?: string;
+    }[];
+  }[];
+};
+
+export type ClassificationGuideSection = {
+  type: "classification-guide";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  rows: {
+    account: string;
+    modernClassification: string;
+    traditionalClassification: string;
+    note?: string;
+  }[];
+};
+
+export type ClassificationExamplesSection = {
+  type: "classification-examples";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  examples: {
+    title: string;
+    question: string;
+    accounts: {
+      account: string;
+      modernClassification: string;
+      traditionalClassification: string;
+      note?: string;
+    }[];
+    explanation: string;
+  }[];
+};
+
 export type AccountingFormatSection = {
   type: "accounting-format";
   id: string;
@@ -261,6 +313,9 @@ export type ChapterSection =
   | ComparisonSection
   | ProcessStepsSection
   | ClueGuideSection
+  | ClassificationCategorySection
+  | ClassificationGuideSection
+  | ClassificationExamplesSection
   | AccountingFormatSection
   | SimpleExampleSection
   | SolvedIllustrationSection

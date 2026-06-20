@@ -9,10 +9,12 @@ import PlatformPreviewChaptersPage from "@/app/platform-preview/chapters/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
 import AccountsAffectedChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/accounts-affected/page";
 import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
+import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
 import {
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
+  JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
   paidSalaryByBankPracticeQuestion,
   soldGoodsForCashPracticeQuestion,
@@ -44,6 +46,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
       JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
       JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+      JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -60,6 +63,11 @@ describe("Platform preview routes", () => {
       title: "Accounts Affected",
       progressLabel: "Section 3 of 16",
     });
+    expect(journalEntriesChapter.subtopics[3]).toMatchObject({
+      order: 4,
+      title: "Types of Accounts",
+      progressLabel: "Section 4 of 16",
+    });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].nextSection).toMatchObject({
@@ -69,8 +77,14 @@ describe("Platform preview routes", () => {
     });
     expect(journalEntriesChapter.subtopics[2].previousSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[2].nextSection).toMatchObject({
-      slug: "types-of-accounts",
+      slug: JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
       title: "Types of Accounts",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[3].previousSection?.slug).toBe(JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[3].nextSection).toMatchObject({
+      slug: "debit-and-credit-rules",
+      title: "Debit and Credit Rules",
       availabilityStatus: "upcoming",
     });
 
@@ -84,6 +98,11 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[2].sections.filter((section) => section.type === "clue-guide")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[2].sections.filter((section) => section.type === "comparison")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[2].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "classification-categories")).toHaveLength(2);
+    expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "classification-guide")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "classification-examples")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[3].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -182,6 +201,63 @@ describe("Platform preview routes", () => {
     expect(furnitureExample.illustration.journalEntry.map((line) => line.account)).toEqual(["Furniture A/c", "Mohan A/c"]);
     expect(furnitureExample.illustration.journalEntry.map((line) => line.account)).not.toContain("Purchases A/c");
     expect(drawingsExample.illustration.journalEntry.map((line) => line.account)).toEqual(["Amit Drawings A/c", "Cash A/c"]);
+  });
+
+  it("defines Types of Accounts as classification-only content without a checker", () => {
+    const typesSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
+    );
+    const guideSection = typesSubtopic?.sections.find((section) => section.type === "classification-guide");
+    const examplesSection = typesSubtopic?.sections.find((section) => section.type === "classification-examples");
+    const mistakesSection = typesSubtopic?.sections.find(
+      (section) => section.type === "common-mistakes" && section.id === "types-of-accounts-common-mistakes",
+    );
+
+    expect(typesSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(typesSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(guideSection?.type).toBe("classification-guide");
+    expect(examplesSection?.type).toBe("classification-examples");
+    expect(mistakesSection?.type).toBe("common-mistakes");
+
+    if (
+      guideSection?.type !== "classification-guide" ||
+      examplesSection?.type !== "classification-examples" ||
+      mistakesSection?.type !== "common-mistakes"
+    ) {
+      throw new Error("Types of Accounts classification sections were not found");
+    }
+
+    expect(guideSection.rows).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          account: "Bank A/c",
+          modernClassification: "Asset",
+          traditionalClassification: "Artificial Personal Account",
+        }),
+        expect.objectContaining({
+          account: "Cash A/c",
+          modernClassification: "Asset",
+          traditionalClassification: "Real Account",
+        }),
+        expect.objectContaining({
+          account: "Amit's Capital A/c",
+          modernClassification: "Capital / Equity",
+          traditionalClassification: "Personal Account",
+        }),
+        expect.objectContaining({
+          account: "Outstanding Salary A/c",
+          modernClassification: "Liability",
+          traditionalClassification: "Representative Personal Account",
+        }),
+      ]),
+    );
+    expect(examplesSection.examples).toHaveLength(4);
+    expect(examplesSection.examples[3].accounts.map((account) => account.account)).toEqual([
+      "Bank A/c",
+      "Amit's Capital A/c",
+    ]);
+    expect(guideSection.rows.map((row) => row.account)).not.toContain("Capital A/c");
+    expect(mistakesSection.mistakes).toContain("Treating Drawings as a business expense.");
   });
 
   it("marks the platform preview routes as noindex and nofollow", () => {
@@ -401,12 +477,66 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Being cash withdrawn by Amit for personal use.");
     expect(html).toContain("Before writing any journal entry, ask: Which accounts changed, and why?");
     expect(html).toContain("Previous Business Transactions");
-    expect(html).toContain("Continue to Types of Accounts - Preview only");
+    expect(html).toContain("Continue to Types of Accounts");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/accounts-affected")).toContain(
       'aria-current="step"',
     );
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/business-transactions"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
+    expect(html).not.toContain("Continue to Types of Accounts - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Types of Accounts section without adding a checker or next-route link", () => {
+    const html = renderToStaticMarkup(createElement(TypesOfAccountsChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Types of Accounts");
+    expect(html).toContain("Section 4 of 16");
+    expect(html).toContain("Why accounts are classified");
+    expect(html).toContain("Modern classification");
+    expect(html).toContain("Assets");
+    expect(html).toContain("Liabilities");
+    expect(html).toContain("Capital / Equity");
+    expect(html).toContain("Income / Revenue");
+    expect(html).toContain("Expenses / Losses");
+    expect(html).toContain("Drawings is not a business expense");
+    expect(html).toContain("Traditional classification");
+    expect(html).toContain("Personal Accounts");
+    expect(html).toContain("Natural persons");
+    expect(html).toContain("Artificial persons");
+    expect(html).toContain("Representative personal accounts");
+    expect(html).toContain("Real Accounts");
+    expect(html).toContain("Tangible real accounts");
+    expect(html).toContain("Intangible real accounts");
+    expect(html).toContain("Nominal Accounts");
+    expect(html).toContain("Same account, two classification views");
+    expect(html).toContain("Cash A/c");
+    expect(html).toContain("Real Account");
+    expect(html).toContain("Bank A/c");
+    expect(html).toContain("Artificial Personal Account");
+    expect(html).toContain("Amit&#x27;s Capital A/c");
+    expect(html).toContain("Classification process");
+    expect(html).toContain("Read the account name");
+    expect(html).toContain("Confirm before rules");
+    expect(html).toContain("Paid salary by bank ₹8,000.");
+    expect(html).toContain("Bought furniture for cash ₹20,000.");
+    expect(html).toContain("Sold goods on credit to Riya ₹10,000.");
+    expect(html).toContain("Amit introduced capital of ₹50,000 by bank.");
+    expect(html).toContain("Continue using the named capital account.");
+    expect(html).toContain("For every account, ask: What does this account represent to the business?");
+    expect(html).toContain("Previous Accounts Affected");
+    expect(html).toContain("Continue to Debit and Credit Rules - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/types-of-accounts")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/debit-and-credit-rules"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -461,5 +591,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/business-transactions"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/accounts-affected"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/types-of-accounts"');
   });
 });
