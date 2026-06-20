@@ -18,6 +18,7 @@ export const JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG = "journa
 export const JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG = "cash-and-bank-transactions";
 export const JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG = "capital";
 export const JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG = "drawings";
+export const JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG = "purchases";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -195,10 +196,19 @@ const drawingsSubtopicReference: ChapterSubtopicReference = {
 };
 
 const purchasesSubtopicReference: ChapterSubtopicReference = {
-  id: "purchases",
-  slug: "purchases",
+  id: JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
   title: "Purchases",
   order: 10,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG}`,
+};
+
+const salesSubtopicReference: ChapterSubtopicReference = {
+  id: "sales",
+  slug: "sales",
+  title: "Sales",
+  order: 11,
   availabilityStatus: "upcoming",
 };
 
@@ -3190,6 +3200,473 @@ export const drawingsJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   ],
 };
 
+export const purchasesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...purchasesSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG}`,
+  shortDescription:
+    "Learn Purchases A/c for goods bought for resale, cash/bank/credit purchases, named suppliers, and goods-versus-assets guardrails.",
+  learningObjective:
+    "Students learn to use Purchases A/c only for goods bought for resale, identify Cash/Bank/named creditor treatment, and separate purchases from assets and expenses.",
+  progressLabel: "Section 10 of 16",
+  previousSection: drawingsSubtopicReference,
+  nextSection: salesSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "purchases",
+      eyebrow: "Learning objective",
+      title: "Purchases",
+      body:
+        "By the end of this section, you should be able to record goods bought for resale, choose Cash A/c, Bank A/c, or the named supplier correctly, and avoid using Purchases A/c for assets or ordinary expenses.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-purchases",
+      eyebrow: "Concept explanation",
+      title: "What Purchases A/c records",
+      paragraphs: [
+        "Purchases A/c records goods bought for resale. Goods means the items the business normally deals in and plans to sell to customers.",
+        "Purchases does not mean every item bought. If a business buys furniture, machinery, vehicles, or a building for its own use, use the named asset account.",
+        "Purchases may be made for cash, through bank, or on credit from a supplier.",
+        "When a supplier is named, use that supplier's account, such as Mohan A/c or Riya Traders A/c. Do not replace a named supplier with generic Creditor A/c.",
+        "Purchases are usually recorded at the amount payable after trade discount if applicable. Detailed discount entries are marked later in this preview.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "central-purchase-rules",
+      eyebrow: "Central rules",
+      title: "Three rules to remember",
+      paragraphs: [
+        "Items bought for resale → Purchases A/c.",
+        "Assets bought for business use → Named Asset A/c.",
+        "Payment mode or credit supplier identifies the credited account.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "goods-versus-assets-in-purchases",
+      eyebrow: "Goods versus assets",
+      title: "Purpose decides whether Purchases A/c is used",
+      intro:
+        "The same physical item can be goods for one business and an asset for another business. Ask why the item was bought.",
+      groups: [
+        {
+          title: "Goods bought for resale",
+          items: [
+            "Furniture dealer buys furniture for resale → Purchases A/c.",
+            "Mobile-phone dealer buys phones for resale → Purchases A/c.",
+            "Transaction: Bought goods for cash ₹10,000.",
+            "Entry: Purchases A/c Dr.; To Cash A/c.",
+          ],
+        },
+        {
+          title: "Assets bought for business use",
+          items: [
+            "Coaching centre buys furniture for office use → Furniture A/c.",
+            "A business buys a phone for office use → Office Equipment A/c or the named asset account.",
+            "Transaction: Bought furniture for cash ₹10,000.",
+            "Entry: Furniture A/c Dr.; To Cash A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "purchases-classification",
+      eyebrow: "Classification",
+      title: "How Purchases A/c is classified here",
+      intro:
+        "This section stays in journal-entry logic and does not teach full Trading Account treatment yet.",
+      groups: [
+        {
+          title: "Modern view",
+          items: [
+            "Purchases is treated as a direct cost / expense-type account in this journal-entry context.",
+            "When goods are bought for resale, Purchases increases.",
+            "An increase in this expense-type account is debited.",
+          ],
+        },
+        {
+          title: "Traditional view",
+          items: [
+            "Purchases is a Nominal Account.",
+            "The golden rule is debit all expenses and losses.",
+            "Therefore Purchases A/c is debited when goods are purchased.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "cash-purchase-format",
+      eyebrow: "Cash purchase",
+      title: "Bought goods for cash",
+      paragraphs: [
+        "Transaction: Bought goods for cash ₹10,000.",
+        "Goods bought for resale increase Purchases A/c, so Purchases A/c is debited.",
+        "Physical cash is paid immediately, so Cash A/c is credited. Bank A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "cash-purchase-purchases-debit", particulars: "Purchases A/c Dr.", lf: "", debitDisplay: "10,000" },
+        { id: "cash-purchase-cash-credit", particulars: "To Cash A/c", lf: "", creditDisplay: "10,000" },
+        { id: "cash-purchase-narration", particulars: "(Being goods purchased for cash.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "bank-purchase-format",
+      eyebrow: "Bank purchase",
+      title: "Purchased goods through bank",
+      paragraphs: [
+        "Transaction: Purchased goods through bank ₹15,000.",
+        "Purchases A/c is debited because goods are bought for resale.",
+        "Bank A/c is credited because payment is made through the business bank account. Cash A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "bank-purchase-purchases-debit", particulars: "Purchases A/c Dr.", lf: "", debitDisplay: "15,000" },
+        { id: "bank-purchase-bank-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "15,000" },
+        { id: "bank-purchase-narration", particulars: "(Being goods purchased through bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "credit-purchase-format",
+      eyebrow: "Credit purchase",
+      title: "Purchased goods on credit from Mohan",
+      paragraphs: [
+        "Transaction: Purchased goods on credit from Mohan ₹20,000.",
+        "Purchases A/c is debited because goods for resale are bought.",
+        "Mohan A/c is credited because Mohan is the named supplier or creditor. Cash and Bank are not affected at the time of credit purchase.",
+      ],
+      formatRows: [
+        { id: "credit-purchase-purchases-debit", particulars: "Purchases A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "credit-purchase-mohan-credit", particulars: "To Mohan A/c", lf: "", creditDisplay: "20,000" },
+        { id: "credit-purchase-narration", particulars: "(Being goods purchased on credit from Mohan.)" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "named-supplier-account",
+      eyebrow: "Named supplier",
+      title: "Use the supplier's account in a credit purchase",
+      intro:
+        "A credit purchase creates an amount payable to the supplier. The supplier is credited because the business owes them money.",
+      groups: [
+        {
+          title: "Use the named supplier",
+          items: [
+            "Mohan A/c.",
+            "Riya Traders A/c.",
+            "ABC Suppliers A/c.",
+            "Use the exact supplier name when the question gives one.",
+          ],
+        },
+        {
+          title: "Do not use these instead",
+          items: [
+            "Do not use Cash A/c.",
+            "Do not use Bank A/c.",
+            "Do not use generic Creditor A/c when the supplier is named.",
+            "Do not write Purchases A/c on both sides.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "purchases-versus-expenses",
+      eyebrow: "Purchases versus expenses",
+      title: "Goods purchase and business expense are not the same",
+      intro:
+        "Both may be debited, but they represent different accounts and concepts.",
+      groups: [
+        {
+          title: "Purchase of goods",
+          items: [
+            "Bought goods for cash ₹10,000.",
+            "Entry: Purchases A/c Dr.",
+            "To Cash A/c.",
+            "Purchases relates to goods bought for resale.",
+          ],
+        },
+        {
+          title: "Business expense",
+          items: [
+            "Paid office rent by bank ₹10,000.",
+            "Entry: Rent A/c Dr.",
+            "To Bank A/c.",
+            "Rent is a cost of operating the business, not Purchases A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "credit-purchase-and-later-payment-format",
+      eyebrow: "Credit purchase and payment",
+      title: "Original purchase and later payment are separate",
+      paragraphs: [
+        "At the time of purchase, the supplier becomes a creditor.",
+        "When the supplier is later paid, the creditor is settled.",
+        "Purchases A/c is not debited again when the supplier is paid.",
+      ],
+      formatRows: [
+        { id: "credit-purchase-entry-one-label", particulars: "Transaction 1: Purchased goods on credit from Mohan ₹20,000" },
+        { id: "credit-purchase-entry-one-debit", particulars: "Purchases A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "credit-purchase-entry-one-credit", particulars: "To Mohan A/c", lf: "", creditDisplay: "20,000" },
+        { id: "credit-purchase-entry-two-label", particulars: "Transaction 2: Paid Mohan by bank ₹20,000" },
+        { id: "credit-purchase-entry-two-debit", particulars: "Mohan A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "credit-purchase-entry-two-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "20,000" },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "purchase-discounts-and-returns-boundary",
+      eyebrow: "Later / design-needed",
+      title: "Discounts and purchase returns are later topics",
+      paragraphs: [
+        "Trade discount reduces the invoice or list price before recording. Example: goods listed at ₹20,000 less 10% trade discount are recorded at ₹18,000.",
+        "The journal entry is recorded at the net amount: Purchases A/c Dr. ₹18,000; To Supplier A/c ₹18,000.",
+        "Trade discount is normally not recorded separately in the journal.",
+        "Cash discount relates to prompt payment and may be recorded separately later.",
+        "Purchase returns / Returns Outward treatment is a later linked subtopic.",
+        "Detailed trade discount, cash discount, and purchase returns practice is marked Later / design-needed in this preview.",
+      ],
+    },
+    {
+      type: "recap",
+      id: "purchase-source-documents",
+      title: "Common source documents",
+      points: [
+        "Cash memo.",
+        "Purchase invoice.",
+        "Supplier bill.",
+        "Bank payment record.",
+        "Goods received note where applicable.",
+        "Source documents support the recording of the transaction; this preview does not add upload, OCR, or invoice extraction.",
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "purchases-cash-goods",
+      illustration: {
+        id: "purchases-cash-goods",
+        title: "Solved Illustration 1: cash purchase",
+        difficulty: "easy",
+        question: "Bought goods for cash ₹12,000.",
+        accountsAffected: ["Purchases A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Goods for resale", detail: "Goods bought for resale use Purchases A/c." },
+          { label: "Cash mode", detail: "The question says for cash, so Cash A/c is credited." },
+          { label: "No bank", detail: "Bank A/c is not affected." },
+        ],
+        journalEntry: [
+          { id: "purchases-cash-goods-debit", account: "Purchases A/c", side: "debit", amount: 12000, drNotation: "Dr." },
+          { id: "purchases-cash-goods-credit", account: "Cash A/c", side: "credit", amount: 12000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased for cash.",
+        explanation:
+          "Purchases A/c is debited because goods for resale are bought. Cash A/c is credited because cash leaves the business.",
+        studentTakeaway: "For cash purchases, use Purchases A/c and Cash A/c.",
+        commonMistake: "Using Bank A/c when the transaction says cash.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "purchases-bank-goods",
+      illustration: {
+        id: "purchases-bank-goods",
+        title: "Solved Illustration 2: bank purchase",
+        difficulty: "easy",
+        question: "Purchased goods through bank ₹18,000.",
+        accountsAffected: ["Purchases A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Goods for resale", detail: "Purchases A/c is used." },
+          { label: "Bank mode", detail: "Payment goes through bank, so Bank A/c is credited." },
+          { label: "No cash", detail: "Cash A/c is not affected." },
+        ],
+        journalEntry: [
+          { id: "purchases-bank-goods-debit", account: "Purchases A/c", side: "debit", amount: 18000, drNotation: "Dr." },
+          { id: "purchases-bank-goods-credit", account: "Bank A/c", side: "credit", amount: 18000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased through bank.",
+        explanation:
+          "Purchases increases because goods are bought. Bank decreases because payment is made through bank.",
+        studentTakeaway: "Through bank means Bank A/c, not Cash A/c.",
+        commonMistake: "Crediting Cash A/c for a bank payment.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "purchases-credit-from-mohan",
+      illustration: {
+        id: "purchases-credit-from-mohan",
+        title: "Solved Illustration 3: credit purchase",
+        difficulty: "easy",
+        question: "Bought goods on credit from Mohan ₹20,000.",
+        accountsAffected: ["Purchases A/c", "Mohan A/c"],
+        reasoningSteps: [
+          { label: "Goods for resale", detail: "Purchases A/c is debited." },
+          { label: "Named supplier", detail: "Mohan A/c is credited because Mohan is the supplier." },
+          { label: "No cash/bank now", detail: "Cash A/c and Bank A/c are not affected at the purchase date." },
+        ],
+        journalEntry: [
+          { id: "purchases-credit-mohan-debit", account: "Purchases A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "purchases-credit-mohan-credit", account: "Mohan A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased on credit from Mohan.",
+        explanation:
+          "The purchase creates a creditor. Mohan A/c is credited because the business owes Mohan.",
+        studentTakeaway: "In credit purchases, use the supplier's name instead of Cash or Bank.",
+        commonMistake: "Using Cash A/c or Bank A/c even though the purchase is on credit.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "purchases-machinery-asset-guard",
+      illustration: {
+        id: "purchases-machinery-asset-guard",
+        title: "Solved Illustration 4: asset distinction",
+        difficulty: "slightly-harder",
+        question: "Bought machinery through bank ₹50,000.",
+        accountsAffected: ["Machinery A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Asset bought", detail: "Machinery is used by the business, so Machinery A/c is debited." },
+          { label: "Not Purchases", detail: "Purchases A/c is not used because the item is not goods for resale." },
+          { label: "Bank mode", detail: "Bank A/c is credited because payment is through bank." },
+        ],
+        journalEntry: [
+          { id: "purchases-machinery-debit", account: "Machinery A/c", side: "debit", amount: 50000, drNotation: "Dr." },
+          { id: "purchases-machinery-bank-credit", account: "Bank A/c", side: "credit", amount: 50000, displayPrefix: "To" },
+        ],
+        narration: "Being machinery purchased through bank.",
+        explanation:
+          "Machinery is a business asset, so the named asset account is debited. Purchases A/c is not used.",
+        studentTakeaway: "The word bought is not enough; decide whether the item is goods for resale or an asset.",
+        commonMistake: "Debiting Purchases A/c merely because the word bought appears.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "purchases-later-payment-to-mohan",
+      illustration: {
+        id: "purchases-later-payment-to-mohan",
+        title: "Solved Illustration 5: purchase and later settlement",
+        difficulty: "slightly-harder",
+        question: "Purchased goods on credit from Mohan ₹20,000 and later paid Mohan by bank.",
+        accountsAffected: ["Purchases A/c", "Mohan A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Purchase date", detail: "Purchases A/c Dr. and To Mohan A/c create the creditor." },
+          { label: "Payment date", detail: "Mohan A/c Dr. and To Bank A/c settle the creditor." },
+          { label: "No duplicate purchase", detail: "Purchases A/c is not debited again when Mohan is paid." },
+        ],
+        journalEntry: [
+          { id: "purchases-settlement-purchases-debit", account: "Purchases A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "purchases-settlement-mohan-credit", account: "Mohan A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+          { id: "purchases-settlement-mohan-debit", account: "Mohan A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "purchases-settlement-bank-credit", account: "Bank A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased on credit from Mohan and later paid by bank.",
+        explanation:
+          "The two entries are displayed together only to compare them. The purchase creates the creditor; the later payment settles it.",
+        studentTakeaway: "Do not debit Purchases A/c again when paying the supplier later.",
+        commonMistake: "Recording a second purchase entry when the supplier is paid.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "purchases-rent-expense-guard",
+      illustration: {
+        id: "purchases-rent-expense-guard",
+        title: "Solved Illustration 6: expense guard",
+        difficulty: "easy",
+        question: "Paid office rent by bank ₹10,000.",
+        accountsAffected: ["Rent A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Expense identified", detail: "Rent is a business expense, not goods bought for resale." },
+          { label: "Rent debited", detail: "Rent A/c is debited because expense increases." },
+          { label: "Bank credited", detail: "Bank A/c is credited because payment is through bank." },
+        ],
+        journalEntry: [
+          { id: "purchases-rent-debit", account: "Rent A/c", side: "debit", amount: 10000, drNotation: "Dr." },
+          { id: "purchases-rent-bank-credit", account: "Bank A/c", side: "credit", amount: 10000, displayPrefix: "To" },
+        ],
+        narration: "Being office rent paid by bank.",
+        explanation:
+          "Rent is an operating expense. Purchases A/c is not used because no goods for resale are bought.",
+        studentTakeaway: "Do not call every payment a purchase.",
+        commonMistake: "Debiting Purchases A/c for rent or other operating expenses.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "purchases-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Purchases mistakes",
+      mistakes: [
+        "Using Purchases A/c for an asset.",
+        "Using Furniture A/c or Machinery A/c for goods bought for resale.",
+        "Using Cash A/c when payment is through bank.",
+        "Using Bank A/c when payment is in cash.",
+        "Using Cash or Bank for a credit purchase.",
+        "Ignoring the named supplier.",
+        "Using generic Creditor A/c instead of the named supplier.",
+        "Crediting Purchases A/c when purchases increase.",
+        "Debiting the supplier on the purchase date.",
+        "Recording Purchases A/c again when paying the supplier.",
+        "Recording trade discount separately.",
+        "Confusing trade discount with cash discount.",
+        "Recording goods at selling price rather than purchase cost.",
+        "Assuming every use of the word bought means Purchases A/c.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "purchase-decision-process",
+      eyebrow: "Decision process",
+      title: "Purchase decision process",
+      body:
+        "Use this order before writing a purchase-related journal entry.",
+      steps: [
+        { label: "Identify what was bought", detail: "Read the item, amount, person, and payment mode." },
+        { label: "Decide the purpose", detail: "Ask whether it is goods for resale, an asset, or an expense." },
+        { label: "Use Purchases for resale goods", detail: "If goods are bought for resale, use Purchases A/c." },
+        { label: "Choose payment or supplier account", detail: "Use Cash A/c, Bank A/c, or the named supplier's account." },
+        { label: "Avoid Cash/Bank for credit", detail: "Credit purchases use the named supplier, not Cash or Bank." },
+        { label: "Debit Purchases A/c", detail: "Debit Purchases A/c when goods for resale are bought." },
+        { label: "Credit the correct account", detail: "Credit Cash, Bank, or the supplier as appropriate." },
+        { label: "Confirm totals", detail: "Total debit must equal total credit." },
+        { label: "Write narration", detail: "State what was purchased and how." },
+        { label: "Check later topics", detail: "Discounts and purchase returns may require later treatment." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "purchases-checklist",
+      title: "Purchases checklist",
+      points: [
+        "The item is intended for resale.",
+        "Purchases A/c is appropriate.",
+        "An asset has not been mistaken for goods.",
+        "The correct payment mode is identified.",
+        "The named supplier is used for credit purchase.",
+        "Cash/Bank is not used in a credit purchase.",
+        "The amount is recorded correctly.",
+        "Debit and credit totals are equal.",
+        "Narration states what was purchased and how.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "purchases-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Was the item purchased for resale, for use as an asset, or as a business expense—and how was it paid for?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -3200,6 +3677,7 @@ const journalEntriesSubtopics = [
   cashAndBankTransactionsJournalEntriesSubtopic,
   capitalJournalEntriesSubtopic,
   drawingsJournalEntriesSubtopic,
+  purchasesJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -3216,7 +3694,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 9,
+      value: 10,
     },
   },
   outline: [
@@ -3292,7 +3770,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Personal withdrawals, named Drawings A/c, goods drawings, and expense-vs-drawings guardrails.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG}`,
     },
-    { id: "purchases", title: "Purchases", order: 10, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
+      title: "Purchases",
+      order: 10,
+      status: "available",
+      shortDescription: "Goods bought for resale, cash/bank/credit purchases, and supplier treatment.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG}`,
+    },
     { id: "sales", title: "Sales", order: 11, status: "upcoming" },
     { id: "expenses", title: "Expenses", order: 12, status: "upcoming" },
     { id: "income", title: "Income", order: 13, status: "upcoming" },

@@ -51,8 +51,8 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
         <ChapterOutline chapter={chapter} activeSectionId={subtopic.id} />
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
-            <PageHeader
-            eyebrow="Phase 3N chapter preview"
+          <PageHeader
+            eyebrow="Phase 3O chapter preview"
             title={chapter.metadata.title}
             description={chapter.metadata.description}
           >

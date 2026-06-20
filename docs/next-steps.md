@@ -2,9 +2,9 @@
 
 ## Immediate recommended next step
 
-Phase 3N of the Journal Entries chapter-learning preview is completed.
+Phase 3O of the Journal Entries chapter-learning preview is completed.
 
-What this completed ninth-section slice achieved:
+What this completed tenth-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
 - it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
@@ -14,15 +14,16 @@ What this completed ninth-section slice achieved:
 - it keeps `/platform-preview/chapters/journal-entries/journal-format-and-narration` as Section 6: `Journal Format and Narration`
 - it keeps `/platform-preview/chapters/journal-entries/cash-and-bank-transactions` as Section 7: `Cash and Bank Transactions`
 - it keeps `/platform-preview/chapters/journal-entries/capital` as Section 8: `Capital`
-- it adds `/platform-preview/chapters/journal-entries/drawings` as Section 9: `Drawings`
-- Drawings reuses the existing typed learning-platform model and renderer blocks for concept explanations, comparisons, accounting-format displays, solved illustrations, process steps, common mistakes, recap, and reflection prompts
-- Capital now links forward to Drawings, while Drawings links back to Capital and shows `Purchases` as an upcoming disabled next step
-- Drawings is static learning content only: drawings meaning, why Drawings A/c is debited, accounting-equation impact, cash drawings, bank drawings, business-versus-personal withdrawal treatment, goods withdrawn for personal use, personal expenses paid by the business, named Drawings A/c examples, two-partner display-only examples, drawings versus business expenses, drawings versus capital, an interest-on-drawings design-needed note, five solved illustrations, common mistakes, a display-only checklist, and a non-checking reflection prompt
+- it keeps `/platform-preview/chapters/journal-entries/drawings` as Section 9: `Drawings`
+- it adds `/platform-preview/chapters/journal-entries/purchases` as Section 10: `Purchases`
+- Purchases reuses the existing typed learning-platform model and renderer blocks for concept explanations, comparisons, accounting-format displays, solved illustrations, process steps, common mistakes, recap, and reflection prompts
+- Drawings now links forward to Purchases, while Purchases links back to Drawings and shows `Sales` as an upcoming disabled next step
+- Purchases is static learning content only: Purchases A/c for goods bought for resale, cash purchases, bank purchases, credit purchases, named supplier/creditor treatment, goods-versus-assets, purchases-versus-expenses, credit purchase and later supplier payment, trade/cash discount boundaries, purchase returns as later treatment, source documents, six solved illustrations, common mistakes, a display-only checklist, and a non-checking reflection prompt
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
-- no third question ID, new checker logic, broad question-bank generator, `/purchases` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
+- no third question ID, new checker logic, broad question-bank generator, `/sales` route, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder visual/content review is required next for the nine-section progression on desktop and mobile. Phase 3O should add the tenth static subtopic, `Purchases`, only after review and using the same reusable section progression; do not add further Practice It Yourself questions, broad question-bank generation, live-route migration, or new checker wiring yet.
+Founder visual/content review is required next for the ten-section progression on desktop and mobile. Phase 3P should add the eleventh static subtopic, `Sales`, only after review and using the same reusable section progression; do not add further Practice It Yourself questions, broad question-bank generation, live-route migration, or new checker wiring yet.
 
 ## Immediate recommended next step
 
