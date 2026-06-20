@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import type {
   AccountingEntryLine,
   AccountingFormatPreviewLine,
   ChapterDefinition,
+  ChapterCompletionBannerSection,
   ChapterMetadata,
+  ChapterRecapGroupsSection,
   ChapterSubtopicDefinition,
   ClassificationCategorySection,
   ClassificationExamplesSection,
@@ -12,10 +15,12 @@ import type {
   CommonMistakesSection,
   ComparisonSection,
   DebitCreditRuleGuideSection,
+  InteractivePracticeLinksSection,
   JournalColumnGuideSection,
   PracticeItYourselfPreviewQuestion,
   ProcessStepsSection,
   ReflectionPromptSection,
+  ScopeRoadmapSection,
   SimpleExampleSection,
   SolvedIllustration as SolvedIllustrationData,
   TryBeforeRevealSection,
@@ -57,7 +62,7 @@ export function ChapterOutline({
           <SectionHeading
             eyebrow="Outline"
             title={chapter.metadata.title}
-            body="Available sections open in this internal preview. Upcoming sections are shown for sequence only."
+            body="All routed sections open in this internal preview."
           />
           <OrderedOutline chapter={chapter} activeSectionId={activeSectionId} className="mt-5" />
         </div>
@@ -545,8 +550,10 @@ export function PracticeItYourselfPreview({
   checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
   revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
 }) {
+  const sectionId = practiceNumber === 1 ? "practice-it-yourself" : `practice-it-yourself-${practiceNumber}`;
+
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section id={sectionId} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <SectionHeading
         eyebrow={`Practice ${practiceNumber} of ${practiceCount}`}
         title={question.question}
@@ -577,6 +584,8 @@ export function CommonMistakes({ section }: { section: CommonMistakesSection }) 
 }
 
 export function TryBeforeRevealBlock({ section }: { section: TryBeforeRevealSection }) {
+  const revealLabel = section.revealLabel ?? "Reveal explanation";
+
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
@@ -589,7 +598,7 @@ export function TryBeforeRevealBlock({ section }: { section: TryBeforeRevealSect
             <summary className="flex cursor-pointer list-none flex-col gap-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
               <span className="min-w-0 text-base font-black leading-7 text-slate-950">{prompt.prompt}</span>
               <span className="inline-flex self-start rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
-                Reveal explanation
+                {revealLabel}
               </span>
             </summary>
             <div className="mt-4 border-t border-slate-200 pt-4">
@@ -604,10 +613,120 @@ export function TryBeforeRevealBlock({ section }: { section: TryBeforeRevealSect
                 <p className="mt-2">
                   <span className="font-black text-slate-950">Reasoning:</span> {prompt.reasoning}
                 </p>
+                {prompt.commonMistake ? (
+                  <p className="mt-2">
+                    <span className="font-black text-slate-950">Common mistake:</span> {prompt.commonMistake}
+                  </p>
+                ) : null}
               </div>
             </div>
           </details>
         ))}
+      </div>
+    </section>
+  );
+}
+
+export function ChapterCompletionBannerBlock({ section }: { section: ChapterCompletionBannerSection }) {
+  return (
+    <section className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Preview/static chapter progress</p>
+          <h2 className="mt-2 text-2xl font-black tracking-tight text-cyan-950 sm:text-3xl">{section.title}</h2>
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-cyan-900">{section.body}</p>
+        </div>
+        <span className="inline-flex self-start rounded-full border border-cyan-300 bg-white px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
+          Static preview
+        </span>
+      </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        {section.stats.map((stat) => (
+          <article
+            key={stat.label}
+            aria-label={`${stat.value} ${stat.label.toLowerCase()}`}
+            className="rounded-2xl border border-cyan-200 bg-white p-4"
+          >
+            <p className="text-xs font-black uppercase tracking-wide text-cyan-700">{stat.label}</p>
+            <p className="mt-2 text-2xl font-black tracking-tight text-slate-950">{stat.value}</p>
+          </article>
+        ))}
+      </div>
+      <p className="mt-4 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
+        {section.note}
+      </p>
+    </section>
+  );
+}
+
+export function ChapterRecapGroupsBlock({ section }: { section: ChapterRecapGroupsSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
+        {section.groups.map((group) => (
+          <article key={group.title} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-base font-black text-slate-950">{group.title}</h3>
+            <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-slate-700">
+              {group.items.map((item) => (
+                <li key={item} className="rounded-xl border border-slate-200 bg-white p-3">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function InteractivePracticeLinksBlock({ section }: { section: InteractivePracticeLinksSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <ol className="mt-5 grid gap-3 sm:grid-cols-2">
+        {section.questions.map((question, index) => (
+          <li key={question.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-black text-slate-950">
+            {index + 1}. {question.title}
+          </li>
+        ))}
+      </ol>
+      <Link
+        href={section.link.href}
+        className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 px-4 text-sm font-black text-cyan-950 outline-none transition hover:border-cyan-400 hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+      >
+        {section.link.label}
+      </Link>
+    </section>
+  );
+}
+
+export function ScopeRoadmapBlock({ section }: { section: ScopeRoadmapSection }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <article className="min-w-0 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
+          <h3 className="text-base font-black text-cyan-950">{section.currentScope.title}</h3>
+          <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-cyan-900">
+            {section.currentScope.items.map((item) => (
+              <li key={item} className="rounded-xl border border-cyan-200 bg-white p-3">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </article>
+        <article className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-black uppercase tracking-wide text-slate-500">{section.futureScope.label}</p>
+          <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-slate-700">
+            {section.futureScope.items.map((item) => (
+              <li key={item} className="rounded-xl border border-slate-200 bg-white p-3">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </article>
       </div>
     </section>
   );

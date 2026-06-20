@@ -2,9 +2,9 @@
 
 ## Immediate recommended next step
 
-Phase 3T of the Journal Entries chapter-learning preview is completed.
+Phase 3U of the Journal Entries chapter-learning preview is completed.
 
-What this completed fifteenth-section slice achieved:
+What this completed final-section slice achieved:
 
 - it keeps `/platform-preview/chapters/journal-entries` as Section 1: `Introduction to Journal Entries and Journal Format`
 - it keeps `/platform-preview/chapters/journal-entries/business-transactions` as Section 2: `Business Transactions`
@@ -20,16 +20,32 @@ What this completed fifteenth-section slice achieved:
 - it keeps `/platform-preview/chapters/journal-entries/expenses` as Section 12: `Expenses`
 - it keeps `/platform-preview/chapters/journal-entries/income` as Section 13: `Income`
 - it keeps `/platform-preview/chapters/journal-entries/assets-and-liabilities` as Section 14: `Assets and Liabilities`
-- it adds `/platform-preview/chapters/journal-entries/mixed-simple-entries` as Section 15: `Mixed Simple Entries`
-- Mixed Simple Entries reuses the existing typed learning-platform model and section renderer, with one small display-only reveal block using native `<details>` / `<summary>`
-- Assets and Liabilities now links forward to Mixed Simple Entries, while Mixed Simple Entries links back to Assets and Liabilities and shows `Chapter Recap and Practice` as an upcoming disabled next step
-- Mixed Simple Entries consolidates Sections 1-14 with a serial solving method, transaction-clue recap, wording-change comparisons, twelve solved mixed illustrations, a `Do not confuse` comparison guide, six reveal-only practice cards, common mistakes, a decision process, checklist, and reflection prompt
-- the reveal cards are display-only: no submission, scoring, persistence, checker, server action, hidden editable expected answer, or new supported question ID was added
+- it keeps `/platform-preview/chapters/journal-entries/mixed-simple-entries` as Section 15: `Mixed Simple Entries`
+- it adds `/platform-preview/chapters/journal-entries/chapter-recap-and-practice` as Section 16: `Chapter Recap and Practice`
+- the final recap reuses the existing typed learning-platform model and section renderer, with small additive section types for the static completion banner, grouped recap, interactive-practice link card, and scope roadmap
+- Mixed Simple Entries now links forward to Chapter Recap and Practice; Chapter Recap and Practice links back to Mixed Simple Entries and provides real `Review from Beginning` and `Back to Chapters` links without a disabled nonexistent next route
+- the recap includes a preview/static completion banner, what-student-learned groups, the 15-step master method, transaction-family recap, `Do not confuse` recap, journal presentation checklist, two-question interactive-practice access card, eight display-only native `<details>` review challenges, mastery self-check, and current/future prototype scope
+- the review challenges are display-only: no submission, scoring, persistence, checker, server action, hidden editable expected answer, or new supported question ID was added
 - the two existing checking-enabled Practice It Yourself questions remain unchanged and first-section-only: cash sale of goods and salary paid by bank
 - no third checking-enabled question, new checker logic, broad question-bank generator, API route, persistence, live-route migration, or sitemap/public-navigation link was added
 - beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
-Founder visual/content review is required next for the fifteen-section progression on desktop and mobile. Phase 3U should add the final static `Chapter Recap and Practice` preview section, complete the preview chapter sequence, and plan the next controlled checker expansion without migrating live routes or adding broad runtime wiring.
+Founder visual/content review is required next for the completed sixteen-section Journal Entries preview on desktop and mobile.
+
+Recommended next deterministic checker expansion sequence after that review:
+
+1. Bought goods for cash
+2. Capital introduced through bank
+3. Drawings through bank
+4. Credit purchase from named supplier
+5. Credit sale to named customer
+6. Asset purchased through bank
+7. Loan received
+8. Outstanding expense
+9. Commission received
+10. Mixed simple entry set
+
+Add these one at a time with focused tests and a safety review after each slice. Do not implement them as part of Phase 3U, do not expose broad runtime wiring, and keep existing checker answer keys server-controlled.
 
 ## Immediate recommended next step
 

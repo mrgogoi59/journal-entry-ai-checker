@@ -267,7 +267,7 @@ Target platform planning note:
   - `/platform-preview/chapters/journal-entries/mixed-simple-entries`
 - The Journal Entries preview now contains fifteen routed learning sections, adding `Mixed Simple Entries` after `Assets and Liabilities`.
 - Mixed Simple Entries consolidates Sections 1-14 with a serial solving method, transaction-clue recap, wording-change comparisons, twelve mixed solved illustrations, a `Do not confuse` comparison guide, six display-only `Try Before Reveal` cards using native `<details>` / `<summary>`, common mistakes, a decision process, a checklist, and a non-checking reflection prompt.
-- Assets and Liabilities now links forward to Mixed Simple Entries, while Mixed Simple Entries links back to Assets and Liabilities and shows `Chapter Recap and Practice` as an upcoming disabled next step.
+- In the Phase 3T slice, Assets and Liabilities linked forward to Mixed Simple Entries, while Mixed Simple Entries still showed `Chapter Recap and Practice` as an upcoming disabled next step; Phase 3U below now makes that final route available.
 - The Mixed Simple Entries reveal cards are display-only and do not add submission, scoring, persistence, checking, server actions, hidden editable expected answers, or supported question IDs.
 - Only the Introduction section contains checking-enabled Practice It Yourself; Business Transactions, Accounts Affected, Types of Accounts, Debit and Credit Rules, Journal Format and Narration, Cash and Bank Transactions, Capital, Drawings, Purchases, Sales, Expenses, Income, Assets and Liabilities, and Mixed Simple Entries remain explanation-only.
 - The supported checking scope remains exactly two questions:
@@ -275,8 +275,21 @@ Target platform planning note:
   - `Paid salary by bank ₹8,000`
 - Phase 3T does not add a third checking-enabled question ID, does not modify the existing two checkers or answer keys, does not link preview routes from public navigation, and keeps expected answers server-controlled by the existing isolated answer-key boundary.
 - Phase 3T does not migrate the redesigned platform into live routes or change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, analytics, APIs, persistence, database/auth/payment/backend, OCR, AI behavior, or accounting calculations.
+- Phase 3U now adds the sixteenth and final routed Journal Entries learning section inside the isolated `/platform-preview` shell:
+  - `/platform-preview/chapters/journal-entries/chapter-recap-and-practice`
+- The Journal Entries preview now contains sixteen routed learning sections, ending with `Chapter Recap and Practice` after `Mixed Simple Entries`.
+- Chapter Recap and Practice consolidates the full foundation chapter with a preview/static completion banner, what-student-learned groups, the 15-step master journal-entry method, transaction-family recap, `Do not confuse` recap, journal presentation checklist, a two-question interactive-practice access card, eight display-only `Try Before Reveal` review challenges using native `<details>` / `<summary>`, mastery self-check, and current/future prototype scope.
+- The recap links to the existing Section 1 Practice It Yourself area for exactly the two current deterministic questions:
+  - `Sold goods for cash ₹12,000`
+  - `Paid salary by bank ₹8,000`
+- The recap does not duplicate editors, does not add inputs, does not add a third checking-enabled question ID, and does not move expected answers into client data.
+- Mixed Simple Entries now links forward to Chapter Recap and Practice; Chapter Recap and Practice links back to Mixed Simple Entries and provides real `Review from Beginning` and `Back to Chapters` links without a disabled nonexistent next route.
+- All sixteen Journal Entries outline items are now available and no outline item remains falsely upcoming when its route exists.
+- Phase 3U remains preview-only under `/platform-preview`, keeps `noindex, nofollow`, does not add sitemap/public-navigation links, and does not migrate anything into live routes.
+- Phase 3U does not modify the existing two deterministic checkers, does not add broad question-bank generation, does not add API routes, persistence, analytics events, database/auth/payment/backend, AI behavior, OCR, or real progress/completion storage.
+- Phase 3U does not change existing Home, Learn, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts impact logic, or accounting calculations.
 - The current public application remains unchanged; existing Home, Learn, Solver/Tools, Practice, Advanced Practice, Explainer, engines, APIs, analytics, storage, and accounting logic were not replaced or rewired.
-- Founder visual review is required for the fifteen-section progression before integrating this shell into real routes or beginning the final recap section.
+- Founder visual review is required for the completed sixteen-section progression before integrating this shell into real routes or adding any further deterministic checker support.
 
 ## Current student-facing routes
 

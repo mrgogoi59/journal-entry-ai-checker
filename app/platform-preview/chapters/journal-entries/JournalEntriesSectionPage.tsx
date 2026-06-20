@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   AccountingEntryTable,
+  ChapterCompletionBannerBlock,
   ChapterOutline,
   ChapterProgressPreview,
+  ChapterRecapGroupsBlock,
   ClassificationCategoriesBlock,
   ClassificationExamplesBlock,
   ClassificationGuideBlock,
@@ -13,10 +15,12 @@ import {
   ConceptSection,
   DebitCreditRuleGuideBlock,
   formatAccountingFormatRows,
+  InteractivePracticeLinksBlock,
   JournalColumnGuideBlock,
   PracticeItYourselfPreview,
   ProcessStepsBlock,
   ReflectionPrompt,
+  ScopeRoadmapBlock,
   SolvedIllustration,
   TryBeforeRevealBlock,
   WorkedExample,
@@ -53,7 +57,7 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
           <PageHeader
-            eyebrow="Phase 3T chapter preview"
+            eyebrow="Phase 3U chapter preview"
             title={chapter.metadata.title}
             description={chapter.metadata.description}
           >
@@ -211,6 +215,18 @@ function ChapterSectionRenderer({
     case "try-before-reveal":
       return <TryBeforeRevealBlock section={section} />;
 
+    case "chapter-completion-banner":
+      return <ChapterCompletionBannerBlock section={section} />;
+
+    case "chapter-recap-groups":
+      return <ChapterRecapGroupsBlock section={section} />;
+
+    case "interactive-practice-links":
+      return <InteractivePracticeLinksBlock section={section} />;
+
+    case "scope-roadmap":
+      return <ScopeRoadmapBlock section={section} />;
+
     case "recap":
       return (
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -234,6 +250,28 @@ function ChapterSectionRenderer({
 }
 
 function SectionNavigation({ subtopic }: { subtopic: ChapterSubtopicDefinition }) {
+  if (!subtopic.nextSection) {
+    return (
+      <section className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <NavigationTarget direction="previous" target={subtopic.previousSection} />
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Link
+            href="/platform-preview/chapters/journal-entries"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 px-4 text-sm font-black text-cyan-950 outline-none transition hover:border-cyan-400 hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+          >
+            Review from Beginning
+          </Link>
+          <Link
+            href="/platform-preview/chapters"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 outline-none transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-950 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+          >
+            Back to Chapters
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <NavigationTarget direction="previous" target={subtopic.previousSection} />

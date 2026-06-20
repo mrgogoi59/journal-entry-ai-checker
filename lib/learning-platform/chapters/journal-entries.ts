@@ -24,6 +24,7 @@ export const JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG = "expenses";
 export const JOURNAL_ENTRIES_INCOME_SECTION_SLUG = "income";
 export const JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG = "assets-and-liabilities";
 export const JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG = "mixed-simple-entries";
+export const JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG = "chapter-recap-and-practice";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -255,11 +256,12 @@ const mixedSimpleEntriesSubtopicReference: ChapterSubtopicReference = {
 };
 
 const chapterRecapAndPracticeSubtopicReference: ChapterSubtopicReference = {
-  id: "chapter-recap-and-practice",
-  slug: "chapter-recap-and-practice",
+  id: JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG,
   title: "Chapter Recap and Practice",
   order: 16,
-  availabilityStatus: "upcoming",
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG}`,
 };
 
 const introductionJournalEntriesSections: ChapterSection[] = [
@@ -6573,6 +6575,355 @@ export const mixedSimpleEntriesJournalEntriesSubtopic: ChapterSubtopicDefinition
   ],
 };
 
+export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...chapterRecapAndPracticeSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG}`,
+  shortDescription:
+    "Review the full Journal Entries foundation chapter, practise display-only recap challenges, and see what remains outside this first prototype.",
+  learningObjective:
+    "Students consolidate the complete journal-entry method, review common transaction families, and connect back to the two existing interactive practice questions.",
+  progressLabel: "Section 16 of 16",
+  previousSection: mixedSimpleEntriesSubtopicReference,
+  sections: [
+    {
+      type: "chapter-completion-banner",
+      id: "journal-entries-preview-complete",
+      title: "Journal Entries foundation chapter preview complete",
+      body:
+        "You have reached the final static recap page for this internal preview. This is an encouraging checkpoint, not stored student completion.",
+      stats: [
+        { label: "Progress", value: "Section 16 of 16" },
+        { label: "Learning sections reviewed", value: "15" },
+        { label: "Interactive practice questions currently available", value: "2" },
+      ],
+      note:
+        "Preview/static only: no completion is saved, no localStorage is written, and no analytics event is sent from this recap.",
+    },
+    {
+      type: "chapter-recap-groups",
+      id: "what-the-student-has-learned",
+      eyebrow: "Chapter recap",
+      title: "What the student has learned",
+      body:
+        "Use this as a quick map of the foundation ideas before moving into more practice.",
+      groups: [
+        {
+          title: "Foundations",
+          items: [
+            "Business transactions",
+            "Accounts affected",
+            "Types of accounts",
+            "Debit and credit rules",
+            "Journal format",
+            "Narration",
+          ],
+        },
+        {
+          title: "Transaction recognition",
+          items: [
+            "Cash and Bank",
+            "Capital",
+            "Drawings",
+            "Purchases",
+            "Sales",
+            "Expenses",
+            "Income",
+            "Assets and Liabilities",
+          ],
+        },
+        {
+          title: "Application",
+          items: [
+            "Mixed simple entries",
+            "Account-name precision",
+            "Payment-mode treatment",
+            "Named debtor, creditor, proprietor, and partner accounts",
+            "Settlement versus original transaction",
+            "Debit-credit balance",
+          ],
+        },
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "master-journal-entry-method",
+      eyebrow: "Master method",
+      title: "Master journal-entry method",
+      body:
+        "Follow this ordered method before finalising any simple journal entry.",
+      steps: [
+        { label: "Read the entire transaction.", detail: "Do not decide from one familiar word only." },
+        { label: "Identify the business purpose.", detail: "Ask what happened to the business." },
+        { label: "Identify every account affected.", detail: "A complete entry needs every affected account." },
+        { label: "Use exact account names.", detail: "Preserve names such as Priyanka A/c or Amit's Capital A/c." },
+        { label: "Classify each account.", detail: "Decide whether each account is asset, liability, capital, drawings, income, or expense." },
+        { label: "Determine whether each account increases or decreases.", detail: "This effect decides the side of the entry." },
+        { label: "Identify Cash, Bank, credit, personal, or business treatment.", detail: "Payment mode and purpose can change the account." },
+        { label: "Decide whether the transaction creates or settles an earlier balance.", detail: "Do not record income or expense twice during settlement." },
+        { label: "Apply debit and credit rules.", detail: "Use account nature plus increase or decrease." },
+        { label: "Write the debit account first with Dr.", detail: "The debit line appears first in the journal." },
+        { label: "Write the credited account with To.", detail: "The credit line appears below the debit line." },
+        { label: "Enter debit and credit amounts.", detail: "Put amounts in the correct columns." },
+        { label: "Write a clear narration.", detail: "Explain the transaction in one short sentence." },
+        { label: "Confirm total debit equals total credit.", detail: "The entry must balance." },
+        { label: "Review the transaction for commonly confused treatments.", detail: "Recheck cash/bank/credit, goods/assets, expense/drawings, and settlement wording." },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "transaction-family-recap",
+      eyebrow: "Transaction-family recap",
+      title: "Questions to ask by transaction family",
+      intro:
+        "These cards help you identify the correct account family before writing Dr. and To.",
+      groups: [
+        {
+          title: "Cash and Bank",
+          items: [
+            "Is physical cash involved?",
+            "Does money move through the bank?",
+            "Is it a credit transaction?",
+          ],
+        },
+        {
+          title: "Capital and Drawings",
+          items: [
+            "Is the owner/partner giving value to the business?",
+            "Is the owner/partner taking value for personal use?",
+          ],
+        },
+        {
+          title: "Purchases and Sales",
+          items: [
+            "Are trading goods being bought or sold?",
+            "Is an asset being confused with goods?",
+          ],
+        },
+        {
+          title: "Expenses and Income",
+          items: [
+            "Is the business incurring a cost?",
+            "Has the business earned income?",
+            "Has the amount been paid/received yet?",
+          ],
+        },
+        {
+          title: "Assets and Liabilities",
+          items: [
+            "Did the business gain or lose a resource?",
+            "Was an obligation created or settled?",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "chapter-do-not-confuse-recap",
+      eyebrow: "Do not confuse recap",
+      title: "Pairs that need one careful sentence",
+      intro:
+        "If two accounts look similar, use the transaction purpose to separate them.",
+      groups: [
+        { title: "Cash A/c vs Bank A/c", items: ["Cash means physical cash; cheque, UPI, NEFT, or bank transfer uses Bank A/c."] },
+        { title: "Purchases A/c vs Furniture/Machinery A/c", items: ["Purchases is for goods bought for resale; furniture or machinery used in business is an asset."] },
+        { title: "Sales A/c vs asset disposal", items: ["Sales is for goods sold in ordinary trading; selling an asset needs separate disposal treatment later."] },
+        { title: "Expense A/c vs Drawings A/c", items: ["A business cost is an expense; value taken for personal use is drawings."] },
+        { title: "Capital A/c vs Loan A/c", items: ["Capital comes from the owner or partner; loan is an outside obligation to repay."] },
+        { title: "Income A/c vs debtor collection", items: ["Income is credited when earned; later collection from a debtor credits the debtor account."] },
+        { title: "Original expense vs later liability settlement", items: ["Record the expense when due; later payment reduces the outstanding liability."] },
+        { title: "Original income vs later receivable collection", items: ["Record income when earned; later receipt reduces accrued income or debtor balance."] },
+        { title: "Business withdrawal vs personal withdrawal", items: ["Business-use cash withdrawal is Cash A/c Dr.; personal withdrawal is Drawings A/c Dr."] },
+        { title: "Named debtor/creditor vs generic account names", items: ["Use the person's name when the transaction gives one instead of writing generic Debtor or Creditor."] },
+      ],
+    },
+    {
+      type: "recap",
+      id: "journal-presentation-checklist-final",
+      title: "Journal presentation checklist",
+      points: [
+        "The complete transaction was read.",
+        "Every affected account was identified.",
+        "Specific account names were used.",
+        "Cash, Bank, or credit treatment is correct.",
+        "The debit account is written first.",
+        "Dr. is present.",
+        "The credited account is prefixed with To.",
+        "Amounts are in the correct columns.",
+        "Debit total equals credit total.",
+        "Narration is meaningful.",
+        "Named persons are preserved.",
+        "No account is duplicated or omitted.",
+      ],
+    },
+    {
+      type: "interactive-practice-links",
+      id: "interactive-practice-available",
+      eyebrow: "Interactive practice",
+      title: "Interactive Practice Available",
+      body:
+        "This preview chapter currently has exactly two deterministic checking-enabled questions in Section 1. The recap links back to them instead of duplicating the editors here.",
+      questions: [
+        { id: soldGoodsForCashPracticeQuestion.id, title: "Sold goods for cash ₹12,000" },
+        { id: paidSalaryByBankPracticeQuestion.id, title: "Paid salary by bank ₹8,000" },
+      ],
+      link: {
+        label: "Return to Practice It Yourself",
+        href: `${JOURNAL_ENTRIES_CHAPTER_PATH}#practice-it-yourself`,
+      },
+    },
+    {
+      type: "try-before-reveal",
+      id: "chapter-review-challenges",
+      eyebrow: "Display-only review",
+      title: "Chapter review challenges",
+      body:
+        "Try each entry mentally first, then reveal the answer and explanation. These cards do not submit, score, save progress, or use the deterministic checker.",
+      revealLabel: "Reveal answer and explanation",
+      prompts: [
+        {
+          id: "chapter-review-bought-goods-for-cash",
+          prompt: "Bought goods for cash ₹10,000.",
+          journalEntry: [
+            { id: "chapter-review-purchases-debit", account: "Purchases A/c", side: "debit", amount: 10000, drNotation: "Dr." },
+            { id: "chapter-review-cash-credit", account: "Cash A/c", side: "credit", amount: 10000, displayPrefix: "To" },
+          ],
+          narration: "Being goods purchased for cash.",
+          reasoning: "Goods bought for resale increase Purchases, and cash goes out of the business.",
+          commonMistake: "Using Furniture A/c or Bank A/c without checking the words goods and cash.",
+        },
+        {
+          id: "chapter-review-paid-rent-bank",
+          prompt: "Paid office rent through bank ₹6,000.",
+          journalEntry: [
+            { id: "chapter-review-rent-debit", account: "Rent A/c", side: "debit", amount: 6000, drNotation: "Dr." },
+            { id: "chapter-review-bank-credit", account: "Bank A/c", side: "credit", amount: 6000, displayPrefix: "To" },
+          ],
+          narration: "Being office rent paid through bank.",
+          reasoning: "Rent is a business expense, and bank balance decreases because payment is through bank.",
+          commonMistake: "Debiting Bank A/c just because the word bank appears.",
+        },
+        {
+          id: "chapter-review-credit-sale-priyanka",
+          prompt: "Sold goods on credit to Priyanka ₹15,000.",
+          journalEntry: [
+            { id: "chapter-review-priyanka-debit", account: "Priyanka A/c", side: "debit", amount: 15000, drNotation: "Dr." },
+            { id: "chapter-review-sales-credit", account: "Sales A/c", side: "credit", amount: 15000, displayPrefix: "To" },
+          ],
+          narration: "Being goods sold on credit to Priyanka.",
+          reasoning: "Priyanka becomes the debtor, and Sales is credited because goods are sold.",
+          commonMistake: "Using Cash A/c or Bank A/c even though the sale is on credit.",
+        },
+        {
+          id: "chapter-review-kuldeep-capital-bank",
+          prompt: "Kuldeep introduced capital of ₹50,000 through bank.",
+          journalEntry: [
+            { id: "chapter-review-kuldeep-bank-debit", account: "Bank A/c", side: "debit", amount: 50000, drNotation: "Dr." },
+            { id: "chapter-review-kuldeep-capital-credit", account: "Kuldeep's Capital A/c", side: "credit", amount: 50000, displayPrefix: "To" },
+          ],
+          narration: "Being capital introduced by Kuldeep through bank.",
+          reasoning: "Bank increases, and Kuldeep's Capital increases because capital is contributed by Kuldeep.",
+          commonMistake: "Crediting generic Capital A/c instead of the named capital account.",
+        },
+        {
+          id: "chapter-review-riya-drawings-bank",
+          prompt: "Riya withdrew ₹4,000 from bank for personal use.",
+          journalEntry: [
+            { id: "chapter-review-riya-drawings-debit", account: "Riya Drawings A/c", side: "debit", amount: 4000, drNotation: "Dr." },
+            { id: "chapter-review-riya-bank-credit", account: "Bank A/c", side: "credit", amount: 4000, displayPrefix: "To" },
+          ],
+          narration: "Being amount withdrawn by Riya from bank for personal use.",
+          reasoning: "Personal-use wording creates drawings, and Bank is credited because money leaves through bank.",
+          commonMistake: "Treating the transaction as Cash A/c Dr.; To Bank A/c.",
+        },
+        {
+          id: "chapter-review-furniture-credit-mohan",
+          prompt: "Bought office furniture on credit from Mohan ₹25,000.",
+          journalEntry: [
+            { id: "chapter-review-furniture-debit", account: "Furniture A/c", side: "debit", amount: 25000, drNotation: "Dr." },
+            { id: "chapter-review-mohan-credit", account: "Mohan A/c", side: "credit", amount: 25000, displayPrefix: "To" },
+          ],
+          narration: "Being office furniture purchased on credit from Mohan.",
+          reasoning: "Furniture is a business asset, and Mohan is credited as the named creditor.",
+          commonMistake: "Using Purchases A/c or Bank A/c for a credit asset purchase.",
+        },
+        {
+          id: "chapter-review-bank-loan-received",
+          prompt: "Received a bank loan of ₹1,00,000 in the business bank account.",
+          journalEntry: [
+            { id: "chapter-review-loan-bank-debit", account: "Bank A/c", side: "debit", amount: 100000, drNotation: "Dr." },
+            { id: "chapter-review-bank-loan-credit", account: "Bank Loan A/c", side: "credit", amount: 100000, displayPrefix: "To" },
+          ],
+          narration: "Being bank loan received in the business bank account.",
+          reasoning: "Bank asset increases, and Bank Loan liability increases because borrowed money must be repaid.",
+          commonMistake: "Crediting Income A/c or Capital A/c for borrowed money.",
+        },
+        {
+          id: "chapter-review-accrued-commission",
+          prompt: "Commission ₹3,000 was earned but not yet received.",
+          journalEntry: [
+            { id: "chapter-review-accrued-commission-debit", account: "Accrued Commission A/c", side: "debit", amount: 3000, drNotation: "Dr." },
+            { id: "chapter-review-commission-received-credit", account: "Commission Received A/c", side: "credit", amount: 3000, displayPrefix: "To" },
+          ],
+          narration: "Being commission earned but not yet received.",
+          reasoning: "Accrued Commission is a receivable asset, and Commission Received is credited because income is earned.",
+          commonMistake: "Debiting Cash A/c even though money has not been received yet.",
+        },
+      ],
+    },
+    {
+      type: "recap",
+      id: "mastery-self-check",
+      title: "Mastery self-check",
+      points: [
+        "I can identify two affected accounts.",
+        "I can explain why each account is affected.",
+        "I can classify both accounts.",
+        "I can choose the correct debit and credit sides.",
+        "I can distinguish Cash, Bank, and credit.",
+        "I can distinguish goods from assets.",
+        "I can distinguish business expenses from drawings.",
+        "I can distinguish capital, loan, income, and collections.",
+        "I can preserve named accounts.",
+        "I can write a complete entry with narration.",
+        "I can confirm debit equals credit.",
+      ],
+    },
+    {
+      type: "scope-roadmap",
+      id: "current-prototype-scope",
+      eyebrow: "Prototype scope",
+      title: "Current prototype scope and future scope",
+      body:
+        "This roadmap is here so the foundation chapter feels clear, not unfinished. The preview focuses on safe foundations first.",
+      currentScope: {
+        title: "Currently covered in this foundation chapter",
+        items: [
+          "Simple one-debit/one-credit entries",
+          "Selected adjustment-style examples",
+          "Named accounts",
+          "Journal presentation",
+          "Deterministic practice for two approved questions",
+        ],
+      },
+      futureScope: {
+        label: "Later / separate chapter or subtopic",
+        items: [
+          "Compound entries in depth",
+          "Discounts",
+          "Returns",
+          "GST",
+          "Depreciation",
+          "Rectification",
+          "Closing entries",
+          "Complex asset disposal",
+          "Partnership restructuring",
+          "Company Accounts complexity",
+        ],
+      },
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -6589,6 +6940,7 @@ const journalEntriesSubtopics = [
   incomeJournalEntriesSubtopic,
   assetsAndLiabilitiesJournalEntriesSubtopic,
   mixedSimpleEntriesJournalEntriesSubtopic,
+  chapterRecapAndPracticeJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -6605,7 +6957,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 15,
+      value: 16,
     },
   },
   outline: [
@@ -6729,7 +7081,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Mixed one-debit, one-credit consolidation without a checker.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG}`,
     },
-    { id: "chapter-recap-and-practice", title: "Chapter Recap and Practice", order: 16, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG,
+      title: "Chapter Recap and Practice",
+      order: 16,
+      status: "available",
+      shortDescription: "Final recap, review challenges, practice access, and prototype scope.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG}`,
+    },
   ],
   subtopics: journalEntriesSubtopics,
   sections: introductionJournalEntriesSections,

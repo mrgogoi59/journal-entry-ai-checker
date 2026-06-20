@@ -327,13 +327,71 @@ export type TryBeforeRevealSection = {
   eyebrow: string;
   title: string;
   body: string;
+  revealLabel?: string;
   prompts: {
     id: string;
     prompt: string;
     journalEntry: AccountingEntryLine[];
     narration: string;
     reasoning: string;
+    commonMistake?: string;
   }[];
+};
+
+export type ChapterCompletionBannerSection = {
+  type: "chapter-completion-banner";
+  id: string;
+  title: string;
+  body: string;
+  stats: {
+    label: string;
+    value: string;
+  }[];
+  note: string;
+};
+
+export type ChapterRecapGroupsSection = {
+  type: "chapter-recap-groups";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string;
+  groups: {
+    title: string;
+    items: string[];
+  }[];
+};
+
+export type InteractivePracticeLinksSection = {
+  type: "interactive-practice-links";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  questions: {
+    id: string;
+    title: string;
+  }[];
+  link: {
+    label: string;
+    href: string;
+  };
+};
+
+export type ScopeRoadmapSection = {
+  type: "scope-roadmap";
+  id: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  currentScope: {
+    title: string;
+    items: string[];
+  };
+  futureScope: {
+    label: string;
+    items: string[];
+  };
 };
 
 export type RecapSection = {
@@ -368,6 +426,10 @@ export type ChapterSection =
   | PracticeItYourselfSection
   | CommonMistakesSection
   | TryBeforeRevealSection
+  | ChapterCompletionBannerSection
+  | ChapterRecapGroupsSection
+  | InteractivePracticeLinksSection
+  | ScopeRoadmapSection
   | RecapSection
   | ReflectionPromptSection;
 
