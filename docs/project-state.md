@@ -18,6 +18,16 @@ The live app now has two layers:
 
 The current student-facing app is still mostly beginner-first, while advanced practice is exposed only through a separate beta page.
 
+Target platform planning note:
+
+- `docs/platform-blueprint.md` now records the target mobile-first AccyWise AI platform architecture.
+- The blueprint now identifies the `Journal Entries Chapter` as the first gold-standard vertical slice.
+- The `Trial Balance Chapter` is now the second validation chapter for multi-row accounting-table UX and checking.
+- `docs/accountancy-concept-map.md` now records the Accountancy chapter scaffold and a detailed Journal Entries chapter concept map.
+- The target platform has five primary sections: Dashboard, Chapters, Solver, Practice, and AI Assistant.
+- The blueprint defines the chapter learning flow, solved illustration model, Practice It Yourself model, proposed route architecture, mobile-first UI principles, reusable content model, Journal Entries first slice, Trial Balance second validation slice, migration phases, and guardrails.
+- No redesign code, app routes, runtime logic, tests, accounting engines, or UI changes have been implemented from this blueprint yet.
+
 ## Current student-facing routes
 
 Main routes currently present in `app/`:

@@ -2,6 +2,21 @@
 
 ## Immediate recommended next step
 
+The platform blueprint revision and Journal Entries concept-map planning slice is completed.
+
+What this completed planning slice achieved:
+
+- it revises `docs/platform-blueprint.md` so `Journal Entries Chapter` is the first gold-standard vertical slice
+- it moves `Trial Balance Chapter` to the second validation chapter for multi-row accounting-table UX and checking
+- it creates `docs/accountancy-concept-map.md` with the Accountancy chapter scaffold and a detailed Journal Entries chapter concept map
+- it defines the future five-section platform: Dashboard, Chapters, Solver, Practice, and AI Assistant
+- it documents Journal Entries teaching order, solved illustration progression, Practice It Yourself requirements, checking/feedback rules, mobile UX requirements, reusable assets, major gaps, first-prototype scope, and acceptance criteria
+- it does not implement redesign routes, UI, app shell, tests, runtime logic, accounting logic, AI Assistant, database/login/history sync, or payment features
+
+Founder review is required next for `docs/platform-blueprint.md` and `docs/accountancy-concept-map.md`. After approval, the next coding phase should be the UI design system and responsive app shell, not the Journal Entries checker yet.
+
+## Immediate recommended next step
+
 The safety audit for the five narrow Partnership Explainer wording/priority fixes is completed.
 
 What this completed audit confirmed:
