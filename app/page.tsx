@@ -36,7 +36,7 @@ const platformAreas = [
     label: "Solver",
     status: "Available",
     description: "Journal Entry Explainer and existing accounting tools for immediate step-by-step support.",
-    href: "/tools",
+    href: "/solver",
     actionLabel: "Open Solver",
   },
   {
@@ -114,7 +114,7 @@ export default function Home() {
               Explore Chapters
             </Link>
             <Link
-              href="/tools"
+              href="/solver"
               className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
             >
               Open Solver
@@ -253,7 +253,7 @@ export default function Home() {
             <Link href="/chapters" className="hover:text-blue-900">
               Chapters
             </Link>
-            <Link href="/tools" className="hover:text-blue-900">
+            <Link href="/solver" className="hover:text-blue-900">
               Solver
             </Link>
             <Link href="/practice" className="hover:text-blue-900">

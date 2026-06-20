@@ -2,20 +2,22 @@
 
 ## Immediate recommended next step
 
-Phase 4F of the production Dashboard foundation is completed.
+Phase 4G of the controlled production Solver hub foundation is completed.
 
-What this completed Dashboard slice achieved:
+What this completed Solver hub slice achieved:
 
 - it keeps the Phase 4A production student-platform shell and live `/chapters` index route
 - it keeps the Phase 4B production Journal Entries chapter route and all 15 section routes under `/chapters/journal-entries/<section-slug>`
 - it keeps the Phase 4C migration of exactly two audited deterministic Practice It Yourself checkers in `/chapters/journal-entries` Section 1
 - the live production questions remain exactly `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
 - it keeps the Phase 4E homepage and primary-navigation integration
-- `/dashboard` now renders as a real production student-platform shell route instead of redirecting to `/learn`
-- Dashboard is now an available shared navigation destination and is active on `/dashboard`
-- Dashboard contains useful shortcuts to `/chapters`, `/chapters/journal-entries`, `/tools`, and `/practice`
-- Dashboard uses honest empty states for Recent Activity and Learning Progress instead of fake personal data
-- homepage Dashboard navigation and overview now link to `/dashboard` and show Dashboard as `Available`
+- it keeps the Phase 4F Dashboard static/empty-state foundation at `/dashboard`
+- `/solver` now renders as a real production student-platform shell route
+- Solver is now an available shared navigation destination and is active on `/solver`
+- a typed Solver catalogue at `lib/learning-platform/solver-catalog.ts` organises exactly five primary tools: AI Journal Entry Explainer, Ledger Posting, Trial Balance, Final Accounts, and Bank Reconciliation Statement
+- Solver availability is honest: only tools with real student-facing routes have action links
+- homepage Solver navigation, the hero `Open Solver` action, the overview Solver action, the footer Solver link, and the Dashboard Solver shortcut now point to `/solver`
+- `/tools` remains available and unchanged as the legacy tools/checker hub
 - AI Assistant remains `Coming soon`, non-clickable, and has no `/assistant` route
 - no login, database, saved progress, localStorage/sessionStorage, recent-activity persistence, API route, custom analytics event, or AI Assistant behavior was added
 - production and preview still use separate server actions, and expected answers remain selected on the server from the existing server-only answer-key module
@@ -23,9 +25,9 @@ What this completed Dashboard slice achieved:
 - it keeps `/learn`, `/tools`, `/practice`, `/practice/advanced`, `/how-to-use`, and `/supported-transactions` available
 - it keeps beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
 
-Founder desktop/mobile Dashboard review is recommended next, especially active navigation, mobile drawer behavior, shortcut links, empty-state clarity, keyboard focus, and phone-width no-overflow behavior.
+Founder desktop/mobile Solver hub review is recommended next, especially active navigation, mobile drawer behavior, Solver card clarity, link destinations, keyboard focus, and phone-width no-overflow behavior.
 
-The exact recommended next phase is Phase 4G: controlled Solver hub migration. Phase 4G should organise the existing solver/tool destinations under the production student-platform shell without changing tool logic, old tool URLs, parser/classifier/validator/checker behavior, accounting engines, API routes, or analytics setup. Do not add progress persistence, login, database, custom analytics, or AI Assistant behavior in Phase 4G.
+The exact recommended next phase is Phase 4H: production Practice hub migration. Phase 4H should organise existing practice destinations under the production student-platform shell while keeping beginner `/practice`, `/practice/advanced`, checker behavior, parser/classifier/validator logic, accounting engines, API routes, analytics setup, and existing practice calculations unchanged. Do not add login, database, saved progress, history sync, OCR, or AI Assistant behavior in Phase 4H.
 
 Recommended Phase 4 sequence:
 
@@ -37,7 +39,7 @@ Recommended Phase 4 sequence:
 6. Phase 4E controlled homepage and primary-navigation integration
 7. Phase 4F Dashboard static/empty-state foundation
 8. Phase 4G controlled Solver hub migration
-9. Practice hub mapping while keeping beginner `/practice` stable
+9. Phase 4H production Practice hub migration while keeping beginner `/practice` stable
 10. AI Assistant later, only after grounded tutor design is approved
 
 ## Immediate recommended next step

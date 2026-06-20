@@ -37,6 +37,7 @@ export function MobileBottomNav() {
   if (
     pathname.startsWith("/platform-preview") ||
     pathname === "/dashboard" ||
+    pathname === "/solver" ||
     pathname === "/chapters" ||
     pathname.startsWith("/chapters/")
   ) {

@@ -357,6 +357,17 @@ Target platform planning note:
   - AI Assistant remains `Coming soon` and no `/assistant` route was created
   - the homepage now links Dashboard to `/dashboard` and marks Dashboard as `Available`, while AI Assistant remains non-clickable and `Coming soon`
   - Phase 4F did not change live tool logic, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, the two production Journal Entries checkers, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, Vercel Analytics setup, API routes, database/auth/payment/backend, OCR, AI behavior, or accounting calculations
+- Phase 4G now completes the controlled production Solver hub foundation:
+  - `/solver` now renders as an indexable production route inside the existing `StudentAppShell`
+  - a typed Solver catalogue now exists at `lib/learning-platform/solver-catalog.ts`
+  - the Solver catalogue organises exactly five primary tools: AI Journal Entry Explainer, Ledger Posting, Trial Balance, Final Accounts, and Bank Reconciliation Statement
+  - Solver cards use honest availability from the typed catalogue; only tools with real student-facing routes receive action links
+  - the existing `/tools` route remains available and unchanged as the legacy tools/checker hub
+  - production navigation now links Dashboard to `/dashboard`, Chapters to `/chapters`, Solver to `/solver`, and Practice to `/practice`
+  - AI Assistant remains `Coming soon`, non-clickable, and no `/assistant` route was created
+  - homepage Solver entry points and the Dashboard Solver shortcut now point to `/solver`
+  - the global mobile bottom navigation is hidden on `/solver` in addition to Dashboard and Chapters shell routes to avoid duplicate mobile navigation
+  - Phase 4G did not change live tool logic, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, the two production Journal Entries checkers, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, Vercel Analytics setup, API routes, database/auth/payment/backend, OCR, AI behavior, or accounting calculations
 
 ## Current student-facing routes
 
@@ -373,6 +384,7 @@ Main routes currently present in `app/`:
 - `/practice/ledger`
 - `/practice/trial-balance`
 - `/practice/final-accounts`
+- `/solver`
 - `/tools`
 - `/journal-entry-solver`
 - `/ledger`
@@ -387,6 +399,8 @@ Main routes currently present in `app/`:
 Notes:
 
 - `/dashboard` is a production student-platform foundation with real shortcuts and honest empty states only; it does not store personal progress or recent activity yet.
+- `/solver` is the production Solver hub and organises existing tool routes without changing the tools or their accounting logic.
+- `/tools` remains available as the legacy tools/checker hub.
 - Lesson routes live under `/learn/<lesson-slug>`.
 - API routes currently present are:
   - `POST /api/check-entry`

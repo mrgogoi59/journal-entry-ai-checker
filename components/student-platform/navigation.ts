@@ -18,7 +18,7 @@ export const studentPlatformNavigationItems = [
     label: "Solver",
     mark: "S",
     status: "available",
-    href: "/tools",
+    href: "/solver",
   },
   {
     id: "practice",

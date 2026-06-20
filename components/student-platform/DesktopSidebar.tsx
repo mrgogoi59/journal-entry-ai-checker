@@ -17,8 +17,8 @@ export function DesktopSidebar({ activeItem }: { activeItem: StudentPlatformNavi
         </nav>
 
         <div className="mt-auto rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-          <p className="font-bold text-slate-900">Phase 4F</p>
-          <p className="mt-1">Dashboard shortcuts are live; personal progress remains planned.</p>
+          <p className="font-bold text-slate-900">Phase 4G</p>
+          <p className="mt-1">Dashboard and Solver are live; personal progress remains planned.</p>
         </div>
       </div>
     </aside>

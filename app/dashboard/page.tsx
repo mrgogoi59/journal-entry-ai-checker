@@ -39,8 +39,8 @@ const quickActions = [
   },
   {
     label: "Open Solver",
-    href: "/tools",
-    description: "Use the current accounting tools hub.",
+    href: "/solver",
+    description: "Use the production Solver hub.",
   },
   {
     label: "Start Practice",

@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import DashboardPage, { metadata as dashboardMetadata } from "@/app/dashboard/page";
 import ChaptersPage, { metadata as chaptersMetadata } from "@/app/chapters/page";
+import SolverPage, { metadata as solverMetadata } from "@/app/solver/page";
 import JournalEntriesChapterPage, { metadata as journalEntriesMetadata } from "@/app/chapters/journal-entries/page";
 import {
   generateMetadata as generateJournalEntriesSubtopicMetadata,
@@ -32,6 +33,7 @@ import {
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
 } from "@/lib/learning-platform/chapters/journal-entries";
+import { solverToolCatalog, solverToolStatusLabels } from "@/lib/learning-platform/solver-catalog";
 
 function getLinkMarkup(html: string, href: string) {
   return html.match(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`))?.[0] ?? "";
@@ -51,6 +53,10 @@ function getHrefValues(html: string) {
 
 function getOverviewCardMarkup(html: string, label: string) {
   return html.match(new RegExp(`<article[^>]*aria-label="${label} overview"[\\s\\S]*?</article>`))?.[0] ?? "";
+}
+
+function getSolverToolCardMarkup(html: string, label: string) {
+  return html.match(new RegExp(`<article[^>]*aria-label="${label} solver tool"[\\s\\S]*?</article>`))?.[0] ?? "";
 }
 
 function escapeHtmlText(text: string) {
@@ -122,7 +128,7 @@ describe("Production Chapters route", () => {
     expect(getLinkMarkup(html, "/dashboard")).toContain('aria-current="page"');
     expect(hrefs).toContain("/dashboard");
     expect(hrefs).toContain("/chapters");
-    expect(hrefs).toContain("/tools");
+    expect(hrefs).toContain("/solver");
     expect(hrefs).toContain("/practice");
     expect(hrefs).not.toContain("/assistant");
     expect(html).toContain("AI Assistant");
@@ -159,15 +165,109 @@ describe("Production Chapters route", () => {
     const source = readFileSync("app/dashboard/page.tsx", "utf8");
     const hrefs = getHrefValues(html);
 
-    ["/dashboard", "/chapters", "/tools", "/practice", "/chapters/journal-entries"].forEach((href) => {
+    ["/dashboard", "/chapters", "/solver", "/practice", "/chapters/journal-entries"].forEach((href) => {
       expect(hrefs).toContain(href);
     });
+    expect(getLinkMarkupWithText(html, "/solver", "Open Solver")).toContain("Open Solver");
     expect(hrefs).not.toContain("/assistant");
     expect(hrefs).not.toContain("/platform-preview");
     expect(source).not.toContain("localStorage");
     expect(source).not.toContain("sessionStorage");
     expect(source).not.toContain("document.cookie");
     expect(source).not.toContain("redirect(");
+  });
+
+  it("renders the production Solver route from a truthful typed catalogue", () => {
+    const html = renderToStaticMarkup(createElement(SolverPage));
+    const hrefs = getHrefValues(html);
+    const availableTools = solverToolCatalog.filter((tool) => tool.status === "available");
+    const plannedTools = solverToolCatalog.filter((tool) => tool.status !== "available");
+
+    expect(solverMetadata).toMatchObject({
+      title: "Solver | AccyWise AI",
+      description:
+        "access Accountancy tools for Journal Entries, Ledger, Trial Balance, Final Accounts, and Bank Reconciliation.",
+    });
+    expect(solverMetadata).not.toHaveProperty("robots");
+    expect(html).toContain('id="student-platform-content"');
+    expect(getLinkMarkup(html, "/solver")).toContain('aria-current="page"');
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).toContain("AI Assistant");
+    expect(html).toContain("Coming soon");
+    expect(html).toContain("Choose an Accountancy tool to explain, prepare, or review a specific accounting problem.");
+    expect(html).toContain(
+      "Chapters teach concepts step by step. Solver tools help with a specific problem when you need them.",
+    );
+    expect(html).toContain(`${availableTools.length} of ${solverToolCatalog.length} tools available`);
+    expect(html).toContain(`Available: ${availableTools.length}. Planned or later: ${plannedTools.length}.`);
+    expect(html).toContain("Recommended Starting Tool");
+    expect(html).toContain("Start with AI Journal Entry Explainer");
+    expect(html).toContain("Use Solver for targeted help");
+    expect(html).not.toContain("/platform-preview");
+
+    expect(html.match(/aria-label="[^"]+ solver tool"/g) ?? []).toHaveLength(5);
+    expect(solverToolCatalog.map((tool) => tool.title)).toEqual([
+      "AI Journal Entry Explainer",
+      "Ledger Posting",
+      "Trial Balance",
+      "Final Accounts",
+      "Bank Reconciliation Statement",
+    ]);
+
+    solverToolCatalog.forEach((tool) => {
+      const card = getSolverToolCardMarkup(html, tool.title);
+
+      expect(card).toContain(escapeHtmlText(tool.shortDescription));
+      expect(card).toContain(escapeHtmlText(tool.capabilitySummary));
+      expect(card).toContain(solverToolStatusLabels[tool.status]);
+
+      if (tool.status === "available") {
+        expect(tool.href).toBeDefined();
+        expect(card).toContain(`href="${tool.href}"`);
+      } else {
+        expect(tool.href).toBeUndefined();
+        expect(card).not.toContain("href=");
+      }
+    });
+  });
+
+  it("keeps Solver card links limited to existing tool routes and leaves legacy tool logic untouched", () => {
+    const routeFilesByHref: Record<string, string> = {
+      "/journal-entry-solver": "app/journal-entry-solver/page.tsx",
+      "/ledger": "app/ledger/page.tsx",
+      "/trial-balance": "app/trial-balance/page.tsx",
+      "/final-accounts": "app/final-accounts/page.tsx",
+      "/bank-reconciliation": "app/bank-reconciliation/page.tsx",
+    };
+    const solverCardHrefs = solverToolCatalog.flatMap((tool) => (tool.href ? [tool.href] : []));
+
+    expect(solverToolCatalog).toHaveLength(5);
+    expect(solverCardHrefs).toEqual([
+      "/journal-entry-solver",
+      "/ledger",
+      "/trial-balance",
+      "/final-accounts",
+      "/bank-reconciliation",
+    ]);
+    expect(solverCardHrefs).not.toContain("/platform-preview");
+
+    solverCardHrefs.forEach((href) => {
+      const routeSource = readFileSync(routeFilesByHref[href], "utf8");
+
+      expect(routeSource).toContain("export default function");
+    });
+
+    expect(readFileSync("app/tools/page.tsx", "utf8")).toContain("export default function ToolsPage");
+    expect(readFileSync("app/tools/page.tsx", "utf8")).toContain('fetch("/api/check-entry"');
+    expect(readFileSync("app/journal-entry-solver/page.tsx", "utf8")).toContain('fetch("/api/journal-entry-solver"');
+    expect(readFileSync("app/ledger/page.tsx", "utf8")).toContain("generateLedger");
+    expect(readFileSync("app/trial-balance/page.tsx", "utf8")).toContain("generateTrialBalance");
+    expect(readFileSync("app/final-accounts/page.tsx", "utf8")).toContain("generateFinalAccounts");
+    expect(readFileSync("app/bank-reconciliation/page.tsx", "utf8")).toContain("calculateBankReconciliation");
   });
 
   it("defines the production chapter catalogue with Journal Entries available and the other chapters honestly staged", () => {
@@ -207,7 +307,7 @@ describe("Production Chapters route", () => {
 
     expect(getLinkMarkup(html, "/chapters")).toContain('aria-current="page"');
     expect(html).toContain('href="/dashboard"');
-    expect(html).toContain('href="/tools"');
+    expect(html).toContain('href="/solver"');
     expect(html).toContain('href="/practice"');
     expect(html).toContain("Coming soon");
     expect(html).not.toContain('href="/assistant"');
@@ -551,7 +651,7 @@ describe("Production Chapters route", () => {
     });
     expect(hrefs).toContain("/dashboard");
     expect(hrefs).toContain("/chapters");
-    expect(hrefs).toContain("/tools");
+    expect(hrefs).toContain("/solver");
     expect(hrefs).toContain("/practice");
     expect(html).toContain("Coming soon");
     expect(hrefs).not.toContain("/assistant");
@@ -561,11 +661,11 @@ describe("Production Chapters route", () => {
     });
   });
 
-  it("renders Phase 4E homepage entry points to Chapters, Solver, Practice, and Journal Entries", () => {
+  it("renders Phase 4G homepage entry points to Chapters, Solver, Practice, and Journal Entries", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
 
     expect(getLinkMarkupWithText(html, "/chapters", "Explore Chapters")).toContain("Explore Chapters");
-    expect(getLinkMarkupWithText(html, "/tools", "Open Solver")).toContain("Open Solver");
+    expect(getLinkMarkupWithText(html, "/solver", "Open Solver")).toContain("Open Solver");
     expect(getLinkMarkupWithText(html, "/practice", "Start Practice")).toContain("Start Practice");
     expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
       "Start Journal Entries",
@@ -592,20 +692,21 @@ describe("Production Chapters route", () => {
     expect(chaptersCard).toContain("Available");
     expect(chaptersCard).toContain('href="/chapters"');
     expect(solverCard).toContain("Available");
-    expect(solverCard).toContain('href="/tools"');
+    expect(solverCard).toContain('href="/solver"');
     expect(practiceCard).toContain("Available");
     expect(practiceCard).toContain('href="/practice"');
     expect(assistantCard).toContain("Coming soon");
     expect(assistantCard).toContain("No live route yet");
   });
 
-  it("keeps legacy production routes available while homepage points students toward the new Chapters hub", () => {
+  it("keeps legacy production routes available while homepage points students toward the production hubs", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
     const hrefs = getHrefValues(html);
 
     expect(hrefs).toContain("/chapters");
     expect(hrefs).toContain("/dashboard");
-    expect(hrefs).toContain("/tools");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).not.toContain("/tools");
     expect(hrefs).toContain("/practice");
     expect(hrefs).toContain("/how-to-use");
     expect(hrefs).toContain("/supported-transactions");
@@ -620,6 +721,7 @@ describe("Production Chapters route", () => {
 
     expect(source).toContain('pathname.startsWith("/platform-preview")');
     expect(source).toContain('pathname === "/dashboard"');
+    expect(source).toContain('pathname === "/solver"');
     expect(source).toContain('pathname === "/chapters"');
     expect(source).toContain('pathname.startsWith("/chapters/")');
     expect(source).toContain('href: "/learn"');
