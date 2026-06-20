@@ -1,58 +1,127 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { studentPlatformNavigationItems } from "@/components/student-platform/navigation";
+
+export const metadata: Metadata = {
+  title: "AccyWise AI — Interactive Accountancy Learning",
+  description:
+    "Learn Accountancy with structured chapters, solved illustrations, Practice It Yourself, and accounting solver tools on AccyWise AI.",
+};
 
 const valuePoints = [
-  "Learn the logic, not just answers",
-  "Practice with instant correction",
-  "Understand mistakes clearly",
-  "Move from Journal to Final Accounts",
+  "Structured chapter learning",
+  "Solved illustrations before practice",
+  "Complete-answer Practice It Yourself",
+  "Solver tools for quick doubts",
 ];
 
-const learningFlow = ["Transaction", "Journal", "Ledger", "Trial Balance", "Final Accounts"];
+const learningFlow = ["Chapters", "Concept", "Illustration", "Practice It Yourself", "Solver"];
+
+const platformAreas = [
+  {
+    label: "Dashboard",
+    status: "Coming soon",
+    description: "A personal learning overview for recent chapters, practice, and progress once the foundation is ready.",
+  },
+  {
+    label: "Chapters",
+    status: "Available",
+    description: "Structured concepts, solved illustrations, and complete-answer Practice It Yourself learning.",
+    href: "/chapters",
+    actionLabel: "Explore Chapters",
+  },
+  {
+    label: "Solver",
+    status: "Available",
+    description: "Journal Entry Explainer and existing accounting tools for immediate step-by-step support.",
+    href: "/tools",
+    actionLabel: "Open Solver",
+  },
+  {
+    label: "Practice",
+    status: "Available",
+    description: "Independent chapter-wise and topic-wise practice for revision outside the chapter flow.",
+    href: "/practice",
+    actionLabel: "Start Practice",
+  },
+  {
+    label: "AI Assistant",
+    status: "Coming soon",
+    description: "Personalised explanations and doubt support after the grounded tutor design is approved.",
+  },
+] as const;
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-ink">
+    <main className="min-h-screen overflow-x-hidden bg-white text-ink">
       <header className="sticky top-0 z-20 border-b border-blue-100 bg-white/95 px-4 py-4 backdrop-blur sm:px-6">
-        <nav className="mx-auto flex w-full max-w-[1120px] items-center justify-between gap-4">
-          <Link href="/" className="text-xl font-bold text-blue-950">
+        <nav
+          aria-label="Primary platform navigation"
+          className="mx-auto flex w-full max-w-[1120px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <Link
+            href="/"
+            className="self-start text-xl font-bold text-blue-950 outline-none transition hover:text-blue-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+          >
             AccyWise AI
           </Link>
-          <div className="hidden items-center gap-6 text-sm font-semibold text-slate-700 md:flex">
-            <Link href="/learn" className="transition hover:text-blue-900">
-              Start
-            </Link>
-            <Link href="/practice" className="transition hover:text-blue-900">
-              Practice
-            </Link>
-            <Link href="/tools" className="transition hover:text-blue-900">
-              Tools
-            </Link>
+          <div className="flex min-w-0 flex-wrap items-center gap-2 text-xs font-bold sm:justify-end">
+            {studentPlatformNavigationItems.map((item) =>
+              item.href ? (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="inline-flex min-h-10 items-center rounded-full border border-blue-100 px-3 py-2 text-slate-700 outline-none transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-950 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span
+                  key={item.id}
+                  aria-disabled="true"
+                  className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500"
+                >
+                  <span>{item.label}</span>
+                  <span className="rounded-full border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide">
+                    Coming soon
+                  </span>
+                </span>
+              ),
+            )}
           </div>
-          <Link
-            href="/tools"
-            className="inline-flex min-h-10 items-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-blue-800"
-          >
-            Tools
-          </Link>
         </nav>
       </header>
 
       <section className="px-4 py-14 sm:px-6 sm:py-20">
         <div className="mx-auto w-full max-w-[1120px]">
-          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Accountancy learning platform</p>
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">
+            Interactive accountancy learning
+          </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-bold tracking-normal text-blue-950 sm:text-6xl">
-            Master Accountancy with Step-by-Step Guidance
+            Learn Accountancy through chapters, solved illustrations, and practice.
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700">
-            Learn journal entries, ledgers, trial balance, final accounts, and adjustments with beginner-friendly
-            explanations built for commerce students.
+            Start with the live Journal Entries chapter, use solver tools when you need quick help, and keep beginner
+            practice separate for independent revision.
           </p>
-          <div className="mt-8 flex">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
-              href="/learn"
-              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft transition hover:bg-blue-800"
+              href="/chapters"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft outline-none transition hover:bg-blue-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
             >
-              Start Learning
+              Explore Chapters
+            </Link>
+            <Link
+              href="/tools"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+            >
+              Open Solver
+            </Link>
+            <Link
+              href="/practice"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-base font-bold text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+            >
+              Start Practice
             </Link>
           </div>
         </div>
@@ -61,19 +130,86 @@ export default function Home() {
       <section className="border-y border-blue-100 bg-blue-50/70 px-4 py-5 sm:px-6">
         <div className="mx-auto grid w-full max-w-[1120px] gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {valuePoints.map((point) => (
-            <div key={point} className="rounded-xl border border-blue-100 bg-white px-4 py-3 text-sm font-bold text-blue-950 shadow-sm">
+            <div
+              key={point}
+              className="rounded-xl border border-blue-100 bg-white px-4 py-3 text-sm font-bold text-blue-950 shadow-sm"
+            >
               {point}
             </div>
           ))}
         </div>
       </section>
 
-      <section id="how-it-works" className="bg-slate-50 px-4 py-12 sm:px-6 sm:py-16">
+      <section aria-labelledby="journal-entries-launch-title" className="px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto grid w-full max-w-[1120px] gap-5 rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Now available</p>
+            <h2 id="journal-entries-launch-title" className="mt-2 text-2xl font-bold text-blue-950 sm:text-3xl">
+              Journal Entries chapter is now available
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-700">
+              Learn through structured learning, solved illustrations, and complete-answer Practice It Yourself for the
+              two audited Journal Entries questions.
+            </p>
+          </div>
+          <Link
+            href="/chapters/journal-entries"
+            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-950 px-5 py-3 text-sm font-black text-white outline-none transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+          >
+            Start Journal Entries
+          </Link>
+        </div>
+      </section>
+
+      <section id="platform-overview" aria-labelledby="platform-overview-title" className="bg-slate-50 px-4 py-12 sm:px-6 sm:py-16">
         <div className="mx-auto w-full max-w-[1120px]">
           <SectionHeader
-            eyebrow="The solution"
-            title="A complete accountancy learning flow"
-            body="AccyWise AI helps students understand how every accounting step connects to the next."
+            eyebrow="The platform"
+            title="Five clear areas, with honest availability"
+            body="Chapters, Solver, and Practice are available today. Dashboard and AI Assistant stay clearly marked as coming soon until their foundations are ready."
+          />
+          <div className="mt-8 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {platformAreas.map((area) => (
+              <article
+                key={area.label}
+                aria-label={`${area.label} overview`}
+                className="flex min-w-0 flex-col rounded-2xl border border-blue-100 bg-white p-5 shadow-soft"
+              >
+                <div className="flex min-w-0 flex-col gap-2">
+                  <h3 className="text-lg font-bold text-blue-950">{area.label}</h3>
+                  <span
+                    className={`self-start rounded-full border px-2.5 py-1 text-xs font-black ${
+                      area.status === "Available"
+                        ? "border-cyan-200 bg-cyan-50 text-cyan-800"
+                        : "border-slate-200 bg-slate-50 text-slate-600"
+                    }`}
+                  >
+                    {area.status}
+                  </span>
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-6 text-slate-600">{area.description}</p>
+                {"href" in area ? (
+                  <Link
+                    href={area.href}
+                    className="mt-5 inline-flex min-h-10 items-center self-start rounded-xl border border-blue-200 px-3 text-sm font-bold text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                  >
+                    {area.actionLabel}
+                  </Link>
+                ) : (
+                  <p className="mt-5 text-xs font-bold uppercase tracking-wide text-slate-500">No live route yet</p>
+                )}
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works" className="px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto w-full max-w-[1120px]">
+          <SectionHeader
+            eyebrow="How it works"
+            title="Move from concept to checked answer"
+            body="Use chapters for structured study, then use the solver and practice areas when you want targeted help or revision."
           />
           <div className="mt-8 grid gap-3 md:grid-cols-5">
             {learningFlow.map((step, index) => (
@@ -91,15 +227,15 @@ export default function Home() {
       <section className="px-4 py-12 sm:px-6 sm:py-16">
         <div className="mx-auto overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-950 via-blue-900 to-emerald-800 p-6 text-white shadow-soft sm:p-10 lg:max-w-[1120px]">
           <div className="max-w-2xl">
-            <h2 className="text-3xl font-bold tracking-normal sm:text-4xl">Start with one transaction today</h2>
+            <h2 className="text-3xl font-bold tracking-normal sm:text-4xl">Start with Journal Entries today</h2>
             <p className="mt-4 text-base leading-7 text-blue-50">
-              Use the tools to check, understand, and practice accountancy step by step.
+              The first production chapter is ready for structured learning and two complete-answer practice checks.
             </p>
             <Link
-              href="/learn"
-              className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-5 py-3 text-base font-bold text-blue-950 transition hover:bg-blue-50"
+              href="/chapters/journal-entries"
+              className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-white px-5 py-3 text-base font-bold text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
             >
-              Continue Learning
+              Start Journal Entries
             </Link>
           </div>
         </div>
@@ -111,15 +247,15 @@ export default function Home() {
             <div className="text-lg font-bold text-blue-950">AccyWise AI</div>
             <p className="mt-1">Built for commerce students</p>
           </div>
-          <div className="flex flex-wrap gap-4 font-semibold text-slate-700">
-            <Link href="/learn" className="hover:text-blue-900">
-              Start
+          <nav aria-label="Footer navigation" className="flex flex-wrap gap-4 font-semibold text-slate-700">
+            <Link href="/chapters" className="hover:text-blue-900">
+              Chapters
+            </Link>
+            <Link href="/tools" className="hover:text-blue-900">
+              Solver
             </Link>
             <Link href="/practice" className="hover:text-blue-900">
               Practice
-            </Link>
-            <Link href="/tools" className="hover:text-blue-900">
-              Tools
             </Link>
             <Link href="/how-to-use" className="hover:text-blue-900">
               How to Use
@@ -127,11 +263,8 @@ export default function Home() {
             <Link href="/supported-transactions" className="hover:text-blue-900">
               Supported Topics
             </Link>
-            <Link href="/final-accounts" className="hover:text-blue-900">
-              Final Accounts
-            </Link>
             <span>Report issues through the app</span>
-          </div>
+          </nav>
         </div>
       </footer>
     </main>

@@ -13,7 +13,7 @@ import {
   JournalEntriesSectionPage,
   productionJournalEntriesSectionRoutes,
 } from "@/app/chapters/journal-entries/JournalEntriesSectionPage";
-import HomePage from "@/app/page";
+import HomePage, { metadata as homeMetadata } from "@/app/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
 import {
   checkJournalEntriesPracticeAnswer,
@@ -36,8 +36,20 @@ function getLinkMarkup(html: string, href: string) {
   return html.match(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`))?.[0] ?? "";
 }
 
+function getLinkMarkupWithText(html: string, href: string, text: string) {
+  return (
+    Array.from(html.matchAll(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`, "g")), (match) => match[0]).find(
+      (markup) => markup.includes(text),
+    ) ?? ""
+  );
+}
+
 function getHrefValues(html: string) {
   return Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]);
+}
+
+function getOverviewCardMarkup(html: string, label: string) {
+  return html.match(new RegExp(`<article[^>]*aria-label="${label} overview"[\\s\\S]*?</article>`))?.[0] ?? "";
 }
 
 function escapeHtmlText(text: string) {
@@ -468,11 +480,77 @@ describe("Production Chapters route", () => {
     expect(previewEditorSource).toContain("Show Correct Answer");
   });
 
-  it("does not link the new production Chapters route from the existing homepage yet", () => {
+  it("integrates the homepage with the five-section platform navigation without fake upcoming links", () => {
+    const html = renderToStaticMarkup(createElement(HomePage));
+    const hrefs = getHrefValues(html);
+
+    expect(html).toContain('aria-label="Primary platform navigation"');
+    ["Dashboard", "Chapters", "Solver", "Practice", "AI Assistant"].forEach((label) => {
+      expect(html).toContain(label);
+    });
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/tools");
+    expect(hrefs).toContain("/practice");
+    expect(html).toContain("Coming soon");
+    expect(hrefs).not.toContain("/dashboard");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).not.toContain("/platform-preview");
+    expect(homeMetadata).toMatchObject({
+      title: "AccyWise AI — Interactive Accountancy Learning",
+    });
+  });
+
+  it("renders Phase 4E homepage entry points to Chapters, Solver, Practice, and Journal Entries", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
 
-    expect(html).not.toContain('href="/chapters"');
-    expect(html).not.toContain('href="/chapters/journal-entries"');
+    expect(getLinkMarkupWithText(html, "/chapters", "Explore Chapters")).toContain("Explore Chapters");
+    expect(getLinkMarkupWithText(html, "/tools", "Open Solver")).toContain("Open Solver");
+    expect(getLinkMarkupWithText(html, "/practice", "Start Practice")).toContain("Start Practice");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
+      "Start Journal Entries",
+    );
+    expect(html).toContain("Journal Entries chapter is now available");
+    expect(html).toContain("structured learning");
+    expect(html).toContain("solved illustrations");
+    expect(html).toContain("complete-answer Practice It Yourself");
+    expect(html.toLowerCase()).not.toContain("all chapters are available");
+    expect(html.toLowerCase()).not.toContain("large question bank");
+  });
+
+  it("renders accurate homepage overview states for available and coming-soon platform areas", () => {
+    const html = renderToStaticMarkup(createElement(HomePage));
+
+    const dashboardCard = getOverviewCardMarkup(html, "Dashboard");
+    const chaptersCard = getOverviewCardMarkup(html, "Chapters");
+    const solverCard = getOverviewCardMarkup(html, "Solver");
+    const practiceCard = getOverviewCardMarkup(html, "Practice");
+    const assistantCard = getOverviewCardMarkup(html, "AI Assistant");
+
+    expect(dashboardCard).toContain("Coming soon");
+    expect(dashboardCard).toContain("No live route yet");
+    expect(chaptersCard).toContain("Available");
+    expect(chaptersCard).toContain('href="/chapters"');
+    expect(solverCard).toContain("Available");
+    expect(solverCard).toContain('href="/tools"');
+    expect(practiceCard).toContain("Available");
+    expect(practiceCard).toContain('href="/practice"');
+    expect(assistantCard).toContain("Coming soon");
+    expect(assistantCard).toContain("No live route yet");
+  });
+
+  it("keeps legacy production routes available while homepage points students toward the new Chapters hub", () => {
+    const html = renderToStaticMarkup(createElement(HomePage));
+    const hrefs = getHrefValues(html);
+
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/tools");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).toContain("/how-to-use");
+    expect(hrefs).toContain("/supported-transactions");
+    expect(readFileSync("app/learn/page.tsx", "utf8")).toContain("export default function LearnPage");
+    expect(readFileSync("app/tools/page.tsx", "utf8")).toContain("export default function ToolsPage");
+    expect(readFileSync("app/practice/page.tsx", "utf8")).toContain("export default function PracticePage");
+    expect(readFileSync("app/practice/advanced/page.tsx", "utf8")).toContain("export default function AdvancedPracticePage");
   });
 
   it("keeps global mobile bottom navigation unchanged outside the production shell routes", () => {

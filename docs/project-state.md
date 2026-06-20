@@ -338,6 +338,15 @@ Target platform planning note:
   - no runtime/app fixes were required; only focused audit assertions were added for route-link resolution, recap review-challenge count, salary duplicate/partial-row feedback, and overlong-field safety
   - the current homepage remains unchanged and does not link to `/chapters` yet
   - Phase 4D did not add a third question, new answer key, broad checker scope, API route, persistence/progress/history, homepage integration, Dashboard route, AI Assistant route, database/auth/payment/backend, OCR, AI logic, analytics event, or accounting-calculation change
+- Phase 4E now completes controlled homepage and primary-navigation integration:
+  - the homepage primary navigation now presents the five platform sections: Dashboard, Chapters, Solver, Practice, and AI Assistant
+  - Chapters links to `/chapters`, Solver links to the existing `/tools`, and Practice links to the existing `/practice`
+  - Dashboard and AI Assistant remain visibly marked `Coming soon` and do not link to `/dashboard` or `/assistant`
+  - the homepage hero now points students toward `Explore Chapters`, with secondary links to `Open Solver` and `Start Practice`
+  - a compact five-area overview explains Dashboard, Chapters, Solver, Practice, and AI Assistant with accurate `Available` or `Coming soon` states
+  - the homepage now includes a restrained `Journal Entries chapter is now available` callout linking to `/chapters/journal-entries`
+  - `/platform-preview` remains unlinked from production homepage/navigation and stays internal/noindex
+  - Phase 4E did not change live tool logic, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, the two production Journal Entries checkers, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, API routes, persistence/progress/history, database/auth/payment/backend, OCR, AI behavior, analytics setup, or accounting calculations
 
 ## Current student-facing routes
 

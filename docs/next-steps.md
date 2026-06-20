@@ -2,26 +2,29 @@
 
 ## Immediate recommended next step
 
-Phase 4D of the production Journal Entries checker safety audit and chapter-launch QA is completed.
+Phase 4E of the controlled homepage and primary-navigation integration is completed.
 
-What this completed route-slice achieved:
+What this completed homepage/navigation slice achieved:
 
 - it keeps the Phase 4A production student-platform shell and live `/chapters` index route
 - it keeps the Phase 4B production Journal Entries chapter route and all 15 section routes under `/chapters/journal-entries/<section-slug>`
 - it keeps the Phase 4C migration of exactly two audited deterministic Practice It Yourself checkers in `/chapters/journal-entries` Section 1
 - the live production questions remain exactly `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
-- it creates `docs/journal-entries-production-launch-audit.md` as the internal Phase 4D launch audit
-- the launch-readiness verdict is `Ready for homepage/navigation integration`
-- the audit found no critical route, checker-security, answer-key isolation, accounting-content, mobile-layout, accessibility, architecture, or performance blockers
-- focused audit assertions now cover production route-link resolution, exact recap review-challenge count, salary duplicate/partial-row feedback, and overlong-field safety
+- it uses the Phase 4D launch audit verdict of `Ready for homepage/navigation integration`
+- the homepage primary navigation now presents Dashboard, Chapters, Solver, Practice, and AI Assistant
+- Chapters links to `/chapters`, Solver links to `/tools`, and Practice links to `/practice`
+- Dashboard and AI Assistant remain visibly marked `Coming soon` and do not link to `/dashboard` or `/assistant`
+- homepage hero actions now point to `Explore Chapters`, `Open Solver`, and `Start Practice`
+- the homepage now has compact five-area overview cards with accurate `Available` and `Coming soon` states
+- the homepage now includes a restrained `Journal Entries chapter is now available` callout linking to `/chapters/journal-entries`
 - production and preview still use separate server actions, and expected answers remain selected on the server from the existing server-only answer-key module
 - `/platform-preview` remains preserved and `noindex, nofollow`, and production routes do not link to preview routes
-- it keeps the current homepage unchanged and does not link `/chapters` from public homepage navigation yet
+- it keeps `/learn`, `/tools`, `/practice`, `/practice/advanced`, `/how-to-use`, and `/supported-transactions` available
 - it keeps beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
 
-Founder desktop/mobile functional review is still recommended before Phase 4E is merged, especially the two production editors, independent editor state, answer reveal, recap link, keyboard/focus behavior, and mobile no-overflow behavior.
+Founder desktop/mobile homepage review is recommended next, especially the new primary navigation wrapping, hero actions, overview cards, Journal Entries callout, footer links, keyboard focus, and phone-width no-overflow behavior.
 
-The exact recommended next phase is Phase 4E: controlled homepage and primary-navigation integration. Phase 4E is approved by the Phase 4D audit verdict but must not begin automatically in Phase 4D. It should add only controlled entry points to the audited `/chapters` and Journal Entries flow. Do not add a third checking question, broaden Journal Entry checking, replace old routes by redirect, add Dashboard/AI Assistant routes, or migrate other practice systems in Phase 4E unless explicitly scoped.
+The exact recommended next phase is Phase 4F: production Dashboard foundation. Phase 4F should be a static or empty-state Dashboard foundation only. It may create the approved Dashboard surface after founder review, but it must not add login, database, cloud sync, persisted progress, payment, AI Assistant behavior, broad analytics events, or replacement of existing `/progress` and `/history` behavior.
 
 Recommended Phase 4 sequence:
 
@@ -30,10 +33,10 @@ Recommended Phase 4 sequence:
 3. Journal Entries read-only sections in controlled route slices
 4. The two existing deterministic Practice It Yourself questions in production
 5. Phase 4D production checker safety audit and chapter-launch QA
-6. Controlled homepage and primary-navigation integration
-7. Solver hub mapping
-8. Practice hub mapping while keeping beginner `/practice` stable
-9. Dashboard static/browser-local foundation
+6. Phase 4E controlled homepage and primary-navigation integration
+7. Phase 4F Dashboard static/empty-state foundation
+8. Solver hub mapping
+9. Practice hub mapping while keeping beginner `/practice` stable
 10. AI Assistant later, only after grounded tutor design is approved
 
 ## Immediate recommended next step
