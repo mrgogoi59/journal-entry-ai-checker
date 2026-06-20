@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import type {
+  JournalEntryCorrectAnswerReveal,
+  JournalEntryPracticeAttempt,
+  JournalEntryPracticeCheckResult,
+} from "@/lib/learning-platform/checkers/types";
+import type {
   AccountingEntryLine,
   AccountingFormatPreviewLine,
   ChapterCompletionBannerSection,
@@ -17,7 +22,7 @@ import type {
   DebitCreditRuleGuideSection,
   InteractivePracticeLinksSection,
   JournalColumnGuideSection,
-  PracticeItYourselfSection,
+  PracticeItYourselfPreviewQuestion,
   ProcessStepsSection,
   ReflectionPromptSection,
   ScopeRoadmapSection,
@@ -25,6 +30,9 @@ import type {
   SolvedIllustration as SolvedIllustrationData,
   TryBeforeRevealSection,
 } from "@/lib/learning-platform/types";
+import { JournalEntryPracticeEditor } from "@/components/learning-platform/JournalEntryPracticeEditor";
+
+const PRODUCTION_PRACTICE_ANCHOR_HREF = "/chapters/journal-entries#practice-it-yourself";
 
 type AccountingEntryTableRow = {
   id: string;
@@ -597,14 +605,18 @@ export function SolvedIllustration({ number, illustration }: { number: number; i
   );
 }
 
-export function PracticeItYourselfPlaceholder({
-  section,
+export function PracticeItYourselfProduction({
+  question,
   practiceNumber,
   practiceCount,
+  checkAnswerAction,
+  revealCorrectAnswerAction,
 }: {
-  section: PracticeItYourselfSection;
+  question: PracticeItYourselfPreviewQuestion;
   practiceNumber: number;
   practiceCount: number;
+  checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
+  revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
 }) {
   const sectionId = practiceNumber === 1 ? "practice-it-yourself" : `practice-it-yourself-${practiceNumber}`;
 
@@ -612,16 +624,18 @@ export function PracticeItYourselfPlaceholder({
     <section id={sectionId} className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6">
       <SectionHeading
         eyebrow={`Practice ${practiceNumber} of ${practiceCount}`}
-        title="Interactive Practice It Yourself"
-        body="Interactive answer checking for this chapter will be enabled in the next controlled migration step."
+        title={question.question}
+        body="Write the full journal entry yourself. This live checker supports this audited question independently."
       />
       <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
-        <p>{productionText(section.question.learningObjective)}</p>
-        <p className="mt-2">
-          No input fields, checking button, correct-answer reveal, server action, answer key, or progress saving is
-          active on this production route yet.
-        </p>
+        {productionText(question.learningObjective)}
       </div>
+      <JournalEntryPracticeEditor
+        question={question}
+        checkAnswerAction={checkAnswerAction}
+        revealCorrectAnswerAction={revealCorrectAnswerAction}
+        supportNotice="This chapter checker supports this audited question only. No API route, storage, analytics, or existing checker is called."
+      />
     </section>
   );
 }
@@ -685,7 +699,7 @@ export function TryBeforeRevealBlock({ section }: { section: TryBeforeRevealSect
 export function ChapterCompletionBannerBlock({ section }: { section: ChapterCompletionBannerSection }) {
   const productionStats = section.stats.map((stat) =>
     stat.label.toLowerCase().includes("interactive practice")
-      ? { label: "Interactive practice checking", value: "Next phase" }
+      ? { label: "Interactive practice checking", value: "2 live" }
       : { label: productionText(stat.label), value: productionText(stat.value) },
   );
 
@@ -698,12 +712,12 @@ export function ChapterCompletionBannerBlock({ section }: { section: ChapterComp
             Journal Entries foundation chapter
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-cyan-900">
-            You have reached the final read-only recap page for this production chapter. Interactive checking is not
-            enabled in this phase.
+            You have reached the final recap page for this production chapter. The two approved interactive questions
+            are available in Section 1.
           </p>
         </div>
         <span className="inline-flex self-start rounded-full border border-cyan-300 bg-white px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
-          Read-only route
+          Controlled route
         </span>
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -748,12 +762,21 @@ export function InteractivePracticeLinksBlock({ section }: { section: Interactiv
     <section className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6">
       <SectionHeading
         eyebrow={section.eyebrow}
-        title="Interactive Chapter Practice"
-        body="Interactive chapter practice will be enabled after the production checker migration is approved."
+        title="Interactive Practice Available"
+        body="These are the only two interactive Practice It Yourself questions currently live in this production chapter."
       />
       <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
-        The approved checker questions remain isolated outside this live chapter for now. This production recap does not
-        list clickable practice questions or request answer keys.
+        <ol className="list-decimal space-y-2 pl-5">
+          {section.questions.map((question) => (
+            <li key={question.id}>{productionText(question.title)}</li>
+          ))}
+        </ol>
+        <Link
+          href={PRODUCTION_PRACTICE_ANCHOR_HREF}
+          className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Practice the interactive questions
+        </Link>
       </div>
     </section>
   );
@@ -769,7 +792,7 @@ export function ScopeRoadmapBlock({ section }: { section: ScopeRoadmapSection })
           <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-cyan-900">
             {section.currentScope.items.map((item) => (
               <li key={item} className="rounded-xl border border-cyan-200 bg-white p-3">
-                {productionText(item).replace("Deterministic practice for two approved questions", "Read-only route now; two approved checker questions remain isolated until Phase 4C")}
+                {productionText(item).replace("Deterministic practice for two approved questions", "Deterministic practice for two approved questions is live in Section 1")}
               </li>
             ))}
           </ul>

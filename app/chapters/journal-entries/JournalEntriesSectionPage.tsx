@@ -19,7 +19,7 @@ import {
   formatAccountingFormatRows,
   InteractivePracticeLinksBlock,
   JournalColumnGuideBlock,
-  PracticeItYourselfPlaceholder,
+  PracticeItYourselfProduction,
   ProcessStepsBlock,
   productionText,
   ReflectionPrompt,
@@ -32,8 +32,13 @@ import {
   getJournalEntriesSubtopic,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   journalEntriesChapter,
+  toPracticeItYourselfPreviewQuestion,
 } from "@/lib/learning-platform/chapters/journal-entries";
 import type { ChapterSection, ChapterSubtopicDefinition, ChapterSubtopicReference } from "@/lib/learning-platform/types";
+import {
+  checkJournalEntriesPracticeAnswer,
+  revealJournalEntriesPracticeCorrectAnswer,
+} from "./actions";
 
 export const PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH = "/chapters/journal-entries";
 
@@ -215,10 +220,12 @@ function ChapterSectionRenderer({
 
     case "practice-it-yourself":
       return (
-        <PracticeItYourselfPlaceholder
-          section={section}
+        <PracticeItYourselfProduction
+          question={toPracticeItYourselfPreviewQuestion(section.question)}
           practiceNumber={practiceNumber ?? 0}
           practiceCount={practiceSectionCount}
+          checkAnswerAction={checkJournalEntriesPracticeAnswer}
+          revealCorrectAnswerAction={revealJournalEntriesPracticeCorrectAnswer}
         />
       );
 

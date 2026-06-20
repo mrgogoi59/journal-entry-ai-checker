@@ -23,6 +23,7 @@ type JournalEntryPracticeEditorProps = {
   question: PracticeItYourselfPreviewQuestion;
   checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
   revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
+  supportNotice?: string;
 };
 
 const inputClass =
@@ -38,6 +39,7 @@ export function JournalEntryPracticeEditor({
   question,
   checkAnswerAction,
   revealCorrectAnswerAction,
+  supportNotice = "This preview checker supports this individual question only. No API route, storage, analytics, or existing checker is called.",
 }: JournalEntryPracticeEditorProps) {
   const [rows, setRows] = useState<EditorRow[]>(() => createInitialRows(question));
   const [totalDebit, setTotalDebit] = useState("");
@@ -302,7 +304,7 @@ export function JournalEntryPracticeEditor({
 
       <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-semibold leading-6 text-slate-600">
-          This preview checker supports this individual question only. No API route, storage, analytics, or existing checker is called.
+          {supportNotice}
         </p>
         <button
           type="submit"

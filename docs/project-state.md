@@ -324,6 +324,13 @@ Target platform planning note:
   - `/platform-preview` and its Journal Entries routes remain preserved and `noindex, nofollow`; the new production chapter routes do not set `noindex`
   - the homepage still does not link to `/chapters`
   - Phase 4B did not change beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, or accounting calculations
+- Phase 4C now migrates exactly the two audited deterministic Journal Entry Practice It Yourself checkers into the production Journal Entries chapter:
+  - `/chapters/journal-entries` Section 1 now renders complete-answer checking editors for `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
+  - the production recap at `/chapters/journal-entries/chapter-recap-and-practice` now lists those exact two questions and links back to `/chapters/journal-entries#practice-it-yourself`
+  - the audited editor UI was moved into the route-neutral `components/learning-platform/JournalEntryPracticeEditor.tsx`, while production and preview keep separate server-action boundaries
+  - expected answers remain server-controlled through the existing server-only answer-key module; production clients send only the question ID and typed student attempt
+  - no third checking question, broad Journal Entry checker, API route, persistence/progress/history, homepage replacement, or preview link from production was added
+  - existing beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts logic, analytics, database/auth/payment/backend, OCR, AI behavior, and accounting calculations remain unchanged
 
 ## Current student-facing routes
 

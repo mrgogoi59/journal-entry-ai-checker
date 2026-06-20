@@ -3269,7 +3269,7 @@ describe("Platform preview routes", () => {
   });
 
   it("keeps answer keys server-controlled and the editors independent for the Phase 3F slice", () => {
-    const editorSource = readFileSync("app/platform-preview/_components/JournalEntryPracticeEditor.tsx", "utf8");
+    const editorSource = readFileSync("components/learning-platform/JournalEntryPracticeEditor.tsx", "utf8");
     const actionsSource = readFileSync("app/platform-preview/chapters/journal-entries/actions.ts", "utf8");
     const answerKeySource = readFileSync(
       "lib/learning-platform/chapters/journal-entry-answer-keys.server.ts",

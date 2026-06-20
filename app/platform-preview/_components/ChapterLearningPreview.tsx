@@ -30,7 +30,7 @@ import type {
   JournalEntryPracticeAttempt,
   JournalEntryPracticeCheckResult,
 } from "@/lib/learning-platform/checkers/types";
-import { JournalEntryPracticeEditor } from "./JournalEntryPracticeEditor";
+import { JournalEntryPracticeEditor } from "@/components/learning-platform/JournalEntryPracticeEditor";
 import { ProgressBar, SectionHeading } from "./PreviewCards";
 
 type AccountingEntryTableRow = {

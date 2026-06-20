@@ -21,10 +21,10 @@ export default function ChaptersPage() {
       <PageHeader
         eyebrow="Student platform"
         title="Chapters"
-        description="Choose an Accountancy chapter. Journal Entries is now available as a read-only production chapter, with interactive checking planned as the next controlled step."
+        description="Choose an Accountancy chapter. Journal Entries is now available with two controlled Practice It Yourself checkers, while other chapters remain staged."
       >
         <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-800">
-          Phase 4B live route
+          Phase 4C live checker
         </span>
       </PageHeader>
 
@@ -37,8 +37,9 @@ export default function ChaptersPage() {
           Concepts, solved illustrations, Practice It Yourself, and chapter-wise progression
         </h2>
         <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
-          This index is the first live production chapter library. Journal Entries now opens as read-only learning
-          content, while every other chapter is labelled honestly as planned or later until its learning flow is built and tested.
+          This index is the first live production chapter library. Journal Entries now opens with controlled
+          two-question checking, while every other chapter is labelled honestly as planned or later until its learning
+          flow is built and tested.
         </p>
       </section>
 

@@ -15,7 +15,12 @@ import {
 } from "@/app/chapters/journal-entries/JournalEntriesSectionPage";
 import HomePage from "@/app/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
+import {
+  checkJournalEntriesPracticeAnswer,
+  revealJournalEntriesPracticeCorrectAnswer,
+} from "@/app/chapters/journal-entries/actions";
 import { metadata as platformPreviewMetadata } from "@/app/platform-preview/layout";
+import type { JournalEntryPracticeAttempt } from "@/lib/learning-platform/checkers/types";
 import {
   chapterStatusLabels,
   studentPlatformChapterCatalog,
@@ -42,6 +47,49 @@ function escapeHtmlText(text: string) {
 
 function renderProductionSection(slug: string) {
   return renderToStaticMarkup(createElement(JournalEntriesSectionPage, { sectionSlug: slug }));
+}
+
+function createPracticeAttempt({
+  questionId,
+  debitAccount,
+  debitAmount,
+  creditAccount,
+  creditAmount,
+  totalDebit,
+  totalCredit,
+  narration,
+}: {
+  questionId: string;
+  debitAccount: string;
+  debitAmount: string;
+  creditAccount: string;
+  creditAmount: string;
+  totalDebit: string;
+  totalCredit: string;
+  narration: string;
+}): JournalEntryPracticeAttempt {
+  return {
+    questionId,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: debitAccount,
+        lf: "1",
+        debitAmount,
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: creditAccount,
+        lf: "2",
+        debitAmount: "",
+        creditAmount,
+      },
+    ],
+    totalDebit,
+    totalCredit,
+    narration,
+  };
 }
 
 describe("Production Chapters route", () => {
@@ -150,7 +198,7 @@ describe("Production Chapters route", () => {
       expect(html).toContain('id="student-platform-content"');
       expect(getLinkMarkup(html, href)).toContain('aria-current="step"');
       expect(html).not.toContain("/platform-preview");
-      expect(html).not.toMatch(/\b[Pp]review\b/);
+      expect(html).not.toContain("This preview checker");
       expect(html).not.toContain("Founder review");
       expect(html).not.toContain("Phase 3");
     });
@@ -180,44 +228,214 @@ describe("Production Chapters route", () => {
     });
   });
 
-  it("keeps production Journal Entries practice read-only and checker-free", () => {
+  it("renders exactly the two approved production Journal Entries practice checkers", () => {
     const html = renderToStaticMarkup(createElement(JournalEntriesChapterPage));
     const source = [
       readFileSync("app/chapters/journal-entries/JournalEntriesSectionPage.tsx", "utf8"),
       readFileSync("app/chapters/journal-entries/JournalEntriesLearningBlocks.tsx", "utf8"),
+      readFileSync("components/learning-platform/JournalEntryPracticeEditor.tsx", "utf8"),
       readFileSync("app/chapters/journal-entries/page.tsx", "utf8"),
       readFileSync("app/chapters/journal-entries/[sectionSlug]/page.tsx", "utf8"),
     ].join("\n");
 
-    expect(html).toContain("Interactive Practice It Yourself");
-    expect(html).toContain("Interactive answer checking for this chapter will be enabled in the next controlled migration step.");
-    expect(html).not.toContain("Check Answer");
+    expect(html).toContain("Practice 1 of 2");
+    expect(html).toContain("Sold goods for cash ₹12,000. Pass the journal entry.");
+    expect(html).toContain("Practice 2 of 2");
+    expect(html).toContain("Paid salary by bank ₹8,000. Pass the journal entry.");
+    expect(html.match(/Check Answer/g)).toHaveLength(2);
+    expect(html.match(/Reset Answer/g)).toHaveLength(2);
+    expect(html.match(/Feedback will appear here after you check your answer\./g)).toHaveLength(2);
+    expect(html).toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
+    expect(html).toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
+    expect(html).toContain("This chapter checker supports this audited question only.");
+    expect(html).not.toContain("Interactive answer checking for this chapter will be enabled in the next controlled migration step.");
     expect(html).not.toContain("Show Correct Answer");
-    expect(html).not.toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
-    expect(html).not.toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
-    expect(source).not.toContain("checkJournalEntriesPracticeAnswer");
-    expect(source).not.toContain("revealJournalEntriesPracticeCorrectAnswer");
-    expect(source).not.toContain("JournalEntryPracticeEditor");
+    expect(html).not.toContain("Correct Answer");
+    expect(source).toContain("checkJournalEntriesPracticeAnswer");
+    expect(source).toContain("revealJournalEntriesPracticeCorrectAnswer");
+    expect(source).toContain("JournalEntryPracticeEditor");
     expect(source).not.toContain("journal-entry-answer-keys.server");
+    expect(source).not.toContain("Cash A/c Dr.");
+    expect(source).not.toContain("To Sales A/c");
+    expect(source).not.toContain("Salary A/c Dr.");
+    expect(source).not.toContain("To Bank A/c");
     expect(source).not.toContain("/platform-preview");
   });
 
-  it("keeps the production recap from claiming interactive checking is live", () => {
+  it("keeps checker editors out of the other production Journal Entries sections", () => {
+    journalEntriesChapter.subtopics.slice(1).forEach((subtopic) => {
+      const html = renderProductionSection(subtopic.slug);
+
+      expect(html).not.toContain("Check Answer");
+      expect(html).not.toContain("Show Correct Answer");
+      expect(html).not.toContain("practice-feedback-");
+      expect(html).not.toContain("This chapter checker supports this audited question only.");
+    });
+  });
+
+  it("links the production recap back to the two interactive practice questions without duplicating editors", () => {
     const html = renderProductionSection("chapter-recap-and-practice");
 
-    expect(html).toContain("Interactive Chapter Practice");
-    expect(html).toContain("Interactive chapter practice will be enabled after the production checker migration is approved.");
-    expect(html).not.toContain("Interactive Practice Available");
-    expect(html).not.toContain("Return to Practice It Yourself");
+    expect(html).toContain("Interactive Practice Available");
+    expect(html).toContain("Sold goods for cash ₹12,000");
+    expect(html).toContain("Paid salary by bank ₹8,000");
+    expect(html).toContain('href="/chapters/journal-entries#practice-it-yourself"');
+    expect(html).toContain("Practice the interactive questions");
+    expect(html).not.toContain("Interactive chapter practice will be enabled after the production checker migration is approved.");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("practice-feedback-");
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries#practice-it-yourself"');
-    expect(html).not.toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
-    expect(html).not.toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
+  });
+
+  it("keeps production answer checking server-controlled for exactly the two approved question IDs", async () => {
+    const soldGoodsResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Cash A/c Dr.",
+        debitAmount: "12000",
+        creditAccount: "To Sales A/c",
+        creditAmount: "12000",
+        totalDebit: "12000",
+        totalCredit: "12000",
+        narration: "Being goods sold for cash.",
+      }),
+    );
+    const paidSalaryResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Salary A/c Dr.",
+        debitAmount: "8000",
+        creditAccount: "To Bank A/c",
+        creditAmount: "8000",
+        totalDebit: "8000",
+        totalCredit: "8000",
+        narration: "Being salary paid by bank.",
+      }),
+    );
+    const soldGoodsWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Bank A/c Dr.",
+        debitAmount: "12000",
+        creditAccount: "To Purchases A/c",
+        creditAmount: "12000",
+        totalDebit: "12000",
+        totalCredit: "12000",
+        narration: "Being goods sold for cash.",
+      }),
+    );
+    const paidSalaryWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Salary A/c Dr.",
+        debitAmount: "8000",
+        creditAccount: "To Cash A/c",
+        creditAmount: "8000",
+        totalDebit: "8000",
+        totalCredit: "8000",
+        narration: "Being salary paid by bank.",
+      }),
+    );
+    const wrongButBalancedResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Cash A/c Dr.",
+        debitAmount: "10000",
+        creditAccount: "To Sales A/c",
+        creditAmount: "10000",
+        totalDebit: "10000",
+        totalCredit: "10000",
+        narration: "Being goods sold for cash.",
+      }),
+    );
+    const blankResult = await checkJournalEntriesPracticeAnswer({
+      questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+      rows: [
+        { rowOrder: 1, particulars: "", lf: "", debitAmount: "", creditAmount: "" },
+        { rowOrder: 2, particulars: "", lf: "", debitAmount: "", creditAmount: "" },
+      ],
+      totalDebit: "",
+      totalCredit: "",
+      narration: "",
+    });
+    const malformedResult = await checkJournalEntriesPracticeAnswer({
+      questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+      rows: "not rows",
+      totalDebit: 12000,
+      totalCredit: "12000",
+      narration: "Being goods sold for cash.",
+    });
+    const unsupportedResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: "unsupported-production-question",
+        debitAccount: "Cash A/c Dr.",
+        debitAmount: "12000",
+        creditAccount: "To Sales A/c",
+        creditAmount: "12000",
+        totalDebit: "12000",
+        totalCredit: "12000",
+        narration: "Being goods sold for cash.",
+      }),
+    );
+    const soldGoodsReveal = await revealJournalEntriesPracticeCorrectAnswer(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
+    const paidSalaryReveal = await revealJournalEntriesPracticeCorrectAnswer(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
+    const unsupportedReveal = await revealJournalEntriesPracticeCorrectAnswer("unsupported-production-question");
+
+    expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toEqual([
+      SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+      PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(soldGoodsResult.status).toBe("correct");
+    expect(paidSalaryResult.status).toBe("correct");
+    expect(soldGoodsWrongAccountResult.status).toBe("incorrect");
+    expect(soldGoodsWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Bank A/c is not used because cash is received.",
+        "Purchases A/c is not used when goods are sold.",
+      ]),
+    );
+    expect(paidSalaryWrongAccountResult.status).toBe("incorrect");
+    expect(paidSalaryWrongAccountResult.errors).toEqual(
+      expect.arrayContaining(["Cash A/c is not affected because the transaction states bank."]),
+    );
+    expect(wrongButBalancedResult.status).toBe("incorrect");
+    expect(wrongButBalancedResult.balanceResult.message).toBe(
+      "The entry balances, but it does not balance at the correct ₹12,000 amount.",
+    );
+    expect(blankResult.status).toBe("incorrect");
+    expect(blankResult.errors).toEqual(["The answer is blank."]);
+    expect(blankResult.correctAnswerRevealAvailable).toBe(false);
+    expect(malformedResult.status).toBe("incorrect");
+    expect(malformedResult.summary).toBe("This submitted answer could not be checked safely. Please review the fields and try again.");
+    expect(malformedResult.correctAnswerRevealAvailable).toBe(false);
+    expect(unsupportedResult.status).toBe("incorrect");
+    expect(unsupportedResult.errors).toEqual(["Unsupported Practice It Yourself question."]);
+    expect(soldGoodsReveal).toMatchObject({
+      questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being goods sold for cash.",
+    });
+    expect(soldGoodsReveal.lines.map((line) => line.particulars)).toEqual(["Cash A/c Dr.", "To Sales A/c"]);
+    expect(soldGoodsReveal.lines.map((line) => line.particulars)).not.toContain("Salary A/c Dr.");
+    expect(paidSalaryReveal).toMatchObject({
+      questionId: PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being salary paid by bank.",
+    });
+    expect(paidSalaryReveal.lines.map((line) => line.particulars)).toEqual(["Salary A/c Dr.", "To Bank A/c"]);
+    expect(paidSalaryReveal.lines.map((line) => line.particulars)).not.toContain("To Sales A/c");
+    expect(unsupportedReveal).toMatchObject({
+      questionId: "unsupported-production-question",
+      available: false,
+      lines: [],
+      narration: "",
+    });
   });
 
   it("keeps preview checker behavior isolated and unchanged", () => {
     const previewHtml = renderToStaticMarkup(createElement(JournalEntriesChapterPreviewPage));
     const previewActionsSource = readFileSync("app/platform-preview/chapters/journal-entries/actions.ts", "utf8");
-    const previewEditorSource = readFileSync("app/platform-preview/_components/JournalEntryPracticeEditor.tsx", "utf8");
+    const previewEditorSource = readFileSync("components/learning-platform/JournalEntryPracticeEditor.tsx", "utf8");
 
     expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toEqual([
       SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
