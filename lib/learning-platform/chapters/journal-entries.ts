@@ -19,6 +19,7 @@ export const JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG = "cash-and
 export const JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG = "capital";
 export const JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG = "drawings";
 export const JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG = "purchases";
+export const JOURNAL_ENTRIES_SALES_SECTION_SLUG = "sales";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -205,10 +206,19 @@ const purchasesSubtopicReference: ChapterSubtopicReference = {
 };
 
 const salesSubtopicReference: ChapterSubtopicReference = {
-  id: "sales",
-  slug: "sales",
+  id: JOURNAL_ENTRIES_SALES_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_SALES_SECTION_SLUG,
   title: "Sales",
   order: 11,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_SALES_SECTION_SLUG}`,
+};
+
+const expensesSubtopicReference: ChapterSubtopicReference = {
+  id: "expenses",
+  slug: "expenses",
+  title: "Expenses",
+  order: 12,
   availabilityStatus: "upcoming",
 };
 
@@ -3667,6 +3677,469 @@ export const purchasesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   ],
 };
 
+export const salesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...salesSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_SALES_SECTION_SLUG}`,
+  shortDescription:
+    "Learn Sales A/c for goods sold in normal trading, cash/bank/credit sales, named debtors, and asset-sale guardrails.",
+  learningObjective:
+    "Students learn to credit Sales A/c only for trading goods, identify Cash/Bank/named debtor treatment, and separate sales from asset disposals, capital receipts, and loans.",
+  progressLabel: "Section 11 of 16",
+  previousSection: purchasesSubtopicReference,
+  nextSection: expensesSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "sales",
+      eyebrow: "Learning objective",
+      title: "Sales",
+      body:
+        "By the end of this section, you should be able to record cash sales, bank sales, and credit sales, use a named debtor account, and avoid using Sales A/c for asset sales or other receipts.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-sales",
+      eyebrow: "Concept explanation",
+      title: "What Sales A/c records",
+      paragraphs: [
+        "Sales A/c records goods sold by the business in the ordinary course of its trading activities.",
+        "Goods means the items in which the business normally deals.",
+        "Sales A/c is not used merely because the business sells something. Selling furniture, machinery, a vehicle, or another business asset is not normally recorded in Sales A/c.",
+        "Sales may be made for cash, through bank, or on credit.",
+        "Sales income normally increases on the credit side.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "central-sales-rules",
+      eyebrow: "Central rules",
+      title: "Two rules to remember",
+      paragraphs: [
+        "Goods sold in the ordinary course of business → Sales A/c.",
+        "The receipt mode or named customer identifies the debited account.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "goods-sold-versus-assets-sold",
+      eyebrow: "Goods versus assets",
+      title: "Purpose decides whether Sales A/c is used",
+      intro:
+        "The same physical item may be goods for one business and an asset for another business, depending on the business purpose.",
+      groups: [
+        {
+          title: "Goods sold in normal trading",
+          items: [
+            "Furniture dealer sells furniture to customers → Sales A/c.",
+            "Mobile-phone dealer sells phones to customers → Sales A/c.",
+            "Transaction: Sold goods for cash ₹15,000.",
+            "Entry: Cash A/c Dr.; To Sales A/c.",
+          ],
+        },
+        {
+          title: "Asset sold by the business",
+          items: [
+            "Coaching centre sells old office furniture → asset sale treatment later.",
+            "Another business sells an old office phone → asset disposal treatment later.",
+            "Do not use Sales A/c merely because an asset was sold.",
+            "Detailed asset sale treatment is marked Later / design-needed.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "sales-classification",
+      eyebrow: "Classification",
+      title: "How Sales A/c is classified here",
+      intro:
+        "This section stays in journal-entry logic and does not teach full Trading Account preparation yet.",
+      groups: [
+        {
+          title: "Modern view",
+          items: [
+            "Sales A/c is an Income / Revenue account.",
+            "When goods are sold, Sales income increases.",
+            "An increase in Sales is credited.",
+          ],
+        },
+        {
+          title: "Traditional view",
+          items: [
+            "Sales A/c is a Nominal Account.",
+            "The golden rule is credit all incomes and gains.",
+            "Therefore Sales A/c is credited when goods are sold.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "cash-sale-format",
+      eyebrow: "Cash sale",
+      title: "Sold goods for cash",
+      paragraphs: [
+        "Transaction: Sold goods for cash ₹12,000.",
+        "Cash asset increases because physical cash is received, so Cash A/c is debited.",
+        "Sales income increases because goods are sold, so Sales A/c is credited. Bank A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "cash-sale-cash-debit", particulars: "Cash A/c Dr.", lf: "", debitDisplay: "12,000" },
+        { id: "cash-sale-sales-credit", particulars: "To Sales A/c", lf: "", creditDisplay: "12,000" },
+        { id: "cash-sale-narration", particulars: "(Being goods sold for cash.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "bank-sale-format",
+      eyebrow: "Bank sale",
+      title: "Sales proceeds received through bank",
+      paragraphs: [
+        "Transaction: Sold goods and received ₹18,000 through bank.",
+        "Bank A/c is debited because money enters the business bank account.",
+        "Sales A/c is credited because sales income increases. Cash A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "bank-sale-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "18,000" },
+        { id: "bank-sale-sales-credit", particulars: "To Sales A/c", lf: "", creditDisplay: "18,000" },
+        { id: "bank-sale-narration", particulars: "(Being goods sold and proceeds received through bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "credit-sale-format",
+      eyebrow: "Credit sale",
+      title: "Sold goods on credit to Riya",
+      paragraphs: [
+        "Transaction: Sold goods on credit to Riya ₹20,000.",
+        "Riya becomes a debtor / receivable asset, so Riya A/c is debited.",
+        "Sales A/c is credited because goods are sold. Cash and Bank are not affected at the time of credit sale.",
+      ],
+      formatRows: [
+        { id: "credit-sale-riya-debit", particulars: "Riya A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "credit-sale-sales-credit", particulars: "To Sales A/c", lf: "", creditDisplay: "20,000" },
+        { id: "credit-sale-narration", particulars: "(Being goods sold on credit to Riya.)" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "named-customer-account",
+      eyebrow: "Named customer",
+      title: "Use the customer's account in a credit sale",
+      intro:
+        "A credit sale creates an amount receivable from the customer. The named customer is debited because they owe money to the business.",
+      groups: [
+        {
+          title: "Use the named customer",
+          items: [
+            "Riya A/c.",
+            "Mohan A/c.",
+            "ABC Stores A/c.",
+            "Priyanka Traders A/c.",
+          ],
+        },
+        {
+          title: "Do not use these instead",
+          items: [
+            "Do not use Cash A/c.",
+            "Do not use Bank A/c.",
+            "Do not use generic Debtor A/c when the customer is named.",
+            "Do not write Sales A/c on both sides.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "sales-versus-other-receipts",
+      eyebrow: "Sales versus other receipts",
+      title: "Not every receipt is Sales",
+      intro:
+        "Cash or Bank may increase in all three cases, but only the trading receipt is Sales. The source and purpose decide the credited account.",
+      groups: [
+        {
+          title: "Sales receipt",
+          items: [
+            "Source: sale of goods in the ordinary course of business.",
+            "Effect: Sales income increases.",
+            "Example: Cash A/c Dr.",
+            "To Sales A/c.",
+          ],
+        },
+        {
+          title: "Capital receipt",
+          items: [
+            "Source: owner or partner.",
+            "Effect: Capital increases.",
+            "Example: Bank A/c Dr.",
+            "To Amit's Capital A/c.",
+          ],
+        },
+        {
+          title: "Loan receipt",
+          items: [
+            "Source: lender or bank.",
+            "Effect: Liability increases.",
+            "Example: Bank A/c Dr.",
+            "To Bank Loan A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "credit-sale-and-later-receipt-format",
+      eyebrow: "Credit sale and receipt",
+      title: "Original sale and later collection are separate",
+      paragraphs: [
+        "At the time of credit sale, the customer becomes a debtor.",
+        "When the customer later pays, the debtor is settled.",
+        "Sales A/c is not credited again when the customer pays. Cash/Bank is affected only when payment is received.",
+      ],
+      formatRows: [
+        { id: "credit-sale-entry-one-label", particulars: "Transaction 1: Sold goods on credit to Riya ₹20,000" },
+        { id: "credit-sale-entry-one-debit", particulars: "Riya A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "credit-sale-entry-one-credit", particulars: "To Sales A/c", lf: "", creditDisplay: "20,000" },
+        { id: "credit-sale-entry-two-label", particulars: "Transaction 2: Received ₹20,000 from Riya through bank" },
+        { id: "credit-sale-entry-two-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "credit-sale-entry-two-credit", particulars: "To Riya A/c", lf: "", creditDisplay: "20,000" },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "partial-receipt-note",
+      eyebrow: "Partial receipt",
+      title: "If a debtor pays only part of the amount",
+      paragraphs: [
+        "Debit Cash A/c or Bank A/c with the amount actually received.",
+        "Credit the debtor with the amount settled.",
+        "The remaining debtor balance continues until it is settled later.",
+        "Example: Riya owes ₹20,000 and pays ₹12,000 through bank. Entry: Bank A/c Dr. ₹12,000; To Riya A/c ₹12,000.",
+        "Detailed debtor-balancing and discount treatment is later/design-needed.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "sales-discounts-and-returns-boundary",
+      eyebrow: "Later / design-needed",
+      title: "Discounts and sales returns are later topics",
+      paragraphs: [
+        "Trade discount reduces the listed price before recording the sale. Example: goods listed at ₹20,000 less 10% trade discount are recorded at ₹18,000.",
+        "If sold on credit to Riya, the journal entry is made at the net invoice amount: Riya A/c Dr. ₹18,000; To Sales A/c ₹18,000.",
+        "Trade discount is normally not recorded separately in the journal.",
+        "Cash discount may be allowed later to encourage prompt payment and may require Discount Allowed A/c.",
+        "Sales Returns / Returns Inward treatment is a later linked subtopic.",
+        "Detailed trade discount, cash discount, and sales returns practice is marked Later / design-needed in this preview.",
+      ],
+    },
+    {
+      type: "recap",
+      id: "sales-source-documents",
+      title: "Common source documents",
+      points: [
+        "Cash memo.",
+        "Sales invoice.",
+        "Customer invoice.",
+        "Receipt.",
+        "Bank credit record.",
+        "Delivery note where applicable.",
+        "Source documents support the recording of the sale; this preview does not add document upload, invoice parsing, or OCR.",
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "sales-cash-goods",
+      illustration: {
+        id: "sales-cash-goods",
+        title: "Solved Illustration 1: cash sale",
+        difficulty: "easy",
+        question: "Sold goods for cash ₹15,000.",
+        accountsAffected: ["Cash A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Cash received", detail: "Physical cash comes into the business, so Cash A/c is debited." },
+          { label: "Goods sold", detail: "Goods are sold in normal trading, so Sales A/c is credited." },
+          { label: "No bank", detail: "Bank A/c is not affected." },
+        ],
+        journalEntry: [
+          { id: "sales-cash-goods-debit", account: "Cash A/c", side: "debit", amount: 15000, drNotation: "Dr." },
+          { id: "sales-cash-goods-credit", account: "Sales A/c", side: "credit", amount: 15000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold for cash.",
+        explanation:
+          "Cash A/c is debited because cash is received. Sales A/c is credited because sales income increases.",
+        studentTakeaway: "For cash sales, use Cash A/c and Sales A/c.",
+        commonMistake: "Using Bank A/c when the transaction says cash.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "sales-bank-goods",
+      illustration: {
+        id: "sales-bank-goods",
+        title: "Solved Illustration 2: bank sale",
+        difficulty: "easy",
+        question: "Sold goods and received ₹22,000 through bank.",
+        accountsAffected: ["Bank A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Bank received", detail: "Money enters the business bank account, so Bank A/c is debited." },
+          { label: "Sales credited", detail: "Sales A/c is credited because goods are sold." },
+          { label: "No cash", detail: "Cash A/c is not affected." },
+        ],
+        journalEntry: [
+          { id: "sales-bank-goods-debit", account: "Bank A/c", side: "debit", amount: 22000, drNotation: "Dr." },
+          { id: "sales-bank-goods-credit", account: "Sales A/c", side: "credit", amount: 22000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold and proceeds received through bank.",
+        explanation:
+          "Bank A/c is debited because bank balance increases. Sales A/c is credited because sales income increases.",
+        studentTakeaway: "Through bank means Bank A/c, not Cash A/c.",
+        commonMistake: "Debiting Cash A/c for a bank receipt.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "sales-credit-to-mohan",
+      illustration: {
+        id: "sales-credit-to-mohan",
+        title: "Solved Illustration 3: credit sale",
+        difficulty: "easy",
+        question: "Sold goods on credit to Mohan ₹25,000.",
+        accountsAffected: ["Mohan A/c", "Sales A/c"],
+        reasoningSteps: [
+          { label: "Named debtor", detail: "Mohan A/c is debited because Mohan owes the business." },
+          { label: "Sales credited", detail: "Sales A/c is credited because goods are sold." },
+          { label: "No cash/bank now", detail: "Cash A/c and Bank A/c are not affected at the sale date." },
+        ],
+        journalEntry: [
+          { id: "sales-credit-mohan-debit", account: "Mohan A/c", side: "debit", amount: 25000, drNotation: "Dr." },
+          { id: "sales-credit-mohan-credit", account: "Sales A/c", side: "credit", amount: 25000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold on credit to Mohan.",
+        explanation:
+          "The sale creates a debtor. Mohan A/c is debited because Mohan owes the business, and Sales A/c is credited.",
+        studentTakeaway: "In credit sales, use the customer's name instead of Cash or Bank.",
+        commonMistake: "Using Cash A/c or Bank A/c even though the sale is on credit.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "sales-credit-and-later-collection",
+      illustration: {
+        id: "sales-credit-and-later-collection",
+        title: "Solved Illustration 4: credit sale and later collection",
+        difficulty: "slightly-harder",
+        question: "Sold goods on credit to Riya ₹20,000 and later received the amount through bank.",
+        accountsAffected: ["Riya A/c", "Sales A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Sale date", detail: "Riya A/c Dr. and To Sales A/c create the debtor." },
+          { label: "Receipt date", detail: "Bank A/c Dr. and To Riya A/c settle the debtor." },
+          { label: "No duplicate sales", detail: "Sales A/c is not credited again when Riya pays." },
+        ],
+        journalEntry: [
+          { id: "sales-collection-riya-debit", account: "Riya A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "sales-collection-sales-credit", account: "Sales A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+          { id: "sales-collection-bank-debit", account: "Bank A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "sales-collection-riya-credit", account: "Riya A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being goods sold on credit to Riya and later amount received through bank.",
+        explanation:
+          "The two entries are displayed together only to compare them. The sale creates the debtor; the later receipt settles it.",
+        studentTakeaway: "Do not credit Sales A/c again when the debtor pays later.",
+        commonMistake: "Recording a second Sales entry when the customer pays.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "sales-old-furniture-asset-guard",
+      illustration: {
+        id: "sales-old-furniture-asset-guard",
+        title: "Solved Illustration 5: asset-sale distinction",
+        difficulty: "mixed",
+        question: "Sold old furniture for cash ₹8,000.",
+        accountsAffected: ["Furniture A/c", "Cash A/c", "Asset disposal treatment later"],
+        reasoningSteps: [
+          { label: "Asset sold", detail: "Old furniture is a business asset, not trading goods for most businesses." },
+          { label: "Not ordinary Sales", detail: "Sales A/c is not used merely because the furniture was sold." },
+          { label: "Later / design-needed", detail: "Correct treatment depends on book value, depreciation, and gain or loss on disposal." },
+        ],
+        journalEntry: [],
+        narration: "Later / design-needed: asset disposal treatment is deferred.",
+        explanation:
+          "This preview intentionally avoids a simplified journal entry because asset disposal may need Machinery/Furniture A/c, accumulated depreciation, book value, and profit or loss treatment.",
+        studentTakeaway: "Do not treat every sale as Sales A/c; decide whether trading goods or a business asset was sold.",
+        commonMistake: "Crediting Sales A/c for sale of an old business asset without considering asset-disposal treatment.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "sales-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Sales mistakes",
+      mistakes: [
+        "Debiting Sales A/c when sales increase.",
+        "Using Purchases A/c instead of Sales A/c.",
+        "Using Cash A/c for a credit sale.",
+        "Using Bank A/c for a cash sale.",
+        "Ignoring the named customer.",
+        "Using generic Debtor A/c when the customer is named.",
+        "Crediting the customer at the time of credit sale.",
+        "Recording Sales A/c again when the debtor later pays.",
+        "Treating a capital receipt or loan as Sales.",
+        "Using Sales A/c for the sale of a business asset.",
+        "Recording trade discount separately.",
+        "Confusing trade discount with cash discount.",
+        "Assuming every receipt is income.",
+        "Failing to distinguish goods from assets.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "sales-decision-process",
+      eyebrow: "Decision process",
+      title: "Sales decision process",
+      body:
+        "Use this order before writing a sales-related journal entry.",
+      steps: [
+        { label: "Identify what was sold", detail: "Read the item, amount, customer, and receipt mode." },
+        { label: "Decide the purpose", detail: "Ask whether it is trading goods or a business asset." },
+        { label: "Use Sales for trading goods", detail: "If goods are sold in the ordinary course, use Sales A/c." },
+        { label: "Identify receipt mode", detail: "Decide whether payment is cash, bank, or credit." },
+        { label: "Debit Cash for cash receipt", detail: "Use Cash A/c when physical cash is received." },
+        { label: "Debit Bank for bank receipt", detail: "Use Bank A/c when money enters the business bank account." },
+        { label: "Debit named customer for credit sale", detail: "Use the customer's account when payment is not received immediately." },
+        { label: "Credit Sales A/c", detail: "Credit Sales A/c because sales income increases." },
+        { label: "Avoid Cash/Bank for unpaid credit sale", detail: "Cash/Bank is not used before payment is received." },
+        { label: "Confirm totals", detail: "Total debit must equal total credit." },
+        { label: "Write narration", detail: "State what was sold and how payment was made." },
+        { label: "Check later topics", detail: "Discount, return, or asset-disposal treatment may belong to a later topic." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "sales-checklist",
+      title: "Sales checklist",
+      points: [
+        "The item sold is trading goods.",
+        "Sales A/c is appropriate.",
+        "An asset sale has not been mistaken for a goods sale.",
+        "The receipt mode is identified correctly.",
+        "The named debtor is used for credit sale.",
+        "Cash/Bank is not used before payment is received.",
+        "Sales A/c is credited.",
+        "Debit and credit totals are equal.",
+        "Narration states what was sold and how payment was made.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "sales-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "Was the business selling its normal goods, disposing of an asset, or receiving money for some other reason—and who now owes or receives the value?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -3678,6 +4151,7 @@ const journalEntriesSubtopics = [
   capitalJournalEntriesSubtopic,
   drawingsJournalEntriesSubtopic,
   purchasesJournalEntriesSubtopic,
+  salesJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -3694,7 +4168,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 10,
+      value: 11,
     },
   },
   outline: [
@@ -3778,7 +4252,14 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Goods bought for resale, cash/bank/credit purchases, and supplier treatment.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG}`,
     },
-    { id: "sales", title: "Sales", order: 11, status: "upcoming" },
+    {
+      id: JOURNAL_ENTRIES_SALES_SECTION_SLUG,
+      title: "Sales",
+      order: 11,
+      status: "available",
+      shortDescription: "Goods sold in normal trading, cash/bank/credit sales, and debtor treatment.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_SALES_SECTION_SLUG}`,
+    },
     { id: "expenses", title: "Expenses", order: 12, status: "upcoming" },
     { id: "income", title: "Income", order: 13, status: "upcoming" },
     { id: "assets-and-liabilities", title: "Assets and Liabilities", order: 14, status: "upcoming" },
