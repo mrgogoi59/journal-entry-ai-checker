@@ -8,6 +8,7 @@ import PlatformPreviewDashboardPage from "@/app/platform-preview/page";
 import PlatformPreviewChaptersPage from "@/app/platform-preview/chapters/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
 import AccountsAffectedChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/accounts-affected/page";
+import AssetsAndLiabilitiesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/assets-and-liabilities/page";
 import BusinessTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/business-transactions/page";
 import CashAndBankTransactionsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/cash-and-bank-transactions/page";
 import CapitalChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/capital/page";
@@ -21,6 +22,7 @@ import SalesChapterPreviewPage from "@/app/platform-preview/chapters/journal-ent
 import TypesOfAccountsChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/types-of-accounts/page";
 import {
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+  JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
   JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
@@ -74,6 +76,7 @@ describe("Platform preview routes", () => {
       JOURNAL_ENTRIES_SALES_SECTION_SLUG,
       JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
       JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
+      JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
     ]);
     expect(journalEntriesChapter.subtopics[0]).toMatchObject({
       order: 1,
@@ -139,6 +142,11 @@ describe("Platform preview routes", () => {
       order: 13,
       title: "Income",
       progressLabel: "Section 13 of 16",
+    });
+    expect(journalEntriesChapter.subtopics[13]).toMatchObject({
+      order: 14,
+      title: "Assets and Liabilities",
+      progressLabel: "Section 14 of 16",
     });
     expect(journalEntriesChapter.subtopics[0].nextSection?.slug).toBe(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[1].previousSection?.slug).toBe(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
@@ -213,8 +221,14 @@ describe("Platform preview routes", () => {
     });
     expect(journalEntriesChapter.subtopics[12].previousSection?.slug).toBe(JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG);
     expect(journalEntriesChapter.subtopics[12].nextSection).toMatchObject({
-      slug: "assets-and-liabilities",
+      slug: JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
       title: "Assets and Liabilities",
+      availabilityStatus: "available",
+    });
+    expect(journalEntriesChapter.subtopics[13].previousSection?.slug).toBe(JOURNAL_ENTRIES_INCOME_SECTION_SLUG);
+    expect(journalEntriesChapter.subtopics[13].nextSection).toMatchObject({
+      slug: "mixed-simple-entries",
+      title: "Mixed Simple Entries",
       availabilityStatus: "upcoming",
     });
 
@@ -309,6 +323,15 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[12].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[12].sections.filter((section) => section.type === "recap")).toHaveLength(2);
     expect(journalEntriesChapter.subtopics[12].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "concept-explanation")).toHaveLength(6);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "accounting-format")).toHaveLength(7);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "comparison")).toHaveLength(6);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "solved-illustration")).toHaveLength(7);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "common-mistakes")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "recap")).toHaveLength(1);
+    expect(journalEntriesChapter.subtopics[13].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
   });
 
   it("defines a balanced internal expected answer for the sold-goods-for-cash practice question", () => {
@@ -1521,6 +1544,244 @@ describe("Platform preview routes", () => {
     expect(capitalGuard.illustration.journalEntry.map((line) => line.account)).not.toContain("Income A/c");
   });
 
+  it("defines Assets and Liabilities as display-only content with creation, settlement, and deferred boundaries", () => {
+    const assetsLiabilitiesSubtopic = journalEntriesChapter.subtopics.find(
+      (subtopic) => subtopic.slug === JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
+    );
+    const assetsMeaning = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "meaning-of-assets",
+    );
+    const liabilitiesMeaning = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "meaning-of-liabilities",
+    );
+    const centralRule = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "asset-liability-central-rule",
+    );
+    const equationImpact = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "accounting-equation-impact",
+    );
+    const currentNonCurrent = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "current-and-non-current-introduction",
+    );
+    const assetCashFormat = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "asset-purchased-for-cash-format",
+    );
+    const assetBankFormat = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "asset-purchased-through-bank-format",
+    );
+    const assetCreditFormat = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "asset-purchased-on-credit-format",
+    );
+    const loanReceivedFormat = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "loan-received-format",
+    );
+    const loanRepaymentFormat = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "loan-repayment-format",
+    );
+    const creditorSettlementFormat = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "creditor-creation-and-settlement-format",
+    );
+    const outstandingLiabilityFormat = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "accounting-format" && section.id === "outstanding-liability-format",
+    );
+    const assetPurchasesComparison = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "asset-versus-purchases",
+    );
+    const assetExpenseComparison = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "asset-versus-expense",
+    );
+    const liabilityComparison = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "liability-versus-income-capital",
+    );
+    const namedPersonContext = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "comparison" && section.id === "named-person-context",
+    );
+    const depreciationNote = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "depreciation-linked-note",
+    );
+    const disposalNote = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "asset-disposal-note",
+    );
+    const installationNote = assetsLiabilitiesSubtopic?.sections.find(
+      (section) => section.type === "concept-explanation" && section.id === "installation-incidental-costs-note",
+    );
+    const solvedIllustrations =
+      assetsLiabilitiesSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
+
+    expect(assetsLiabilitiesSubtopic?.practiceQuestionIds).toBeUndefined();
+    expect(assetsLiabilitiesSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(assetsMeaning?.type).toBe("concept-explanation");
+    expect(liabilitiesMeaning?.type).toBe("concept-explanation");
+    expect(centralRule?.type).toBe("concept-explanation");
+    expect(equationImpact?.type).toBe("comparison");
+    expect(currentNonCurrent?.type).toBe("comparison");
+    expect(assetCashFormat?.type).toBe("accounting-format");
+    expect(assetBankFormat?.type).toBe("accounting-format");
+    expect(assetCreditFormat?.type).toBe("accounting-format");
+    expect(loanReceivedFormat?.type).toBe("accounting-format");
+    expect(loanRepaymentFormat?.type).toBe("accounting-format");
+    expect(creditorSettlementFormat?.type).toBe("accounting-format");
+    expect(outstandingLiabilityFormat?.type).toBe("accounting-format");
+    expect(assetPurchasesComparison?.type).toBe("comparison");
+    expect(assetExpenseComparison?.type).toBe("comparison");
+    expect(liabilityComparison?.type).toBe("comparison");
+    expect(namedPersonContext?.type).toBe("comparison");
+    expect(depreciationNote?.type).toBe("concept-explanation");
+    expect(disposalNote?.type).toBe("concept-explanation");
+    expect(installationNote?.type).toBe("concept-explanation");
+    expect(solvedIllustrations).toHaveLength(7);
+
+    if (
+      assetsMeaning?.type !== "concept-explanation" ||
+      liabilitiesMeaning?.type !== "concept-explanation" ||
+      centralRule?.type !== "concept-explanation" ||
+      equationImpact?.type !== "comparison" ||
+      currentNonCurrent?.type !== "comparison" ||
+      assetCashFormat?.type !== "accounting-format" ||
+      assetBankFormat?.type !== "accounting-format" ||
+      assetCreditFormat?.type !== "accounting-format" ||
+      loanReceivedFormat?.type !== "accounting-format" ||
+      loanRepaymentFormat?.type !== "accounting-format" ||
+      creditorSettlementFormat?.type !== "accounting-format" ||
+      outstandingLiabilityFormat?.type !== "accounting-format" ||
+      assetPurchasesComparison?.type !== "comparison" ||
+      assetExpenseComparison?.type !== "comparison" ||
+      liabilityComparison?.type !== "comparison" ||
+      namedPersonContext?.type !== "comparison" ||
+      depreciationNote?.type !== "concept-explanation" ||
+      disposalNote?.type !== "concept-explanation" ||
+      installationNote?.type !== "concept-explanation"
+    ) {
+      throw new Error("Assets and Liabilities display sections were not found");
+    }
+
+    expect(assetsMeaning.paragraphs.join(" ")).toContain("resources owned or controlled by the business");
+    expect(assetsMeaning.paragraphs.join(" ")).toContain("Accrued Income");
+    expect(liabilitiesMeaning.paragraphs.join(" ")).toContain("amounts or obligations payable to outsiders");
+    expect(liabilitiesMeaning.paragraphs.join(" ")).toContain("Capital is not an outside liability");
+    expect(centralRule.paragraphs).toEqual(
+      expect.arrayContaining([
+        "Asset increases → Debit.",
+        "Asset decreases → Credit.",
+        "Liability increases → Credit.",
+        "Liability decreases → Debit.",
+      ]),
+    );
+    expect(currentNonCurrent.groups.map((group) => group.title)).toEqual([
+      "Current assets",
+      "Non-current assets",
+      "Current liabilities",
+      "Non-current liabilities",
+    ]);
+    expect(equationImpact.title).toBe("Assets = Capital + Liabilities");
+    expect(equationImpact.groups[0].items.join(" ")).toContain("Bank asset increases");
+    expect(equationImpact.groups[1].items.join(" ")).toContain("Loan liability decreases");
+
+    expect(assetCashFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Furniture A/c Dr.",
+      "To Cash A/c",
+      "(Being furniture purchased for cash.)",
+    ]);
+    expect(assetCashFormat.paragraphs.join(" ")).toContain("Purchases A/c is not used");
+    expect(assetBankFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Machinery A/c Dr.",
+      "To Bank A/c",
+      "(Being machinery purchased through bank.)",
+    ]);
+    expect(assetBankFormat.paragraphs.join(" ")).toContain("Cash A/c is not affected");
+    expect(assetCreditFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Furniture A/c Dr.",
+      "To Mohan A/c",
+      "(Being office furniture purchased on credit from Mohan.)",
+    ]);
+    expect(assetCreditFormat.paragraphs.join(" ")).toContain("Cash A/c or Bank A/c is not affected yet");
+    expect(loanReceivedFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Bank A/c Dr.",
+      "To Bank Loan A/c",
+      "(Being bank loan received in the business bank account.)",
+    ]);
+    expect(loanReceivedFormat.paragraphs.join(" ")).toContain("not income or capital");
+    expect(loanRepaymentFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Bank Loan A/c Dr.",
+      "To Bank A/c",
+      "(Being part of the bank loan repaid through bank.)",
+    ]);
+    expect(loanRepaymentFormat.paragraphs.join(" ")).toContain("not an expense");
+    expect(creditorSettlementFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Transaction 1: Purchased goods on credit from Mohan ₹20,000",
+      "Purchases A/c Dr.",
+      "To Mohan A/c",
+      "Transaction 2: Paid Mohan through bank ₹20,000",
+      "Mohan A/c Dr.",
+      "To Bank A/c",
+    ]);
+    expect(creditorSettlementFormat.formatRows.slice(3).map((row) => row.particulars)).not.toContain("Purchases A/c Dr.");
+    expect(outstandingLiabilityFormat.formatRows.map((row) => row.particulars)).toEqual([
+      "Transaction 1: Salary ₹5,000 became due but was not paid",
+      "Salary A/c Dr.",
+      "To Outstanding Salary A/c",
+      "Transaction 2: Outstanding salary later paid through bank",
+      "Outstanding Salary A/c Dr.",
+      "To Bank A/c",
+    ]);
+    expect(outstandingLiabilityFormat.formatRows.slice(3).map((row) => row.particulars)).not.toContain("Salary A/c Dr.");
+    expect(assetPurchasesComparison.groups[0].items.join(" ")).toContain("Purchases A/c Dr.");
+    expect(assetPurchasesComparison.groups[1].items.join(" ")).toContain("Furniture/Machinery A/c Dr.");
+    expect(assetExpenseComparison.groups[1].items.join(" ")).toContain("Later / design-needed");
+    expect(liabilityComparison.groups.map((group) => group.title)).toEqual(["Loan", "Capital", "Income"]);
+    expect(liabilityComparison.groups[0].items.join(" ")).toContain("not income");
+    expect(liabilityComparison.groups[1].items.join(" ")).toContain("not operating income");
+    expect(namedPersonContext.groups.map((group) => group.title)).toEqual(["Customer", "Supplier", "Owner or partner"]);
+    expect(depreciationNote.eyebrow).toBe("Later / linked chapter");
+    expect(depreciationNote.paragraphs.join(" ")).toContain("Depreciation chapter");
+    expect(disposalNote.eyebrow).toBe("Later / design-needed");
+    expect(disposalNote.paragraphs.join(" ")).toContain("not automatically Sales A/c");
+    expect(installationNote.eyebrow).toBe("Later / design-needed");
+    expect(installationNote.paragraphs.join(" ")).toContain("does not add checking support");
+
+    const creditAsset = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "assets-furniture-credit-mohan",
+    );
+    const loanReceived = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "liabilities-bank-loan-received",
+    );
+    const loanRepaid = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "liabilities-bank-loan-repaid",
+    );
+    const creditorSettlement = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "liabilities-credit-purchase-settlement",
+    );
+    const outstandingSettlement = solvedIllustrations.find(
+      (section) => section.type === "solved-illustration" && section.id === "liabilities-outstanding-salary-settlement",
+    );
+
+    expect(creditAsset?.type).toBe("solved-illustration");
+    expect(loanReceived?.type).toBe("solved-illustration");
+    expect(loanRepaid?.type).toBe("solved-illustration");
+    expect(creditorSettlement?.type).toBe("solved-illustration");
+    expect(outstandingSettlement?.type).toBe("solved-illustration");
+
+    if (
+      creditAsset?.type !== "solved-illustration" ||
+      loanReceived?.type !== "solved-illustration" ||
+      loanRepaid?.type !== "solved-illustration" ||
+      creditorSettlement?.type !== "solved-illustration" ||
+      outstandingSettlement?.type !== "solved-illustration"
+    ) {
+      throw new Error("Assets and Liabilities solved illustrations were not found");
+    }
+
+    expect(creditAsset.illustration.journalEntry.map((line) => line.account)).toEqual(["Furniture A/c", "Mohan A/c"]);
+    expect(creditAsset.illustration.journalEntry.map((line) => line.account)).not.toContain("Cash A/c");
+    expect(creditAsset.illustration.journalEntry.map((line) => line.account)).not.toContain("Bank A/c");
+    expect(loanReceived.illustration.journalEntry.map((line) => line.account)).toEqual(["Bank A/c", "Bank Loan A/c"]);
+    expect(loanReceived.illustration.journalEntry.map((line) => line.account)).not.toContain("Income A/c");
+    expect(loanRepaid.illustration.journalEntry.map((line) => line.account)).toEqual(["Bank Loan A/c", "Bank A/c"]);
+    expect(loanRepaid.illustration.commonMistake).toContain("Loan Repayment Expense");
+    expect(creditorSettlement.illustration.journalEntry.slice(2).map((line) => line.account)).not.toContain("Purchases A/c");
+    expect(outstandingSettlement.illustration.journalEntry.slice(2).map((line) => line.account)).not.toContain("Salary A/c");
+  });
+
   it("marks the platform preview routes as noindex and nofollow", () => {
     expect(platformPreviewMetadata.robots).toMatchObject({
       index: false,
@@ -1528,7 +1789,7 @@ describe("Platform preview routes", () => {
     });
   });
 
-  it("marks the active outline state across all thirteen routed Journal Entries sections", () => {
+  it("marks the active outline state across all fourteen routed Journal Entries sections", () => {
     const routedSections = [
       ["/platform-preview/chapters/journal-entries", JournalEntriesChapterPreviewPage],
       ["/platform-preview/chapters/journal-entries/business-transactions", BusinessTransactionsChapterPreviewPage],
@@ -1543,6 +1804,7 @@ describe("Platform preview routes", () => {
       ["/platform-preview/chapters/journal-entries/sales", SalesChapterPreviewPage],
       ["/platform-preview/chapters/journal-entries/expenses", ExpensesChapterPreviewPage],
       ["/platform-preview/chapters/journal-entries/income", IncomeChapterPreviewPage],
+      ["/platform-preview/chapters/journal-entries/assets-and-liabilities", AssetsAndLiabilitiesChapterPreviewPage],
     ] as const;
 
     routedSections.forEach(([href, RoutePage]) => {
@@ -2363,7 +2625,7 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("renders the Income section with Assets and Liabilities disabled and without adding a checker", () => {
+  it("renders the Income section with the Assets and Liabilities next link and without adding a checker", () => {
     const html = renderToStaticMarkup(createElement(IncomeChapterPreviewPage));
 
     expect(html).toContain("Chapters");
@@ -2422,10 +2684,83 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Income checklist");
     expect(html).toContain("Did the business earn this amount now, receive it before earning it, or simply collect an amount already due?");
     expect(html).toContain("Previous Expenses");
-    expect(html).toContain("Continue to Assets and Liabilities - Preview only");
+    expect(html).toContain("Continue to Assets and Liabilities");
     expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/income")).toContain('aria-current="step"');
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/expenses"');
-    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/assets-and-liabilities"');
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/assets-and-liabilities"');
+    expect(html).not.toContain("Continue to Assets and Liabilities - Preview only");
+    expect(html).not.toContain("Practice 1 of 2");
+    expect(html).not.toContain("Practice 2 of 2");
+    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Show Correct Answer");
+    expect(html).not.toContain("practice-feedback-");
+  });
+
+  it("renders the Assets and Liabilities section with Mixed Simple Entries disabled and without adding a checker", () => {
+    const html = renderToStaticMarkup(createElement(AssetsAndLiabilitiesChapterPreviewPage));
+
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Assets and Liabilities");
+    expect(html).toContain("Section 14 of 16");
+    expect(html).toContain("What assets mean");
+    expect(html).toContain("Assets are resources owned or controlled by the business.");
+    expect(html).toContain("What liabilities mean");
+    expect(html).toContain("Liabilities are amounts or obligations payable to outsiders.");
+    expect(html).toContain("Capital is not an outside liability");
+    expect(html).toContain("Use increase and decrease logic");
+    expect(html).toContain("Asset increases → Debit.");
+    expect(html).toContain("Liability decreases → Debit.");
+    expect(html).toContain("Current and non-current idea");
+    expect(html).toContain("Current assets");
+    expect(html).toContain("Non-current liabilities");
+    expect(html).toContain("Assets = Capital + Liabilities");
+    expect(html).toContain("Loan received through bank");
+    expect(html).toContain("Loan repaid through bank");
+    expect(html).toContain("Asset purchased for cash");
+    expect(html).toContain("Bought furniture for cash ₹20,000.");
+    expect(html).toContain("Furniture A/c Dr.");
+    expect(html).toContain("To Cash A/c");
+    expect(html).toContain("Asset purchased through bank");
+    expect(html).toContain("Bought machinery through bank ₹50,000.");
+    expect(html).toContain("Machinery A/c Dr.");
+    expect(html).toContain("To Bank A/c");
+    expect(html).toContain("Asset purchased on credit");
+    expect(html).toContain("Bought office furniture on credit from Mohan ₹30,000.");
+    expect(html).toContain("To Mohan A/c");
+    expect(html).toContain("Cash A/c or Bank A/c is not affected yet.");
+    expect(html).toContain("To Bank Loan A/c");
+    expect(html).toContain("The receipt is not income or capital.");
+    expect(html).toContain("Bank Loan A/c Dr.");
+    expect(html).toContain("Loan repayment itself is not an expense.");
+    expect(html).toContain("Creditor creation and settlement");
+    expect(html).toContain("Purchases A/c is not debited again during settlement.");
+    expect(html).toContain("Outstanding expense and later payment");
+    expect(html).toContain("Outstanding Salary A/c Dr.");
+    expect(html).toContain("The expense must not be recorded twice.");
+    expect(html).toContain("Purpose decides Furniture A/c or Purchases A/c");
+    expect(html).toContain("Longer benefit is different from routine expense");
+    expect(html).toContain("A bank receipt may have different sources");
+    expect(html).toContain("A person&#x27;s account depends on their role");
+    expect(html).toContain("Depreciation comes later");
+    expect(html).toContain("Later / linked chapter");
+    expect(html).toContain("Asset disposal needs careful treatment");
+    expect(html).toContain("not automatically Sales A/c");
+    expect(html).toContain("Installation and incidental costs need design");
+    expect(html).toContain("Later / design-needed");
+    expect(html).toContain("Solved Illustration 1");
+    expect(html).toContain("Solved Illustration 7");
+    expect(html).toContain("Avoid these Assets and Liabilities mistakes");
+    expect(html).toContain("Assets and liabilities decision process");
+    expect(html).toContain("Assets and liabilities checklist");
+    expect(html).toContain("What resource did the business gain or lose, and what obligation was created or settled?");
+    expect(html).toContain("Previous Income");
+    expect(html).toContain("Continue to Mixed Simple Entries - Preview only");
+    expect(getLinkMarkup(html, "/platform-preview/chapters/journal-entries/assets-and-liabilities")).toContain(
+      'aria-current="step"',
+    );
+    expect(html).toContain('href="/platform-preview/chapters/journal-entries/income"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/mixed-simple-entries"');
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
     expect(html).not.toContain("Check Answer");
@@ -2490,5 +2825,6 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/sales"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/expenses"');
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/income"');
+    expect(html).not.toContain('href="/platform-preview/chapters/journal-entries/assets-and-liabilities"');
   });
 });

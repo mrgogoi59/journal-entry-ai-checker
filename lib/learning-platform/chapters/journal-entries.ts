@@ -22,6 +22,7 @@ export const JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG = "purchases";
 export const JOURNAL_ENTRIES_SALES_SECTION_SLUG = "sales";
 export const JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG = "expenses";
 export const JOURNAL_ENTRIES_INCOME_SECTION_SLUG = "income";
+export const JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG = "assets-and-liabilities";
 
 const JOURNAL_ENTRIES_CHAPTER_PATH = "/platform-preview/chapters/journal-entries";
 
@@ -235,10 +236,19 @@ const incomeSubtopicReference: ChapterSubtopicReference = {
 };
 
 const assetsAndLiabilitiesSubtopicReference: ChapterSubtopicReference = {
-  id: "assets-and-liabilities",
-  slug: "assets-and-liabilities",
+  id: JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
+  slug: JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
   title: "Assets and Liabilities",
   order: 14,
+  availabilityStatus: "available",
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG}`,
+};
+
+const mixedSimpleEntriesSubtopicReference: ChapterSubtopicReference = {
+  id: "mixed-simple-entries",
+  slug: "mixed-simple-entries",
+  title: "Mixed Simple Entries",
+  order: 15,
   availabilityStatus: "upcoming",
 };
 
@@ -5306,6 +5316,662 @@ export const incomeJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   ],
 };
 
+export const assetsAndLiabilitiesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
+  ...assetsAndLiabilitiesSubtopicReference,
+  href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG}`,
+  shortDescription:
+    "Learn asset and liability increases/decreases, simple asset purchases, loans, creditors, outstanding liabilities, and settlement guardrails.",
+  learningObjective:
+    "Students learn to identify assets and liabilities, apply increase/decrease debit-credit logic, and distinguish asset or liability treatment from purchases, expenses, income, capital, and drawings.",
+  progressLabel: "Section 14 of 16",
+  previousSection: incomeSubtopicReference,
+  nextSection: mixedSimpleEntriesSubtopicReference,
+  sections: [
+    {
+      type: "learning-objective",
+      id: "assets-and-liabilities",
+      eyebrow: "Learning objective",
+      title: "Assets and Liabilities",
+      body:
+        "By the end of this section, you should be able to identify assets and liabilities, record simple asset purchases, record loans and creditor settlements, and avoid confusing assets or liabilities with purchases, expenses, income, capital, or drawings.",
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-assets",
+      eyebrow: "Concept explanation",
+      title: "What assets mean",
+      paragraphs: [
+        "Assets are resources owned or controlled by the business.",
+        "They provide present or future economic benefit to the business.",
+        "Assets may be received, purchased, converted, or used by the business.",
+        "Examples include Cash A/c, Bank A/c, Furniture A/c, Machinery A/c, Building A/c, Vehicle A/c, Debtors / Accounts Receivable, Accrued Income, and Prepaid Expense.",
+        "Detailed Balance Sheet classification of assets belongs to later chapters. This section focuses on journal-entry treatment.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "meaning-of-liabilities",
+      eyebrow: "Concept explanation",
+      title: "What liabilities mean",
+      paragraphs: [
+        "Liabilities are amounts or obligations payable to outsiders.",
+        "They arise when the business borrows money, purchases on credit, or incurs an unpaid expense.",
+        "Examples include Bank Loan A/c, Mohan A/c as creditor, Outstanding Salary A/c, Bills Payable A/c, and Rent Received in Advance A/c.",
+        "Capital is not an outside liability, even though it appears on the liabilities/equity side in traditional Balance Sheet presentation.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "asset-liability-central-rule",
+      eyebrow: "Central rule",
+      title: "Use increase and decrease logic",
+      paragraphs: [
+        "Asset increases → Debit.",
+        "Asset decreases → Credit.",
+        "Liability increases → Credit.",
+        "Liability decreases → Debit.",
+        "This logic should be applied after identifying the exact asset, liability, person, or account affected.",
+      ],
+    },
+    {
+      type: "comparison",
+      id: "current-and-non-current-introduction",
+      eyebrow: "Introductory classification",
+      title: "Current and non-current idea",
+      intro:
+        "This is only a first-level guide. Detailed Balance Sheet classification belongs to Final Accounts.",
+      groups: [
+        {
+          title: "Current assets",
+          items: [
+            "Expected to be realised, sold, or used within the normal operating cycle or a relatively short period.",
+            "Examples: Cash, Bank, Debtors, Closing Stock, Accrued Income.",
+          ],
+        },
+        {
+          title: "Non-current assets",
+          items: [
+            "Used by the business over a longer period.",
+            "Examples: Furniture, Machinery, Building, Vehicle.",
+          ],
+        },
+        {
+          title: "Current liabilities",
+          items: [
+            "Generally payable within a relatively short period.",
+            "Examples: Creditors, Outstanding Expenses, Bills Payable.",
+          ],
+        },
+        {
+          title: "Non-current liabilities",
+          items: [
+            "Longer-term obligations.",
+            "Example: Long-term Bank Loan.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "accounting-equation-impact",
+      eyebrow: "Accounting equation",
+      title: "Assets = Capital + Liabilities",
+      intro:
+        "Journal entries keep the accounting equation balanced even when assets and liabilities move in different directions.",
+      groups: [
+        {
+          title: "Loan received through bank",
+          items: [
+            "Bank asset increases.",
+            "Loan liability increases.",
+            "Bank A/c Dr.; To Bank Loan A/c.",
+          ],
+        },
+        {
+          title: "Loan repaid through bank",
+          items: [
+            "Bank asset decreases.",
+            "Loan liability decreases.",
+            "Bank Loan A/c Dr.; To Bank A/c.",
+          ],
+        },
+        {
+          title: "Asset purchased for cash",
+          items: [
+            "One asset increases.",
+            "Another asset decreases.",
+            "Total assets may remain unchanged.",
+          ],
+        },
+        {
+          title: "Asset purchased on credit",
+          items: [
+            "Asset increases.",
+            "Liability increases.",
+            "Asset A/c Dr.; To Creditor A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "asset-purchased-for-cash-format",
+      eyebrow: "Asset for cash",
+      title: "Asset purchased for cash",
+      paragraphs: [
+        "Transaction: Bought furniture for cash ₹20,000.",
+        "Furniture asset increases, so Furniture A/c is debited.",
+        "Cash asset decreases, so Cash A/c is credited.",
+        "Purchases A/c is not used because furniture is not bought for resale.",
+      ],
+      formatRows: [
+        { id: "asset-cash-furniture-debit", particulars: "Furniture A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "asset-cash-cash-credit", particulars: "To Cash A/c", lf: "", creditDisplay: "20,000" },
+        { id: "asset-cash-narration", particulars: "(Being furniture purchased for cash.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "asset-purchased-through-bank-format",
+      eyebrow: "Asset through bank",
+      title: "Asset purchased through bank",
+      paragraphs: [
+        "Transaction: Bought machinery through bank ₹50,000.",
+        "Machinery asset increases, so Machinery A/c is debited.",
+        "Bank asset decreases because payment is through bank, so Bank A/c is credited.",
+        "Cash A/c is not affected.",
+      ],
+      formatRows: [
+        { id: "asset-bank-machinery-debit", particulars: "Machinery A/c Dr.", lf: "", debitDisplay: "50,000" },
+        { id: "asset-bank-bank-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "50,000" },
+        { id: "asset-bank-narration", particulars: "(Being machinery purchased through bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "asset-purchased-on-credit-format",
+      eyebrow: "Asset on credit",
+      title: "Asset purchased on credit",
+      paragraphs: [
+        "Transaction: Bought office furniture on credit from Mohan ₹30,000.",
+        "Furniture asset increases, so Furniture A/c is debited.",
+        "Mohan becomes a creditor, so Mohan A/c is credited.",
+        "Purchases A/c is not used, and Cash A/c or Bank A/c is not affected yet.",
+      ],
+      formatRows: [
+        { id: "asset-credit-furniture-debit", particulars: "Furniture A/c Dr.", lf: "", debitDisplay: "30,000" },
+        { id: "asset-credit-mohan-credit", particulars: "To Mohan A/c", lf: "", creditDisplay: "30,000" },
+        { id: "asset-credit-narration", particulars: "(Being office furniture purchased on credit from Mohan.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "loan-received-format",
+      eyebrow: "Loan received",
+      title: "Loan received through bank",
+      paragraphs: [
+        "Transaction: Received a bank loan of ₹1,00,000 in the business bank account.",
+        "Bank increases because money enters the bank account, so Bank A/c is debited.",
+        "Bank Loan liability increases, so Bank Loan A/c is credited.",
+        "The receipt is not income or capital.",
+      ],
+      formatRows: [
+        { id: "loan-received-bank-debit", particulars: "Bank A/c Dr.", lf: "", debitDisplay: "1,00,000" },
+        { id: "loan-received-loan-credit", particulars: "To Bank Loan A/c", lf: "", creditDisplay: "1,00,000" },
+        { id: "loan-received-narration", particulars: "(Being bank loan received in the business bank account.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "loan-repayment-format",
+      eyebrow: "Loan repayment",
+      title: "Loan repaid through bank",
+      paragraphs: [
+        "Transaction: Repaid bank loan ₹25,000 through bank.",
+        "Bank Loan liability decreases, so Bank Loan A/c is debited.",
+        "Bank asset decreases because repayment is through bank, so Bank A/c is credited.",
+        "Loan repayment itself is not an expense. Interest, if separately given, requires separate treatment later.",
+      ],
+      formatRows: [
+        { id: "loan-repaid-loan-debit", particulars: "Bank Loan A/c Dr.", lf: "", debitDisplay: "25,000" },
+        { id: "loan-repaid-bank-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "25,000" },
+        { id: "loan-repaid-narration", particulars: "(Being part of the bank loan repaid through bank.)" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "creditor-creation-and-settlement-format",
+      eyebrow: "Creditor lifecycle",
+      title: "Creditor creation and settlement",
+      paragraphs: [
+        "Credit purchase transaction: Purchased goods on credit from Mohan ₹20,000.",
+        "Later payment transaction: Paid Mohan through bank ₹20,000.",
+        "The first transaction creates the liability. The second settles the liability.",
+        "Purchases A/c is not debited again during settlement.",
+      ],
+      formatRows: [
+        { id: "credit-purchase-label", particulars: "Transaction 1: Purchased goods on credit from Mohan ₹20,000" },
+        { id: "credit-purchase-purchases-debit", particulars: "Purchases A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "credit-purchase-mohan-credit", particulars: "To Mohan A/c", lf: "", creditDisplay: "20,000" },
+        { id: "creditor-payment-label", particulars: "Transaction 2: Paid Mohan through bank ₹20,000" },
+        { id: "creditor-payment-mohan-debit", particulars: "Mohan A/c Dr.", lf: "", debitDisplay: "20,000" },
+        { id: "creditor-payment-bank-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "20,000" },
+      ],
+    },
+    {
+      type: "accounting-format",
+      id: "outstanding-liability-format",
+      eyebrow: "Outstanding liability",
+      title: "Outstanding expense and later payment",
+      paragraphs: [
+        "Transaction: Salary ₹5,000 became due but was not paid.",
+        "Salary expense increases, so Salary A/c is debited.",
+        "Outstanding Salary liability increases, so Outstanding Salary A/c is credited.",
+        "Cash and Bank are not affected until payment happens. When later paid, debit Outstanding Salary A/c and credit Bank A/c. The expense must not be recorded twice.",
+      ],
+      formatRows: [
+        { id: "outstanding-salary-label", particulars: "Transaction 1: Salary ₹5,000 became due but was not paid" },
+        { id: "outstanding-salary-debit", particulars: "Salary A/c Dr.", lf: "", debitDisplay: "5,000" },
+        { id: "outstanding-salary-credit", particulars: "To Outstanding Salary A/c", lf: "", creditDisplay: "5,000" },
+        { id: "outstanding-salary-payment-label", particulars: "Transaction 2: Outstanding salary later paid through bank" },
+        { id: "outstanding-salary-paid-debit", particulars: "Outstanding Salary A/c Dr.", lf: "", debitDisplay: "5,000" },
+        { id: "outstanding-salary-paid-credit", particulars: "To Bank A/c", lf: "", creditDisplay: "5,000" },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "asset-versus-purchases",
+      eyebrow: "Asset versus purchases",
+      title: "Purpose decides Furniture A/c or Purchases A/c",
+      intro:
+        "Do not use Purchases A/c for every item bought. Ask whether the item is for resale or for long-term business use.",
+      groups: [
+        {
+          title: "Goods for resale",
+          items: [
+            "Entry pattern: Purchases A/c Dr.; To Cash/Bank/Supplier A/c.",
+            "Use Purchases A/c when goods are bought for resale.",
+          ],
+        },
+        {
+          title: "Asset for business use",
+          items: [
+            "Entry pattern: Furniture/Machinery A/c Dr.; To Cash/Bank/Supplier A/c.",
+            "Use the asset account when the item will be used by the business.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "asset-versus-expense",
+      eyebrow: "Asset versus expense",
+      title: "Longer benefit is different from routine expense",
+      intro:
+        "Both asset purchases and expenses may involve Bank A/c, but the debit account depends on the benefit received.",
+      groups: [
+        {
+          title: "Asset acquisition",
+          items: [
+            "Entry pattern: Machinery A/c Dr.; To Bank A/c.",
+            "An asset provides benefit over a longer period.",
+          ],
+        },
+        {
+          title: "Routine expense",
+          items: [
+            "Entry pattern: Repairs A/c Dr.; To Bank A/c.",
+            "An expense is generally consumed in operating the business.",
+            "Detailed capital-versus-revenue expenditure belongs later.",
+            "Later / design-needed.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "liability-versus-income-capital",
+      eyebrow: "Liability versus income/capital",
+      title: "A bank receipt may have different sources",
+      intro:
+        "Bank A/c may increase in all three examples. The credit side depends on the source of the receipt.",
+      groups: [
+        {
+          title: "Loan",
+          items: [
+            "Entry: Bank A/c Dr.; To Bank Loan A/c.",
+            "It is an outside liability.",
+            "It is repayable.",
+            "It is not income.",
+          ],
+        },
+        {
+          title: "Capital",
+          items: [
+            "Entry: Bank A/c Dr.; To Amit's Capital A/c.",
+            "It is the owner or partner's claim.",
+            "It is not operating income.",
+          ],
+        },
+        {
+          title: "Income",
+          items: [
+            "Entry: Bank A/c Dr.; To Commission Received A/c.",
+            "It is earned through business activity.",
+            "It affects profit.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "comparison",
+      id: "named-person-context",
+      eyebrow: "Named person context",
+      title: "A person's account depends on their role",
+      intro:
+        "Do not classify every named person the same way. Read what the person is doing in the transaction.",
+      groups: [
+        {
+          title: "Customer",
+          items: ["Customer owing money → debtor / asset."],
+        },
+        {
+          title: "Supplier",
+          items: ["Supplier owed money → creditor / liability."],
+        },
+        {
+          title: "Owner or partner",
+          items: [
+            "Owner contributing value → Capital A/c.",
+            "Partner withdrawing value → Drawings A/c.",
+          ],
+        },
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "depreciation-linked-note",
+      eyebrow: "Later / linked chapter",
+      title: "Depreciation comes later",
+      paragraphs: [
+        "Long-term assets may lose value through use, time, or obsolescence.",
+        "This loss in value is recorded through depreciation.",
+        "Detailed depreciation entries and calculations belong to the Depreciation chapter.",
+        "This section does not add depreciation checker or solver support.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "asset-disposal-note",
+      eyebrow: "Later / design-needed",
+      title: "Asset disposal needs careful treatment",
+      paragraphs: [
+        "Selling an asset is not automatically Sales A/c.",
+        "Treatment may depend on book value, accumulated depreciation, and profit or loss on disposal.",
+        "This preview intentionally avoids an oversimplified journal entry for asset disposal.",
+      ],
+    },
+    {
+      type: "concept-explanation",
+      id: "installation-incidental-costs-note",
+      eyebrow: "Later / design-needed",
+      title: "Installation and incidental costs need design",
+      paragraphs: [
+        "Costs directly required to bring an asset into working condition may sometimes form part of its cost.",
+        "Examples include freight, installation, testing, and directly attributable setup cost.",
+        "Detailed treatment is Later / design-needed, and this section does not add checking support.",
+      ],
+    },
+    {
+      type: "solved-illustration",
+      id: "assets-furniture-cash",
+      illustration: {
+        id: "assets-furniture-cash",
+        title: "Solved Illustration 1: furniture purchased for cash",
+        difficulty: "easy",
+        question: "Bought furniture for cash ₹20,000.",
+        accountsAffected: ["Furniture A/c", "Cash A/c"],
+        reasoningSteps: [
+          { label: "Classification", detail: "Furniture is an asset used by the business." },
+          { label: "Asset increases", detail: "Furniture A/c is debited." },
+          { label: "Cash decreases", detail: "Cash A/c is credited because cash is paid." },
+        ],
+        journalEntry: [
+          { id: "assets-furniture-cash-debit", account: "Furniture A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "assets-furniture-cash-credit", account: "Cash A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being furniture purchased for cash.",
+        explanation:
+          "Furniture A/c is debited because a business asset increases. Cash A/c is credited because physical cash goes out.",
+        studentTakeaway: "Asset purchase for use in business uses the asset account, not Purchases A/c.",
+        commonMistake: "Debiting Purchases A/c for furniture used in the business.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "assets-machinery-bank",
+      illustration: {
+        id: "assets-machinery-bank",
+        title: "Solved Illustration 2: machinery purchased through bank",
+        difficulty: "easy",
+        question: "Bought machinery through bank ₹50,000.",
+        accountsAffected: ["Machinery A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Classification", detail: "Machinery is a business asset." },
+          { label: "Asset increases", detail: "Machinery A/c is debited." },
+          { label: "Bank decreases", detail: "Bank A/c is credited because payment is through bank." },
+        ],
+        journalEntry: [
+          { id: "assets-machinery-bank-debit", account: "Machinery A/c", side: "debit", amount: 50000, drNotation: "Dr." },
+          { id: "assets-machinery-bank-credit", account: "Bank A/c", side: "credit", amount: 50000, displayPrefix: "To" },
+        ],
+        narration: "Being machinery purchased through bank.",
+        explanation:
+          "Machinery increases as an asset. Bank decreases because payment is made through the bank account.",
+        studentTakeaway: "Through bank means Bank A/c is credited when the business pays.",
+        commonMistake: "Crediting Cash A/c even though the transaction says through bank.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "assets-furniture-credit-mohan",
+      illustration: {
+        id: "assets-furniture-credit-mohan",
+        title: "Solved Illustration 3: furniture purchased on credit",
+        difficulty: "slightly-harder",
+        question: "Bought office furniture on credit from Mohan ₹30,000.",
+        accountsAffected: ["Furniture A/c", "Mohan A/c"],
+        reasoningSteps: [
+          { label: "Classification", detail: "Furniture is an asset and Mohan is a creditor." },
+          { label: "Asset increases", detail: "Furniture A/c is debited." },
+          { label: "Liability increases", detail: "Mohan A/c is credited because the business owes Mohan." },
+        ],
+        journalEntry: [
+          { id: "assets-furniture-mohan-debit", account: "Furniture A/c", side: "debit", amount: 30000, drNotation: "Dr." },
+          { id: "assets-furniture-mohan-credit", account: "Mohan A/c", side: "credit", amount: 30000, displayPrefix: "To" },
+        ],
+        narration: "Being office furniture purchased on credit from Mohan.",
+        explanation:
+          "Cash and Bank are not affected because payment has not happened. Mohan A/c is credited as creditor.",
+        studentTakeaway: "For credit asset purchases, use the named creditor instead of Cash or Bank.",
+        commonMistake: "Crediting Bank A/c for a credit purchase.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "liabilities-bank-loan-received",
+      illustration: {
+        id: "liabilities-bank-loan-received",
+        title: "Solved Illustration 4: bank loan received",
+        difficulty: "easy",
+        question: "Received a bank loan of ₹1,00,000 in the business bank account.",
+        accountsAffected: ["Bank A/c", "Bank Loan A/c"],
+        reasoningSteps: [
+          { label: "Classification", detail: "Bank is an asset and Bank Loan is a liability." },
+          { label: "Asset increases", detail: "Bank A/c is debited." },
+          { label: "Liability increases", detail: "Bank Loan A/c is credited." },
+        ],
+        journalEntry: [
+          { id: "liabilities-loan-bank-debit", account: "Bank A/c", side: "debit", amount: 100000, drNotation: "Dr." },
+          { id: "liabilities-loan-credit", account: "Bank Loan A/c", side: "credit", amount: 100000, displayPrefix: "To" },
+        ],
+        narration: "Being bank loan received in the business bank account.",
+        explanation:
+          "The receipt increases Bank and creates an outside liability. It is not income and not capital.",
+        studentTakeaway: "Loan receipts create liabilities; they do not increase profit.",
+        commonMistake: "Crediting Income A/c or Capital A/c for borrowed money.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "liabilities-bank-loan-repaid",
+      illustration: {
+        id: "liabilities-bank-loan-repaid",
+        title: "Solved Illustration 5: partial loan repayment",
+        difficulty: "slightly-harder",
+        question: "Repaid bank loan ₹25,000 through bank.",
+        accountsAffected: ["Bank Loan A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Classification", detail: "Bank Loan is a liability and Bank is an asset." },
+          { label: "Liability decreases", detail: "Bank Loan A/c is debited." },
+          { label: "Asset decreases", detail: "Bank A/c is credited because repayment is through bank." },
+        ],
+        journalEntry: [
+          { id: "liabilities-loan-repaid-debit", account: "Bank Loan A/c", side: "debit", amount: 25000, drNotation: "Dr." },
+          { id: "liabilities-loan-repaid-credit", account: "Bank A/c", side: "credit", amount: 25000, displayPrefix: "To" },
+        ],
+        narration: "Being part of the bank loan repaid through bank.",
+        explanation:
+          "The principal repayment reduces the liability and reduces Bank. It is not an expense by itself.",
+        studentTakeaway: "Loan principal repayment decreases a liability; interest treatment is separate.",
+        commonMistake: "Debiting Loan Repayment Expense A/c for the principal amount.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "liabilities-credit-purchase-settlement",
+      illustration: {
+        id: "liabilities-credit-purchase-settlement",
+        title: "Solved Illustration 6: credit purchase and later settlement",
+        difficulty: "slightly-harder",
+        question: "Purchased goods on credit from Mohan ₹20,000. Later paid Mohan through bank.",
+        accountsAffected: ["Purchases A/c", "Mohan A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Credit purchase", detail: "Purchases A/c Dr. and To Mohan A/c create the liability." },
+          { label: "Settlement", detail: "Mohan A/c Dr. and To Bank A/c settle the liability later." },
+          { label: "No duplicate purchase", detail: "Purchases A/c is not debited again during settlement." },
+        ],
+        journalEntry: [
+          { id: "liabilities-purchase-debit", account: "Purchases A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "liabilities-purchase-mohan-credit", account: "Mohan A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+          { id: "liabilities-payment-mohan-debit", account: "Mohan A/c", side: "debit", amount: 20000, drNotation: "Dr." },
+          { id: "liabilities-payment-bank-credit", account: "Bank A/c", side: "credit", amount: 20000, displayPrefix: "To" },
+        ],
+        narration: "Being goods purchased on credit from Mohan and later amount paid through bank.",
+        explanation:
+          "The first entry records the purchase and liability. The second entry settles Mohan without recording Purchases again.",
+        studentTakeaway: "Settlement reduces the creditor; it does not repeat the original purchase.",
+        commonMistake: "Debiting Purchases A/c again when paying Mohan.",
+      },
+    },
+    {
+      type: "solved-illustration",
+      id: "liabilities-outstanding-salary-settlement",
+      illustration: {
+        id: "liabilities-outstanding-salary-settlement",
+        title: "Solved Illustration 7: outstanding salary and later payment",
+        difficulty: "slightly-harder",
+        question: "Salary ₹5,000 became due but was not paid. Later paid the outstanding salary through bank.",
+        accountsAffected: ["Salary A/c", "Outstanding Salary A/c", "Bank A/c"],
+        reasoningSteps: [
+          { label: "Expense due", detail: "Salary A/c Dr. and To Outstanding Salary A/c record the due expense and liability." },
+          { label: "Liability settlement", detail: "Outstanding Salary A/c Dr. and To Bank A/c settle the liability later." },
+          { label: "No duplicate salary", detail: "Salary A/c is not debited again when the outstanding amount is paid." },
+        ],
+        journalEntry: [
+          { id: "liabilities-salary-debit", account: "Salary A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "liabilities-outstanding-credit", account: "Outstanding Salary A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+          { id: "liabilities-outstanding-paid-debit", account: "Outstanding Salary A/c", side: "debit", amount: 5000, drNotation: "Dr." },
+          { id: "liabilities-outstanding-paid-bank-credit", account: "Bank A/c", side: "credit", amount: 5000, displayPrefix: "To" },
+        ],
+        narration: "Being salary due and later outstanding salary paid through bank.",
+        explanation:
+          "The expense is recorded once when due. Later payment reduces Outstanding Salary and Bank without debiting Salary again.",
+        studentTakeaway: "Outstanding liability settlement should not duplicate the original expense.",
+        commonMistake: "Debiting Salary A/c again on the payment date.",
+      },
+    },
+    {
+      type: "common-mistakes",
+      id: "assets-liabilities-common-mistakes",
+      eyebrow: "Common mistakes",
+      title: "Avoid these Assets and Liabilities mistakes",
+      mistakes: [
+        "Using Purchases A/c for every asset bought.",
+        "Treating a loan as income.",
+        "Treating capital as an outside liability.",
+        "Crediting an asset when it increases.",
+        "Crediting a liability when it decreases.",
+        "Using Cash A/c or Bank A/c for a credit purchase.",
+        "Ignoring the named creditor.",
+        "Recording Purchases A/c again when paying a creditor.",
+        "Recording the expense again when settling an outstanding liability.",
+        "Treating loan repayment as an expense.",
+        "Using Sales A/c for asset disposal.",
+        "Ignoring transaction context for named persons.",
+        "Confusing asset purchases with routine expenses.",
+        "Assuming every receipt increases profit.",
+      ],
+    },
+    {
+      type: "process-steps",
+      id: "assets-liabilities-decision-process",
+      eyebrow: "Decision process",
+      title: "Assets and liabilities decision process",
+      body:
+        "Use this order before writing an asset or liability journal entry.",
+      steps: [
+        { label: "Identify resource or obligation", detail: "Read what the business gained, lost, borrowed, owed, or settled." },
+        { label: "Classify the account", detail: "Decide whether it is an asset, liability, capital, income, expense, debtor, or creditor." },
+        { label: "Decide increase or decrease", detail: "Ask whether each account increases or decreases." },
+        { label: "Identify payment or credit mode", detail: "Check whether Cash, Bank, or credit treatment applies." },
+        { label: "Debit increasing asset", detail: "Assets increase on the debit side." },
+        { label: "Credit decreasing asset", detail: "Assets decrease on the credit side." },
+        { label: "Credit increasing liability", detail: "Liabilities increase on the credit side." },
+        { label: "Debit decreasing liability", detail: "Liabilities decrease on the debit side." },
+        { label: "Use named person accounts", detail: "Use the named debtor, creditor, capital, or drawings account where applicable." },
+        { label: "Check the real transaction type", detail: "Confirm it is not actually purchases, sales, expense, income, capital, or drawings." },
+        { label: "Confirm totals", detail: "Total debit must equal total credit." },
+        { label: "Write narration", detail: "State the asset, liability, payment mode, or settlement clearly." },
+      ],
+    },
+    {
+      type: "recap",
+      id: "assets-liabilities-checklist",
+      title: "Assets and liabilities checklist",
+      points: [
+        "Asset or liability is identified correctly.",
+        "Increase or decrease is identified.",
+        "Cash, Bank, or credit treatment is correct.",
+        "The named creditor or debtor is used where required.",
+        "Asset is not confused with Purchases or Expense.",
+        "Liability is not confused with Income or Capital.",
+        "Settlement does not duplicate the original expense or purchase.",
+        "Loan repayment is not treated as an expense.",
+        "Debit and credit totals are equal.",
+        "Narration is clear.",
+      ],
+    },
+    {
+      type: "reflection-prompt",
+      id: "assets-liabilities-reflection",
+      eyebrow: "Reflection prompt",
+      prompt: "What resource did the business gain or lose, and what obligation was created or settled?",
+      body: "This is only a thinking prompt. No answer is submitted or checked in this section.",
+    },
+  ],
+};
+
 const journalEntriesSubtopics = [
   introductionJournalEntriesSubtopic,
   businessTransactionsJournalEntriesSubtopic,
@@ -5320,6 +5986,7 @@ const journalEntriesSubtopics = [
   salesJournalEntriesSubtopic,
   expensesJournalEntriesSubtopic,
   incomeJournalEntriesSubtopic,
+  assetsAndLiabilitiesJournalEntriesSubtopic,
 ];
 
 export const journalEntriesChapter: ChapterDefinition = {
@@ -5336,7 +6003,7 @@ export const journalEntriesChapter: ChapterDefinition = {
     currentPreviewSectionId: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
     progressPreview: {
       label: "Chapter progress preview",
-      value: 13,
+      value: 14,
     },
   },
   outline: [
@@ -5444,8 +6111,15 @@ export const journalEntriesChapter: ChapterDefinition = {
       shortDescription: "Income earned, cash/bank receipts, accrued income, advances, and receipt guardrails.",
       href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_INCOME_SECTION_SLUG}`,
     },
-    { id: "assets-and-liabilities", title: "Assets and Liabilities", order: 14, status: "upcoming" },
-    { id: "mixed-simple-entries", title: "Mixed Simple Entries", order: 15, status: "later" },
+    {
+      id: JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
+      title: "Assets and Liabilities",
+      order: 14,
+      status: "available",
+      shortDescription: "Asset and liability increases, decreases, creation, settlement, and deferred boundaries.",
+      href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG}`,
+    },
+    { id: "mixed-simple-entries", title: "Mixed Simple Entries", order: 15, status: "upcoming" },
     { id: "chapter-recap-and-practice", title: "Chapter Recap and Practice", order: 16, status: "later" },
   ],
   subtopics: journalEntriesSubtopics,
