@@ -492,7 +492,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Next Lesson: Theory Base of Accounting", href: "/learn/theory-base-of-accounting" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Theory Base of Accounting",
@@ -660,7 +660,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Next Lesson: Accounting Principles and Concepts", href: "/learn/accounting-principles-and-concepts" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Accounting Principles and Concepts",
@@ -888,7 +888,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Next Lesson: Recording of Transactions", href: "/learn/recording-of-transactions" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Recording of Transactions",
@@ -1085,7 +1085,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Next Lesson: Source Documents and Vouchers", href: "/learn/source-documents-and-vouchers" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Source Documents and Vouchers",
@@ -1317,7 +1317,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Next Lesson: Rules of Debit and Credit", href: "/learn/rules-of-debit-and-credit" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Rules of Debit and Credit",
@@ -1501,7 +1501,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
       { label: "Check Your Entry", href: "/tools" },
     ],
     nextLesson: {
@@ -1677,7 +1677,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Check Your Entry", href: "/tools" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Cash Book",
@@ -1907,7 +1907,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
       { label: "Next Lesson: Bank Reconciliation Statement", href: "/learn/bank-reconciliation-statement" },
     ],
     nextLesson: {
@@ -2150,7 +2150,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Open BRS Tool", href: "/bank-reconciliation" },
       { label: "Review Cash Book", href: "/learn/cash-book" },
       { label: "Next Lesson: Subsidiary Books", href: "/learn/subsidiary-books" },
-      { label: "Practice Basics", href: "/practice" },
+      { label: "Practice Basics", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Subsidiary Books",
@@ -2367,7 +2367,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       "Credit sale of old computer Rs.15,000. Expected: Journal Proper, because it is sale of asset, not goods.",
     ],
     toolLinks: [
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
       { label: "Next Lesson: GST Journal Entries", href: "/learn/gst-journal-entries" },
       { label: "Open Ledger Tool", href: "/ledger" },
     ],
@@ -2641,7 +2641,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Try Explainer", href: "/journal-entry-solver" },
-      { label: "Practice GST", href: "/practice" },
+      { label: "Practice GST", href: "/practice/journal-entries" },
       { label: "Next Lesson: Ledger Posting Basics", href: "/learn/ledger-posting-basics" },
     ],
     nextLesson: {
@@ -3323,7 +3323,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Trial Balance Basics", href: "/learn/trial-balance-basics" },
       { label: "Practice Trial Balance", href: "/practice/trial-balance" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Bills of Exchange",
@@ -3611,7 +3611,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       "Who is the drawee? Expected: Person who accepts and pays the bill.",
     ],
     toolLinks: [
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
       { label: "Try Explainer", href: "/journal-entry-solver" },
       { label: "Next Lesson: Depreciation, Provisions and Reserves", href: "/learn/depreciation-provisions-and-reserves" },
     ],
@@ -5389,7 +5389,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
       { label: "Open Final Accounts Tool", href: "/final-accounts" },
     ],
     nextLesson: {
@@ -5735,7 +5735,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
     ],
     nextLesson: {
@@ -6028,7 +6028,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
       { label: "Review P&L Appropriation", href: "/learn/profit-and-loss-appropriation-account" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Admission of a Partner",
@@ -6348,7 +6348,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
       { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
       { label: "Review P&L Appropriation", href: "/learn/profit-and-loss-appropriation-account" },
       { label: "Review Capital Accounts", href: "/learn/fixed-and-fluctuating-capital-accounts" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Retirement or Death of a Partner",
@@ -6668,7 +6668,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
       { label: "Review Admission of a Partner", href: "/learn/admission-of-a-partner" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Dissolution of Partnership Firm",
@@ -6988,7 +6988,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Partnership Basics", href: "/learn/partnership-accounts-basic-concepts" },
       { label: "Review Retirement or Death", href: "/learn/retirement-or-death-of-a-partner" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Accounting for Share Capital",
@@ -7316,7 +7316,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Review Journal Entry Basics", href: "/learn/journal-entry-basics" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
     ],
     nextLesson: {
@@ -7553,7 +7553,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
       { label: "Open Tools", href: "/tools" },
     ],
     nextLesson: {
@@ -7870,7 +7870,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
       { label: "Review Calls in Arrears", href: "/learn/calls-in-arrears-and-calls-in-advance" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Issue and Redemption of Debentures",
@@ -8224,7 +8224,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     ],
     toolLinks: [
       { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
     ],
     nextLesson: {
@@ -8585,7 +8585,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
       { label: "Review Share Capital", href: "/learn/accounting-for-share-capital" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Analysis of Financial Statements",
@@ -8966,7 +8966,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Financial Statements", href: "/learn/financial-statements-of-a-company" },
       { label: "Review Final Accounts Basics", href: "/learn/final-accounts-basics" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Comparative Statements",
@@ -9395,7 +9395,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Analysis of Financial Statements", href: "/learn/analysis-of-financial-statements" },
       { label: "Review Financial Statements of a Company", href: "/learn/financial-statements-of-a-company" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Common Size Statements",
@@ -9806,7 +9806,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Comparative Statements", href: "/learn/comparative-statements" },
       { label: "Review Analysis", href: "/learn/analysis-of-financial-statements" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Accounting Ratios",
@@ -10241,7 +10241,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Common Size Statements", href: "/learn/common-size-statements" },
       { label: "Review Analysis", href: "/learn/analysis-of-financial-statements" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Continue to Cash Flow Statement",
@@ -10634,7 +10634,7 @@ export const lessons: Record<LessonSlug, LessonContent> = {
     toolLinks: [
       { label: "Review Accounting Ratios", href: "/learn/accounting-ratios" },
       { label: "Review Financial Statements", href: "/learn/financial-statements-of-a-company" },
-      { label: "Practice Journal Entries", href: "/practice" },
+      { label: "Practice Journal Entries", href: "/practice/journal-entries" },
     ],
     nextLesson: {
       label: "Review Analysis",

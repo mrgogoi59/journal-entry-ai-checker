@@ -2,9 +2,9 @@
 
 ## Immediate recommended next step
 
-Phase 4G of the controlled production Solver hub foundation is completed.
+Phase 4H of the production Practice hub and controlled beginner-practice migration is completed.
 
-What this completed Solver hub slice achieved:
+What this completed Practice hub slice achieved:
 
 - it keeps the Phase 4A production student-platform shell and live `/chapters` index route
 - it keeps the Phase 4B production Journal Entries chapter route and all 15 section routes under `/chapters/journal-entries/<section-slug>`
@@ -12,22 +12,23 @@ What this completed Solver hub slice achieved:
 - the live production questions remain exactly `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
 - it keeps the Phase 4E homepage and primary-navigation integration
 - it keeps the Phase 4F Dashboard static/empty-state foundation at `/dashboard`
-- `/solver` now renders as a real production student-platform shell route
-- Solver is now an available shared navigation destination and is active on `/solver`
-- a typed Solver catalogue at `lib/learning-platform/solver-catalog.ts` organises exactly five primary tools: AI Journal Entry Explainer, Ledger Posting, Trial Balance, Final Accounts, and Bank Reconciliation Statement
-- Solver availability is honest: only tools with real student-facing routes have action links
-- homepage Solver navigation, the hero `Open Solver` action, the overview Solver action, the footer Solver link, and the Dashboard Solver shortcut now point to `/solver`
+- it keeps the Phase 4G Solver hub foundation at `/solver`
+- `/practice` now renders as a chapter-wise production Practice hub inside the existing student-platform shell
+- a typed Practice catalogue at `lib/learning-platform/practice-catalog.ts` organises twelve chapter-practice cards with honest availability
+- Journal Entries is the only available chapter-practice card and links to `/practice/journal-entries`
+- the existing beginner topic-wise Journal Entry Practice experience now lives at `/practice/journal-entries`
+- `/practice/advanced` remains unchanged and is linked separately as Advanced Practice Beta
 - `/tools` remains available and unchanged as the legacy tools/checker hub
 - AI Assistant remains `Coming soon`, non-clickable, and has no `/assistant` route
-- no login, database, saved progress, localStorage/sessionStorage, recent-activity persistence, API route, custom analytics event, or AI Assistant behavior was added
+- OCR/notebook/photo checking remains unavailable; no image upload, camera access, OCR, login, database, saved progress, localStorage/sessionStorage, recent-activity persistence, API route, custom analytics event, or AI Assistant behavior was added
 - production and preview still use separate server actions, and expected answers remain selected on the server from the existing server-only answer-key module
 - `/platform-preview` remains preserved and `noindex, nofollow`, and production routes do not link to preview routes
 - it keeps `/learn`, `/tools`, `/practice`, `/practice/advanced`, `/how-to-use`, and `/supported-transactions` available
-- it keeps beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside `lib/learning-platform`, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
+- it keeps beginner practice/checker behavior, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside route migration, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
 
-Founder desktop/mobile Solver hub review is recommended next, especially active navigation, mobile drawer behavior, Solver card clarity, link destinations, keyboard focus, and phone-width no-overflow behavior.
+Founder desktop/mobile Practice-hub review is recommended next, especially active navigation, mobile drawer behavior, chapter-card clarity, Journal Entries route access, Advanced Practice Beta labelling, keyboard focus, and phone-width no-overflow behavior.
 
-The exact recommended next phase is Phase 4H: production Practice hub migration. Phase 4H should organise existing practice destinations under the production student-platform shell while keeping beginner `/practice`, `/practice/advanced`, checker behavior, parser/classifier/validator logic, accounting engines, API routes, analytics setup, and existing practice calculations unchanged. Do not add login, database, saved progress, history sync, OCR, or AI Assistant behavior in Phase 4H.
+The exact recommended next phase is Phase 4I: Practice migration safety audit and route/backward-compatibility QA. Phase 4I should verify `/practice`, `/practice/journal-entries`, `/practice/advanced`, old contextual practice links, mobile navigation hiding, and full checker behavior without adding more chapter practice, OCR, login, database, progress persistence, AI Assistant behavior, or new accounting logic.
 
 Recommended Phase 4 sequence:
 
@@ -39,8 +40,9 @@ Recommended Phase 4 sequence:
 6. Phase 4E controlled homepage and primary-navigation integration
 7. Phase 4F Dashboard static/empty-state foundation
 8. Phase 4G controlled Solver hub migration
-9. Phase 4H production Practice hub migration while keeping beginner `/practice` stable
-10. AI Assistant later, only after grounded tutor design is approved
+9. Phase 4H production Practice hub migration while preserving beginner practice behavior at `/practice/journal-entries`
+10. Phase 4I Practice migration safety audit and backward-compatibility QA
+11. AI Assistant later, only after grounded tutor design is approved
 
 ## Immediate recommended next step
 

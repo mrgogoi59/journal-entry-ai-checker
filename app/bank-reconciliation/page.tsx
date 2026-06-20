@@ -542,7 +542,7 @@ function LearningLinksCard() {
       <h2 className="mt-2 text-2xl font-bold text-blue-950">Continue learning</h2>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <LearningLink href="/learn/bank-reconciliation-statement" label="Learn BRS" />
-        <LearningLink href="/practice" label="Practice Journal Entries" />
+        <LearningLink href="/practice/journal-entries" label="Practice Journal Entries" />
         <LearningLink href="/tools" label="Open Tools" />
       </div>
     </section>

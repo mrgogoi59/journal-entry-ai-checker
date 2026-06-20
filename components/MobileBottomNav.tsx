@@ -38,6 +38,9 @@ export function MobileBottomNav() {
     pathname.startsWith("/platform-preview") ||
     pathname === "/dashboard" ||
     pathname === "/solver" ||
+    pathname === "/practice" ||
+    pathname === "/practice/journal-entries" ||
+    pathname.startsWith("/practice/journal-entries/") ||
     pathname === "/chapters" ||
     pathname.startsWith("/chapters/")
   ) {

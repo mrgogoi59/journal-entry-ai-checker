@@ -368,6 +368,15 @@ Target platform planning note:
   - homepage Solver entry points and the Dashboard Solver shortcut now point to `/solver`
   - the global mobile bottom navigation is hidden on `/solver` in addition to Dashboard and Chapters shell routes to avoid duplicate mobile navigation
   - Phase 4G did not change live tool logic, beginner `/practice`, `/practice/advanced`, Journal Entry Explainer, the two production Journal Entries checkers, parser/classifier/validator/checker logic, accounting engines, Ledger/Trial Balance/Final Accounts logic, Vercel Analytics setup, API routes, database/auth/payment/backend, OCR, AI behavior, or accounting calculations
+- Phase 4H now completes the production Practice hub and controlled beginner-practice migration:
+  - `/practice` now renders as a chapter-wise production Practice hub inside the existing `StudentAppShell`
+  - a typed Practice catalogue now exists at `lib/learning-platform/practice-catalog.ts` with twelve chapter-practice cards
+  - Journal Entries is the only available chapter-practice card and links to `/practice/journal-entries`
+  - the existing beginner topic-wise Journal Entry Practice experience was extracted to `app/practice/_components/JournalEntryPracticeExperience.tsx`
+  - `/practice/journal-entries` now renders that preserved beginner practice experience inside the production `StudentAppShell`
+  - existing beginner practice question generation, answer checking, feedback, supported topics, attempt-history saving, next/reset behavior, APIs, and accounting logic were not changed
+  - `/practice/advanced` remains unchanged as a controlled Advanced Practice Beta and is linked from a separate beta card on the Practice hub
+  - OCR, image upload, camera access, notebook/photo answer checking, new questions, new answer keys, login, database, progress persistence, API routes, and AI Assistant behavior were not added
 
 ## Current student-facing routes
 
@@ -380,6 +389,7 @@ Main routes currently present in `app/`:
 - `/chapters/journal-entries/<section-slug>`
 - `/learn`
 - `/practice`
+- `/practice/journal-entries`
 - `/practice/advanced`
 - `/practice/ledger`
 - `/practice/trial-balance`
@@ -400,6 +410,7 @@ Notes:
 
 - `/dashboard` is a production student-platform foundation with real shortcuts and honest empty states only; it does not store personal progress or recent activity yet.
 - `/solver` is the production Solver hub and organises existing tool routes without changing the tools or their accounting logic.
+- `/practice` is the production Practice hub and `/practice/journal-entries` preserves the existing beginner topic-wise Journal Entry Practice experience.
 - `/tools` remains available as the legacy tools/checker hub.
 - Lesson routes live under `/learn/<lesson-slug>`.
 - API routes currently present are:
@@ -448,7 +459,8 @@ Student-facing runtime tools/pages:
 
 - Journal Entry Checker on `/tools`
 - Journal Entry Explainer on `/journal-entry-solver`
-- Beginner topic-wise Journal Entry Practice on `/practice`
+- Beginner topic-wise Journal Entry Practice on `/practice/journal-entries`
+- Production Practice hub on `/practice`
 - Ledger tool on `/ledger`
 - Ledger Practice on `/practice/ledger`
 - Trial Balance tool on `/trial-balance`

@@ -328,7 +328,7 @@ function SolvedResultActions({ result }: { result: JournalEntrySolverResponse })
       <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Next actions</p>
       <h2 className="mt-1 text-xl font-bold text-blue-950">Use this explanation</h2>
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
-        <ActionLink href="/practice" variant="primary">
+        <ActionLink href="/practice/journal-entries" variant="primary">
           Practice Similar
         </ActionLink>
         <ActionLink href="/tools" variant="secondary">

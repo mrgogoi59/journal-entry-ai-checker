@@ -106,7 +106,7 @@ export default function ProgressPage() {
               <ActionCard
                 title="Start Practice"
                 description="Choose a topic and practice the next journal entry step by step."
-                href="/practice"
+                href="/practice/journal-entries"
                 label="Start Practice"
               />
             </section>
@@ -141,7 +141,7 @@ function WeakAreaCard({ area }: { area: WeakAreaSummary["weakAreas"][number] }) 
         <p className="mt-4 text-sm leading-6 text-slate-600">{area.recommendation}</p>
       </div>
       <Link
-        href="/practice"
+        href="/practice/journal-entries"
         className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
       >
         Practice {area.label}
@@ -170,7 +170,7 @@ function RecommendedPractice({ weakAreas }: { weakAreas: WeakAreaSummary["weakAr
             Great start. Keep practicing mixed questions to strengthen speed and accuracy.
           </p>
           <Link
-            href="/practice"
+            href="/practice/journal-entries"
             className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
           >
             Practice Mixed Questions
@@ -215,7 +215,7 @@ function PositiveState() {
         Great start. Keep practicing mixed questions to strengthen speed and accuracy.
       </p>
       <Link
-        href="/practice"
+        href="/practice/journal-entries"
         className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
       >
         Practice Mixed Questions
@@ -257,7 +257,7 @@ function EmptyState() {
         Complete a few Checker or Practice attempts to see your weak areas.
       </p>
       <Link
-        href="/practice"
+        href="/practice/journal-entries"
         className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
       >
         Start Practice

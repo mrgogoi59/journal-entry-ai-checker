@@ -160,7 +160,7 @@ describe("attempt history helpers", () => {
         title: "Start with Basics",
         description: "Begin with simple capital, cash, purchases, and sales entries.",
         ctaLabel: "Start Practice",
-        href: "/practice",
+        href: "/practice/journal-entries",
       },
     });
   });

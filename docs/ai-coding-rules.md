@@ -18,7 +18,8 @@ Unless explicitly requested otherwise:
 - Preserve the separation between:
   - beginner runtime flows in `app/` and `lib/`
   - advanced accounting-core work in `lib/accounting-core/`
-- Treat `/practice` as beginner topic-wise journal practice.
+- Treat `/practice` as the production Practice hub.
+- Treat `/practice/journal-entries` as the preserved beginner topic-wise journal practice surface.
 - Treat `/practice/advanced` as the separate beta surface for advanced company/partnership journal work.
 - Do not add database, auth, payments, or external AI unless explicitly requested.
 

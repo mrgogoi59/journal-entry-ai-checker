@@ -251,7 +251,7 @@ function EmptyState() {
       <h2 className="text-xl font-bold text-blue-950">No attempts yet.</h2>
       <p className="mt-2 text-sm leading-6 text-slate-600">Start practicing to build your history.</p>
       <Link
-        href="/practice"
+        href="/practice/journal-entries"
         className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-800"
       >
         Start Practice

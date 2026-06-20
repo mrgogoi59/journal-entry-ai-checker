@@ -29,7 +29,7 @@ const toolSections = [
       {
         title: "Topic-wise Practice",
         description: "Choose a topic and practice journal entries step by step.",
-        href: "/practice",
+        href: "/practice/journal-entries",
         label: "Start Practice",
       },
     ],
@@ -238,7 +238,7 @@ export default function ToolsPage() {
                 </p>
               </div>
               <Link
-                href="/practice"
+                href="/practice/journal-entries"
                 className="inline-flex min-h-10 items-center justify-center rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-bold text-blue-900 transition hover:bg-blue-50"
               >
                 Open Practice
@@ -439,7 +439,7 @@ function ResultCard({
 
         {isCorrect ? (
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <ActionLink href="/practice" variant="primary">
+            <ActionLink href="/practice/journal-entries" variant="primary">
               Practice Similar
             </ActionLink>
             <ActionLink href="/journal-entry-solver" variant="secondary">

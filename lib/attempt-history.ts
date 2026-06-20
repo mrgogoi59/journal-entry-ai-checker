@@ -90,7 +90,7 @@ const emptyDashboardSummary: DashboardSummary = {
     title: "Start with Basics",
     description: "Begin with simple capital, cash, purchases, and sales entries.",
     ctaLabel: "Start Practice",
-    href: "/practice",
+    href: "/practice/journal-entries",
   },
 };
 
@@ -294,7 +294,7 @@ function getDashboardRecommendation(summary: WeakAreaSummary): DashboardRecommen
       title: `Practice ${firstWeakArea.label}`,
       description: `You made mistakes or low scores in ${firstWeakArea.label}. Practice this topic next.`,
       ctaLabel: "Start Practice",
-      href: "/practice",
+      href: "/practice/journal-entries",
     };
   }
 
@@ -302,7 +302,7 @@ function getDashboardRecommendation(summary: WeakAreaSummary): DashboardRecommen
     title: "Practice Mixed Questions",
     description: "Keep practicing mixed questions to strengthen speed and accuracy.",
     ctaLabel: "Practice Mixed Questions",
-    href: "/practice",
+    href: "/practice/journal-entries",
   };
 }
 
