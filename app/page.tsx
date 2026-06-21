@@ -14,6 +14,9 @@ const heroActions = [
   { label: "Practice", href: "/practice" },
 ] as const;
 
+const heroActionClass =
+  "inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-black text-blue-950 shadow-sm outline-none transition duration-150 hover:-translate-y-0.5 hover:border-blue-950 hover:bg-blue-950 hover:text-white hover:shadow-soft focus-visible:-translate-y-0.5 focus-visible:border-blue-950 focus-visible:bg-blue-950 focus-visible:text-white focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 active:translate-y-0 active:scale-95 active:bg-blue-900 active:text-white";
+
 export default function Home() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-white text-ink">
@@ -28,16 +31,8 @@ export default function Home() {
               Start with chapters, practise with checks, use Solver when stuck.
             </p>
             <div className="mt-8 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
-              {heroActions.map((link, index) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={
-                    index === 0
-                      ? "inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-950 px-5 py-3 text-base font-black text-white shadow-soft outline-none transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-                      : "inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-black text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-                  }
-                >
+              {heroActions.map((link) => (
+                <Link key={link.href} href={link.href} className={heroActionClass}>
                   {link.label}
                 </Link>
               ))}
