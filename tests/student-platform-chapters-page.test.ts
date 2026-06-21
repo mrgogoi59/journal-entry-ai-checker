@@ -127,14 +127,14 @@ function createPracticeAttempt({
 }
 
 describe("Production Chapters route", () => {
-  it("renders the production Dashboard route with honest empty states and real shell navigation", () => {
+  it("renders the production Dashboard route with minimal honest links and availability copy", () => {
     const html = renderToStaticMarkup(createElement(DashboardPage));
     const hrefs = getHrefValues(html);
 
     expect(dashboardMetadata).toMatchObject({
       title: "Dashboard | AccyWise AI",
+      description: "Start Journal Entries and open quick links.",
     });
-    expect(dashboardMetadata.description).toContain("student learning overview");
     expect(html).toContain('id="student-platform-content"');
     expect(getLinkMarkup(html, "/dashboard")).toContain('aria-current="page"');
     expect(hrefs).toContain("/dashboard");
@@ -144,25 +144,41 @@ describe("Production Chapters route", () => {
     expect(hrefs).not.toContain("/assistant");
     expect(html).toContain("AI Assistant");
     expect(html).toContain("Coming soon");
+    expect(html).toContain("<h1");
     expect(html).toContain("Dashboard");
-    expect(html).toContain("Start Learning");
-    expect(html).toContain("Journal Entries");
-    expect(html).toContain("16 learning sections");
-    expect(html).toContain("2 interactive Practice It Yourself questions");
-    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Open Journal Entries")).toContain(
-      "Open Journal Entries",
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
+      "Start Journal Entries",
     );
+    expect(html).toContain("Quick Links");
+    ["Chapters", "Solver", "Practice", "Journal Entries"].forEach((label) => {
+      expect(html).toContain(label);
+    });
     expect(html).toContain("Available Now");
-    expect(html).toContain("1 production chapter available");
-    expect(html).toContain("2 deterministic chapter questions available");
-    expect(html).toContain("Recent Activity");
-    expect(html).toContain("Your recent learning activity will appear here after progress tracking is introduced.");
-    expect(html).toContain("Learning Progress");
-    expect(html).toContain("Chapter completion tracking is not enabled yet.");
-    expect(html).toContain("Recommended Next Step");
-    expect(html).toContain("Begin with Journal Entries to build the foundation for Ledger, Trial Balance, and Final Accounts.");
-    expect(html).toContain("Upcoming Dashboard capabilities");
-    expect(html).toContain("Saved progress: Planned");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("1 chapter");
+    expect(html).toContain("Practice Questions");
+    expect(html).toContain("2 questions");
+    expect(html).toContain("Solver Tools");
+    expect(html).toContain("5 tools");
+    expect(html).toContain("Coming Soon");
+    expect(html).toContain("Progress tracking");
+    expect(html).toContain("Recent activity");
+    expect(html).toContain("Weak-topic insights");
+    expect(html).toContain("Revision recommendations");
+    expect(html).toContain("Cross-device access");
+    expect(html).not.toContain("Personal progress later");
+    expect(html).not.toContain("Start Learning");
+    expect(html).not.toContain("16 learning sections");
+    expect(html).not.toContain("2 interactive Practice It Yourself questions");
+    expect(html).not.toContain("Platform availability");
+    expect(html).not.toContain("General recommendation");
+    expect(html).not.toContain("Recommended Next Step");
+    expect(html).not.toContain("Begin with Journal Entries to build the foundation");
+    expect(html).not.toContain("Your recent learning activity will appear here");
+    expect(html).not.toContain("Learning Progress");
+    expect(html).not.toContain("Chapter completion tracking is not enabled yet.");
+    expect(html).not.toContain("Upcoming Dashboard capabilities");
+    expect(html).not.toContain("Saved progress");
     expect(html).not.toContain("Welcome back");
     expect(html).not.toContain("study streak");
     expect(html).not.toContain("questions attempted");
@@ -179,7 +195,10 @@ describe("Production Chapters route", () => {
     ["/dashboard", "/chapters", "/solver", "/practice", "/chapters/journal-entries"].forEach((href) => {
       expect(hrefs).toContain(href);
     });
-    expect(getLinkMarkupWithText(html, "/solver", "Open Solver")).toContain("Open Solver");
+    expect(getLinkMarkupWithText(html, "/chapters", "Chapters")).toContain("Chapters");
+    expect(getLinkMarkupWithText(html, "/solver", "Solver")).toContain("Solver");
+    expect(getLinkMarkupWithText(html, "/practice", "Practice")).toContain("Practice");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Journal Entries")).toContain("Journal Entries");
     expect(hrefs).not.toContain("/assistant");
     expect(hrefs).not.toContain("/platform-preview");
     expect(source).not.toContain("localStorage");
