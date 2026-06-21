@@ -52,16 +52,17 @@ type ProductionOutlineItem = {
 
 export function productionText(text: string) {
   return text
-    .replace(/Preview\/static only/gi, "Read-only production route")
-    .replace(/Preview\/static/gi, "Read-only")
-    .replace(/preview\/static only/gi, "read-only production route")
-    .replace(/preview\/static/gi, "read-only")
-    .replace(/preview-only/gi, "read-only")
-    .replace(/internal preview/gi, "production chapter")
-    .replace(/static preview/gi, "read-only chapter")
+    .replace(/Preview\/static only/gi, "Learning only")
+    .replace(/Preview\/static/gi, "Learning")
+    .replace(/preview\/static only/gi, "learning only")
+    .replace(/preview\/static/gi, "learning")
+    .replace(/preview-only/gi, "learning-only")
+    .replace(/internal preview/gi, "chapter")
+    .replace(/static preview/gi, "learning chapter")
     .replace(/preview chapter/gi, "chapter")
-    .replace(/prototype scope/gi, "migration scope")
+    .replace(/prototype scope/gi, "chapter scope")
     .replace(/prototype/gi, "chapter")
+    .replace(/foundation chapter/gi, "chapter")
     .replace(/Chapter progress preview/gi, "Chapter progress")
     .replace(/\bPreview\b/g, "Chapter")
     .replace(/\bpreview\b/g, "chapter");
@@ -100,7 +101,7 @@ export function ChapterOutline({
           <SectionHeading
             eyebrow="Outline"
             title={chapter.metadata.title}
-            body="All sixteen Journal Entries sections are available in this production chapter."
+            body="Choose a section and continue in order."
           />
           <OrderedOutline outlineItems={outlineItems} activeSectionId={activeSectionId} className="mt-5" />
         </div>
@@ -124,7 +125,7 @@ function OrderedOutline({
         const isActive = item.id === activeSectionId;
         const practiceQuestionCount = item.practiceQuestionCount ?? 0;
         const practiceCheckLabel = practiceQuestionCount === 1 ? "practice check" : "practice checks";
-        const sectionModeLabel = practiceQuestionCount > 0 ? `${practiceQuestionCount} ${practiceCheckLabel}` : "Read-only";
+        const sectionModeLabel = practiceQuestionCount > 0 ? `${practiceQuestionCount} ${practiceCheckLabel}` : null;
 
         return (
           <li key={item.id}>
@@ -146,21 +147,12 @@ function OrderedOutline({
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block">{item.title}</span>
-                <span
-                  className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${
-                    practiceQuestionCount > 0
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                      : "border-slate-200 bg-slate-50 text-slate-600"
-                  }`}
-                >
-                  {sectionModeLabel}
-                </span>
+                {sectionModeLabel ? (
+                  <span className="mt-1 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-emerald-800">
+                    {sectionModeLabel}
+                  </span>
+                ) : null}
               </span>
-              {!isActive ? (
-                <span className="shrink-0 rounded-full border border-cyan-200 bg-cyan-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-cyan-800">
-                  Available
-                </span>
-              ) : null}
             </Link>
           </li>
         );
@@ -646,7 +638,7 @@ export function PracticeItYourselfProduction({
       <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
         {productionText(question.learningObjective)}
       </div>
-      <PracticeAttemptGuide guidance={guidance} practiceCount={practiceCount} />
+      <PracticeAttemptGuide guidance={guidance} />
       <JournalEntryPracticeEditor
         question={question}
         checkAnswerAction={checkAnswerAction}
@@ -703,15 +695,13 @@ function getProductionPracticeGuidance(questionId: string): ProductionPracticeGu
 
 function PracticeAttemptGuide({
   guidance,
-  practiceCount,
 }: {
   guidance: ProductionPracticeGuidance;
-  practiceCount: number;
 }) {
   return (
     <div className="mt-5 grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
       <article className="min-w-0 rounded-2xl border border-cyan-200 bg-white p-4">
-        <h3 className="text-base font-black text-slate-950">How to attempt this checker</h3>
+        <h3 className="text-base font-black text-slate-950">How to try this question</h3>
         <ul className="mt-3 space-y-2 text-sm font-semibold leading-6 text-slate-700">
           <li>{guidance.transactionFocus}</li>
           <li>{guidance.likelyAccounts}</li>
@@ -727,9 +717,7 @@ function PracticeAttemptGuide({
           <li>Use the feedback to learn the logic, not just to guess.</li>
         </ol>
         <p className="mt-3 rounded-xl bg-cyan-50 p-3 text-sm font-semibold leading-6 text-cyan-900">
-          {practiceCount === 1
-            ? "Only this in-chapter check is live in this section right now."
-            : `Only these ${practiceCount} in-chapter checks are live in this section right now.`}
+          Write the full entry first, then check your answer.
         </p>
       </article>
     </div>
@@ -749,13 +737,13 @@ function PracticeNextStepCard() {
           href="/journal-entry-solver"
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-200 px-4 text-sm font-black text-cyan-900 transition hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
         >
-          Use Explainer if stuck
+          Use Explainer
         </Link>
         <Link
           href="/practice/journal-entries"
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
         >
-          Revise later in Practice
+          Practice
         </Link>
       </div>
     </div>
@@ -763,11 +751,13 @@ function PracticeNextStepCard() {
 }
 
 export function CommonMistakes({ section }: { section: CommonMistakesSection }) {
+  const visibleMistakes = section.mistakes.slice(0, 4);
+
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <SectionHeading eyebrow={section.eyebrow} title={section.title} />
       <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-        {section.mistakes.map((mistake) => (
+        {visibleMistakes.map((mistake) => (
           <li key={mistake} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-700">
             {productionText(mistake)}
           </li>
@@ -829,18 +819,14 @@ export function ChapterCompletionBannerBlock({ section }: { section: ChapterComp
     <section className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Read-only chapter progress</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Chapter recap</p>
           <h2 className="mt-2 text-2xl font-black tracking-tight text-cyan-950 sm:text-3xl">
-            Journal Entries foundation chapter
+            Journal Entries recap
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-cyan-900">
-            You have reached the final recap page for this production chapter. The three approved interactive questions
-            are available across Section 1 and the Purchases section.
+            Review the main rules, then practise the checked questions when you are ready.
           </p>
         </div>
-        <span className="inline-flex self-start rounded-full border border-cyan-300 bg-white px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
-          Controlled route
-        </span>
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         {productionStats.map((stat) => (
@@ -850,9 +836,6 @@ export function ChapterCompletionBannerBlock({ section }: { section: ChapterComp
           </article>
         ))}
       </div>
-      <p className="mt-4 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
-        Completion is not stored, no localStorage is written, and no analytics event is sent from this recap.
-      </p>
     </section>
   );
 }
@@ -885,7 +868,7 @@ export function InteractivePracticeLinksBlock({ section }: { section: Interactiv
       <SectionHeading
         eyebrow={section.eyebrow}
         title="Interactive Practice Available"
-        body="These are the only three interactive Practice It Yourself questions currently live in this production chapter."
+        body="Try these checked questions when you want full-answer feedback."
       />
       <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
         <ol className="list-decimal space-y-2 pl-5">
@@ -907,10 +890,14 @@ export function InteractivePracticeLinksBlock({ section }: { section: Interactiv
 export function ScopeRoadmapBlock({ section }: { section: ScopeRoadmapSection }) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <SectionHeading eyebrow={section.eyebrow} title={section.title} body={section.body} />
+      <SectionHeading
+        eyebrow="Keep separate for now"
+        title="What belongs later"
+        body="Some Journal Entries topics need separate lessons before they become checked practice."
+      />
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <article className="min-w-0 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
-          <h3 className="text-base font-black text-cyan-950">{productionText(section.currentScope.title)}</h3>
+          <h3 className="text-base font-black text-cyan-950">Practise now</h3>
           <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-cyan-900">
             {section.currentScope.items.map((item) => (
               <li key={item} className="rounded-xl border border-cyan-200 bg-white p-3">
@@ -920,7 +907,7 @@ export function ScopeRoadmapBlock({ section }: { section: ScopeRoadmapSection })
           </ul>
         </article>
         <article className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-black uppercase tracking-wide text-slate-500">{productionText(section.futureScope.label)}</p>
+          <p className="text-xs font-black uppercase tracking-wide text-slate-500">Study later</p>
           <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-slate-700">
             {section.futureScope.items.map((item) => (
               <li key={item} className="rounded-xl border border-slate-200 bg-white p-3">

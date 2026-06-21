@@ -2,25 +2,42 @@
 
 ## Immediate recommended next step
 
-Phase 6G final Journal Entries three-checker QA audit is completed.
+Phase 6I final simplified Journal Entries QA audit is completed.
 
-What this audit slice confirmed:
+What this audit confirmed:
 
-- `docs/journal-entries-three-checker-qa.md` now records the completed final QA verdict
+- `docs/journal-entries-simplified-ui-qa.md` records the final simplified UI QA verdict
+- the simplified `/chapters/journal-entries` overview is short, student-friendly, and honest about `16 sections` and `3 checked practice questions`
+- all 16 `/chapters/journal-entries/[sectionSlug]` pages render with simplified `Study guide` cards, short section intros, rule/example/common-mistake guidance, and compact next-step actions
+- old pilot/status-heavy wording is no longer rendered in the live Journal Entries chapter flow
+- the in-chapter checker boundary remains exactly three questions: `Sold goods for cash Rs 12,000`, `Paid salary by bank Rs 8,000`, and `Bought goods for cash Rs 10,000`
+- `/practice/journal-entries` remains the independent beginner revision/practice route, and `/journal-entry-solver` remains optional one-transaction support
+- no must-fix items were found
+- no runtime/app/test code changed during Phase 6I
+- no fourth checker, Practice It Yourself question, expected-answer change, accepted-case change, parser/classifier/validator/checker change, Journal Entry Explainer behavior, Solver calculation logic, accounting engine, API route, persistence, OCR, payment, AI Assistant behavior, route migration, backend feature, or accounting calculation was added
+- verification passed: focused Journal Entries/Practice tests (`71` tests), full test suite (`2266` tests), `npm run typecheck`, `npm run lint`, `git diff --check`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+
+Recommended next action:
+
+- commit and push the Phase 6A-6I work
+- conduct teacher/student review using the current simplified Journal Entries chapter
+- do not add a fourth checker, accepted cases, parser/checker generalization, accounting-engine changes, API routes, login/progress/database, OCR, payments, AI Assistant behavior, or broad chapter expansion before that review
+
+Recent Phase 6H context retained:
+
+- `/chapters/journal-entries` now has a compact overview: `Journal Entries`, one short sentence, `16 sections`, `3 checked practice questions`, and links to `Start Chapter`, `Use Explainer`, and `Practice`
+- `/chapters/journal-entries/[sectionSlug]` now starts each section with a short section intro instead of the old progress/status card
+- all 16 section guide cards now use simpler student-facing labels: `Study guide`, `What you'll learn`, `Common mistake`, `Rule`, and `Example tip`
+- bottom section actions are now compact and consistent: `Next Section`, `Use Explainer`, and `Practice`; the last section uses `Review Chapter`
+- the three in-chapter checker cards now use shorter attempt copy and no longer display internal live-checker availability warnings
+
+Recent Phase 6G context retained:
+
+- `docs/journal-entries-three-checker-qa.md` records the completed final QA verdict
 - Journal Entries is ready for teacher/student review with exactly three deterministic in-chapter Practice It Yourself checkers
 - the live checker boundary is exactly: `Sold goods for cash Rs 12,000`, `Paid salary by bank Rs 8,000`, and `Bought goods for cash Rs 10,000`
 - the Purchases checker remains narrow: `Purchases A/c Dr. / To Cash A/c`, amount Rs 10,000, narration `Being goods purchased for cash.`
 - focused coverage already confirms reversal, `Goods A/c`, `Assets A/c`, `Bank A/c`, wrong amount, supplier/credit-style answers, server-controlled answer reveal, route rendering, and the exact three-checker boundary
-- the original two checkers remain unchanged, all 16 Journal Entries sections still have guide cards, `/practice/journal-entries` and `/journal-entry-solver` remain support routes, platform-preview remains separate, and the checker UI remains mobile-safe
-- no runtime/app/test code changed during Phase 6G
-- no fourth checker, other Practice It Yourself question, broad accepted case, parser/classifier/validator/checker framework change, Journal Entry Explainer behavior, Solver calculation logic, accounting engine, API route, persistence, OCR, payment, AI Assistant behavior, route migration, backend feature, or accounting calculation was added
-- verification passed: focused QA tests (`114` tests), full test suite (`2266` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
-
-Recommended next action:
-
-- commit and push the Phase 6A-6G work
-- conduct teacher/student review using the current three-checker Journal Entries chapter
-- do not add a fourth checker, accepted cases, parser/checker generalization, accounting-engine changes, API routes, login/progress/database, OCR, payments, AI Assistant behavior, or broad chapter expansion before that review
 
 Recent Phase 6D context retained:
 

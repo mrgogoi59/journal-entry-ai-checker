@@ -21,6 +21,7 @@ import {
   JournalEntriesSectionPage,
   productionJournalEntriesSectionRoutes,
 } from "@/app/chapters/journal-entries/JournalEntriesSectionPage";
+import { productionText } from "@/app/chapters/journal-entries/JournalEntriesLearningBlocks";
 import HomePage, { metadata as homeMetadata } from "@/app/page";
 import JournalEntriesChapterPreviewPage from "@/app/platform-preview/chapters/journal-entries/page";
 import {
@@ -709,7 +710,7 @@ describe("Production Chapters route", () => {
       const href = getProductionSectionHref(subtopic.slug);
 
       expect(html).toContain(subtopic.title);
-      expect(html).toContain(escapeHtmlText(subtopic.learningObjective));
+      expect(html).toContain(escapeHtmlText(productionText(subtopic.shortDescription)));
       expect(html).toContain(subtopic.progressLabel);
       expect(html).toContain('id="student-platform-content"');
       expect(getLinkMarkup(html, href)).toContain('aria-current="step"');
@@ -720,139 +721,135 @@ describe("Production Chapters route", () => {
     });
   });
 
-  it("renders a student-friendly Journal Entries overview with honest pilot availability", () => {
+  it("renders a minimal student-friendly Journal Entries overview without pilot/status copy", () => {
     const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
 
-    expect(html).toContain("Chapter overview");
-    expect(html).toContain("Learn the first step of recording every transaction");
-    expect(html).toContain("Journal Entries are the first step of Accountancy recording.");
-    expect(html).toContain("Every business transaction is first analysed");
-    expect(html).toContain("cash, bank, goods, salary, capital, drawings, purchases, sales, expenses");
-    expect(html).toContain("Available in this pilot");
-    expect(html).toContain("16 learning sections are available now.");
-    expect(html).toContain("Exactly 3 Practice It Yourself checkers are live across Section 1 and the Purchases section.");
-    expect(html).toContain("Most sections are read-only learning sections for now.");
-    expect(html).toContain("More checking will be added later only after safe checker design.");
-    expect(html).toContain("Recommended start");
-    expect(html).toContain("Try the Practice It Yourself checks when they appear.");
+    expect(html).toContain("Journal Entries");
+    expect(html).toContain("Learn debit-credit rules and journal format.");
+    expect(html).toContain("16 sections");
+    expect(html).toContain("3 checked practice questions");
+    expect(html).toContain("Study the chapter step by step.");
+    expect(html).toContain("Write full entries and check your work.");
     expect(
-      getLinkMarkupWithText(html, "/chapters/journal-entries#introduction-to-journal-entries", "Start first section"),
-    ).toContain("Start first section");
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Open Explainer")).toContain("Open Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise in Practice")).toContain(
-      "Revise in Practice",
-    );
-    expect(getLinkMarkupWithText(html, "/solver", "Open Solver hub")).toContain("Open Solver hub");
+      getLinkMarkupWithText(html, "/chapters/journal-entries#introduction-to-journal-entries", "Start Chapter"),
+    ).toContain("Start Chapter");
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Available in this pilot");
+    expect(html).not.toContain("Most sections are read-only");
+    expect(html).not.toContain("More checking will be added later");
+    expect(html).not.toContain("Recommended start");
+    expect(html).not.toContain("Open Solver hub");
     expect(html.toLowerCase()).not.toContain("all sections are interactive");
     expect(html.toLowerCase()).not.toContain("all chapters are complete");
   });
 
-  it("polishes all sixteen Journal Entries sections with pilot guide copy and safe next steps", () => {
+  it("renders all sixteen Journal Entries sections with simplified study-guide copy and safe next steps", () => {
     const polishedSections = [
       {
         slug: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
         title: "Introduction to Journal Entries and Journal Format",
         rule: "Debit and credit must always balance",
         actionHref: "/chapters/journal-entries#practice-it-yourself",
-        actionText: "Try Practice It Yourself here",
+        actionText: "Practice It Yourself",
       },
       {
         slug: JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
         title: "Business Transactions",
         rule: "Record only business events measurable in money",
         actionHref: "/chapters/journal-entries/accounts-affected",
-        actionText: "Continue to Accounts Affected",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
         title: "Accounts Affected",
         rule: "Name accounts before choosing Dr. or To",
         actionHref: "/chapters/journal-entries/types-of-accounts",
-        actionText: "Continue to Types of Accounts",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
         title: "Types of Accounts",
         rule: "Classify the account, not the sentence",
         actionHref: "/chapters/journal-entries/debit-and-credit-rules",
-        actionText: "Continue to Debit and Credit Rules",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
         title: "Debit and Credit Rules",
         rule: "Account nature plus effect decides the side",
         actionHref: "/chapters/journal-entries/journal-format-and-narration",
-        actionText: "Continue to Journal Format and Narration",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
         title: "Journal Format and Narration",
         rule: "Format shows the accounting logic clearly",
         actionHref: "/chapters/journal-entries/cash-and-bank-transactions",
-        actionText: "Continue to Cash and Bank Transactions",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
         title: "Cash and Bank Transactions",
         rule: "Cash in hand and bank balance are different",
         actionHref: "/chapters/journal-entries/capital",
-        actionText: "Continue to Capital",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
         title: "Capital",
         rule: "Capital increases the owner's claim",
         actionHref: "/chapters/journal-entries/drawings",
-        actionText: "Continue to Drawings",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
         title: "Drawings",
         rule: "Personal use creates Drawings, not expense",
         actionHref: "/chapters/journal-entries/purchases",
-        actionText: "Continue to Purchases",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
         title: "Purchases",
         rule: "Purchases means goods bought for resale",
         actionHref: "/chapters/journal-entries/sales",
-        actionText: "Continue to Sales",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_SALES_SECTION_SLUG,
         title: "Sales",
         rule: "Sales means goods sold in normal trading",
         actionHref: "/chapters/journal-entries/expenses",
-        actionText: "Continue to Expenses",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
         title: "Expenses",
         rule: "Business expenses are debited when incurred",
         actionHref: "/chapters/journal-entries/income",
-        actionText: "Continue to Income",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
         title: "Income",
         rule: "Income is credited when earned",
         actionHref: "/chapters/journal-entries/assets-and-liabilities",
-        actionText: "Continue to Assets and Liabilities",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
         title: "Assets and Liabilities",
         rule: "Assets increase by debit; liabilities increase by credit",
         actionHref: "/chapters/journal-entries/mixed-simple-entries",
-        actionText: "Continue to Mixed Simple Entries",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
         title: "Mixed Simple Entries",
         rule: "Reason first, then write the entry",
         actionHref: "/chapters/journal-entries/chapter-recap-and-practice",
-        actionText: "Continue to Chapter Recap and Practice",
+        actionText: "Next Section",
       },
       {
         slug: JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG,
@@ -871,47 +868,39 @@ describe("Production Chapters route", () => {
     polishedSections.forEach(({ actionHref, actionText, rule, slug, title }) => {
       const html = renderProductionSection(slug);
 
-      expect(html).toContain("Section pilot guide");
+      expect(html).toContain("Study guide");
       expect(html).toContain(`Before you study ${title}`);
-      expect(html).toContain("What this teaches");
-      expect(html).toContain("Why it matters");
-      expect(html).toContain("Pay attention to");
-      expect(html).toContain("Next learning step");
-      expect(html).toContain("Rule to remember");
+      expect(html).toContain(escapeHtmlText("What you'll learn"));
+      expect(html).toContain("Common mistake");
+      expect(html).toContain("Rule");
       expect(html).toContain(escapeHtmlText(rule));
-      expect(html).toContain("Study the examples");
-      expect(html).toContain("Follow the analysis, not just the answer");
+      expect(html).toContain("Example tip");
+      expect(html).toContain("Study the reasoning");
       if (actionHref && actionText) {
         expect(getLinkMarkupWithText(html, actionHref, actionText)).toContain(actionText);
       }
-      expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if stuck")).toContain(
-        "Use Explainer if stuck",
-      );
-      expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise later in Practice")).toContain(
-        "Revise later in Practice",
-      );
+      expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+      expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+      expect(html).not.toContain("Section pilot guide");
+      expect(html).not.toContain("Pilot section");
     });
   });
 
-  it("renders a compact how-to-use path on the production Journal Entries chapter", () => {
+  it("removes the old how-to-use and status-heavy Journal Entries chapter copy", () => {
     const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
 
-    expect(html).toContain("How to use this chapter");
-    expect(html).toContain("Read the sections in order.");
-    expect(html).toContain("Notice the accounting rule or logic.");
-    expect(html).toContain("Try Practice It Yourself where available.");
-    expect(html).toContain("Use Journal Entry Explainer if you get stuck.");
-    expect(html).toContain("Use beginner practice for revision after learning.");
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Open Journal Entry Explainer")).toContain(
-      "Open Journal Entry Explainer",
-    );
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice Journal Entries")).toContain(
-      "Practice Journal Entries",
-    );
+    expect(html).not.toContain("How to use this chapter");
+    expect(html).not.toContain("Recommended path");
+    expect(html).not.toContain("Read the sections in order.");
+    expect(html).not.toContain("Use Journal Entry Explainer if you get stuck.");
+    expect(html).not.toContain("Use beginner practice for revision after learning.");
+    expect(html).not.toContain("Current availability");
+    expect(html).not.toContain("Progress support");
+    expect(html).not.toContain("Later phase");
     expect(html).not.toContain("/platform-preview");
   });
 
-  it("marks Journal Entries outline sections as read-only or practice-enabled after the single Purchases checker addition", () => {
+  it("marks only practice-enabled Journal Entries outline sections without read-only/status clutter", () => {
     const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     const practiceBadgeCount = html.match(/2 practice checks/g)?.length ?? 0;
 
@@ -922,33 +911,33 @@ describe("Production Chapters route", () => {
     expect(html).toContain("2 practice checks");
     expect(html).toContain("1 practice check");
     expect(practiceBadgeCount).toBeGreaterThanOrEqual(1);
-    expect(html).toContain("Read-only");
+    expect(html).not.toContain("Read-only");
+    expect(html).not.toContain("Available");
     expect(html).toContain("Business Transactions");
     expect(html).toContain("Accounts Affected");
     expect(html).toContain("Chapter outline");
   });
 
-  it("uses production previous and next links across the sixteen section routes", () => {
+  it("uses compact production next/support links across the sixteen section routes", () => {
     journalEntriesChapter.subtopics.forEach((subtopic) => {
       const html = renderProductionSection(subtopic.slug);
 
-      if (subtopic.previousSection) {
-        expect(html).toContain(`href="${getProductionSectionHref(subtopic.previousSection.slug)}"`);
-        expect(html).toContain(`Previous ${subtopic.previousSection.title}`);
+      if (subtopic.nextSection) {
+        expect(getLinkMarkupWithText(html, getProductionSectionHref(subtopic.nextSection.slug), "Next Section")).toContain(
+          "Next Section",
+        );
       } else {
-        expect(html).not.toContain("Previous Introduction");
-        expect(html).toContain(`href="${getProductionSectionHref(subtopic.nextSection!.slug)}"`);
+        expect(getLinkMarkupWithText(html, getProductionSectionHref(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG), "Review Chapter")).toContain(
+          "Review Chapter",
+        );
       }
 
-      if (subtopic.nextSection) {
-        expect(html).toContain(`href="${getProductionSectionHref(subtopic.nextSection.slug)}"`);
-        expect(html).toContain(`Continue to ${subtopic.nextSection.title}`);
-      } else {
-        expect(html).toContain(`href="${getProductionSectionHref(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG)}"`);
-        expect(html).toContain('href="/chapters"');
-        expect(html).toContain("Review from Beginning");
-        expect(html).toContain("Back to Chapters");
-      }
+      expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+      expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+      expect(html).not.toContain("Previous ");
+      expect(html).not.toContain("Continue to ");
+      expect(html).not.toContain("Back to Chapters");
+      expect(html).not.toContain("Review from Beginning");
     });
   });
 
@@ -984,8 +973,8 @@ describe("Production Chapters route", () => {
     expect(html.match(/Check Answer/g)).toHaveLength(2);
     expect(html.match(/Reset Answer/g)).toHaveLength(2);
     expect(html.match(/Feedback will appear here after you check your answer\./g)).toHaveLength(2);
-    expect(html.match(/How to attempt this checker/g)).toHaveLength(2);
-    expect(html.match(/Only these 2 in-chapter checks are live in this section right now\./g)).toHaveLength(2);
+    expect(html.match(/How to try this question/g)).toHaveLength(2);
+    expect(html.match(/Write the full entry first, then check your answer\./g)).toHaveLength(2);
     expect(html).toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     expect(html).toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
     expect(html).toContain("This chapter checker supports this audited question only.");
@@ -994,12 +983,9 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Analyse the transaction before typing.");
     expect(html).toContain("Decide the debit and credit side before you check.");
     expect(html).toContain("Spelling, account naming, Dr./To, amount, totals, and narration matter in this checker.");
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if stuck")).toContain(
-      "Use Explainer if stuck",
-    );
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise later in Practice")).toContain(
-      "Revise later in Practice",
-    );
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Only these 2 in-chapter checks are live in this section right now.");
     expect(html).not.toContain("Interactive answer checking for this chapter will be enabled in the next controlled migration step.");
     expect(html).not.toContain("Show Correct Answer");
     expect(html).not.toContain("Correct Answer");
@@ -1023,15 +1009,12 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Bought goods for cash Rs 10,000. Pass the journal entry.");
     expect(html).toContain(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     expect(html).toContain("Likely accounts involved: Purchases and Cash.");
-    expect(html).toContain("Only this in-chapter check is live in this section right now.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if stuck")).toContain(
-      "Use Explainer if stuck",
-    );
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise later in Practice")).toContain(
-      "Revise later in Practice",
-    );
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Only this in-chapter check is live in this section right now.");
     expect(html).not.toContain("Practice 2 of 1");
   });
 

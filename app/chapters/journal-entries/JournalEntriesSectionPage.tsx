@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeader } from "@/components/student-platform/PageHeader";
 import { StudentAppShell } from "@/components/student-platform/StudentAppShell";
 import {
   AccountingEntryTable,
   ChapterCompletionBannerBlock,
   ChapterOutline,
-  ChapterProgress,
   ChapterRecapGroupsBlock,
   ClassificationCategoriesBlock,
   ClassificationExamplesBlock,
@@ -49,7 +47,7 @@ import {
   journalEntriesChapter,
   toPracticeItYourselfPreviewQuestion,
 } from "@/lib/learning-platform/chapters/journal-entries";
-import type { ChapterSection, ChapterSubtopicDefinition, ChapterSubtopicReference } from "@/lib/learning-platform/types";
+import type { ChapterSection, ChapterSubtopicDefinition } from "@/lib/learning-platform/types";
 import {
   checkJournalEntriesPracticeAnswer,
   revealJournalEntriesPracticeCorrectAnswer,
@@ -98,42 +96,12 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
         />
 
         <div className="min-w-0 space-y-5 sm:space-y-6">
-          <PageHeader
-            eyebrow="Journal Entries chapter"
-            title={chapter.metadata.title}
-            description="Learn Journal Entries through concepts, solved illustrations, and structured chapter progression."
-          >
-            <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-800">
-              {chapter.metadata.levelLabel}
-            </span>
-          </PageHeader>
-
-          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-600">
-            <Link
-              href="/chapters"
-              className="text-cyan-800 outline-none hover:text-cyan-950 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-            >
-              Chapters
-            </Link>
-            <span aria-hidden="true">/</span>
-            <Link
-              href={PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH}
-              className="text-cyan-800 outline-none hover:text-cyan-950 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-            >
-              Journal Entries
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span className="text-slate-950">{subtopic.title}</span>
-          </nav>
-
-          <HowToUseJournalEntriesCard />
-
           {subtopic.id === JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG ? <JournalEntriesOverviewCard /> : null}
 
-          <ChapterProgress metadata={chapter.metadata} subtopic={subtopic} totalSections={chapter.outline.length} />
+          <SectionIntroCard subtopic={subtopic} />
 
           {earlySectionGuide ? (
-            <EarlySectionPilotGuideCard
+            <SectionLearningGuideCard
               guide={earlySectionGuide}
               hasPracticeChecks={practiceSectionCount > 0}
               subtopic={subtopic}
@@ -156,46 +124,6 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
     </StudentAppShell>
   );
 }
-
-const journalEntriesFirstPathSteps = [
-  "Read the sections in order.",
-  "Notice the accounting rule or logic.",
-  "Try Practice It Yourself where available.",
-  "Use Journal Entry Explainer if you get stuck.",
-  "Use beginner practice for revision after learning.",
-];
-
-const overviewHighlights = [
-  {
-    title: "First recording step",
-    body:
-      "Journal Entries are the first step of Accountancy recording. Every business transaction is first analysed before it moves to Ledger, Trial Balance, and Final Accounts.",
-  },
-  {
-    title: "What you will learn",
-    body:
-      "This chapter teaches accounts affected, debit-credit logic, cash, bank, goods, salary, capital, drawings, purchases, sales, expenses, and basic entry presentation.",
-  },
-  {
-    title: "How learning works",
-    body:
-      "Read the idea, study examples, then practise by writing the full journal entry when Practice It Yourself appears.",
-  },
-];
-
-const availabilityNotes = [
-  "16 learning sections are available now.",
-  "Exactly 3 Practice It Yourself checkers are live across Section 1 and the Purchases section.",
-  "Most sections are read-only learning sections for now.",
-  "More checking will be added later only after safe checker design.",
-];
-
-const recommendedPilotSteps = [
-  "Start with the first section.",
-  "Continue through the first few sections.",
-  "Try the Practice It Yourself checks when they appear.",
-  "Use the Explainer if any account or debit-credit rule feels confusing.",
-];
 
 type EarlySectionGuide = {
   teaches: string;
@@ -424,83 +352,69 @@ function JournalEntriesOverviewCard() {
       aria-labelledby="journal-entries-overview-title"
       className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
     >
-      <div className="grid min-w-0 gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Chapter overview</p>
-          <h2
-            id="journal-entries-overview-title"
-            className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl"
-          >
-            Learn the first step of recording every transaction
-          </h2>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-slate-700">
-            A journal entry shows which account is debited, which account is credited, and why both sides stay equal.
-            This chapter starts from the basics so you can build strong Accountancy logic before using Practice or Solver.
-          </p>
-          <div className="mt-5 grid min-w-0 gap-3 lg:grid-cols-3">
-            {overviewHighlights.map((highlight) => (
-              <article key={highlight.title} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <h3 className="text-base font-black text-slate-950">{highlight.title}</h3>
-                <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{highlight.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
+      <div className="min-w-0">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Chapter</p>
+        <h1
+          id="journal-entries-overview-title"
+          className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl"
+        >
+          Journal Entries
+        </h1>
+        <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-700">
+          Learn debit-credit rules and journal format.
+        </p>
+      </div>
 
-        <div className="min-w-0 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Available in this pilot</p>
-          <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-cyan-950">
-            {availabilityNotes.map((note) => (
-              <li key={note} className="rounded-xl border border-cyan-200 bg-white p-3">
-                {note}
-              </li>
-            ))}
-          </ul>
+      <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">16 sections</p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-cyan-950">Study the chapter step by step.</p>
+        </div>
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-800">3 checked practice questions</p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-emerald-950">Write full entries and check your work.</p>
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">Recommended start</p>
-        <ol className="mt-4 grid min-w-0 gap-3 text-sm font-semibold leading-6 text-emerald-950 sm:grid-cols-2 xl:grid-cols-4">
-          {recommendedPilotSteps.map((step, index) => (
-            <li key={step} className="min-w-0 rounded-xl border border-emerald-200 bg-white p-3">
-              <span className="font-black text-emerald-700">{index + 1}. </span>
-              {step}
-            </li>
-          ))}
-        </ol>
-        <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Link
-            href={`${PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH}#introduction-to-journal-entries`}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-          >
-            Start first section
-          </Link>
-          <Link
-            href="/journal-entry-solver"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-          >
-            Open Explainer
-          </Link>
-          <Link
-            href="/practice/journal-entries"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-black text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-          >
-            Revise in Practice
-          </Link>
-          <Link
-            href="/solver"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-950 outline-none transition hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-          >
-            Open Solver hub
-          </Link>
-        </div>
+      <div className="mt-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <Link
+          href={`${PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH}#introduction-to-journal-entries`}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Start Chapter
+        </Link>
+        <Link
+          href="/journal-entry-solver"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Use Explainer
+        </Link>
+        <Link
+          href="/practice/journal-entries"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-black text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Practice
+        </Link>
       </div>
     </section>
   );
 }
 
-function EarlySectionPilotGuideCard({
+function SectionIntroCard({ subtopic }: { subtopic: ChapterSubtopicDefinition }) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">{subtopic.progressLabel}</p>
+      <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+        {productionText(subtopic.title)}
+      </h2>
+      <p className="mt-3 max-w-3xl text-base leading-8 text-slate-700">
+        {productionText(subtopic.shortDescription)}
+      </p>
+    </section>
+  );
+}
+
+function SectionLearningGuideCard({
   guide,
   hasPracticeChecks,
   subtopic,
@@ -513,51 +427,37 @@ function EarlySectionPilotGuideCard({
   const primaryAction = hasPracticeChecks
     ? {
         href: `${getProductionSectionHref(subtopic.slug)}#practice-it-yourself`,
-        label: "Try Practice It Yourself here",
       }
     : nextSectionHref && subtopic.nextSection
       ? {
           href: nextSectionHref,
-          label: `Continue to ${subtopic.nextSection.title}`,
         }
       : null;
 
   return (
     <section
-      aria-labelledby={`${subtopic.id}-pilot-guide-title`}
+      aria-labelledby={`${subtopic.id}-learning-guide-title`}
       className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm sm:p-6"
     >
-      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 max-w-3xl">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">Section pilot guide</p>
-          <h2 id={`${subtopic.id}-pilot-guide-title`} className="mt-2 text-2xl font-black tracking-tight text-slate-950">
-            Before you study {subtopic.title}
-          </h2>
-          <p className="mt-3 text-sm font-semibold leading-6 text-emerald-950">
-            Use this section to slow down and understand the logic before memorising the final answer.
-          </p>
-        </div>
-        <span className="self-start rounded-full border border-emerald-300 bg-white px-3 py-1.5 text-xs font-black uppercase tracking-wide text-emerald-800">
-          Pilot section
-        </span>
-      </div>
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">Study guide</p>
+      <h2 id={`${subtopic.id}-learning-guide-title`} className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+        Before you study {subtopic.title}
+      </h2>
 
-      <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <PilotGuideNote title="What this teaches" body={guide.teaches} />
-        <PilotGuideNote title="Why it matters" body={guide.whyItMatters} />
-        <PilotGuideNote title="Pay attention to" body={guide.watchFor} />
-        <PilotGuideNote title="Next learning step" body={guide.nextStep} />
+      <div className="mt-5 grid min-w-0 gap-3 lg:grid-cols-2">
+        <LearningGuideNote title="What you'll learn" body={guide.teaches} />
+        <LearningGuideNote title="Common mistake" body={guide.watchFor} />
       </div>
 
       <div className="mt-5 grid min-w-0 gap-3 lg:grid-cols-2">
         <article className="min-w-0 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Rule to remember</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Rule</p>
           <h3 className="mt-2 text-base font-black text-slate-950">{guide.ruleTitle}</h3>
           <p className="mt-2 text-sm font-semibold leading-6 text-amber-950">{guide.ruleBody}</p>
         </article>
         <article className="min-w-0 rounded-2xl border border-cyan-200 bg-white p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Study the examples</p>
-          <h3 className="mt-2 text-base font-black text-slate-950">Follow the analysis, not just the answer</h3>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Example tip</p>
+          <h3 className="mt-2 text-base font-black text-slate-950">Study the reasoning</h3>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{guide.exampleTip}</p>
         </article>
       </div>
@@ -568,71 +468,32 @@ function EarlySectionPilotGuideCard({
             href={primaryAction.href}
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
           >
-            {primaryAction.label}
+            {hasPracticeChecks ? "Practice It Yourself" : "Next Section"}
           </Link>
         ) : null}
         <Link
           href="/journal-entry-solver"
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
         >
-          Use Explainer if stuck
+          Use Explainer
         </Link>
         <Link
           href="/practice/journal-entries"
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-black text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
         >
-          Revise later in Practice
+          Practice
         </Link>
       </div>
     </section>
   );
 }
 
-function PilotGuideNote({ body, title }: { body: string; title: string }) {
+function LearningGuideNote({ body, title }: { body: string; title: string }) {
   return (
     <article className="min-w-0 rounded-2xl border border-emerald-200 bg-white p-4">
       <h3 className="text-sm font-black text-slate-950">{title}</h3>
       <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{body}</p>
     </article>
-  );
-}
-
-function HowToUseJournalEntriesCard() {
-  return (
-    <section
-      aria-labelledby="journal-entries-how-to-use-title"
-      className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6"
-    >
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Recommended path</p>
-      <h2 id="journal-entries-how-to-use-title" className="mt-2 text-2xl font-black tracking-tight text-slate-950">
-        How to use this chapter
-      </h2>
-      <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">
-        {journalEntriesFirstPathSteps.map((step, index) => (
-          <div
-            key={step}
-            className="min-w-0 rounded-2xl border border-cyan-100 bg-white px-4 py-3 text-sm leading-6 text-slate-700"
-          >
-            <span className="font-black text-cyan-800">{index + 1}. </span>
-            <span className="font-semibold">{step}</span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Link
-          href="/journal-entry-solver"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Open Journal Entry Explainer
-        </Link>
-        <Link
-          href="/practice/journal-entries"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-950 outline-none transition hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Practice Journal Entries
-        </Link>
-      </div>
-    </section>
   );
 }
 
@@ -782,55 +643,31 @@ function ChapterSectionRenderer({
 }
 
 function SectionNavigation({ subtopic }: { subtopic: ChapterSubtopicDefinition }) {
-  if (!subtopic.nextSection) {
-    return (
-      <section className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <NavigationTarget direction="previous" target={subtopic.previousSection} />
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Link
-            href={PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 px-4 text-sm font-black text-cyan-950 outline-none transition hover:border-cyan-400 hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-          >
-            Review from Beginning
-          </Link>
-          <Link
-            href="/chapters"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 outline-none transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-950 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-          >
-            Back to Chapters
-          </Link>
-        </div>
-      </section>
-    );
-  }
+  const nextHref = subtopic.nextSection
+    ? getProductionSectionHref(subtopic.nextSection.slug)
+    : PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH;
+  const nextLabel = subtopic.nextSection ? "Next Section" : "Review Chapter";
 
   return (
-    <section className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
-      {subtopic.previousSection ? <NavigationTarget direction="previous" target={subtopic.previousSection} /> : <span />}
-      <NavigationTarget direction="next" target={subtopic.nextSection} />
+    <section className="flex min-w-0 flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:flex-wrap sm:p-6">
+      <Link
+        href={nextHref}
+        className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+      >
+        {nextLabel}
+      </Link>
+      <Link
+        href="/journal-entry-solver"
+        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+      >
+        Use Explainer
+      </Link>
+      <Link
+        href="/practice/journal-entries"
+        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-black text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+      >
+        Practice
+      </Link>
     </section>
-  );
-}
-
-function NavigationTarget({
-  direction,
-  target,
-}: {
-  direction: "previous" | "next";
-  target?: ChapterSubtopicReference;
-}) {
-  if (!target) {
-    return null;
-  }
-
-  const prefix = direction === "previous" ? "Previous" : "Continue to";
-
-  return (
-    <Link
-      href={getProductionSectionHref(target.slug)}
-      className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 px-4 text-sm font-black text-cyan-950 outline-none transition hover:border-cyan-400 hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-    >
-      {prefix} {target.title}
-    </Link>
   );
 }
