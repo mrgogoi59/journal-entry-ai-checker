@@ -44,7 +44,7 @@ import {
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
 } from "@/lib/learning-platform/chapters/journal-entries";
-import { solverToolCatalog, solverToolStatusLabels } from "@/lib/learning-platform/solver-catalog";
+import { solverToolCatalog } from "@/lib/learning-platform/solver-catalog";
 
 function getLinkMarkup(html: string, href: string) {
   return html.match(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`))?.[0] ?? "";
@@ -191,13 +191,42 @@ describe("Production Chapters route", () => {
   it("renders the production Solver route from a truthful typed catalogue", () => {
     const html = renderToStaticMarkup(createElement(SolverPage));
     const hrefs = getHrefValues(html);
-    const availableTools = solverToolCatalog.filter((tool) => tool.status === "available");
-    const plannedTools = solverToolCatalog.filter((tool) => tool.status !== "available");
+    const simplifiedToolCopy = [
+      {
+        title: "AI Journal Entry Explainer",
+        description: "Explain debit and credit logic for journal entries.",
+        href: "/journal-entry-solver",
+        actionLabel: "Open Explainer",
+      },
+      {
+        title: "Ledger Posting",
+        description: "Convert journal entries into account-wise ledger views.",
+        href: "/ledger",
+        actionLabel: "Open Ledger",
+      },
+      {
+        title: "Trial Balance",
+        description: "Generate a balanced debit and credit summary.",
+        href: "/trial-balance",
+        actionLabel: "Open Trial Balance",
+      },
+      {
+        title: "Final Accounts",
+        description: "Prepare Trading, Profit &amp; Loss, and Balance Sheet.",
+        href: "/final-accounts",
+        actionLabel: "Open Final Accounts",
+      },
+      {
+        title: "Bank Reconciliation Statement",
+        description: "Reconcile Cash Book and Bank Statement balances.",
+        href: "/bank-reconciliation",
+        actionLabel: "Open BRS",
+      },
+    ];
 
     expect(solverMetadata).toMatchObject({
       title: "Solver | AccyWise AI",
-      description:
-        "access Accountancy tools for Journal Entries, Ledger, Trial Balance, Final Accounts, and Bank Reconciliation.",
+      description: "Choose a Solver tool when you are stuck.",
     });
     expect(solverMetadata).not.toHaveProperty("robots");
     expect(html).toContain('id="student-platform-content"');
@@ -209,19 +238,20 @@ describe("Production Chapters route", () => {
     expect(hrefs).not.toContain("/assistant");
     expect(html).toContain("AI Assistant");
     expect(html).toContain("Coming soon");
-    expect(html).toContain("Choose an Accountancy tool to explain, prepare, or review a specific accounting problem.");
-    expect(html).toContain(
-      "Chapters teach concepts step by step. Solver tools help with a specific problem when you need them.",
-    );
-    expect(html).toContain("If this is your first time with Journal Entries, start with the chapter first.");
-    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries First")).toContain(
-      "Start Journal Entries First",
-    );
-    expect(html).toContain(`${availableTools.length} of ${solverToolCatalog.length} tools available`);
-    expect(html).toContain(`Available: ${availableTools.length}. Planned or later: ${plannedTools.length}.`);
-    expect(html).toContain("Recommended support tool");
-    expect(html).toContain("Use Journal Entry Explainer when stuck");
-    expect(html).toContain("Use Solver for targeted help");
+    expect(html).toContain("<h1");
+    expect(html).toContain("Solver");
+    expect(html).toContain("Choose a tool when you are stuck.");
+    expect(html).not.toContain("Tools hub");
+    expect(html).not.toContain("What it currently does");
+    expect(html).not.toContain("Educational boundary");
+    expect(html).not.toContain("Available through");
+    expect(html).not.toContain("Choose an Accountancy tool to explain, prepare, or review a specific accounting problem.");
+    expect(html).not.toContain("Chapters teach concepts step by step");
+    expect(html).not.toContain("Start Journal Entries First");
+    expect(html).not.toContain("Recommended support tool");
+    expect(html).not.toContain("Use Journal Entry Explainer when stuck");
+    expect(html).not.toContain("Use Solver for targeted help");
+    expect(html).not.toContain(`${solverToolCatalog.length} of ${solverToolCatalog.length} tools available`);
     expect(html).not.toContain("/platform-preview");
 
     expect(html.match(/aria-label="[^"]+ solver tool"/g) ?? []).toHaveLength(5);
@@ -233,20 +263,11 @@ describe("Production Chapters route", () => {
       "Bank Reconciliation Statement",
     ]);
 
-    solverToolCatalog.forEach((tool) => {
+    simplifiedToolCopy.forEach((tool) => {
       const card = getSolverToolCardMarkup(html, tool.title);
 
-      expect(card).toContain(escapeHtmlText(tool.shortDescription));
-      expect(card).toContain(escapeHtmlText(tool.capabilitySummary));
-      expect(card).toContain(solverToolStatusLabels[tool.status]);
-
-      if (tool.status === "available") {
-        expect(tool.href).toBeDefined();
-        expect(card).toContain(`href="${tool.href}"`);
-      } else {
-        expect(tool.href).toBeUndefined();
-        expect(card).not.toContain("href=");
-      }
+      expect(card).toContain(tool.description);
+      expect(getLinkMarkupWithText(card, tool.href, tool.actionLabel)).toContain(tool.actionLabel);
     });
   });
 
