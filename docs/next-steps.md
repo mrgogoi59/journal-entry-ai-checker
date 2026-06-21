@@ -2,24 +2,33 @@
 
 ## Immediate recommended next step
 
-Phase 6D full Journal Entries consistency QA is completed.
+Phase 6G final Journal Entries three-checker QA audit is completed.
 
-What this audit produced:
+What this audit slice confirmed:
 
-- new audit document: `docs/journal-entries-consistency-qa.md`
-- final verdict: ready for student/teacher review as the first gold-standard AccyWise AI chapter, with the current two-checker boundary preserved
-- audited routes: `/chapters/journal-entries`, `/chapters/journal-entries/[sectionSlug]`, `/practice/journal-entries`, and `/journal-entry-solver`
-- confirmed the overview, all 16 section pilot guide cards, previous/next navigation, read-only/checker availability, Practice handoff, Explainer handoff, mobile-safe structure, and recap flow
-- confirmed exactly 2 in-chapter Practice It Yourself checkers remain live: `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
-- no must-fix items were found
-- no runtime/app/test code changes were required during Phase 6D
-- no new Practice It Yourself question, accepted case, expected answer, checker logic, parser/classifier/validator logic, Journal Entry Explainer behavior, Solver calculation logic, accounting engine, API route, persistence, OCR, payment, AI Assistant behavior, route migration, or backend feature was added
+- `docs/journal-entries-three-checker-qa.md` now records the completed final QA verdict
+- Journal Entries is ready for teacher/student review with exactly three deterministic in-chapter Practice It Yourself checkers
+- the live checker boundary is exactly: `Sold goods for cash Rs 12,000`, `Paid salary by bank Rs 8,000`, and `Bought goods for cash Rs 10,000`
+- the Purchases checker remains narrow: `Purchases A/c Dr. / To Cash A/c`, amount Rs 10,000, narration `Being goods purchased for cash.`
+- focused coverage already confirms reversal, `Goods A/c`, `Assets A/c`, `Bank A/c`, wrong amount, supplier/credit-style answers, server-controlled answer reveal, route rendering, and the exact three-checker boundary
+- the original two checkers remain unchanged, all 16 Journal Entries sections still have guide cards, `/practice/journal-entries` and `/journal-entry-solver` remain support routes, platform-preview remains separate, and the checker UI remains mobile-safe
+- no runtime/app/test code changed during Phase 6G
+- no fourth checker, other Practice It Yourself question, broad accepted case, parser/classifier/validator/checker framework change, Journal Entry Explainer behavior, Solver calculation logic, accounting engine, API route, persistence, OCR, payment, AI Assistant behavior, route migration, backend feature, or accounting calculation was added
+- verification passed: focused QA tests (`114` tests), full test suite (`2266` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
 
 Recommended next action:
 
-- proceed to student/teacher review or a guided Journal Entries pilot using the existing two-checker boundary
-- if the next product step is checker expansion, do Phase 6E first: create a one-additional-checker safety plan only, with exact expected answer, accepted boundaries, unsupported variants, feedback requirements, and tests before implementation
-- do not implement a third checker, accepted cases, parser/checker logic, accounting-engine changes, API routes, login/progress/database, OCR, payments, AI Assistant behavior, or broad chapter expansion until a separate plan approves it
+- commit and push the Phase 6A-6G work
+- conduct teacher/student review using the current three-checker Journal Entries chapter
+- do not add a fourth checker, accepted cases, parser/checker generalization, accounting-engine changes, API routes, login/progress/database, OCR, payments, AI Assistant behavior, or broad chapter expansion before that review
+
+Recent Phase 6D context retained:
+
+- `docs/journal-entries-consistency-qa.md` records the completed full Journal Entries consistency QA
+- final Phase 6D verdict: ready for student/teacher review as the first gold-standard AccyWise AI chapter, with the current two-checker boundary preserved
+- audited routes: `/chapters/journal-entries`, `/chapters/journal-entries/[sectionSlug]`, `/practice/journal-entries`, and `/journal-entry-solver`
+- confirmed exactly 2 in-chapter Practice It Yourself checkers remain live until any separate Phase 6F implementation is approved
+- no must-fix items were found during Phase 6D
 
 Recent Phase 5B planning context retained:
 

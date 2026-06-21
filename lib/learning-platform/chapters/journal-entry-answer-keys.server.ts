@@ -2,6 +2,7 @@ import type { AccountingEntryLine, JournalEntryExpectedAnswer } from "@/lib/lear
 import type { JournalEntryCorrectAnswerReveal, JournalEntryPracticeAnswerKey } from "@/lib/learning-platform/checkers/types";
 import {
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+  PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
 } from "./journal-entries";
 
@@ -68,7 +69,7 @@ export const soldGoodsForCashAnswerKey: JournalEntryPracticeAnswerKey = {
     errorMessage: "Narration should explain that goods were sold for cash.",
     hint: "Mention that goods were sold for cash.",
   },
-  unsupportedHint: "Return to one of the two supported Journal Entries Practice It Yourself questions.",
+  unsupportedHint: "Return to one of the supported Journal Entries Practice It Yourself questions.",
   blankAttemptHint: "Start with the account that receives cash, then write the account credited for the sale.",
   extraLineHint: "This question needs only Cash A/c Dr. and To Sales A/c.",
   correctSummary: "Correct. Your journal entry records cash received and sales credited for ₹12,000.",
@@ -152,7 +153,7 @@ export const paidSalaryByBankAnswerKey: JournalEntryPracticeAnswerKey = {
     errorMessage: "Narration should explain that salary was paid by bank.",
     hint: "Mention that salary was paid through bank.",
   },
-  unsupportedHint: "Return to one of the two supported Journal Entries Practice It Yourself questions.",
+  unsupportedHint: "Return to one of the supported Journal Entries Practice It Yourself questions.",
   blankAttemptHint: "Start with Salary A/c Dr., then write To Bank A/c because salary was paid through bank.",
   extraLineHint: "This question needs only Salary A/c Dr. and To Bank A/c.",
   correctSummary: "Correct. Your journal entry records salary expense debited and bank credited for ₹8,000.",
@@ -168,9 +169,133 @@ export const paidSalaryByBankAnswerKey: JournalEntryPracticeAnswerKey = {
   },
 };
 
+const purchasedGoodsForCashExpectedLines: AccountingEntryLine[] = [
+  {
+    id: "purchases-debit",
+    account: "Purchases A/c",
+    side: "debit",
+    amount: 10000,
+    drNotation: "Dr.",
+  },
+  {
+    id: "cash-credit",
+    account: "Cash A/c",
+    side: "credit",
+    amount: 10000,
+    displayPrefix: "To",
+  },
+];
+
+export const purchasedGoodsForCashExpectedAnswer: JournalEntryExpectedAnswer = {
+  responseType: "journal-entry",
+  lines: purchasedGoodsForCashExpectedLines,
+  narration: "Being goods purchased for cash.",
+  totals: {
+    debit: 10000,
+    credit: 10000,
+  },
+  balanced: true,
+};
+
+export const purchasedGoodsForCashAnswerKey: JournalEntryPracticeAnswerKey = {
+  questionId: PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+  expectedAnswer: purchasedGoodsForCashExpectedAnswer,
+  expectedLines: [
+    {
+      ...purchasedGoodsForCashExpectedLines[0],
+      accountKey: "purchases",
+      requiredParticularsHint: "Purchases A/c Dr.",
+      correctMessage: "Purchases is correctly debited because goods are bought for resale.",
+      errorMessage: "Purchases should be debited because goods are bought for resale.",
+      missingMarkerMessage: "Purchases A/c needs Dr. because Purchases is debited.",
+      wrongMarkerMessage: "The Purchases debit line should not start with To.",
+      wrongAmountMessage: "Purchases should be debited with ₹10,000.",
+      wrongColumnMessage: "Purchases should not be placed in the credit column.",
+    },
+    {
+      ...purchasedGoodsForCashExpectedLines[1],
+      accountKey: "cash",
+      requiredParticularsHint: "To Cash A/c",
+      correctMessage: "Cash is correctly credited because cash leaves the business.",
+      errorMessage: "Cash should be credited because cash is paid.",
+      missingMarkerMessage: "Cash A/c needs To because Cash is credited.",
+      wrongMarkerMessage: "Cash should be credited, not marked Dr.",
+      wrongAmountMessage: "Cash should be credited with ₹10,000.",
+      wrongColumnMessage: "Cash should not be placed in the debit column.",
+    },
+  ],
+  acceptedNarrations: ["being goods purchased for cash", "goods purchased for cash"],
+  narrationConceptHints: ["goods", "purchase", "cash"],
+  narrationFeedback: {
+    correctMessage: "Narration communicates that goods were purchased for cash.",
+    warningMessage: "Narration has the right idea, but use a clearer wording such as 'Being goods purchased for cash.'",
+    errorMessage: "Narration should explain that goods were purchased for cash.",
+    hint: "Mention that goods were purchased for cash.",
+  },
+  unsupportedHint: "Return to one of the supported Journal Entries Practice It Yourself questions.",
+  blankAttemptHint: "Start with Purchases A/c Dr., then write To Cash A/c because goods were bought for cash.",
+  extraLineHint: "This question needs only Purchases A/c Dr. and To Cash A/c.",
+  correctSummary: "Correct. Your journal entry records goods purchased and cash credited for ₹10,000.",
+  unexpectedAccountFeedback: {
+    assets: {
+      errorMessage: "Assets A/c is too generic and is not used for goods bought for resale.",
+      hint: "Use Purchases A/c because the transaction says goods were bought for resale.",
+    },
+    asset: {
+      errorMessage: "Asset A/c is too generic and is not used for goods bought for resale.",
+      hint: "Use Purchases A/c because the transaction says goods were bought for resale.",
+    },
+    bank: {
+      errorMessage: "Bank A/c is not used because the transaction states cash.",
+      hint: "Use Cash A/c when the question says goods are bought for cash.",
+    },
+    creditor: {
+      errorMessage: "Creditor A/c is not used because the transaction says cash, not credit.",
+      hint: "Use Cash A/c for the credit line because payment is immediate.",
+    },
+    creditors: {
+      errorMessage: "Creditors A/c is not used because the transaction says cash, not credit.",
+      hint: "Use Cash A/c for the credit line because payment is immediate.",
+    },
+    furniture: {
+      errorMessage: "Furniture A/c is for a fixed asset, but this question says goods.",
+      hint: "Use Purchases A/c for goods bought for resale.",
+    },
+    goods: {
+      errorMessage: "Goods A/c is not used here because goods bought for resale are recorded through Purchases A/c.",
+      hint: "Use Purchases A/c for goods bought for resale.",
+    },
+    inventory: {
+      errorMessage: "Inventory A/c is not used in this beginner checker.",
+      hint: "Use Purchases A/c for goods bought for resale.",
+    },
+    machinery: {
+      errorMessage: "Machinery A/c is for a fixed asset, but this question says goods.",
+      hint: "Use Purchases A/c for goods bought for resale.",
+    },
+    mohan: {
+      errorMessage: "Mohan A/c is not used because the transaction says cash, not credit.",
+      hint: "Use Cash A/c for the credit line because payment is immediate.",
+    },
+    sales: {
+      errorMessage: "Sales A/c is not used when goods are purchased.",
+      hint: "Use Purchases A/c for goods bought, not Sales A/c.",
+    },
+    stock: {
+      errorMessage: "Stock A/c is not used in this beginner checker.",
+      hint: "Use Purchases A/c for goods bought for resale.",
+    },
+    supplier: {
+      errorMessage: "Supplier A/c is not used because the transaction says cash, not credit.",
+      hint: "Use Cash A/c for the credit line because payment is immediate.",
+    },
+  },
+};
+
 const journalEntryPracticeAnswerKeys: Record<string, JournalEntryPracticeAnswerKey> = {
   [SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID]: soldGoodsForCashAnswerKey,
   [PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID]: paidSalaryByBankAnswerKey,
+  [PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID]: purchasedGoodsForCashAnswerKey,
 };
 
 export function getJournalEntryPracticeAnswerKey(questionId: string): JournalEntryPracticeAnswerKey | null {

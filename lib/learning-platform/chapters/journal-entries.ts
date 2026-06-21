@@ -9,6 +9,7 @@ import type {
 
 export const SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID = "journal-entry-sold-goods-for-cash-practice-preview";
 export const PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID = "journal-entry-paid-salary-by-bank-practice-preview";
+export const PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID = "journal-entry-purchased-goods-for-cash-practice-preview";
 export const JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG = "introduction-to-journal-entries";
 export const JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG = "business-transactions";
 export const JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG = "accounts-affected";
@@ -112,6 +113,13 @@ export const paidSalaryByBankPracticeQuestion = createJournalEntryPracticeQuesti
   title: "Practice 2: paid salary by bank",
   question: "Paid salary by bank ₹8,000. Pass the journal entry.",
   learningObjective: "Write a complete journal entry for a salary expense paid through bank.",
+});
+
+export const purchasedGoodsForCashPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+  title: "Practice 3: cash purchase of goods",
+  question: "Bought goods for cash Rs 10,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for goods bought for cash without confusing Purchases with assets or Bank.",
 });
 
 export function toPracticeItYourselfPreviewQuestion(
@@ -3262,6 +3270,7 @@ export const purchasesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   progressLabel: "Section 10 of 16",
   previousSection: drawingsSubtopicReference,
   nextSection: salesSubtopicReference,
+  practiceQuestionIds: [purchasedGoodsForCashPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -3364,6 +3373,11 @@ export const purchasesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
         { id: "cash-purchase-cash-credit", particulars: "To Cash A/c", lf: "", creditDisplay: "10,000" },
         { id: "cash-purchase-narration", particulars: "(Being goods purchased for cash.)" },
       ],
+    },
+    {
+      type: "practice-it-yourself",
+      id: "purchased-goods-for-cash-practice",
+      question: purchasedGoodsForCashPracticeQuestion,
     },
     {
       type: "accounting-format",
@@ -6581,7 +6595,7 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
   shortDescription:
     "Review the full Journal Entries foundation chapter, practise display-only recap challenges, and see what remains outside this first prototype.",
   learningObjective:
-    "Students consolidate the complete journal-entry method, review common transaction families, and connect back to the two existing interactive practice questions.",
+    "Students consolidate the complete journal-entry method, review common transaction families, and connect back to the three existing interactive practice questions.",
   progressLabel: "Section 16 of 16",
   previousSection: mixedSimpleEntriesSubtopicReference,
   sections: [
@@ -6594,7 +6608,7 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
       stats: [
         { label: "Progress", value: "Section 16 of 16" },
         { label: "Learning sections reviewed", value: "15" },
-        { label: "Interactive practice questions currently available", value: "2" },
+        { label: "Interactive practice questions currently available", value: "3" },
       ],
       note:
         "Preview/static only: no completion is saved, no localStorage is written, and no analytics event is sent from this recap.",
@@ -6761,10 +6775,11 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
       eyebrow: "Interactive practice",
       title: "Interactive Practice Available",
       body:
-        "This preview chapter currently has exactly two deterministic checking-enabled questions in Section 1. The recap links back to them instead of duplicating the editors here.",
+        "This preview chapter currently has exactly three deterministic checking-enabled questions across Section 1 and Purchases. The recap links back to them instead of duplicating the editors here.",
       questions: [
         { id: soldGoodsForCashPracticeQuestion.id, title: "Sold goods for cash ₹12,000" },
         { id: paidSalaryByBankPracticeQuestion.id, title: "Paid salary by bank ₹8,000" },
+        { id: purchasedGoodsForCashPracticeQuestion.id, title: "Bought goods for cash Rs 10,000" },
       ],
       link: {
         label: "Return to Practice It Yourself",
@@ -6902,7 +6917,7 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
           "Selected adjustment-style examples",
           "Named accounts",
           "Journal presentation",
-          "Deterministic practice for two approved questions",
+          "Deterministic practice for three approved questions",
         ],
       },
       futureScope: {

@@ -5,10 +5,12 @@ import {
   getJournalEntryPracticeAnswerKey,
   getJournalEntryPracticeCorrectAnswerReveal,
   paidSalaryByBankAnswerKey,
+  purchasedGoodsForCashAnswerKey,
   soldGoodsForCashAnswerKey,
 } from "@/lib/learning-platform/chapters/journal-entry-answer-keys.server";
 import {
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+  PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
 } from "@/lib/learning-platform/chapters/journal-entries";
 
@@ -84,6 +86,43 @@ function createSalaryAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {
 
 function checkSalary(attempt: JournalEntryPracticeAttempt = createSalaryAttempt()) {
   return checkJournalEntryPracticeAttempt(attempt, paidSalaryByBankAnswerKey);
+}
+
+function createPurchaseAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
+  return {
+    questionId: PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: "Purchases A/c Dr.",
+        lf: "J1",
+        debitAmount: "10000",
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: "To Cash A/c",
+        lf: "J1",
+        debitAmount: "",
+        creditAmount: "10000",
+      },
+      {
+        rowOrder: 3,
+        particulars: "",
+        lf: "",
+        debitAmount: "",
+        creditAmount: "",
+      },
+    ],
+    totalDebit: "10000",
+    totalCredit: "10000",
+    narration: "Being goods purchased for cash.",
+    ...overrides,
+  };
+}
+
+function checkPurchase(attempt: JournalEntryPracticeAttempt = createPurchaseAttempt()) {
+  return checkJournalEntryPracticeAttempt(attempt, purchasedGoodsForCashAnswerKey);
 }
 
 describe("learning-platform journal entry checker", () => {
@@ -770,19 +809,206 @@ describe("learning-platform journal entry checker", () => {
     expect(unsupported.correctAnswerRevealAvailable).toBe(false);
   });
 
+  it("accepts the exact cash-purchase journal entry with totals and narration", () => {
+    const result = checkPurchase();
+
+    expect(result.status).toBe("correct");
+    expect(result.errors).toEqual([]);
+    expect(result.gotRight).toEqual(
+      expect.arrayContaining([
+        "Purchases is correctly debited because goods are bought for resale.",
+        "Cash is correctly credited because cash leaves the business.",
+        "Narration communicates that goods were purchased for cash.",
+        "Debit and credit totals are balanced.",
+      ]),
+    );
+    expect(result.totalsResult).toMatchObject({
+      status: "correct",
+      enteredDebit: 10000,
+      enteredCredit: 10000,
+      rowDebitTotal: 10000,
+      rowCreditTotal: 10000,
+    });
+  });
+
+  it("accepts harmless cash-purchase formatting differences with a presentation warning when L.F. is blank", () => {
+    const result = checkPurchase(
+      createPurchaseAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "purchase dr",
+            lf: "",
+            debitAmount: "₹10,000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "TO CASH A/C",
+            lf: "",
+            debitAmount: "",
+            creditAmount: "10,000",
+          },
+        ],
+        totalDebit: "₹10,000.00",
+        totalCredit: "10,000.00",
+        narration: "Goods purchased for cash.",
+      }),
+    );
+
+    expect(result.status).toBe("partially-correct");
+    expect(result.errors).toEqual([]);
+    expect(result.warnings.join(" ")).toContain("L.F. is blank");
+  });
+
+  it("rejects debit-credit reversal for the cash-purchase checker", () => {
+    const result = checkPurchase(
+      createPurchaseAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Cash A/c Dr.",
+            lf: "J1",
+            debitAmount: "10000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "To Purchases A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "10000",
+          },
+        ],
+      }),
+    );
+
+    expect(result.status).toBe("incorrect");
+    expect(result.errors).toEqual(expect.arrayContaining(["Cash A/c needs To because Cash is credited."]));
+    expect(result.errors).toEqual(expect.arrayContaining(["Cash should not be placed in the debit column."]));
+    expect(result.errors).toEqual(expect.arrayContaining(["The Purchases debit line should not start with To."]));
+    expect(result.errors).toEqual(expect.arrayContaining(["Purchases should not be placed in the credit column."]));
+  });
+
+  it("rejects Goods or Assets instead of Purchases for the cash-purchase checker", () => {
+    const goodsResult = checkPurchase(
+      createPurchaseAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Goods A/c Dr.",
+            lf: "J1",
+            debitAmount: "10000",
+            creditAmount: "",
+          },
+          createPurchaseAttempt().rows[1],
+        ],
+      }),
+    );
+    const assetsResult = checkPurchase(
+      createPurchaseAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Assets A/c Dr.",
+            lf: "J1",
+            debitAmount: "10000",
+            creditAmount: "",
+          },
+          createPurchaseAttempt().rows[1],
+        ],
+      }),
+    );
+
+    expect(goodsResult.status).toBe("incorrect");
+    expect(goodsResult.errors).toEqual(
+      expect.arrayContaining(["Goods A/c is not used here because goods bought for resale are recorded through Purchases A/c."]),
+    );
+    expect(goodsResult.errors).toEqual(expect.arrayContaining(["Purchases A/c Dr. is missing."]));
+    expect(assetsResult.status).toBe("incorrect");
+    expect(assetsResult.errors).toEqual(
+      expect.arrayContaining(["Assets A/c is too generic and is not used for goods bought for resale."]),
+    );
+    expect(assetsResult.errors).toEqual(expect.arrayContaining(["Purchases A/c Dr. is missing."]));
+  });
+
+  it("rejects Bank or a supplier account instead of Cash for the cash-purchase checker", () => {
+    const bankResult = checkPurchase(
+      createPurchaseAttempt({
+        rows: [
+          createPurchaseAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Bank A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "10000",
+          },
+        ],
+      }),
+    );
+    const supplierResult = checkPurchase(
+      createPurchaseAttempt({
+        rows: [
+          createPurchaseAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Supplier A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "10000",
+          },
+        ],
+      }),
+    );
+
+    expect(bankResult.status).toBe("incorrect");
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Bank A/c is not used because the transaction states cash."]));
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["To Cash A/c is missing."]));
+    expect(supplierResult.status).toBe("incorrect");
+    expect(supplierResult.errors).toEqual(
+      expect.arrayContaining(["Supplier A/c is not used because the transaction says cash, not credit."]),
+    );
+    expect(supplierResult.errors).toEqual(expect.arrayContaining(["To Cash A/c is missing."]));
+  });
+
+  it("rejects wrong amounts for the cash-purchase checker even when the entry balances", () => {
+    const result = checkPurchase(
+      createPurchaseAttempt({
+        rows: [
+          { ...createPurchaseAttempt().rows[0], debitAmount: "9000" },
+          { ...createPurchaseAttempt().rows[1], creditAmount: "9000" },
+        ],
+        totalDebit: "9000",
+        totalCredit: "9000",
+      }),
+    );
+
+    expect(result.status).toBe("incorrect");
+    expect(result.errors).toEqual(expect.arrayContaining(["Purchases should be debited with ₹10,000."]));
+    expect(result.errors).toEqual(expect.arrayContaining(["Cash should be credited with ₹10,000."]));
+    expect(result.balanceResult.message).toBe(
+      "The entry balances, but it does not balance at the correct ₹10,000 amount.",
+    );
+  });
+
   it("keeps answer-key lookup and correct-answer reveal isolated by question ID", () => {
     const cashReveal = getJournalEntryPracticeCorrectAnswerReveal(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     const salaryReveal = getJournalEntryPracticeCorrectAnswerReveal(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
+    const purchaseReveal = getJournalEntryPracticeCorrectAnswerReveal(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     const unknownReveal = getJournalEntryPracticeCorrectAnswerReveal("unknown-question");
 
     expect(getJournalEntryPracticeAnswerKey(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID)).toBe(soldGoodsForCashAnswerKey);
     expect(getJournalEntryPracticeAnswerKey(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID)).toBe(paidSalaryByBankAnswerKey);
+    expect(getJournalEntryPracticeAnswerKey(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID)).toBe(purchasedGoodsForCashAnswerKey);
     expect(getJournalEntryPracticeAnswerKey("unknown-question")).toBeNull();
     expect(cashReveal.lines.map((line) => line.particulars)).toEqual(["Cash A/c Dr.", "To Sales A/c"]);
     expect(cashReveal.lines.map((line) => `${line.debitAmount ?? ""}${line.creditAmount ?? ""}`).join(" ")).not.toContain("₹8,000");
     expect(salaryReveal.lines.map((line) => line.particulars)).toEqual(["Salary A/c Dr.", "To Bank A/c"]);
     expect(salaryReveal.lines.map((line) => `${line.debitAmount ?? ""}${line.creditAmount ?? ""}`).join(" ")).not.toContain("₹12,000");
     expect(salaryReveal.narration).toBe("Being salary paid by bank.");
+    expect(purchaseReveal.lines.map((line) => line.particulars)).toEqual(["Purchases A/c Dr.", "To Cash A/c"]);
+    expect(purchaseReveal.narration).toBe("Being goods purchased for cash.");
     expect(unknownReveal.available).toBe(false);
   });
 });

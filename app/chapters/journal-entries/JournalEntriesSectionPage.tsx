@@ -185,7 +185,7 @@ const overviewHighlights = [
 
 const availabilityNotes = [
   "16 learning sections are available now.",
-  "Exactly 2 Practice It Yourself checkers are live in Section 1.",
+  "Exactly 3 Practice It Yourself checkers are live across Section 1 and the Purchases section.",
   "Most sections are read-only learning sections for now.",
   "More checking will be added later only after safe checker design.",
 ];
@@ -193,7 +193,7 @@ const availabilityNotes = [
 const recommendedPilotSteps = [
   "Start with the first section.",
   "Continue through the first few sections.",
-  "Try the two Practice It Yourself checks when they appear.",
+  "Try the Practice It Yourself checks when they appear.",
   "Use the Explainer if any account or debit-credit rule feels confusing.",
 ];
 
@@ -407,9 +407,9 @@ const earlyJournalEntriesSectionGuides: Record<string, EarlySectionGuide> = {
     teaches: "How the full Journal Entries chapter fits together and where to revise or practise next.",
     whyItMatters:
       "A recap helps students choose the next safe step without expecting every section to be interactive yet.",
-    watchFor: "Only the two Section 1 Practice It Yourself checkers are live for now; later checkers need a separate plan.",
+    watchFor: "Only three Practice It Yourself checkers are live for now: two in Section 1 and one in Purchases.",
     nextStep:
-      "Revise weak sections, try the two live checks again, use beginner Practice, or open the Explainer for one transaction.",
+      "Revise weak sections, try the live checks again, use beginner Practice, or open the Explainer for one transaction.",
     ruleTitle: "Use the full journal-entry method every time",
     ruleBody:
       "Transaction first, accounts affected, account types, debit-credit logic, correct format, then balanced totals.",

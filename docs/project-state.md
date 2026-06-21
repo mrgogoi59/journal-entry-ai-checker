@@ -20,6 +20,22 @@ The current student-facing app is still mostly beginner-first, while advanced pr
 
 Target platform planning note:
 
+- Phase 6G is now completed: the final Journal Entries three-checker QA audit is documented in `docs/journal-entries-three-checker-qa.md`.
+- The Phase 6G verdict is that Journal Entries is ready for teacher/student review with exactly three deterministic in-chapter Practice It Yourself checkers: `Sold goods for cash Rs 12,000`, `Paid salary by bank Rs 8,000`, and `Bought goods for cash Rs 10,000`.
+- Phase 6G confirmed the new Purchases checker expects `Purchases A/c Dr. / To Cash A/c`, amount Rs 10,000, narration `Being goods purchased for cash.`, and that rejection coverage includes reversal, `Goods A/c`, `Assets A/c`, `Bank A/c`, wrong amount, and supplier/credit-style answers.
+- Phase 6G also confirmed the original two checkers remain unchanged, all 16 Journal Entries sections still have guide cards, `/practice/journal-entries` and `/journal-entry-solver` remain support routes, platform-preview stays separate from production, and the checker UI remains mobile-safe.
+- Phase 6G found no must-fix items and required no runtime/app/test code changes; it did not add a fourth checker, new accepted cases, parser/classifier/validator/checker framework changes, accounting-engine changes, Journal Entry Explainer behavior, Solver behavior, API routes, beginner `/practice`, `/practice/journal-entries`, `/practice/advanced`, persistence, OCR, payments, AI Assistant behavior, backend features, or accounting calculations.
+- Phase 6G verification passed: focused QA tests (`114` tests), full test suite (`2266` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction; the build-generated `next-env.d.ts` diff was restored.
+- Recommended next action: commit and push the Phase 6A-6G work, then conduct teacher/student review before adding more checkers or runtime wiring.
+- Phase 6F is now completed: exactly one third deterministic in-chapter Journal Entries Practice It Yourself checker was implemented for `Bought goods for cash Rs 10,000. Pass the journal entry.`
+- The new Phase 6F checker lives in the `Purchases` section and uses the expected answer `Purchases A/c Dr. / To Cash A/c`, amount Rs 10,000, narration `Being goods purchased for cash.`
+- The live in-chapter Journal Entries checker count is now exactly three: two existing Section 1 checkers (`Sold goods for cash Rs 12,000`, `Paid salary by bank Rs 8,000`) plus the new Purchases checker.
+- No fourth checker, other Practice It Yourself question, broad accepted case, parser/classifier/validator/checker framework change, accounting-engine change, Journal Entry Explainer behavior, Solver behavior, API route, beginner `/practice`, `/practice/journal-entries`, `/practice/advanced`, persistence, OCR, payment, AI Assistant behavior, backend feature, or accounting calculation was added during Phase 6F.
+- Recommended next phase: Phase 6G final Journal Entries three-checker QA audit before considering any further checker expansion.
+- Phase 6E one-additional Journal Entries checker safety plan is now completed in `docs/journal-entry-third-checker-safety-plan.md`.
+- Phase 6E reviewed the current two live in-chapter Practice It Yourself checkers, documented their expected answers, learning purpose, safety boundary, and mistake coverage, and recommended one safest possible third checker candidate: `Bought goods for cash Rs 10,000. Pass the journal entry.` with expected answer `Purchases A/c Dr. / To Cash A/c`.
+- Phase 6E recommends implementation only as a separate optional Phase 6F if approved; it also allows deferring checker expansion and proceeding with student/teacher review using the existing two-checker boundary.
+- Phase 6E was documentation/planning-only: no Practice It Yourself question, answer key, accepted case, checker logic, parser/classifier/validator logic, accounting engine, Journal Entry Explainer behavior, Solver behavior, API route, beginner `/practice`, `/practice/journal-entries`, `/practice/advanced`, persistence, OCR, payments, AI Assistant behavior, backend feature, or runtime UI was changed.
 - Phase 6D full Journal Entries consistency QA is now completed and documented in `docs/journal-entries-consistency-qa.md`.
 - The Phase 6D verdict is that the Journal Entries chapter is ready for student/teacher review as the first gold-standard AccyWise AI chapter, with the current two-checker boundary preserved.
 - Phase 6D audited `/chapters/journal-entries`, `/chapters/journal-entries/[sectionSlug]`, `/practice/journal-entries`, and `/journal-entry-solver`; it confirmed the overview, all 16 guide cards, production route navigation, Practice/Explainer handoffs, mobile-safe structure, and checker boundary.
@@ -568,8 +584,8 @@ Target platform planning note:
   - the overview explains that Journal Entries are the first step of Accountancy recording and that every business transaction is first analysed into debit and credit accounts
   - the overview summarizes what the chapter teaches: accounts affected, debit-credit logic, cash, bank, goods, salary, capital, drawings, purchases, sales, expenses, and basic entry presentation
   - the existing `How to use this chapter` guidance now includes noticing the accounting rule or logic before trying practice
-  - current availability is explicit: 16 learning sections are available, exactly 2 Practice It Yourself checkers are live in Section 1, most sections are read-only, and more checking should wait for safe checker design
-  - the Journal Entries outline now marks sections as `Read-only` or `2 practice checks` so the student does not assume all sections are interactive
+  - Phase 5D availability was explicit at that time: 16 learning sections were available, exactly 2 Practice It Yourself checkers were live in Section 1, most sections were read-only, and more checking needed safe checker design
+  - the Journal Entries outline was updated to mark sections as `Read-only` or practice-enabled so the student does not assume all sections are interactive
   - safe overview links point to the first section anchor, `/journal-entry-solver`, `/practice/journal-entries`, and `/solver`
   - focused route tests were updated for the overview copy, honest availability, support links, and read-only/practice-enabled outline markers
   - recommended next phase is Phase 5E: polish the first 3-5 Journal Entries sections for clearer explanation, rule boxes, solved-illustration framing, and mistake warnings before adding any new checkers or runtime wiring

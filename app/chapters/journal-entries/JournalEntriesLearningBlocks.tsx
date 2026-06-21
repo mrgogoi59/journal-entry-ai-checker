@@ -123,7 +123,8 @@ function OrderedOutline({
       {outlineItems.map((item) => {
         const isActive = item.id === activeSectionId;
         const practiceQuestionCount = item.practiceQuestionCount ?? 0;
-        const sectionModeLabel = practiceQuestionCount > 0 ? `${practiceQuestionCount} practice checks` : "Read-only";
+        const practiceCheckLabel = practiceQuestionCount === 1 ? "practice check" : "practice checks";
+        const sectionModeLabel = practiceQuestionCount > 0 ? `${practiceQuestionCount} ${practiceCheckLabel}` : "Read-only";
 
         return (
           <li key={item.id}>
@@ -683,6 +684,15 @@ function getProductionPracticeGuidance(questionId: string): ProductionPracticeGu
     };
   }
 
+  if (questionId === "journal-entry-purchased-goods-for-cash-practice-preview") {
+    return {
+      transactionFocus: "Goods are bought for cash, so cash leaves the business.",
+      likelyAccounts: "Likely accounts involved: Purchases and Cash.",
+      logicPrompt: "Decide whether the goods are for resale and which asset is paid out before checking.",
+      learningPoint: "The purpose is to understand purchase logic without confusing goods with assets or bank.",
+    };
+  }
+
   return {
     transactionFocus: "Read the transaction and identify what enters or leaves the business.",
     likelyAccounts: "Identify the accounts involved before typing the entry.",
@@ -717,7 +727,9 @@ function PracticeAttemptGuide({
           <li>Use the feedback to learn the logic, not just to guess.</li>
         </ol>
         <p className="mt-3 rounded-xl bg-cyan-50 p-3 text-sm font-semibold leading-6 text-cyan-900">
-          Only these {practiceCount} in-chapter checks are live right now.
+          {practiceCount === 1
+            ? "Only this in-chapter check is live in this section right now."
+            : `Only these ${practiceCount} in-chapter checks are live in this section right now.`}
         </p>
       </article>
     </div>
@@ -809,7 +821,7 @@ export function TryBeforeRevealBlock({ section }: { section: TryBeforeRevealSect
 export function ChapterCompletionBannerBlock({ section }: { section: ChapterCompletionBannerSection }) {
   const productionStats = section.stats.map((stat) =>
     stat.label.toLowerCase().includes("interactive practice")
-      ? { label: "Interactive practice checking", value: "2 live" }
+      ? { label: "Interactive practice checking", value: "3 live" }
       : { label: productionText(stat.label), value: productionText(stat.value) },
   );
 
@@ -822,8 +834,8 @@ export function ChapterCompletionBannerBlock({ section }: { section: ChapterComp
             Journal Entries foundation chapter
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-cyan-900">
-            You have reached the final recap page for this production chapter. The two approved interactive questions
-            are available in Section 1.
+            You have reached the final recap page for this production chapter. The three approved interactive questions
+            are available across Section 1 and the Purchases section.
           </p>
         </div>
         <span className="inline-flex self-start rounded-full border border-cyan-300 bg-white px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-800">
@@ -873,7 +885,7 @@ export function InteractivePracticeLinksBlock({ section }: { section: Interactiv
       <SectionHeading
         eyebrow={section.eyebrow}
         title="Interactive Practice Available"
-        body="These are the only two interactive Practice It Yourself questions currently live in this production chapter."
+        body="These are the only three interactive Practice It Yourself questions currently live in this production chapter."
       />
       <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
         <ol className="list-decimal space-y-2 pl-5">
@@ -902,7 +914,7 @@ export function ScopeRoadmapBlock({ section }: { section: ScopeRoadmapSection })
           <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-cyan-900">
             {section.currentScope.items.map((item) => (
               <li key={item} className="rounded-xl border border-cyan-200 bg-white p-3">
-                {productionText(item).replace("Deterministic practice for two approved questions", "Deterministic practice for two approved questions is live in Section 1")}
+                {productionText(item).replace("Deterministic practice for three approved questions", "Deterministic practice for three approved questions is live across Section 1 and Purchases")}
               </li>
             ))}
           </ul>

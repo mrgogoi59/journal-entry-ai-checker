@@ -52,6 +52,7 @@ import {
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+  PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
 } from "@/lib/learning-platform/chapters/journal-entries";
 import { solverToolCatalog } from "@/lib/learning-platform/solver-catalog";
@@ -729,11 +730,11 @@ describe("Production Chapters route", () => {
     expect(html).toContain("cash, bank, goods, salary, capital, drawings, purchases, sales, expenses");
     expect(html).toContain("Available in this pilot");
     expect(html).toContain("16 learning sections are available now.");
-    expect(html).toContain("Exactly 2 Practice It Yourself checkers are live in Section 1.");
+    expect(html).toContain("Exactly 3 Practice It Yourself checkers are live across Section 1 and the Purchases section.");
     expect(html).toContain("Most sections are read-only learning sections for now.");
     expect(html).toContain("More checking will be added later only after safe checker design.");
     expect(html).toContain("Recommended start");
-    expect(html).toContain("Try the two Practice It Yourself checks when they appear.");
+    expect(html).toContain("Try the Practice It Yourself checks when they appear.");
     expect(
       getLinkMarkupWithText(html, "/chapters/journal-entries#introduction-to-journal-entries", "Start first section"),
     ).toContain("Start first section");
@@ -910,12 +911,16 @@ describe("Production Chapters route", () => {
     expect(html).not.toContain("/platform-preview");
   });
 
-  it("marks Journal Entries outline sections as read-only or practice-enabled without adding new checks", () => {
+  it("marks Journal Entries outline sections as read-only or practice-enabled after the single Purchases checker addition", () => {
     const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     const practiceBadgeCount = html.match(/2 practice checks/g)?.length ?? 0;
 
     expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toHaveLength(2);
+    expect(journalEntriesChapter.subtopics[9].practiceQuestionIds).toEqual([
+      PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
     expect(html).toContain("2 practice checks");
+    expect(html).toContain("1 practice check");
     expect(practiceBadgeCount).toBeGreaterThanOrEqual(1);
     expect(html).toContain("Read-only");
     expect(html).toContain("Business Transactions");
@@ -962,7 +967,7 @@ describe("Production Chapters route", () => {
     });
   });
 
-  it("renders exactly the two approved production Journal Entries practice checkers", () => {
+  it("renders exactly the two original production Journal Entries practice checkers in Section 1", () => {
     const html = renderToStaticMarkup(createElement(JournalEntriesChapterPage));
     const source = [
       readFileSync("app/chapters/journal-entries/JournalEntriesSectionPage.tsx", "utf8"),
@@ -980,7 +985,7 @@ describe("Production Chapters route", () => {
     expect(html.match(/Reset Answer/g)).toHaveLength(2);
     expect(html.match(/Feedback will appear here after you check your answer\./g)).toHaveLength(2);
     expect(html.match(/How to attempt this checker/g)).toHaveLength(2);
-    expect(html.match(/Only these 2 in-chapter checks are live right now\./g)).toHaveLength(2);
+    expect(html.match(/Only these 2 in-chapter checks are live in this section right now\./g)).toHaveLength(2);
     expect(html).toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     expect(html).toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
     expect(html).toContain("This chapter checker supports this audited question only.");
@@ -1011,24 +1016,52 @@ describe("Production Chapters route", () => {
     expect(source).not.toContain("/platform-preview");
   });
 
-  it("keeps checker editors out of the other production Journal Entries sections", () => {
-    journalEntriesChapter.subtopics.slice(1).forEach((subtopic) => {
-      const html = renderProductionSection(subtopic.slug);
+  it("renders the purchased-goods-for-cash checker in the Purchases section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG);
 
-      expect(html).not.toContain("Check Answer");
-      expect(html).not.toContain("Show Correct Answer");
-      expect(html).not.toContain("practice-feedback-");
-      expect(html).not.toContain("This chapter checker supports this audited question only.");
-    });
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Bought goods for cash Rs 10,000. Pass the journal entry.");
+    expect(html).toContain(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Purchases and Cash.");
+    expect(html).toContain("Only this in-chapter check is live in this section right now.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if stuck")).toContain(
+      "Use Explainer if stuck",
+    );
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise later in Practice")).toContain(
+      "Revise later in Practice",
+    );
+    expect(html).not.toContain("Practice 2 of 1");
   });
 
-  it("links the production recap back to the two interactive practice questions without duplicating editors", () => {
+  it("keeps checker editors out of the other production Journal Entries sections", () => {
+    journalEntriesChapter.subtopics
+      .filter(
+        (subtopic) =>
+          ![
+            JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
+            JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
+          ].includes(subtopic.slug),
+      )
+      .forEach((subtopic) => {
+        const html = renderProductionSection(subtopic.slug);
+
+        expect(html).not.toContain("Check Answer");
+        expect(html).not.toContain("Show Correct Answer");
+        expect(html).not.toContain("practice-feedback-");
+        expect(html).not.toContain("This chapter checker supports this audited question only.");
+      });
+  });
+
+  it("links the production recap back to the three interactive practice questions without duplicating editors", () => {
     const html = renderProductionSection("chapter-recap-and-practice");
     const reviewChallengeDetails = html.match(/<details class="group rounded-2xl/g) ?? [];
 
     expect(html).toContain("Interactive Practice Available");
     expect(html).toContain("Sold goods for cash ₹12,000");
     expect(html).toContain("Paid salary by bank ₹8,000");
+    expect(html).toContain("Bought goods for cash Rs 10,000");
     expect(html).toContain('href="/chapters/journal-entries#practice-it-yourself"');
     expect(html).toContain("Practice the interactive questions");
     expect(reviewChallengeDetails).toHaveLength(8);
@@ -1039,7 +1072,7 @@ describe("Production Chapters route", () => {
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries#practice-it-yourself"');
   });
 
-  it("keeps production answer checking server-controlled for exactly the two approved question IDs", async () => {
+  it("keeps production answer checking server-controlled for exactly the three approved question IDs", async () => {
     const soldGoodsResult = await checkJournalEntriesPracticeAnswer(
       createPracticeAttempt({
         questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
@@ -1074,6 +1107,30 @@ describe("Production Chapters route", () => {
         totalDebit: "12000",
         totalCredit: "12000",
         narration: "Being goods sold for cash.",
+      }),
+    );
+    const purchasedGoodsResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Purchases A/c Dr.",
+        debitAmount: "10000",
+        creditAccount: "To Cash A/c",
+        creditAmount: "10000",
+        totalDebit: "10000",
+        totalCredit: "10000",
+        narration: "Being goods purchased for cash.",
+      }),
+    );
+    const purchasedGoodsWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Goods A/c Dr.",
+        debitAmount: "10000",
+        creditAccount: "To Bank A/c",
+        creditAmount: "10000",
+        totalDebit: "10000",
+        totalCredit: "10000",
+        narration: "Being goods purchased for cash.",
       }),
     );
     const paidSalaryWrongAccountResult = await checkJournalEntriesPracticeAnswer(
@@ -1131,14 +1188,26 @@ describe("Production Chapters route", () => {
     );
     const soldGoodsReveal = await revealJournalEntriesPracticeCorrectAnswer(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     const paidSalaryReveal = await revealJournalEntriesPracticeCorrectAnswer(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
+    const purchasedGoodsReveal = await revealJournalEntriesPracticeCorrectAnswer(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     const unsupportedReveal = await revealJournalEntriesPracticeCorrectAnswer("unsupported-production-question");
 
     expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toEqual([
       SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
       PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
     ]);
+    expect(journalEntriesChapter.subtopics[9].practiceQuestionIds).toEqual([
+      PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(
+      journalEntriesChapter.subtopics.flatMap((subtopic) => subtopic.practiceQuestionIds ?? []),
+    ).toEqual([
+      SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+      PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+      PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
     expect(soldGoodsResult.status).toBe("correct");
     expect(paidSalaryResult.status).toBe("correct");
+    expect(purchasedGoodsResult.status).toBe("correct");
     expect(soldGoodsWrongAccountResult.status).toBe("incorrect");
     expect(soldGoodsWrongAccountResult.errors).toEqual(
       expect.arrayContaining([
@@ -1149,6 +1218,13 @@ describe("Production Chapters route", () => {
     expect(paidSalaryWrongAccountResult.status).toBe("incorrect");
     expect(paidSalaryWrongAccountResult.errors).toEqual(
       expect.arrayContaining(["Cash A/c is not affected because the transaction states bank."]),
+    );
+    expect(purchasedGoodsWrongAccountResult.status).toBe("incorrect");
+    expect(purchasedGoodsWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Goods A/c is not used here because goods bought for resale are recorded through Purchases A/c.",
+        "Bank A/c is not used because the transaction states cash.",
+      ]),
     );
     expect(wrongButBalancedResult.status).toBe("incorrect");
     expect(wrongButBalancedResult.balanceResult.message).toBe(
@@ -1176,6 +1252,13 @@ describe("Production Chapters route", () => {
     });
     expect(paidSalaryReveal.lines.map((line) => line.particulars)).toEqual(["Salary A/c Dr.", "To Bank A/c"]);
     expect(paidSalaryReveal.lines.map((line) => line.particulars)).not.toContain("To Sales A/c");
+    expect(purchasedGoodsReveal).toMatchObject({
+      questionId: PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being goods purchased for cash.",
+    });
+    expect(purchasedGoodsReveal.lines.map((line) => line.particulars)).toEqual(["Purchases A/c Dr.", "To Cash A/c"]);
+    expect(purchasedGoodsReveal.lines.map((line) => line.particulars)).not.toContain("To Bank A/c");
     expect(unsupportedReveal).toMatchObject({
       questionId: "unsupported-production-question",
       available: false,
@@ -1192,6 +1275,9 @@ describe("Production Chapters route", () => {
     expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toEqual([
       SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
       PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[9].practiceQuestionIds).toEqual([
+      PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
     ]);
     expect(previewHtml).toContain("Check Answer");
     expect(previewActionsSource).toContain("journal-entry-answer-keys.server");

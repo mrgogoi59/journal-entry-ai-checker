@@ -41,10 +41,12 @@ import {
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
   paidSalaryByBankPracticeQuestion,
+  purchasedGoodsForCashPracticeQuestion,
   soldGoodsForCashPracticeQuestion,
 } from "@/lib/learning-platform/chapters/journal-entries";
 import {
   paidSalaryByBankExpectedAnswer,
+  purchasedGoodsForCashExpectedAnswer,
   soldGoodsForCashExpectedAnswer,
 } from "@/lib/learning-platform/chapters/journal-entry-answer-keys.server";
 
@@ -315,7 +317,7 @@ describe("Platform preview routes", () => {
     expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "process-steps")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "recap")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[8].sections.filter((section) => section.type === "reflection-prompt")).toHaveLength(1);
-    expect(journalEntriesChapter.subtopics[9].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(journalEntriesChapter.subtopics[9].sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(1);
     expect(journalEntriesChapter.subtopics[9].sections.filter((section) => section.type === "concept-explanation")).toHaveLength(3);
     expect(journalEntriesChapter.subtopics[9].sections.filter((section) => section.type === "accounting-format")).toHaveLength(4);
     expect(journalEntriesChapter.subtopics[9].sections.filter((section) => section.type === "comparison")).toHaveLength(4);
@@ -955,7 +957,7 @@ describe("Platform preview routes", () => {
     expect(businessWithdrawal.illustration.journalEntry.map((line) => line.account)).not.toContain("Drawings A/c");
   });
 
-  it("defines Purchases as display-only content with cash, bank, credit, asset, and expense guardrails", () => {
+  it("defines Purchases with one approved checker plus cash, bank, credit, asset, and expense guardrails", () => {
     const purchasesSubtopic = journalEntriesChapter.subtopics.find(
       (subtopic) => subtopic.slug === JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
     );
@@ -976,8 +978,8 @@ describe("Platform preview routes", () => {
     );
     const solvedIllustrations = purchasesSubtopic?.sections.filter((section) => section.type === "solved-illustration") ?? [];
 
-    expect(purchasesSubtopic?.practiceQuestionIds).toBeUndefined();
-    expect(purchasesSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(0);
+    expect(purchasesSubtopic?.practiceQuestionIds).toEqual([purchasedGoodsForCashPracticeQuestion.id]);
+    expect(purchasesSubtopic?.sections.filter((section) => section.type === "practice-it-yourself")).toHaveLength(1);
     expect(goodsAssetComparison?.type).toBe("comparison");
     expect(expenseComparison?.type).toBe("comparison");
     expect(creditPurchaseFormat?.type).toBe("accounting-format");
@@ -1999,7 +2001,7 @@ describe("Platform preview routes", () => {
     expect(completionBanner.stats.map((stat) => stat.value)).toEqual([
       "Section 16 of 16",
       "15",
-      "2",
+      "3",
     ]);
     expect(completionBanner.note).toContain("no localStorage is written");
     expect(learnedGroups.groups.map((group) => group.title)).toEqual([
@@ -2025,6 +2027,7 @@ describe("Platform preview routes", () => {
     expect(practiceLinks.questions.map((question) => question.title)).toEqual([
       "Sold goods for cash ₹12,000",
       "Paid salary by bank ₹8,000",
+      "Bought goods for cash Rs 10,000",
     ]);
     expect(practiceLinks.link.href).toBe("/platform-preview/chapters/journal-entries#practice-it-yourself");
     expect(reviewChallenges.revealLabel).toBe("Reveal answer and explanation");
@@ -2046,7 +2049,7 @@ describe("Platform preview routes", () => {
       "Commission Received A/c",
     ]);
     expect(masterySelfCheck.points).toContain("I can confirm debit equals credit.");
-    expect(scopeRoadmap.currentScope.items).toContain("Deterministic practice for two approved questions");
+    expect(scopeRoadmap.currentScope.items).toContain("Deterministic practice for three approved questions");
     expect(scopeRoadmap.futureScope.label).toBe("Later / separate chapter or subtopic");
     expect(scopeRoadmap.futureScope.items).toEqual(
       expect.arrayContaining(["GST", "Partnership restructuring", "Company Accounts complexity"]),
@@ -2747,7 +2750,7 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("renders the Purchases section with the Sales next link and without adding a checker", () => {
+  it("renders the Purchases section with the Sales next link and the one approved checker", () => {
     const html = renderToStaticMarkup(createElement(PurchasesChapterPreviewPage));
 
     expect(html).toContain("Chapters");
@@ -2792,11 +2795,15 @@ describe("Platform preview routes", () => {
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/drawings"');
     expect(html).toContain('href="/platform-preview/chapters/journal-entries/sales"');
     expect(html).not.toContain("Continue to Sales - Preview only");
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Bought goods for cash Rs 10,000. Pass the journal entry.");
+    expect(html).toContain("Check Answer");
+    expect(html).toContain("Reset Answer");
+    expect(html).toContain("Feedback will appear here after you check your answer.");
     expect(html).not.toContain("Practice 1 of 2");
     expect(html).not.toContain("Practice 2 of 2");
-    expect(html).not.toContain("Check Answer");
+    expect(html).not.toContain("Practice 2 of 1");
     expect(html).not.toContain("Show Correct Answer");
-    expect(html).not.toContain("practice-feedback-");
   });
 
   it("renders the Sales section with the Expenses next link and without adding a checker", () => {
@@ -3171,7 +3178,7 @@ describe("Platform preview routes", () => {
     expect(html).toContain("Journal Entries foundation chapter preview complete");
     expect(html).toContain("Preview/static chapter progress");
     expect(html).toContain("15 learning sections reviewed");
-    expect(html).toContain("2 interactive practice questions currently available");
+    expect(html).toContain("3 interactive practice questions currently available");
     expect(html).toContain("no localStorage is written");
     expect(html).toContain("What the student has learned");
     expect(html).toContain("Foundations");
@@ -3251,24 +3258,26 @@ describe("Platform preview routes", () => {
     expect(html).not.toContain("practice-feedback-");
   });
 
-  it("keeps Practice It Yourself constrained to the two approved checking-ready questions", () => {
+  it("keeps Practice It Yourself constrained to the three approved checking-ready questions", () => {
     const practiceSections = journalEntriesChapter.subtopics
       .flatMap((subtopic) => subtopic.sections)
       .filter((section) => section.type === "practice-it-yourself");
     const checkingReadySections = practiceSections.filter((section) => section.question.status === "checking-ready");
 
-    expect(checkingReadySections).toHaveLength(2);
+    expect(checkingReadySections).toHaveLength(3);
     expect(checkingReadySections.map((section) => section.question.id)).toEqual([
       soldGoodsForCashPracticeQuestion.id,
       paidSalaryByBankPracticeQuestion.id,
+      purchasedGoodsForCashPracticeQuestion.id,
     ]);
     expect(checkingReadySections.map((section) => section.question.question)).toEqual([
       "Sold goods for cash ₹12,000. Pass the journal entry.",
       "Paid salary by bank ₹8,000. Pass the journal entry.",
+      "Bought goods for cash Rs 10,000. Pass the journal entry.",
     ]);
   });
 
-  it("keeps answer keys server-controlled and the editors independent for the Phase 3F slice", () => {
+  it("keeps answer keys server-controlled and the editors independent after the Phase 6F checker addition", () => {
     const editorSource = readFileSync("components/learning-platform/JournalEntryPracticeEditor.tsx", "utf8");
     const actionsSource = readFileSync("app/platform-preview/chapters/journal-entries/actions.ts", "utf8");
     const answerKeySource = readFileSync(
@@ -3280,6 +3289,9 @@ describe("Platform preview routes", () => {
     expect(actionsSource).toContain("journal-entry-answer-keys.server");
     expect(answerKeySource).toContain("soldGoodsForCashAnswerKey");
     expect(answerKeySource).toContain("paidSalaryByBankAnswerKey");
+    expect(answerKeySource).toContain("purchasedGoodsForCashAnswerKey");
+    expect(purchasedGoodsForCashExpectedAnswer.lines.map((line) => line.account)).toEqual(["Purchases A/c", "Cash A/c"]);
+    expect(purchasedGoodsForCashExpectedAnswer.narration).toBe("Being goods purchased for cash.");
     expect(editorSource).toContain("JOURNAL_ENTRY_PRACTICE_LIMITS.maxRows");
     expect(editorSource).toContain("Maximum 6 rows");
     expect(editorSource).toContain("clearCheckedFeedback");
