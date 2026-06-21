@@ -2,24 +2,24 @@
 
 ## Immediate recommended next step
 
-Phase 5L Final pilot-ready production QA audit is completed.
+Phase 6D full Journal Entries consistency QA is completed.
 
 What this audit produced:
 
-- new audit document: `docs/final-pilot-ready-qa.md`
-- final verdict: ready for a guided 10-20 student pilot with founder/teacher supervision
-- no must-fix blocker was found before the pilot
-- the audited route flow remains Home -> `Start Journal Entries` -> `/chapters/journal-entries` -> first 3-5 sections -> the two existing Practice It Yourself checkers -> `/practice/journal-entries` -> optional `/journal-entry-solver` -> optional `/solver`
-- the audit covers Home, Dashboard, Chapters, Journal Entries overview, first five Journal Entries sections, the two existing checkers, Practice, Solver, migrated Solver tools, mobile readiness, legacy `/tools`/`/learn`, `/how-to-use`, `/supported-transactions`, and `/platform-preview/...`
-- accepted limitations remain explicit: Journal Entries-only pilot scope, exactly two live checkers, mostly read-only later sections, honest Dashboard empty states, AI Assistant not live, no login/progress/OCR/payment/cloud persistence, legacy `/tools`/`/learn`, and separate Advanced Practice Beta
-- no runtime/app/test code, Practice It Yourself questions, accepted cases, checker logic, expected answers, parser/validator logic, accounting logic, Journal Entry Explainer behavior, Solver calculation logic, persistence, OCR, payments, AI Assistant behavior, route migration, API route, or backend feature was changed
+- new audit document: `docs/journal-entries-consistency-qa.md`
+- final verdict: ready for student/teacher review as the first gold-standard AccyWise AI chapter, with the current two-checker boundary preserved
+- audited routes: `/chapters/journal-entries`, `/chapters/journal-entries/[sectionSlug]`, `/practice/journal-entries`, and `/journal-entry-solver`
+- confirmed the overview, all 16 section pilot guide cards, previous/next navigation, read-only/checker availability, Practice handoff, Explainer handoff, mobile-safe structure, and recap flow
+- confirmed exactly 2 in-chapter Practice It Yourself checkers remain live: `Sold goods for cash ₹12,000` and `Paid salary by bank ₹8,000`
+- no must-fix items were found
+- no runtime/app/test code changes were required during Phase 6D
+- no new Practice It Yourself question, accepted case, expected answer, checker logic, parser/classifier/validator logic, Journal Entry Explainer behavior, Solver calculation logic, accounting engine, API route, persistence, OCR, payment, AI Assistant behavior, route migration, or backend feature was added
 
 Recommended next action:
 
-- run the guided 10-20 student pilot using `docs/pilot-launch-package.md` and `docs/student-pilot-script.md`
-- immediately after the pilot, capture observations in `docs/post-pilot-analysis-template.md`
-- choose any Phase 5M work only after real pilot evidence identifies the next bottleneck
-- keep login/auth/database progress, OCR/photo checking, payments, AI Assistant logic, broad all-chapter expansion, unsupported advanced cases, route redesign, checker/parser/classifier/validator rewrites, and accounting-engine changes out of scope unless pilot evidence strongly supports readiness and a separate plan approves them
+- proceed to student/teacher review or a guided Journal Entries pilot using the existing two-checker boundary
+- if the next product step is checker expansion, do Phase 6E first: create a one-additional-checker safety plan only, with exact expected answer, accepted boundaries, unsupported variants, feedback requirements, and tests before implementation
+- do not implement a third checker, accepted cases, parser/checker logic, accounting-engine changes, API routes, login/progress/database, OCR, payments, AI Assistant behavior, or broad chapter expansion until a separate plan approves it
 
 Recent Phase 5B planning context retained:
 

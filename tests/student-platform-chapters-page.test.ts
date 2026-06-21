@@ -35,10 +35,20 @@ import {
 } from "@/lib/learning-platform/chapter-catalog";
 import {
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+  JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
+  JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG,
   JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+  JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
+  JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
+  JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
   JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+  JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
+  JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
+  JOURNAL_ENTRIES_SALES_SECTION_SLUG,
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
@@ -736,7 +746,7 @@ describe("Production Chapters route", () => {
     expect(html.toLowerCase()).not.toContain("all chapters are complete");
   });
 
-  it("polishes only the first five Journal Entries sections with pilot guide copy and safe next steps", () => {
+  it("polishes all sixteen Journal Entries sections with pilot guide copy and safe next steps", () => {
     const polishedSections = [
       {
         slug: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
@@ -773,7 +783,89 @@ describe("Production Chapters route", () => {
         actionHref: "/chapters/journal-entries/journal-format-and-narration",
         actionText: "Continue to Journal Format and Narration",
       },
+      {
+        slug: JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+        title: "Journal Format and Narration",
+        rule: "Format shows the accounting logic clearly",
+        actionHref: "/chapters/journal-entries/cash-and-bank-transactions",
+        actionText: "Continue to Cash and Bank Transactions",
+      },
+      {
+        slug: JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+        title: "Cash and Bank Transactions",
+        rule: "Cash in hand and bank balance are different",
+        actionHref: "/chapters/journal-entries/capital",
+        actionText: "Continue to Capital",
+      },
+      {
+        slug: JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
+        title: "Capital",
+        rule: "Capital increases the owner's claim",
+        actionHref: "/chapters/journal-entries/drawings",
+        actionText: "Continue to Drawings",
+      },
+      {
+        slug: JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
+        title: "Drawings",
+        rule: "Personal use creates Drawings, not expense",
+        actionHref: "/chapters/journal-entries/purchases",
+        actionText: "Continue to Purchases",
+      },
+      {
+        slug: JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
+        title: "Purchases",
+        rule: "Purchases means goods bought for resale",
+        actionHref: "/chapters/journal-entries/sales",
+        actionText: "Continue to Sales",
+      },
+      {
+        slug: JOURNAL_ENTRIES_SALES_SECTION_SLUG,
+        title: "Sales",
+        rule: "Sales means goods sold in normal trading",
+        actionHref: "/chapters/journal-entries/expenses",
+        actionText: "Continue to Expenses",
+      },
+      {
+        slug: JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
+        title: "Expenses",
+        rule: "Business expenses are debited when incurred",
+        actionHref: "/chapters/journal-entries/income",
+        actionText: "Continue to Income",
+      },
+      {
+        slug: JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
+        title: "Income",
+        rule: "Income is credited when earned",
+        actionHref: "/chapters/journal-entries/assets-and-liabilities",
+        actionText: "Continue to Assets and Liabilities",
+      },
+      {
+        slug: JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
+        title: "Assets and Liabilities",
+        rule: "Assets increase by debit; liabilities increase by credit",
+        actionHref: "/chapters/journal-entries/mixed-simple-entries",
+        actionText: "Continue to Mixed Simple Entries",
+      },
+      {
+        slug: JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
+        title: "Mixed Simple Entries",
+        rule: "Reason first, then write the entry",
+        actionHref: "/chapters/journal-entries/chapter-recap-and-practice",
+        actionText: "Continue to Chapter Recap and Practice",
+      },
+      {
+        slug: JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG,
+        title: "Chapter Recap and Practice",
+        rule: "Use the full journal-entry method every time",
+        actionHref: undefined,
+        actionText: undefined,
+      },
     ] as const;
+
+    expect(polishedSections).toHaveLength(journalEntriesChapter.subtopics.length);
+    expect(polishedSections.map((section) => section.slug)).toEqual(
+      journalEntriesChapter.subtopics.map((subtopic) => subtopic.slug),
+    );
 
     polishedSections.forEach(({ actionHref, actionText, rule, slug, title }) => {
       const html = renderProductionSection(slug);
@@ -785,10 +877,12 @@ describe("Production Chapters route", () => {
       expect(html).toContain("Pay attention to");
       expect(html).toContain("Next learning step");
       expect(html).toContain("Rule to remember");
-      expect(html).toContain(rule);
+      expect(html).toContain(escapeHtmlText(rule));
       expect(html).toContain("Study the examples");
       expect(html).toContain("Follow the analysis, not just the answer");
-      expect(getLinkMarkupWithText(html, actionHref, actionText)).toContain(actionText);
+      if (actionHref && actionText) {
+        expect(getLinkMarkupWithText(html, actionHref, actionText)).toContain(actionText);
+      }
       expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if stuck")).toContain(
         "Use Explainer if stuck",
       );
@@ -796,11 +890,6 @@ describe("Production Chapters route", () => {
         "Revise later in Practice",
       );
     });
-
-    const sectionSixHtml = renderProductionSection(JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG);
-
-    expect(sectionSixHtml).not.toContain("Section pilot guide");
-    expect(sectionSixHtml).not.toContain("Before you study Journal Format and Narration");
   });
 
   it("renders a compact how-to-use path on the production Journal Entries chapter", () => {

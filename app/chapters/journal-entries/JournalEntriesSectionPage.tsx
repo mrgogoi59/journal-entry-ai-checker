@@ -31,9 +31,20 @@ import {
 import {
   getJournalEntriesSubtopic,
   JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+  JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
   JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
+  JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG,
   JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+  JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
+  JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
+  JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
+  JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+  JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG,
+  JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
+  JOURNAL_ENTRIES_SALES_SECTION_SLUG,
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
   toPracticeItYourselfPreviewQuestion,
@@ -261,6 +272,149 @@ const earlyJournalEntriesSectionGuides: Record<string, EarlySectionGuide> = {
       "Identify the account, classify it, decide whether it increases or decreases, then apply debit-credit rules.",
     exampleTip:
       "For each solved example, trace the logic from account type to increase/decrease before looking at the final entry.",
+  },
+  [JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG]: {
+    teaches: "How to place Date, Particulars, L.F., debit amount, credit amount, Dr., To, and narration correctly.",
+    whyItMatters:
+      "Even when the account logic is correct, poor format can make the entry incomplete or hard to post later.",
+    watchFor: "Do not skip narration, Dr., To, or equal debit-credit totals just because the account names look correct.",
+    nextStep:
+      "After the format feels clear, continue to Cash and Bank Transactions to apply it to common payment modes.",
+    ruleTitle: "Format shows the accounting logic clearly",
+    ruleBody:
+      "Write the debit account first with Dr., write the credited account below with To, and keep debit and credit totals equal.",
+    exampleTip:
+      "Study the column placement in each example, especially where Dr., To, debit amount, credit amount, and narration appear.",
+  },
+  [JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG]: {
+    teaches: "How Cash A/c and Bank A/c differ when money is received, paid, deposited, withdrawn, or transferred.",
+    whyItMatters:
+      "Cash in hand and bank balance are separate assets, so choosing the wrong account changes the whole entry.",
+    watchFor: "Do not mix physical cash with bank payments, cheques, UPI, NEFT, or bank transfers.",
+    nextStep:
+      "After cash and bank feel separate, continue to Capital to see how money brought into business is recorded.",
+    ruleTitle: "Cash in hand and bank balance are different",
+    ruleBody:
+      "Use Cash A/c for physical cash. Use Bank A/c for cheque, UPI, NEFT, bank transfer, or direct bank movement.",
+    exampleTip:
+      "In each example, underline the payment-mode word first, then decide whether Cash A/c or Bank A/c is affected.",
+  },
+  [JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG]: {
+    teaches: "How owner or partner contribution is recorded when money or value is brought into the business.",
+    whyItMatters:
+      "Capital is the owner's claim in the business. It is not sales, income, or a normal receipt.",
+    watchFor: "Do not confuse capital introduced by the owner with income earned from customers.",
+    nextStep:
+      "After capital feels clear, continue to Drawings to learn the opposite idea: personal withdrawal from business.",
+    ruleTitle: "Capital increases the owner's claim",
+    ruleBody:
+      "When the owner brings value into the business, debit the asset received and credit the owner's Capital A/c.",
+    exampleTip:
+      "While reading examples, look for who brought the value, what the business received, and whether Cash or Bank is used.",
+  },
+  [JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG]: {
+    teaches: "How to record money, goods, or value taken by the owner or partner for personal use.",
+    whyItMatters:
+      "Drawings reduce capital presentation. They are not business expenses and should not be treated like salary or rent.",
+    watchFor: "Personal use is the main clue. A business withdrawal and a personal withdrawal are not the same.",
+    nextStep:
+      "After drawings are clear, continue to Purchases to study goods bought for resale.",
+    ruleTitle: "Personal use creates Drawings, not expense",
+    ruleBody:
+      "Debit Drawings A/c when the owner takes value for personal use, and credit what leaves the business.",
+    exampleTip:
+      "In every drawings example, first find the personal-use words, then identify whether Cash, Bank, or goods leave the business.",
+  },
+  [JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG]: {
+    teaches: "How to record goods bought for resale through cash, bank, or credit.",
+    whyItMatters:
+      "Purchases A/c is used for goods bought for trading. Assets and routine expenses need different accounts.",
+    watchFor: "Do not use Purchases A/c for furniture, machinery, rent, salary, or other non-resale items.",
+    nextStep:
+      "After purchases feel clear, continue to Sales to study goods sold in the normal course of business.",
+    ruleTitle: "Purchases means goods bought for resale",
+    ruleBody:
+      "Debit Purchases A/c only for goods bought for resale. Credit Cash, Bank, or the supplier depending on payment mode.",
+    exampleTip:
+      "For each purchase example, decide whether the item is resale goods, a business asset, or an expense before writing the entry.",
+  },
+  [JOURNAL_ENTRIES_SALES_SECTION_SLUG]: {
+    teaches: "How to record goods sold through cash, bank, or credit and use Sales A/c only for normal trading goods.",
+    whyItMatters:
+      "Sales is usually trading income. The receipt or debtor account shows what the business receives or is owed.",
+    watchFor: "Do not credit Sales A/c for asset sales, loans, capital introduced, or other non-goods receipts.",
+    nextStep:
+      "After goods sold feels clear, continue to Expenses to study business costs like salary, rent, and carriage.",
+    ruleTitle: "Sales means goods sold in normal trading",
+    ruleBody:
+      "Debit Cash, Bank, or the customer for what the business receives or is owed. Credit Sales A/c for goods sold.",
+    exampleTip:
+      "For each sales example, ask whether goods were sold and whether the receipt is cash, bank, or credit.",
+  },
+  [JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG]: {
+    teaches: "How business costs like salary, rent, wages, and electricity are recorded when paid or due.",
+    whyItMatters:
+      "Expenses affect profit, but the credit account changes when the cost is paid, outstanding, or prepaid.",
+    watchFor: "Do not treat owner personal use, asset purchase, or goods purchase as an ordinary business expense.",
+    nextStep:
+      "After expenses feel clear, continue to Income to study amounts earned by the business.",
+    ruleTitle: "Business expenses are debited when incurred",
+    ruleBody:
+      "Debit the specific Expense A/c. Credit Cash or Bank if paid, or credit a liability if still due.",
+    exampleTip:
+      "In each expense example, ask whether the cost is for business, personal use, an asset, or an adjustment.",
+  },
+  [JOURNAL_ENTRIES_INCOME_SECTION_SLUG]: {
+    teaches: "How to record income earned by the business and separate it from capital, loans, advances, or collections.",
+    whyItMatters:
+      "Income is credited when earned, but receiving money does not always mean income has been earned now.",
+    watchFor: "Do not confuse income with capital introduced, loan received, debtor collection, or income received in advance.",
+    nextStep:
+      "After income feels clear, continue to Assets and Liabilities to study what the business owns and owes.",
+    ruleTitle: "Income is credited when earned",
+    ruleBody:
+      "Debit Cash, Bank, or an accrued asset for the receipt or receivable. Credit income only when earned.",
+    exampleTip:
+      "For each income example, find the money source and check whether it has been earned before crediting Income A/c.",
+  },
+  [JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG]: {
+    teaches: "How to record simple asset purchases, loans, creditors, and settlement of amounts owed.",
+    whyItMatters:
+      "Assets and liabilities shape the Balance Sheet, so they should not be mixed with purchases, expenses, income, or capital.",
+    watchFor: "Do not use Purchases A/c for fixed assets or Income A/c for loans and other liabilities.",
+    nextStep:
+      "After assets and liabilities are clear, continue to Mixed Simple Entries for revision across all rules.",
+    ruleTitle: "Assets increase by debit; liabilities increase by credit",
+    ruleBody:
+      "Debit assets when they increase. Credit liabilities when they increase, and debit them when they are settled.",
+    exampleTip:
+      "In each example, decide whether the account is something owned, something owed, or a normal trading item.",
+  },
+  [JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG]: {
+    teaches: "How to combine earlier rules to solve simple entries without being told the transaction type.",
+    whyItMatters:
+      "Exam questions mix cash, bank, capital, drawings, purchases, sales, expenses, income, assets, and liabilities.",
+    watchFor: "Do not rush. Analyse one transaction at a time and do not assume this section adds new live checkers.",
+    nextStep:
+      "After revision, continue to Chapter Recap and Practice to choose the safest next action.",
+    ruleTitle: "Reason first, then write the entry",
+    ruleBody:
+      "Identify accounts, classify each account, decide increase or decrease, then write balanced debit and credit lines.",
+    exampleTip:
+      "Cover the answer, solve the transaction in steps, and compare your reasoning with the solved illustration.",
+  },
+  [JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG]: {
+    teaches: "How the full Journal Entries chapter fits together and where to revise or practise next.",
+    whyItMatters:
+      "A recap helps students choose the next safe step without expecting every section to be interactive yet.",
+    watchFor: "Only the two Section 1 Practice It Yourself checkers are live for now; later checkers need a separate plan.",
+    nextStep:
+      "Revise weak sections, try the two live checks again, use beginner Practice, or open the Explainer for one transaction.",
+    ruleTitle: "Use the full journal-entry method every time",
+    ruleBody:
+      "Transaction first, accounts affected, account types, debit-credit logic, correct format, then balanced totals.",
+    exampleTip:
+      "Use the recap as a checklist. If one step feels weak, return to that section before attempting more practice.",
   },
 };
 
