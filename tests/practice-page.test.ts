@@ -256,7 +256,7 @@ describe("PracticePage", () => {
     expect(learningContentSource).not.toContain('{ label: "Practice Basics", href: "/practice" }');
     expect(learningContentSource).not.toContain('{ label: "Practice Journal Entries", href: "/practice" }');
     expect(learningContentSource).not.toContain('{ label: "Practice GST", href: "/practice" }');
-    expect(readFileSync("app/page.tsx", "utf8")).toContain('href="/practice"');
+    expect(readFileSync("app/page.tsx", "utf8")).toContain('href: "/practice"');
     expect(readFileSync("app/dashboard/page.tsx", "utf8")).toContain('href: "/practice"');
     expect(readFileSync("components/student-platform/navigation.ts", "utf8")).toContain('href: "/practice"');
   });

@@ -62,10 +62,6 @@ function getHrefValues(html: string) {
   return Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]);
 }
 
-function getOverviewCardMarkup(html: string, label: string) {
-  return html.match(new RegExp(`<article[^>]*aria-label="${label} overview"[\\s\\S]*?</article>`))?.[0] ?? "";
-}
-
 function getSolverToolCardMarkup(html: string, label: string) {
   return html.match(new RegExp(`<article[^>]*aria-label="${label} solver tool"[\\s\\S]*?</article>`))?.[0] ?? "";
 }
@@ -1113,82 +1109,86 @@ describe("Production Chapters route", () => {
     expect(previewEditorSource).toContain("Show Correct Answer");
   });
 
-  it("integrates the homepage with Dashboard available and AI Assistant still upcoming", () => {
+  it("renders the simplified homepage with one primary Journal Entries path", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
     const hrefs = getHrefValues(html);
 
-    expect(html).toContain('aria-label="Primary platform navigation"');
-    ["Dashboard", "Chapters", "Solver", "Practice", "AI Assistant"].forEach((label) => {
-      expect(html).toContain(label);
-    });
-    expect(hrefs).toContain("/dashboard");
-    expect(hrefs).toContain("/chapters");
-    expect(hrefs).toContain("/solver");
-    expect(hrefs).toContain("/practice");
-    expect(html).toContain("Coming soon");
-    expect(hrefs).not.toContain("/assistant");
-    expect(html).not.toContain("/platform-preview");
     expect(homeMetadata).toMatchObject({
       title: "AccyWise AI — Interactive Accountancy Learning",
+      description: "Learn Accountancy by doing with chapters, practice checks, and Solver tools.",
     });
-  });
-
-  it("renders Phase 5C homepage first-time path to Journal Entries with calmer secondary options", () => {
-    const html = renderToStaticMarkup(createElement(HomePage));
-
-    expect(getLinkMarkup(html, "/chapters/journal-entries")).toContain("Start Journal Entries");
-    expect(getLinkMarkupWithText(html, "/chapters", "Explore Chapters")).toContain("Explore Chapters");
-    expect(getLinkMarkupWithText(html, "/solver", "Use Solver Tools")).toContain("Use Solver Tools");
-    expect(getLinkMarkupWithText(html, "/practice", "Open Practice")).toContain("Open Practice");
+    expect(html).toContain("AccyWise AI");
+    expect(html).toContain("Learn Accountancy by Doing");
+    expect(html).toContain("Start with Journal Entries, practise with checks, use Solver when stuck.");
     expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
       "Start Journal Entries",
     );
-    expect(html).toContain("Recommended first path");
-    expect(html).toContain("Begin with the live Journal Entries chapter");
-    expect(html).toContain("Read one short section");
-    expect(html).toContain("Try Practice It Yourself");
+    expect(html).toContain("How It Works");
+    expect(html).toContain("1.");
+    expect(html).toContain("Read a chapter");
+    expect(html).toContain("2.");
+    expect(html).toContain("Try Practice");
+    expect(html).toContain("3.");
     expect(html).toContain("Use Solver if stuck");
-    expect(html).toContain("Recommended first chapter");
-    expect(html).toContain("Start with Journal Entries");
-    expect(html).toContain("Structured chapter learning");
-    expect(html).toContain("solved illustrations");
-    expect(html).toContain("complete-answer Practice It Yourself");
+    expect(html).toContain("Quick Links");
+    expect(getLinkMarkupWithText(html, "/chapters", "Chapters")).toContain("Chapters");
+    expect(getLinkMarkupWithText(html, "/solver", "Solver")).toContain("Solver");
+    expect(getLinkMarkupWithText(html, "/practice", "Practice")).toContain("Practice");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).toContain("/chapters/journal-entries");
+    expect(hrefs).not.toContain("/dashboard");
+    expect(hrefs).not.toContain("/assistant");
+    expect(hrefs).not.toContain("/tools");
+    expect(hrefs).not.toContain("/how-to-use");
+    expect(hrefs).not.toContain("/supported-transactions");
+    expect(html).not.toContain('aria-label="Primary platform navigation"');
+    expect(html).not.toContain("Dashboard");
+    expect(html).not.toContain("AI Assistant");
+    expect(html).not.toContain("Coming soon");
+    expect(html).not.toContain("Recommended first path");
+    expect(html).not.toContain("Recommended first chapter");
+    expect(html).not.toContain("The platform");
+    expect(html).not.toContain("Five clear areas");
+    expect(html).not.toContain("Explore Chapters");
+    expect(html).not.toContain("Use Solver Tools");
+    expect(html).not.toContain("Open Practice");
+    expect(html).not.toContain("Open Dashboard");
+    expect(html).not.toContain("No live route yet");
+    expect(html).not.toContain("Start with Journal Entries today");
+    expect(html).not.toContain("Built for commerce students");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).not.toContain("/platform-preview");
+  });
+
+  it("keeps homepage quick links limited to the production hubs", () => {
+    const html = renderToStaticMarkup(createElement(HomePage));
+    const hrefs = getHrefValues(html);
+
+    expect(getLinkMarkup(html, "/chapters/journal-entries")).toContain("Start Journal Entries");
+    expect(getLinkMarkupWithText(html, "/chapters", "Chapters")).toContain("Chapters");
+    expect(getLinkMarkupWithText(html, "/solver", "Solver")).toContain("Solver");
+    expect(getLinkMarkupWithText(html, "/practice", "Practice")).toContain("Practice");
+    expect(hrefs.filter((href) => href === "/chapters/journal-entries")).toHaveLength(1);
+    expect(hrefs.filter((href) => href === "/chapters")).toHaveLength(1);
+    expect(hrefs.filter((href) => href === "/solver")).toHaveLength(1);
+    expect(hrefs.filter((href) => href === "/practice")).toHaveLength(1);
     expect(html.toLowerCase()).not.toContain("all chapters are available");
     expect(html.toLowerCase()).not.toContain("large question bank");
   });
 
-  it("renders accurate homepage overview states for available and coming-soon platform areas", () => {
-    const html = renderToStaticMarkup(createElement(HomePage));
-
-    const dashboardCard = getOverviewCardMarkup(html, "Dashboard");
-    const chaptersCard = getOverviewCardMarkup(html, "Chapters");
-    const solverCard = getOverviewCardMarkup(html, "Solver");
-    const practiceCard = getOverviewCardMarkup(html, "Practice");
-    const assistantCard = getOverviewCardMarkup(html, "AI Assistant");
-
-    expect(dashboardCard).toContain("Available");
-    expect(dashboardCard).toContain('href="/dashboard"');
-    expect(chaptersCard).toContain("Available");
-    expect(chaptersCard).toContain('href="/chapters"');
-    expect(solverCard).toContain("Available");
-    expect(solverCard).toContain('href="/solver"');
-    expect(practiceCard).toContain("Available");
-    expect(practiceCard).toContain('href="/practice"');
-    expect(assistantCard).toContain("Coming soon");
-    expect(assistantCard).toContain("No live route yet");
-  });
-
-  it("keeps legacy production routes available while homepage points students toward the production hubs", () => {
+  it("keeps legacy production routes available while homepage stays uncluttered", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
     const hrefs = getHrefValues(html);
 
     expect(hrefs).toContain("/chapters");
-    expect(hrefs).toContain("/dashboard");
     expect(hrefs).toContain("/solver");
     expect(hrefs).not.toContain("/tools");
     expect(hrefs).toContain("/practice");
-    expect(hrefs).toContain("/how-to-use");
-    expect(hrefs).toContain("/supported-transactions");
+    expect(hrefs).not.toContain("/dashboard");
+    expect(hrefs).not.toContain("/how-to-use");
+    expect(hrefs).not.toContain("/supported-transactions");
     expect(readFileSync("app/learn/page.tsx", "utf8")).toContain("export default function LearnPage");
     expect(readFileSync("app/tools/page.tsx", "utf8")).toContain("export default function ToolsPage");
     expect(readFileSync("app/practice/page.tsx", "utf8")).toContain("export default function PracticePage");
