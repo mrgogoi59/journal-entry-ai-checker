@@ -2,16 +2,26 @@ import { describe, expect, it } from "vitest";
 import { checkJournalEntryPracticeAttempt } from "@/lib/learning-platform/checkers/journal-entry-checker";
 import { JOURNAL_ENTRY_PRACTICE_LIMITS, type JournalEntryPracticeAttempt } from "@/lib/learning-platform/checkers/types";
 import {
+  boughtFurnitureForCashAnswerKey,
   getJournalEntryPracticeAnswerKey,
   getJournalEntryPracticeCorrectAnswerReveal,
   paidSalaryByBankAnswerKey,
+  paidRentByCashAnswerKey,
   purchasedGoodsForCashAnswerKey,
+  receivedCommissionInCashAnswerKey,
   soldGoodsForCashAnswerKey,
+  startedBusinessWithCashAnswerKey,
+  withdrewCashForPersonalUseAnswerKey,
 } from "@/lib/learning-platform/chapters/journal-entry-answer-keys.server";
 import {
+  BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+  PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
   PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+  RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+  STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID,
+  WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID,
 } from "@/lib/learning-platform/chapters/journal-entries";
 
 function createAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
@@ -123,6 +133,191 @@ function createPurchaseAttempt(overrides: Partial<JournalEntryPracticeAttempt> =
 
 function checkPurchase(attempt: JournalEntryPracticeAttempt = createPurchaseAttempt()) {
   return checkJournalEntryPracticeAttempt(attempt, purchasedGoodsForCashAnswerKey);
+}
+
+function createCapitalAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
+  return {
+    questionId: STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: "Cash A/c Dr.",
+        lf: "J1",
+        debitAmount: "50000",
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: "To Capital A/c",
+        lf: "J1",
+        debitAmount: "",
+        creditAmount: "50000",
+      },
+      {
+        rowOrder: 3,
+        particulars: "",
+        lf: "",
+        debitAmount: "",
+        creditAmount: "",
+      },
+    ],
+    totalDebit: "50000",
+    totalCredit: "50000",
+    narration: "Being business started with cash as capital.",
+    ...overrides,
+  };
+}
+
+function checkCapital(attempt: JournalEntryPracticeAttempt = createCapitalAttempt()) {
+  return checkJournalEntryPracticeAttempt(attempt, startedBusinessWithCashAnswerKey);
+}
+
+function createDrawingsAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
+  return {
+    questionId: WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: "Drawings A/c Dr.",
+        lf: "J1",
+        debitAmount: "5000",
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: "To Cash A/c",
+        lf: "J1",
+        debitAmount: "",
+        creditAmount: "5000",
+      },
+      {
+        rowOrder: 3,
+        particulars: "",
+        lf: "",
+        debitAmount: "",
+        creditAmount: "",
+      },
+    ],
+    totalDebit: "5000",
+    totalCredit: "5000",
+    narration: "Being cash withdrawn for personal use.",
+    ...overrides,
+  };
+}
+
+function checkDrawings(attempt: JournalEntryPracticeAttempt = createDrawingsAttempt()) {
+  return checkJournalEntryPracticeAttempt(attempt, withdrewCashForPersonalUseAnswerKey);
+}
+
+function createRentAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
+  return {
+    questionId: PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: "Rent A/c Dr.",
+        lf: "J1",
+        debitAmount: "3000",
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: "To Cash A/c",
+        lf: "J1",
+        debitAmount: "",
+        creditAmount: "3000",
+      },
+      {
+        rowOrder: 3,
+        particulars: "",
+        lf: "",
+        debitAmount: "",
+        creditAmount: "",
+      },
+    ],
+    totalDebit: "3000",
+    totalCredit: "3000",
+    narration: "Being rent paid in cash.",
+    ...overrides,
+  };
+}
+
+function checkRent(attempt: JournalEntryPracticeAttempt = createRentAttempt()) {
+  return checkJournalEntryPracticeAttempt(attempt, paidRentByCashAnswerKey);
+}
+
+function createCommissionAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
+  return {
+    questionId: RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: "Cash A/c Dr.",
+        lf: "J1",
+        debitAmount: "2000",
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: "To Commission A/c",
+        lf: "J1",
+        debitAmount: "",
+        creditAmount: "2000",
+      },
+      {
+        rowOrder: 3,
+        particulars: "",
+        lf: "",
+        debitAmount: "",
+        creditAmount: "",
+      },
+    ],
+    totalDebit: "2000",
+    totalCredit: "2000",
+    narration: "Being commission received in cash.",
+    ...overrides,
+  };
+}
+
+function checkCommission(attempt: JournalEntryPracticeAttempt = createCommissionAttempt()) {
+  return checkJournalEntryPracticeAttempt(attempt, receivedCommissionInCashAnswerKey);
+}
+
+function createFurnitureAttempt(overrides: Partial<JournalEntryPracticeAttempt> = {}): JournalEntryPracticeAttempt {
+  return {
+    questionId: BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: "Furniture A/c Dr.",
+        lf: "J1",
+        debitAmount: "15000",
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: "To Cash A/c",
+        lf: "J1",
+        debitAmount: "",
+        creditAmount: "15000",
+      },
+      {
+        rowOrder: 3,
+        particulars: "",
+        lf: "",
+        debitAmount: "",
+        creditAmount: "",
+      },
+    ],
+    totalDebit: "15000",
+    totalCredit: "15000",
+    narration: "Being furniture purchased for cash.",
+    ...overrides,
+  };
+}
+
+function checkFurniture(attempt: JournalEntryPracticeAttempt = createFurnitureAttempt()) {
+  return checkJournalEntryPracticeAttempt(attempt, boughtFurnitureForCashAnswerKey);
 }
 
 describe("learning-platform journal entry checker", () => {
@@ -992,15 +1187,611 @@ describe("learning-platform journal entry checker", () => {
     );
   });
 
+  it("accepts the exact cash-capital journal entry with totals and narration", () => {
+    const result = checkCapital();
+
+    expect(result.status).toBe("correct");
+    expect(result.errors).toEqual([]);
+    expect(result.gotRight).toEqual(
+      expect.arrayContaining([
+        "Cash is correctly debited because cash comes into the business.",
+        "Capital is correctly credited because the owner's claim increases.",
+        "Narration communicates that business started with cash capital.",
+        "Debit and credit totals are balanced.",
+      ]),
+    );
+    expect(result.totalsResult).toMatchObject({
+      status: "correct",
+      enteredDebit: 50000,
+      enteredCredit: 50000,
+      rowDebitTotal: 50000,
+      rowCreditTotal: 50000,
+    });
+  });
+
+  it("rejects reversal and wrong credit accounts for the cash-capital checker", () => {
+    const reversedResult = checkCapital(
+      createCapitalAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Capital A/c Dr.",
+            lf: "J1",
+            debitAmount: "50000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "To Cash A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "50000",
+          },
+        ],
+      }),
+    );
+    const salesResult = checkCapital(
+      createCapitalAttempt({
+        rows: [
+          createCapitalAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Sales A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "50000",
+          },
+        ],
+      }),
+    );
+    const incomeResult = checkCapital(
+      createCapitalAttempt({
+        rows: [
+          createCapitalAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Income A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "50000",
+          },
+        ],
+      }),
+    );
+
+    expect(reversedResult.status).toBe("incorrect");
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Capital should not be placed in the debit column."]));
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Cash should not be placed in the credit column."]));
+    expect(salesResult.status).toBe("incorrect");
+    expect(salesResult.errors).toEqual(
+      expect.arrayContaining(["Sales A/c is not used because capital is not income from goods sold."]),
+    );
+    expect(salesResult.errors).toEqual(expect.arrayContaining(["To Capital A/c is missing."]));
+    expect(incomeResult.status).toBe("incorrect");
+    expect(incomeResult.errors).toEqual(
+      expect.arrayContaining(["Income A/c is not used because capital is not business income."]),
+    );
+    expect(incomeResult.errors).toEqual(expect.arrayContaining(["To Capital A/c is missing."]));
+  });
+
+  it("rejects Bank and wrong amounts for the cash-capital checker", () => {
+    const bankResult = checkCapital(
+      createCapitalAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Bank A/c Dr.",
+            lf: "J1",
+            debitAmount: "50000",
+            creditAmount: "",
+          },
+          createCapitalAttempt().rows[1],
+        ],
+      }),
+    );
+    const wrongAmountResult = checkCapital(
+      createCapitalAttempt({
+        rows: [
+          { ...createCapitalAttempt().rows[0], debitAmount: "40000" },
+          { ...createCapitalAttempt().rows[1], creditAmount: "40000" },
+        ],
+        totalDebit: "40000",
+        totalCredit: "40000",
+      }),
+    );
+
+    expect(bankResult.status).toBe("incorrect");
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Bank A/c is not used because the transaction says cash."]));
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Cash A/c Dr. is missing."]));
+    expect(wrongAmountResult.status).toBe("incorrect");
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Cash should be debited with ₹50,000."]));
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Capital should be credited with ₹50,000."]));
+    expect(wrongAmountResult.balanceResult.message).toBe(
+      "The entry balances, but it does not balance at the correct ₹50,000 amount.",
+    );
+  });
+
+  it("accepts the exact cash-drawings journal entry with totals and narration", () => {
+    const result = checkDrawings();
+
+    expect(result.status).toBe("correct");
+    expect(result.errors).toEqual([]);
+    expect(result.gotRight).toEqual(
+      expect.arrayContaining([
+        "Drawings is correctly debited because the owner takes cash for personal use.",
+        "Cash is correctly credited because cash leaves the business.",
+        "Narration communicates that cash was withdrawn for personal use.",
+        "Debit and credit totals are balanced.",
+      ]),
+    );
+    expect(result.totalsResult).toMatchObject({
+      status: "correct",
+      enteredDebit: 5000,
+      enteredCredit: 5000,
+      rowDebitTotal: 5000,
+      rowCreditTotal: 5000,
+    });
+  });
+
+  it("rejects reversal and wrong debit accounts for the cash-drawings checker", () => {
+    const reversedResult = checkDrawings(
+      createDrawingsAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Cash A/c Dr.",
+            lf: "J1",
+            debitAmount: "5000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "To Drawings A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "5000",
+          },
+        ],
+      }),
+    );
+    const salaryResult = checkDrawings(
+      createDrawingsAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Salary A/c Dr.",
+            lf: "J1",
+            debitAmount: "5000",
+            creditAmount: "",
+          },
+          createDrawingsAttempt().rows[1],
+        ],
+      }),
+    );
+    const rentResult = checkDrawings(
+      createDrawingsAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Rent A/c Dr.",
+            lf: "J1",
+            debitAmount: "5000",
+            creditAmount: "",
+          },
+          createDrawingsAttempt().rows[1],
+        ],
+      }),
+    );
+
+    expect(reversedResult.status).toBe("incorrect");
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Cash should not be placed in the debit column."]));
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Drawings should not be placed in the credit column."]));
+    expect(salaryResult.status).toBe("incorrect");
+    expect(salaryResult.errors).toEqual(
+      expect.arrayContaining(["Salary A/c is a business expense and is not used for personal withdrawal."]),
+    );
+    expect(salaryResult.errors).toEqual(expect.arrayContaining(["Drawings A/c Dr. is missing."]));
+    expect(rentResult.status).toBe("incorrect");
+    expect(rentResult.errors).toEqual(
+      expect.arrayContaining(["Rent A/c is a business expense and is not used for personal withdrawal."]),
+    );
+    expect(rentResult.errors).toEqual(expect.arrayContaining(["Drawings A/c Dr. is missing."]));
+  });
+
+  it("rejects Bank and wrong amounts for the cash-drawings checker", () => {
+    const bankResult = checkDrawings(
+      createDrawingsAttempt({
+        rows: [
+          createDrawingsAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Bank A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "5000",
+          },
+        ],
+      }),
+    );
+    const wrongAmountResult = checkDrawings(
+      createDrawingsAttempt({
+        rows: [
+          { ...createDrawingsAttempt().rows[0], debitAmount: "4000" },
+          { ...createDrawingsAttempt().rows[1], creditAmount: "4000" },
+        ],
+        totalDebit: "4000",
+        totalCredit: "4000",
+      }),
+    );
+
+    expect(bankResult.status).toBe("incorrect");
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Bank A/c is not used because the transaction says cash."]));
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["To Cash A/c is missing."]));
+    expect(wrongAmountResult.status).toBe("incorrect");
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Drawings should be debited with ₹5,000."]));
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Cash should be credited with ₹5,000."]));
+    expect(wrongAmountResult.balanceResult.message).toBe(
+      "The entry balances, but it does not balance at the correct ₹5,000 amount.",
+    );
+  });
+
+  it("accepts the exact rent-paid-by-cash journal entry with totals and narration", () => {
+    const result = checkRent();
+
+    expect(result.status).toBe("correct");
+    expect(result.errors).toEqual([]);
+    expect(result.gotRight).toEqual(
+      expect.arrayContaining([
+        "Rent is correctly debited because rent is a business expense.",
+        "Cash is correctly credited because cash leaves the business.",
+        "Narration communicates that rent was paid in cash.",
+        "Debit and credit totals are balanced.",
+      ]),
+    );
+  });
+
+  it("rejects reversal and wrong debit accounts for the rent-paid-by-cash checker", () => {
+    const reversedResult = checkRent(
+      createRentAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Cash A/c Dr.",
+            lf: "J1",
+            debitAmount: "3000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "To Rent A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "3000",
+          },
+        ],
+      }),
+    );
+    const drawingsResult = checkRent(
+      createRentAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Drawings A/c Dr.",
+            lf: "J1",
+            debitAmount: "3000",
+            creditAmount: "",
+          },
+          createRentAttempt().rows[1],
+        ],
+      }),
+    );
+    const salaryResult = checkRent(
+      createRentAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Salary A/c Dr.",
+            lf: "J1",
+            debitAmount: "3000",
+            creditAmount: "",
+          },
+          createRentAttempt().rows[1],
+        ],
+      }),
+    );
+
+    expect(reversedResult.status).toBe("incorrect");
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Cash should not be placed in the debit column."]));
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Rent should not be placed in the credit column."]));
+    expect(drawingsResult.errors).toEqual(
+      expect.arrayContaining(["Drawings A/c is not used because rent is a business expense."]),
+    );
+    expect(drawingsResult.errors).toEqual(expect.arrayContaining(["Rent A/c Dr. is missing."]));
+    expect(salaryResult.errors).toEqual(expect.arrayContaining(["Salary A/c is a different expense and is not used here."]));
+    expect(salaryResult.errors).toEqual(expect.arrayContaining(["Rent A/c Dr. is missing."]));
+  });
+
+  it("rejects Bank and wrong amounts for the rent-paid-by-cash checker", () => {
+    const bankResult = checkRent(
+      createRentAttempt({
+        rows: [
+          createRentAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Bank A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "3000",
+          },
+        ],
+      }),
+    );
+    const wrongAmountResult = checkRent(
+      createRentAttempt({
+        rows: [
+          { ...createRentAttempt().rows[0], debitAmount: "2500" },
+          { ...createRentAttempt().rows[1], creditAmount: "2500" },
+        ],
+        totalDebit: "2500",
+        totalCredit: "2500",
+      }),
+    );
+
+    expect(bankResult.status).toBe("incorrect");
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Bank A/c is not used because the transaction says cash."]));
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["To Cash A/c is missing."]));
+    expect(wrongAmountResult.status).toBe("incorrect");
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Rent should be debited with ₹3,000."]));
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Cash should be credited with ₹3,000."]));
+  });
+
+  it("accepts the exact commission-received-in-cash journal entry with totals and narration", () => {
+    const result = checkCommission();
+
+    expect(result.status).toBe("correct");
+    expect(result.errors).toEqual([]);
+    expect(result.gotRight).toEqual(
+      expect.arrayContaining([
+        "Cash is correctly debited because cash is received.",
+        "Commission is correctly credited because commission income increases.",
+        "Narration communicates that commission was received in cash.",
+        "Debit and credit totals are balanced.",
+      ]),
+    );
+  });
+
+  it("rejects reversal and wrong credit accounts for the commission-received-in-cash checker", () => {
+    const reversedResult = checkCommission(
+      createCommissionAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Commission A/c Dr.",
+            lf: "J1",
+            debitAmount: "2000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "To Cash A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "2000",
+          },
+        ],
+      }),
+    );
+    const capitalResult = checkCommission(
+      createCommissionAttempt({
+        rows: [
+          createCommissionAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Capital A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "2000",
+          },
+        ],
+      }),
+    );
+    const salesResult = checkCommission(
+      createCommissionAttempt({
+        rows: [
+          createCommissionAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Sales A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "2000",
+          },
+        ],
+      }),
+    );
+
+    expect(reversedResult.status).toBe("incorrect");
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Commission should not be placed in the debit column."]));
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Cash should not be placed in the credit column."]));
+    expect(capitalResult.errors).toEqual(
+      expect.arrayContaining(["Capital A/c is not used because commission received is business income, not owner capital."]),
+    );
+    expect(capitalResult.errors).toEqual(expect.arrayContaining(["To Commission A/c is missing."]));
+    expect(salesResult.errors).toEqual(
+      expect.arrayContaining(["Sales A/c is not used because the transaction says commission, not goods sold."]),
+    );
+    expect(salesResult.errors).toEqual(expect.arrayContaining(["To Commission A/c is missing."]));
+  });
+
+  it("rejects Bank and wrong amounts for the commission-received-in-cash checker", () => {
+    const bankResult = checkCommission(
+      createCommissionAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Bank A/c Dr.",
+            lf: "J1",
+            debitAmount: "2000",
+            creditAmount: "",
+          },
+          createCommissionAttempt().rows[1],
+        ],
+      }),
+    );
+    const wrongAmountResult = checkCommission(
+      createCommissionAttempt({
+        rows: [
+          { ...createCommissionAttempt().rows[0], debitAmount: "1500" },
+          { ...createCommissionAttempt().rows[1], creditAmount: "1500" },
+        ],
+        totalDebit: "1500",
+        totalCredit: "1500",
+      }),
+    );
+
+    expect(bankResult.status).toBe("incorrect");
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Bank A/c is not used because the transaction says cash."]));
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Cash A/c Dr. is missing."]));
+    expect(wrongAmountResult.status).toBe("incorrect");
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Cash should be debited with ₹2,000."]));
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Commission should be credited with ₹2,000."]));
+  });
+
+  it("accepts the exact furniture-bought-for-cash journal entry with totals and narration", () => {
+    const result = checkFurniture();
+
+    expect(result.status).toBe("correct");
+    expect(result.errors).toEqual([]);
+    expect(result.gotRight).toEqual(
+      expect.arrayContaining([
+        "Furniture is correctly debited because a business asset increases.",
+        "Cash is correctly credited because cash leaves the business.",
+        "Narration communicates that furniture was purchased for cash.",
+        "Debit and credit totals are balanced.",
+      ]),
+    );
+  });
+
+  it("rejects reversal and wrong debit accounts for the furniture-bought-for-cash checker", () => {
+    const reversedResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Cash A/c Dr.",
+            lf: "J1",
+            debitAmount: "15000",
+            creditAmount: "",
+          },
+          {
+            rowOrder: 2,
+            particulars: "To Furniture A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "15000",
+          },
+        ],
+      }),
+    );
+    const purchasesResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Purchases A/c Dr.",
+            lf: "J1",
+            debitAmount: "15000",
+            creditAmount: "",
+          },
+          createFurnitureAttempt().rows[1],
+        ],
+      }),
+    );
+    const goodsResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Goods A/c Dr.",
+            lf: "J1",
+            debitAmount: "15000",
+            creditAmount: "",
+          },
+          createFurnitureAttempt().rows[1],
+        ],
+      }),
+    );
+
+    expect(reversedResult.status).toBe("incorrect");
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Cash should not be placed in the debit column."]));
+    expect(reversedResult.errors).toEqual(expect.arrayContaining(["Furniture should not be placed in the credit column."]));
+    expect(purchasesResult.errors).toEqual(
+      expect.arrayContaining(["Purchases A/c is not used because furniture is an asset for business use."]),
+    );
+    expect(purchasesResult.errors).toEqual(expect.arrayContaining(["Furniture A/c Dr. is missing."]));
+    expect(goodsResult.errors).toEqual(expect.arrayContaining(["Goods A/c is not used because furniture is a business asset here."]));
+    expect(goodsResult.errors).toEqual(expect.arrayContaining(["Furniture A/c Dr. is missing."]));
+  });
+
+  it("rejects Bank and wrong amounts for the furniture-bought-for-cash checker", () => {
+    const bankResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          createFurnitureAttempt().rows[0],
+          {
+            rowOrder: 2,
+            particulars: "To Bank A/c",
+            lf: "J1",
+            debitAmount: "",
+            creditAmount: "15000",
+          },
+        ],
+      }),
+    );
+    const wrongAmountResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          { ...createFurnitureAttempt().rows[0], debitAmount: "12000" },
+          { ...createFurnitureAttempt().rows[1], creditAmount: "12000" },
+        ],
+        totalDebit: "12000",
+        totalCredit: "12000",
+      }),
+    );
+
+    expect(bankResult.status).toBe("incorrect");
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["Bank A/c is not used because the transaction says cash."]));
+    expect(bankResult.errors).toEqual(expect.arrayContaining(["To Cash A/c is missing."]));
+    expect(wrongAmountResult.status).toBe("incorrect");
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Furniture should be debited with ₹15,000."]));
+    expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Cash should be credited with ₹15,000."]));
+  });
+
   it("keeps answer-key lookup and correct-answer reveal isolated by question ID", () => {
     const cashReveal = getJournalEntryPracticeCorrectAnswerReveal(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     const salaryReveal = getJournalEntryPracticeCorrectAnswerReveal(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
     const purchaseReveal = getJournalEntryPracticeCorrectAnswerReveal(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
+    const capitalReveal = getJournalEntryPracticeCorrectAnswerReveal(STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID);
+    const drawingsReveal = getJournalEntryPracticeCorrectAnswerReveal(WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID);
+    const rentReveal = getJournalEntryPracticeCorrectAnswerReveal(PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID);
+    const commissionReveal = getJournalEntryPracticeCorrectAnswerReveal(RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID);
+    const furnitureReveal = getJournalEntryPracticeCorrectAnswerReveal(BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID);
     const unknownReveal = getJournalEntryPracticeCorrectAnswerReveal("unknown-question");
 
     expect(getJournalEntryPracticeAnswerKey(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID)).toBe(soldGoodsForCashAnswerKey);
     expect(getJournalEntryPracticeAnswerKey(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID)).toBe(paidSalaryByBankAnswerKey);
     expect(getJournalEntryPracticeAnswerKey(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID)).toBe(purchasedGoodsForCashAnswerKey);
+    expect(getJournalEntryPracticeAnswerKey(STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID)).toBe(startedBusinessWithCashAnswerKey);
+    expect(getJournalEntryPracticeAnswerKey(WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID)).toBe(
+      withdrewCashForPersonalUseAnswerKey,
+    );
+    expect(getJournalEntryPracticeAnswerKey(PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID)).toBe(paidRentByCashAnswerKey);
+    expect(getJournalEntryPracticeAnswerKey(RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID)).toBe(
+      receivedCommissionInCashAnswerKey,
+    );
+    expect(getJournalEntryPracticeAnswerKey(BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID)).toBe(
+      boughtFurnitureForCashAnswerKey,
+    );
     expect(getJournalEntryPracticeAnswerKey("unknown-question")).toBeNull();
     expect(cashReveal.lines.map((line) => line.particulars)).toEqual(["Cash A/c Dr.", "To Sales A/c"]);
     expect(cashReveal.lines.map((line) => `${line.debitAmount ?? ""}${line.creditAmount ?? ""}`).join(" ")).not.toContain("₹8,000");
@@ -1009,6 +1800,16 @@ describe("learning-platform journal entry checker", () => {
     expect(salaryReveal.narration).toBe("Being salary paid by bank.");
     expect(purchaseReveal.lines.map((line) => line.particulars)).toEqual(["Purchases A/c Dr.", "To Cash A/c"]);
     expect(purchaseReveal.narration).toBe("Being goods purchased for cash.");
+    expect(capitalReveal.lines.map((line) => line.particulars)).toEqual(["Cash A/c Dr.", "To Capital A/c"]);
+    expect(capitalReveal.narration).toBe("Being business started with cash as capital.");
+    expect(drawingsReveal.lines.map((line) => line.particulars)).toEqual(["Drawings A/c Dr.", "To Cash A/c"]);
+    expect(drawingsReveal.narration).toBe("Being cash withdrawn for personal use.");
+    expect(rentReveal.lines.map((line) => line.particulars)).toEqual(["Rent A/c Dr.", "To Cash A/c"]);
+    expect(rentReveal.narration).toBe("Being rent paid in cash.");
+    expect(commissionReveal.lines.map((line) => line.particulars)).toEqual(["Cash A/c Dr.", "To Commission A/c"]);
+    expect(commissionReveal.narration).toBe("Being commission received in cash.");
+    expect(furnitureReveal.lines.map((line) => line.particulars)).toEqual(["Furniture A/c Dr.", "To Cash A/c"]);
+    expect(furnitureReveal.narration).toBe("Being furniture purchased for cash.");
     expect(unknownReveal.available).toBe(false);
   });
 });

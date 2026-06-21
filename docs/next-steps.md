@@ -2,9 +2,68 @@
 
 ## Immediate recommended next step
 
-Phase 6I final simplified Journal Entries QA audit is completed.
+Phase 6N final eight-checker Journal Entries QA is completed.
 
 What this audit confirmed:
+
+- `docs/journal-entries-eight-checker-qa.md` records the completed Phase 6N verdict
+- the current live in-chapter checker count is exactly 8
+- no ninth checker or extra Practice It Yourself question was added
+- the eight checkers are placed only in Section 1, Capital, Drawings, Purchases, Expenses, Income, and Assets and Liabilities
+- all eight expected answers and server-controlled answer reveals remain correct
+- focused rejection coverage exists for reversal, wrong accounts, wrong amounts, wrong Cash/Bank treatment, and key concept confusions
+- the existing five checker expected answers and checking behavior remain unchanged
+- all 16 Journal Entries sections and simplified Study guide cards remain present
+- `/practice/journal-entries`, `/journal-entry-solver`, `/practice`, `/practice/advanced`, and `/platform-preview` remain safe
+- no runtime/app/test code change was required during Phase 6N
+- no broad parser/classifier/validator/checker framework change, Journal Entry Explainer behavior change, Solver calculation change, accounting-engine change, API route, persistence, OCR, payment, AI Assistant behavior, route migration, backend feature, or accounting calculation was added
+
+Recommended next action:
+
+- pause checker expansion and conduct teacher/student review of the Journal Entries chapter
+- keep the review focused on whether the eight-checker flow is clear, mobile-safe, and useful for Class 11/12 students
+- do not add a ninth checker, GST, discounts, credit entries, compound entries, Partnership/Company entries, broad parser/checker generalization, new APIs, login/progress/database, OCR, payments, AI Assistant behavior, accounting-engine changes, or broad chapter expansion before review feedback
+
+Recent Phase 6N context retained:
+
+- `docs/journal-entries-eight-checker-qa.md` records the final eight-checker QA verdict
+- verdict: ready for teacher/student review with exactly eight deterministic in-chapter checkers
+- must-fix items found: none
+- runtime/app/test code changed during Phase 6N: none
+- recommended next action: teacher/student review before any more checker expansion
+
+Recent Phase 6M context retained:
+
+- total live in-chapter checker count: 8
+- added count: 3
+- added sections: `expenses`, `income`, and `assets-and-liabilities`
+- no ninth checker, broad checker generalization, accounting-engine change, Journal Entry Explainer behavior, Solver behavior, beginner `/practice`, `/practice/journal-entries`, `/practice/advanced`, API route, persistence, OCR, payment, AI Assistant behavior, backend feature, or accounting calculation was added
+
+Recent Phase 6L context retained:
+
+- `docs/journal-entries-five-checker-qa.md` records the five-checker QA verdict
+- focused verification passed: `122` tests across the Journal Entries checker/page/practice/preview suites
+- full test suite passed: `2274` tests
+- `npm run typecheck`, `npm run lint`, `git diff --check`, and production build passed after rerunning build outside the sandbox for the known Turbopack process/port restriction
+- the build-generated `next-env.d.ts` route-types diff was restored
+
+Recent Phase 6K context retained:
+
+- total live in-chapter checker count: 5
+- added count: 2
+- added sections: `capital` and `drawings`
+- no sixth checker, broad checker generalization, accounting-engine change, Journal Entry Explainer behavior, Solver behavior, beginner `/practice`, `/practice/journal-entries`, `/practice/advanced`, API route, persistence, OCR, payment, AI Assistant behavior, backend feature, or accounting calculation was added
+
+Recent Phase 6J context retained:
+
+- final V1 checker count recommendation: 8 total
+- count before Phase 6K: 3
+- planned additional count from Phase 6J: 5
+- completed Phase 6K batch: Capital and Drawings only
+- planned Phase 6M batch: Rent, Commission, and Furniture only
+- planned QA checkpoints: Phase 6L after 5 checkers and Phase 6N after 8 checkers
+
+Recent Phase 6I context retained:
 
 - `docs/journal-entries-simplified-ui-qa.md` records the final simplified UI QA verdict
 - the simplified `/chapters/journal-entries` overview is short, student-friendly, and honest about `16 sections` and `3 checked practice questions`
@@ -16,12 +75,6 @@ What this audit confirmed:
 - no runtime/app/test code changed during Phase 6I
 - no fourth checker, Practice It Yourself question, expected-answer change, accepted-case change, parser/classifier/validator/checker change, Journal Entry Explainer behavior, Solver calculation logic, accounting engine, API route, persistence, OCR, payment, AI Assistant behavior, route migration, backend feature, or accounting calculation was added
 - verification passed: focused Journal Entries/Practice tests (`71` tests), full test suite (`2266` tests), `npm run typecheck`, `npm run lint`, `git diff --check`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
-
-Recommended next action:
-
-- commit and push the Phase 6A-6I work
-- conduct teacher/student review using the current simplified Journal Entries chapter
-- do not add a fourth checker, accepted cases, parser/checker generalization, accounting-engine changes, API routes, login/progress/database, OCR, payments, AI Assistant behavior, or broad chapter expansion before that review
 
 Recent Phase 6H context retained:
 

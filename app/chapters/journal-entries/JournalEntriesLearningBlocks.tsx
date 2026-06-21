@@ -685,6 +685,51 @@ function getProductionPracticeGuidance(questionId: string): ProductionPracticeGu
     };
   }
 
+  if (questionId === "journal-entry-started-business-with-cash-practice-preview") {
+    return {
+      transactionFocus: "The owner starts the business by bringing in cash.",
+      likelyAccounts: "Likely accounts involved: Cash and Capital.",
+      logicPrompt: "Decide which asset increases and why capital is credited before checking.",
+      learningPoint: "The purpose is to understand capital logic without treating capital as income.",
+    };
+  }
+
+  if (questionId === "journal-entry-withdrew-cash-for-personal-use-practice-preview") {
+    return {
+      transactionFocus: "Cash leaves the business for the owner's personal use.",
+      likelyAccounts: "Likely accounts involved: Drawings and Cash.",
+      logicPrompt: "Decide why personal use makes this Drawings and why Cash is credited before checking.",
+      learningPoint: "The purpose is to separate drawings from business expenses.",
+    };
+  }
+
+  if (questionId === "journal-entry-paid-rent-by-cash-practice-preview") {
+    return {
+      transactionFocus: "The business pays rent using physical cash.",
+      likelyAccounts: "Likely accounts involved: Rent and Cash.",
+      logicPrompt: "Decide why rent is a business expense and why Cash is credited before checking.",
+      learningPoint: "The purpose is to separate rent from drawings, salary, and bank payments.",
+    };
+  }
+
+  if (questionId === "journal-entry-received-commission-in-cash-practice-preview") {
+    return {
+      transactionFocus: "The business receives commission income in cash.",
+      likelyAccounts: "Likely accounts involved: Cash and Commission.",
+      logicPrompt: "Decide why Cash is debited and why income is credited before checking.",
+      learningPoint: "The purpose is to separate commission income from capital and sales.",
+    };
+  }
+
+  if (questionId === "journal-entry-bought-furniture-for-cash-practice-preview") {
+    return {
+      transactionFocus: "The business buys furniture for use and pays cash.",
+      likelyAccounts: "Likely accounts involved: Furniture and Cash.",
+      logicPrompt: "Decide why furniture is an asset and why Cash is credited before checking.",
+      learningPoint: "The purpose is to separate assets for use from goods bought for resale.",
+    };
+  }
+
   return {
     transactionFocus: "Read the transaction and identify what enters or leaves the business.",
     likelyAccounts: "Identify the accounts involved before typing the entry.",
@@ -901,7 +946,10 @@ export function ScopeRoadmapBlock({ section }: { section: ScopeRoadmapSection })
           <ul className="mt-4 space-y-2 text-sm font-semibold leading-6 text-cyan-900">
             {section.currentScope.items.map((item) => (
               <li key={item} className="rounded-xl border border-cyan-200 bg-white p-3">
-                {productionText(item).replace("Deterministic practice for three approved questions", "Deterministic practice for three approved questions is live across Section 1 and Purchases")}
+                {productionText(item).replace(
+                  "Deterministic practice for eight approved questions",
+                  "Deterministic practice for eight approved questions is live across Section 1, Capital, Drawings, Purchases, Expenses, Income, and Assets and Liabilities",
+                )}
               </li>
             ))}
           </ul>

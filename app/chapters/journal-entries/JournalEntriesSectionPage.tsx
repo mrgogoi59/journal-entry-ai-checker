@@ -335,7 +335,8 @@ const earlyJournalEntriesSectionGuides: Record<string, EarlySectionGuide> = {
     teaches: "How the full Journal Entries chapter fits together and where to revise or practise next.",
     whyItMatters:
       "A recap helps students choose the next safe step without expecting every section to be interactive yet.",
-    watchFor: "Only three Practice It Yourself checkers are live for now: two in Section 1 and one in Purchases.",
+    watchFor:
+      "Only eight Practice It Yourself checkers are live for now: two in Section 1, one each in Capital, Drawings, Purchases, Expenses, Income, and Assets and Liabilities.",
     nextStep:
       "Revise weak sections, try the live checks again, use beginner Practice, or open the Explainer for one transaction.",
     ruleTitle: "Use the full journal-entry method every time",
@@ -371,7 +372,7 @@ function JournalEntriesOverviewCard() {
           <p className="mt-2 text-sm font-semibold leading-6 text-cyan-950">Study the chapter step by step.</p>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-800">3 checked practice questions</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-800">8 checked practice questions</p>
           <p className="mt-2 text-sm font-semibold leading-6 text-emerald-950">Write full entries and check your work.</p>
         </div>
       </div>
