@@ -40,26 +40,91 @@ describe("PracticePage", () => {
   it("renders the production Practice hub with truthful chapter availability", () => {
     const html = renderToStaticMarkup(createElement(PracticePage));
     const hrefs = getHrefValues(html);
+    const simplifiedPracticeCopy = [
+      {
+        title: "Accounting Fundamentals",
+        description: "Practise basic terms and accounting concepts.",
+      },
+      {
+        title: "Journal Entries",
+        description: "Practise beginner journal entries with instant checks.",
+      },
+      {
+        title: "Ledger",
+        description: "Practise account-wise posting and balances.",
+      },
+      {
+        title: "Trial Balance",
+        description: "Practise debit-credit totals and balances.",
+      },
+      {
+        title: "Bank Reconciliation Statement",
+        description: "Practise Cash Book and Bank differences.",
+      },
+      {
+        title: "Rectification of Errors",
+        description: "Practise correction entries and suspense account.",
+      },
+      {
+        title: "Depreciation, Provisions and Reserves",
+        description: "Practise asset and provision adjustments.",
+      },
+      {
+        title: "Final Accounts",
+        description: "Practise Trading, P&amp;L, and Balance Sheet.",
+      },
+      {
+        title: "Bills of Exchange",
+        description: "Practise bills, maturity, and dishonour.",
+      },
+      {
+        title: "Not-for-Profit Accounts",
+        description: "Practise NPO statements and adjustments.",
+      },
+      {
+        title: "Partnership Accounts",
+        description: "Practise partner capital and appropriation entries.",
+      },
+      {
+        title: "Company Accounts",
+        description: "Practise shares, debentures, and company entries.",
+      },
+    ];
 
     expect(practiceMetadata).toMatchObject({
       title: "Practice | AccyWise AI",
-      description: "Chapter-wise Accountancy practice and independent revision.",
+      description: "Start Journal Entries Practice.",
     });
     expect(practiceMetadata).not.toHaveProperty("robots");
     expect(html).toContain('id="student-platform-content"');
     expect(getLinkMarkup(html, "/practice")).toContain('aria-current="page"');
-    expect(html).toContain("Choose a chapter and practise Accountancy independently after learning the concepts.");
-    expect(html).toContain("Practice It Yourself inside Chapters");
-    expect(html).toContain("General Practice");
-    expect(html).toContain("Current pilot-ready practice path");
-    expect(html).toContain("For the guided pilot, first read the Journal Entries chapter");
-    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Read Journal Entries First")).toContain(
-      "Read Journal Entries First",
+    expect(html).toContain("<h1");
+    expect(html).toContain("Practice");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Start Journal Entries Practice")).toContain(
+      "Start Journal Entries Practice",
     );
-    expect(html).toContain("Start Journal Entry Practice");
     expect(html).toContain('href="/practice/journal-entries"');
-    expect(html).toContain("Practise and check answers directly inside AccyWise AI.");
-    expect(html).toContain("Notebook/photo answer checking will require safe handwriting recognition and OCR");
+    expect(html).toContain("Available");
+    expect(html).toContain("Planned");
+    expect(html).toContain("Later");
+    expect(html).toContain("Advanced Practice Beta");
+    expect(html).toContain("Practise selected advanced accounting scenarios.");
+    expect(getLinkMarkupWithText(html, "/practice/advanced", "Open Beta")).toContain("Open Beta");
+    expect(html).not.toContain("Choose a chapter and practise Accountancy independently after learning the concepts.");
+    expect(html).not.toContain("Practice It Yourself inside Chapters");
+    expect(html).not.toContain("General Practice");
+    expect(html).not.toContain("Current pilot-ready practice path");
+    expect(html).not.toContain("For the guided pilot, first read the Journal Entries chapter");
+    expect(html).not.toContain("Read Journal Entries First");
+    expect(html).not.toContain("In-app vs notebook practice");
+    expect(html).not.toContain("Practise and check answers directly inside AccyWise AI.");
+    expect(html).not.toContain("Notebook/photo answer checking will require safe handwriting recognition and OCR");
+    expect(html).not.toContain("Chapter practice");
+    expect(html).not.toContain("Choose a chapter");
+    expect(html).not.toContain("available now");
+    expect(html).not.toContain("planned or later");
+    expect(html).not.toContain("Controlled advanced journal practice");
+    expect(html).not.toContain("complete Partnership or Company Accounts question bank.");
     expect(html).not.toContain('type="file"');
     expect(html.toLowerCase()).not.toContain("camera");
     expect(html.toLowerCase()).not.toContain("upload");
@@ -70,7 +135,7 @@ describe("PracticePage", () => {
     expect(hrefs).toContain("/practice");
     expect(hrefs).not.toContain("/assistant");
 
-    expect(html.match(/aria-label="[^"]+ practice card"/g) ?? []).toHaveLength(12);
+    expect(html.match(/aria-label="[^"]+ practice card"/g) ?? []).toHaveLength(13);
     expect(practiceChapterCatalog).toHaveLength(12);
     expect(practiceChapterCatalog.map((item) => item.title)).toEqual([
       "Accounting Fundamentals",
@@ -89,13 +154,20 @@ describe("PracticePage", () => {
     expect(hrefs).not.toContain("/practice/ledger");
     expect(hrefs).not.toContain("/practice/trial-balance");
     expect(hrefs).not.toContain("/practice/final-accounts");
+    expect(hrefs).not.toContain("/chapters/journal-entries");
+
+    simplifiedPracticeCopy.forEach((item) => {
+      const card = getPracticeCardMarkup(html, item.title);
+
+      expect(card).toContain(item.description);
+    });
 
     practiceChapterCatalog.forEach((item) => {
       const card = getPracticeCardMarkup(html, item.title);
 
-      expect(card).toContain(escapeHtmlText(item.shortDescription));
       expect(card).toContain(practiceChapterStatusLabels[item.status]);
-      expect(card).toContain(item.availabilityNote);
+      expect(card).not.toContain(escapeHtmlText(item.availabilityNote));
+      expect(card).not.toContain(escapeHtmlText(item.shortDescription));
 
       if (item.status === "available") {
         expect(item.title).toBe("Journal Entries");
@@ -112,10 +184,12 @@ describe("PracticePage", () => {
     const html = renderToStaticMarkup(createElement(PracticePage));
 
     expect(html).toContain("Advanced Practice Beta");
-    expect(html).toContain("Beta");
-    expect(html).toContain("Start with the Journal Entries chapter and beginner practice before using this separate beta.");
-    expect(html).toContain("complete Partnership or Company Accounts question bank.");
+    expect(html).toContain("Available");
+    expect(html).toContain("Practise selected advanced accounting scenarios.");
+    expect(getLinkMarkupWithText(html, "/practice/advanced", "Open Beta")).toContain("Open Beta");
     expect(html).toContain('href="/practice/advanced"');
+    expect(html).not.toContain("Start with the Journal Entries chapter and beginner practice before using this separate beta.");
+    expect(html).not.toContain("complete Partnership or Company Accounts question bank.");
   });
 
   it("renders migrated beginner Journal Entry Practice inside the production shell", () => {
