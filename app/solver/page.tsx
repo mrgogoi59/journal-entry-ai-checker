@@ -42,7 +42,18 @@ export default function SolverPage() {
         aria-label="Solver and Chapters distinction"
         className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 text-sm leading-6 text-cyan-950 shadow-sm sm:p-6"
       >
-        Chapters teach concepts step by step. Solver tools help with a specific problem when you need them.
+        <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <p>
+            Chapters teach concepts step by step. Solver tools help with a specific problem when you need them. If this
+            is your first time with Journal Entries, start with the chapter first.
+          </p>
+          <Link
+            href="/chapters/journal-entries"
+            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300 bg-white px-3 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+          >
+            Start Journal Entries First
+          </Link>
+        </div>
       </section>
 
       <section className="grid min-w-0 gap-5 xl:grid-cols-[0.9fr_1.1fr]">
@@ -74,13 +85,13 @@ export default function SolverPage() {
           aria-labelledby="recommended-solver-title"
           className="min-w-0 rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white shadow-sm sm:p-6"
         >
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200">Recommended Starting Tool</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200">Recommended support tool</p>
           <h2 id="recommended-solver-title" className="mt-2 text-2xl font-black tracking-tight">
-            Start with AI Journal Entry Explainer
+            Use Journal Entry Explainer when stuck
           </h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            If you are unsure which account is debited or credited, start with the explainer before moving to Ledger,
-            Trial Balance, Final Accounts, or Bank Reconciliation.
+            If you are unsure which account is debited or credited during the Journal Entries path, use the explainer
+            for targeted help before moving to Ledger, Trial Balance, Final Accounts, or Bank Reconciliation.
           </p>
           {recommendedTool?.status === "available" && recommendedTool.href ? (
             <Link

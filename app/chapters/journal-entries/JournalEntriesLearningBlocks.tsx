@@ -47,6 +47,7 @@ type ProductionOutlineItem = {
   title: string;
   order: number;
   href: string;
+  practiceQuestionCount?: number;
 };
 
 export function productionText(text: string) {
@@ -121,6 +122,8 @@ function OrderedOutline({
     <ol className={`space-y-2 ${className}`}>
       {outlineItems.map((item) => {
         const isActive = item.id === activeSectionId;
+        const practiceQuestionCount = item.practiceQuestionCount ?? 0;
+        const sectionModeLabel = practiceQuestionCount > 0 ? `${practiceQuestionCount} practice checks` : "Read-only";
 
         return (
           <li key={item.id}>
@@ -140,9 +143,20 @@ function OrderedOutline({
               >
                 {item.order}
               </span>
-              <span className="min-w-0">{item.title}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block">{item.title}</span>
+                <span
+                  className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${
+                    practiceQuestionCount > 0
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                      : "border-slate-200 bg-slate-50 text-slate-600"
+                  }`}
+                >
+                  {sectionModeLabel}
+                </span>
+              </span>
               {!isActive ? (
-                <span className="ml-auto rounded-full border border-cyan-200 bg-cyan-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-cyan-800">
+                <span className="shrink-0 rounded-full border border-cyan-200 bg-cyan-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-cyan-800">
                   Available
                 </span>
               ) : null}
@@ -619,6 +633,7 @@ export function PracticeItYourselfProduction({
   revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
 }) {
   const sectionId = practiceNumber === 1 ? "practice-it-yourself" : `practice-it-yourself-${practiceNumber}`;
+  const guidance = getProductionPracticeGuidance(question.id);
 
   return (
     <section id={sectionId} className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6">
@@ -630,13 +645,108 @@ export function PracticeItYourselfProduction({
       <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4 text-sm font-semibold leading-6 text-cyan-900">
         {productionText(question.learningObjective)}
       </div>
+      <PracticeAttemptGuide guidance={guidance} practiceCount={practiceCount} />
       <JournalEntryPracticeEditor
         question={question}
         checkAnswerAction={checkAnswerAction}
         revealCorrectAnswerAction={revealCorrectAnswerAction}
         supportNotice="This chapter checker supports this audited question only. No API route, storage, analytics, or existing checker is called."
       />
+      <PracticeNextStepCard />
     </section>
+  );
+}
+
+type ProductionPracticeGuidance = {
+  transactionFocus: string;
+  likelyAccounts: string;
+  logicPrompt: string;
+  learningPoint: string;
+};
+
+function getProductionPracticeGuidance(questionId: string): ProductionPracticeGuidance {
+  if (questionId === "journal-entry-sold-goods-for-cash-practice-preview") {
+    return {
+      transactionFocus: "Goods are sold and cash comes into the business.",
+      likelyAccounts: "Likely accounts involved: Cash and Sales.",
+      logicPrompt: "Decide which account receives value and which account records the sale before checking.",
+      learningPoint: "The purpose is to understand the sale logic, not to copy the answer format.",
+    };
+  }
+
+  if (questionId === "journal-entry-paid-salary-by-bank-practice-preview") {
+    return {
+      transactionFocus: "A salary expense is being paid through bank.",
+      likelyAccounts: "Likely accounts involved: Salary and Bank.",
+      logicPrompt: "Decide which account is the expense and which asset is going down before checking.",
+      learningPoint: "The purpose is to understand the expense-payment logic, not to guess the row order.",
+    };
+  }
+
+  return {
+    transactionFocus: "Read the transaction and identify what enters or leaves the business.",
+    likelyAccounts: "Identify the accounts involved before typing the entry.",
+    logicPrompt: "Decide the debit and credit side before checking.",
+    learningPoint: "The purpose is to understand the logic, not to copy the answer format.",
+  };
+}
+
+function PracticeAttemptGuide({
+  guidance,
+  practiceCount,
+}: {
+  guidance: ProductionPracticeGuidance;
+  practiceCount: number;
+}) {
+  return (
+    <div className="mt-5 grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
+      <article className="min-w-0 rounded-2xl border border-cyan-200 bg-white p-4">
+        <h3 className="text-base font-black text-slate-950">How to attempt this checker</h3>
+        <ul className="mt-3 space-y-2 text-sm font-semibold leading-6 text-slate-700">
+          <li>{guidance.transactionFocus}</li>
+          <li>{guidance.likelyAccounts}</li>
+          <li>{guidance.logicPrompt}</li>
+          <li>Spelling, account naming, Dr./To, amount, totals, and narration matter in this checker.</li>
+        </ul>
+      </article>
+      <article className="min-w-0 rounded-2xl border border-cyan-200 bg-white p-4">
+        <h3 className="text-base font-black text-slate-950">Before you check</h3>
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm font-semibold leading-6 text-slate-700">
+          <li>Analyse the transaction before typing.</li>
+          <li>Decide the debit and credit side before you check.</li>
+          <li>Use the feedback to learn the logic, not just to guess.</li>
+        </ol>
+        <p className="mt-3 rounded-xl bg-cyan-50 p-3 text-sm font-semibold leading-6 text-cyan-900">
+          Only these {practiceCount} in-chapter checks are live right now.
+        </p>
+      </article>
+    </div>
+  );
+}
+
+function PracticeNextStepCard() {
+  return (
+    <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4">
+      <h3 className="text-base font-black text-slate-950">After checking</h3>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+        If correct, continue to the next section or revise in Practice. If stuck, use the Explainer and then come back to
+        try the same checker again.
+      </p>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <Link
+          href="/journal-entry-solver"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-200 px-4 text-sm font-black text-cyan-900 transition hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Use Explainer if stuck
+        </Link>
+        <Link
+          href="/practice/journal-entries"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Revise later in Practice
+        </Link>
+      </div>
+    </div>
   );
 }
 

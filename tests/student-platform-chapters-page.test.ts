@@ -1,11 +1,17 @@
 import { readFileSync } from "node:fs";
-import { createElement } from "react";
+import { createElement, type ComponentType } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import BankReconciliationPage, { metadata as bankReconciliationMetadata } from "@/app/bank-reconciliation/page";
 import DashboardPage, { metadata as dashboardMetadata } from "@/app/dashboard/page";
+import FinalAccountsPage, { metadata as finalAccountsMetadata } from "@/app/final-accounts/page";
+import JournalEntrySolverPage, { metadata as journalEntrySolverMetadata } from "@/app/journal-entry-solver/page";
+import LedgerPage, { metadata as ledgerMetadata } from "@/app/ledger/page";
 import ChaptersPage, { metadata as chaptersMetadata } from "@/app/chapters/page";
 import SolverPage, { metadata as solverMetadata } from "@/app/solver/page";
 import JournalEntriesChapterPage, { metadata as journalEntriesMetadata } from "@/app/chapters/journal-entries/page";
+import ToolsPage from "@/app/tools/page";
+import TrialBalancePage, { metadata as trialBalanceMetadata } from "@/app/trial-balance/page";
 import {
   generateMetadata as generateJournalEntriesSubtopicMetadata,
   generateStaticParams as generateJournalEntriesStaticParams,
@@ -28,7 +34,12 @@ import {
   studentPlatformChapterCatalog,
 } from "@/lib/learning-platform/chapter-catalog";
 import {
+  JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+  JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+  JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
   JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
+  JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG,
+  JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
@@ -202,10 +213,14 @@ describe("Production Chapters route", () => {
     expect(html).toContain(
       "Chapters teach concepts step by step. Solver tools help with a specific problem when you need them.",
     );
+    expect(html).toContain("If this is your first time with Journal Entries, start with the chapter first.");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries First")).toContain(
+      "Start Journal Entries First",
+    );
     expect(html).toContain(`${availableTools.length} of ${solverToolCatalog.length} tools available`);
     expect(html).toContain(`Available: ${availableTools.length}. Planned or later: ${plannedTools.length}.`);
-    expect(html).toContain("Recommended Starting Tool");
-    expect(html).toContain("Start with AI Journal Entry Explainer");
+    expect(html).toContain("Recommended support tool");
+    expect(html).toContain("Use Journal Entry Explainer when stuck");
     expect(html).toContain("Use Solver for targeted help");
     expect(html).not.toContain("/platform-preview");
 
@@ -263,11 +278,207 @@ describe("Production Chapters route", () => {
 
     expect(readFileSync("app/tools/page.tsx", "utf8")).toContain("export default function ToolsPage");
     expect(readFileSync("app/tools/page.tsx", "utf8")).toContain('fetch("/api/check-entry"');
-    expect(readFileSync("app/journal-entry-solver/page.tsx", "utf8")).toContain('fetch("/api/journal-entry-solver"');
-    expect(readFileSync("app/ledger/page.tsx", "utf8")).toContain("generateLedger");
-    expect(readFileSync("app/trial-balance/page.tsx", "utf8")).toContain("generateTrialBalance");
-    expect(readFileSync("app/final-accounts/page.tsx", "utf8")).toContain("generateFinalAccounts");
-    expect(readFileSync("app/bank-reconciliation/page.tsx", "utf8")).toContain("calculateBankReconciliation");
+    expect(readFileSync("app/journal-entry-solver/page.tsx", "utf8")).toContain("StudentAppShell");
+    expect(readFileSync("app/journal-entry-solver/_components/JournalEntrySolverExperience.tsx", "utf8")).toContain(
+      'fetch("/api/journal-entry-solver"',
+    );
+    expect(readFileSync("app/ledger/page.tsx", "utf8")).toContain("StudentAppShell");
+    expect(readFileSync("app/ledger/_components/LedgerExperience.tsx", "utf8")).toContain("generateLedger");
+    expect(readFileSync("app/trial-balance/page.tsx", "utf8")).toContain("StudentAppShell");
+    expect(readFileSync("app/trial-balance/_components/TrialBalanceExperience.tsx", "utf8")).toContain(
+      "generateTrialBalance",
+    );
+    expect(readFileSync("app/final-accounts/page.tsx", "utf8")).toContain("StudentAppShell");
+    expect(readFileSync("app/final-accounts/_components/FinalAccountsExperience.tsx", "utf8")).toContain(
+      "generateFinalAccounts",
+    );
+    expect(readFileSync("app/bank-reconciliation/page.tsx", "utf8")).toContain("StudentAppShell");
+    expect(readFileSync("app/bank-reconciliation/_components/BankReconciliationExperience.tsx", "utf8")).toContain(
+      "calculateBankReconciliation",
+    );
+  });
+
+  it("renders /journal-entry-solver inside the production shell while preserving Explainer links and API boundary", () => {
+    const html = renderToStaticMarkup(createElement(JournalEntrySolverPage));
+    const hrefs = getHrefValues(html);
+    const routeSource = readFileSync("app/journal-entry-solver/page.tsx", "utf8");
+    const clientSource = readFileSync("app/journal-entry-solver/_components/JournalEntrySolverExperience.tsx", "utf8");
+
+    expect(journalEntrySolverMetadata).toMatchObject({
+      title: "AI Journal Entry Explainer | AccyWise AI",
+    });
+    expect(html).toContain('id="student-platform-content"');
+    expect(getLinkMarkup(html, "/solver")).toContain('aria-current="page"');
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).toContain("/supported-transactions");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).toContain("AI Journal Entry Explainer");
+    expect(html).toContain("Enter a business transaction");
+    expect(html).toContain("Explain Journal Entry");
+    expect(html).toContain("Supported Topics");
+    expect(html).toContain("Back to Journal Entries");
+    expect(html).toContain("Back to Solver");
+    expect(html).not.toContain("Back to Home");
+    expect(html).not.toContain("/platform-preview");
+    expect(routeSource).toContain('StudentAppShell activeItem="solver"');
+    expect(clientSource).toContain('fetch("/api/journal-entry-solver"');
+    expect(clientSource).toContain('href="/chapters/journal-entries"');
+    expect(clientSource).toContain('href="/practice/journal-entries"');
+    expect(clientSource).not.toContain('href="/tools"');
+    expect(clientSource).toContain('href="/supported-transactions"');
+  });
+
+  it("renders /ledger inside the production shell while preserving Ledger links and engine boundary", () => {
+    const html = renderToStaticMarkup(createElement(LedgerPage));
+    const hrefs = getHrefValues(html);
+    const routeSource = readFileSync("app/ledger/page.tsx", "utf8");
+    const clientSource = readFileSync("app/ledger/_components/LedgerExperience.tsx", "utf8");
+
+    expect(ledgerMetadata).toMatchObject({
+      title: "Ledger Posting | AccyWise AI",
+    });
+    expect(html).toContain('id="student-platform-content"');
+    expect(getLinkMarkup(html, "/solver")).toContain('aria-current="page"');
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).toContain("/supported-transactions");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).toContain("Ledger Posting");
+    expect(html).toContain("Enter journal entries");
+    expect(html).toContain("Generate Ledger");
+    expect(html).toContain("Supported Topics");
+    expect(html).toContain("Back to Solver");
+    expect(html).not.toContain("Back to Home");
+    expect(html).not.toContain("/platform-preview");
+    expect(routeSource).toContain('StudentAppShell activeItem="solver"');
+    expect(clientSource).toContain("generateLedger(journalEntries)");
+    expect(clientSource).toContain("overflow-x-auto");
+    expect(clientSource).toContain('href="/supported-transactions"');
+  });
+
+  it("renders /trial-balance inside the production shell while preserving Trial Balance links and engine boundary", () => {
+    const html = renderToStaticMarkup(createElement(TrialBalancePage));
+    const hrefs = getHrefValues(html);
+    const routeSource = readFileSync("app/trial-balance/page.tsx", "utf8");
+    const clientSource = readFileSync("app/trial-balance/_components/TrialBalanceExperience.tsx", "utf8");
+
+    expect(trialBalanceMetadata).toMatchObject({
+      title: "Trial Balance | AccyWise AI",
+    });
+    expect(html).toContain('id="student-platform-content"');
+    expect(getLinkMarkup(html, "/solver")).toContain('aria-current="page"');
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).toContain("/supported-transactions");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).toContain("Trial Balance");
+    expect(html).toContain("Enter journal entries");
+    expect(html).toContain("Prepare Trial Balance");
+    expect(html).toContain("Supported Topics");
+    expect(html).toContain("Back to Solver");
+    expect(html).not.toContain("Back to Home");
+    expect(html).not.toContain("/platform-preview");
+    expect(routeSource).toContain('StudentAppShell activeItem="solver"');
+    expect(clientSource).toContain("generateTrialBalance(journalEntries)");
+    expect(clientSource).toContain("overflow-x-auto");
+    expect(clientSource).toContain('href="/supported-transactions"');
+  });
+
+  it("renders /final-accounts inside the production shell while preserving Final Accounts links and engine boundary", () => {
+    const html = renderToStaticMarkup(createElement(FinalAccountsPage));
+    const hrefs = getHrefValues(html);
+    const routeSource = readFileSync("app/final-accounts/page.tsx", "utf8");
+    const clientSource = readFileSync("app/final-accounts/_components/FinalAccountsExperience.tsx", "utf8");
+
+    expect(finalAccountsMetadata).toMatchObject({
+      title: "Final Accounts | AccyWise AI",
+    });
+    expect(html).toContain('id="student-platform-content"');
+    expect(getLinkMarkup(html, "/solver")).toContain('aria-current="page"');
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).toContain("/supported-transactions");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).toContain("Final Accounts");
+    expect(html).toContain("Prepare from trial balance");
+    expect(html).toContain("Prepare Final Accounts");
+    expect(html).toContain("Supported Topics");
+    expect(html).toContain("Back to Solver");
+    expect(html).not.toContain("Back to Home");
+    expect(html).not.toContain("/platform-preview");
+    expect(routeSource).toContain('StudentAppShell activeItem="solver"');
+    expect(clientSource).toContain("generateFinalAccounts(trialBalanceInput, adjustmentsInput)");
+    expect(clientSource).toContain("overflow-x-auto");
+    expect(clientSource).toContain('href="/supported-transactions"');
+  });
+
+  it("renders /bank-reconciliation inside the production shell while preserving BRS links and engine boundary", () => {
+    const html = renderToStaticMarkup(createElement(BankReconciliationPage));
+    const hrefs = getHrefValues(html);
+    const routeSource = readFileSync("app/bank-reconciliation/page.tsx", "utf8");
+    const clientSource = readFileSync("app/bank-reconciliation/_components/BankReconciliationExperience.tsx", "utf8");
+
+    expect(bankReconciliationMetadata).toMatchObject({
+      title: "Bank Reconciliation Statement | AccyWise AI",
+    });
+    expect(html).toContain('id="student-platform-content"');
+    expect(getLinkMarkup(html, "/solver")).toContain('aria-current="page"');
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/chapters");
+    expect(hrefs).toContain("/solver");
+    expect(hrefs).toContain("/practice");
+    expect(hrefs).toContain("/learn/bank-reconciliation-statement");
+    expect(hrefs).toContain("/practice/journal-entries");
+    expect(hrefs).not.toContain("/assistant");
+    expect(html).toContain("Bank Reconciliation Statement");
+    expect(html).toContain("Choose where to start");
+    expect(html).toContain("Calculate BRS");
+    expect(html).toContain("Working notes");
+    expect(html).toContain("Back to Solver");
+    expect(html).toContain("Learn BRS");
+    expect(html).not.toContain("Back to Home");
+    expect(html).not.toContain("/platform-preview");
+    expect(routeSource).toContain('StudentAppShell activeItem="solver"');
+    expect(clientSource).toContain("calculateBankReconciliation({");
+    expect(clientSource).toContain("overflow-x-auto");
+    expect(clientSource).toContain('href="/learn/bank-reconciliation-statement"');
+    expect(clientSource).toContain('href="/practice/journal-entries"');
+    expect(clientSource).toContain('href="/tools"');
+  });
+
+  it("keeps the remaining Solver tool routes standalone before later shell migrations", () => {
+    const routeCases: Array<{
+      route: string;
+      component: ComponentType;
+      heading: string;
+      expectedText: string;
+    }> = [
+      {
+        route: "/tools",
+        component: ToolsPage,
+        heading: "Learning Tools",
+        expectedText: "Journal Entry Checker",
+      },
+    ];
+
+    for (const { route, component, heading, expectedText } of routeCases) {
+      const html = renderToStaticMarkup(createElement(component));
+
+      expect(html, `${route} should render its current standalone UI`).toContain(heading);
+      expect(html).toContain(expectedText);
+      expect(html).not.toContain('id="student-platform-content"');
+      expect(html).not.toContain("/platform-preview");
+      expect(html).not.toContain("/assistant");
+    }
   });
 
   it("defines the production chapter catalogue with Journal Entries available and the other chapters honestly staged", () => {
@@ -313,7 +524,7 @@ describe("Production Chapters route", () => {
     expect(html).not.toContain('href="/assistant"');
   });
 
-  it("links only the Journal Entries card to the production chapter route", () => {
+  it("links the recommended Journal Entries entry points to the production chapter route", () => {
     const html = renderToStaticMarkup(createElement(ChaptersPage));
 
     studentPlatformChapterCatalog.forEach((chapter) => {
@@ -322,6 +533,13 @@ describe("Production Chapters route", () => {
       expect(html).toContain(chapterStatusLabels[chapter.status]);
     });
 
+    expect(html).toContain("Recommended first chapter");
+    expect(html).toContain("Best place to start");
+    expect(html).toContain("Begin with Journal Entries");
+    expect(html).toContain("pilot-ready chapter");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
+      "Start Journal Entries",
+    );
     expect(html).toContain("Available");
     expect(html).toContain("Start Chapter");
     expect(html).toContain('href="/chapters/journal-entries"');
@@ -381,6 +599,131 @@ describe("Production Chapters route", () => {
     });
   });
 
+  it("renders a student-friendly Journal Entries overview with honest pilot availability", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
+
+    expect(html).toContain("Chapter overview");
+    expect(html).toContain("Learn the first step of recording every transaction");
+    expect(html).toContain("Journal Entries are the first step of Accountancy recording.");
+    expect(html).toContain("Every business transaction is first analysed");
+    expect(html).toContain("cash, bank, goods, salary, capital, drawings, purchases, sales, expenses");
+    expect(html).toContain("Available in this pilot");
+    expect(html).toContain("16 learning sections are available now.");
+    expect(html).toContain("Exactly 2 Practice It Yourself checkers are live in Section 1.");
+    expect(html).toContain("Most sections are read-only learning sections for now.");
+    expect(html).toContain("More checking will be added later only after safe checker design.");
+    expect(html).toContain("Recommended start");
+    expect(html).toContain("Try the two Practice It Yourself checks when they appear.");
+    expect(
+      getLinkMarkupWithText(html, "/chapters/journal-entries#introduction-to-journal-entries", "Start first section"),
+    ).toContain("Start first section");
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Open Explainer")).toContain("Open Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise in Practice")).toContain(
+      "Revise in Practice",
+    );
+    expect(getLinkMarkupWithText(html, "/solver", "Open Solver hub")).toContain("Open Solver hub");
+    expect(html.toLowerCase()).not.toContain("all sections are interactive");
+    expect(html.toLowerCase()).not.toContain("all chapters are complete");
+  });
+
+  it("polishes only the first five Journal Entries sections with pilot guide copy and safe next steps", () => {
+    const polishedSections = [
+      {
+        slug: JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
+        title: "Introduction to Journal Entries and Journal Format",
+        rule: "Debit and credit must always balance",
+        actionHref: "/chapters/journal-entries#practice-it-yourself",
+        actionText: "Try Practice It Yourself here",
+      },
+      {
+        slug: JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG,
+        title: "Business Transactions",
+        rule: "Record only business events measurable in money",
+        actionHref: "/chapters/journal-entries/accounts-affected",
+        actionText: "Continue to Accounts Affected",
+      },
+      {
+        slug: JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG,
+        title: "Accounts Affected",
+        rule: "Name accounts before choosing Dr. or To",
+        actionHref: "/chapters/journal-entries/types-of-accounts",
+        actionText: "Continue to Types of Accounts",
+      },
+      {
+        slug: JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
+        title: "Types of Accounts",
+        rule: "Classify the account, not the sentence",
+        actionHref: "/chapters/journal-entries/debit-and-credit-rules",
+        actionText: "Continue to Debit and Credit Rules",
+      },
+      {
+        slug: JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG,
+        title: "Debit and Credit Rules",
+        rule: "Account nature plus effect decides the side",
+        actionHref: "/chapters/journal-entries/journal-format-and-narration",
+        actionText: "Continue to Journal Format and Narration",
+      },
+    ] as const;
+
+    polishedSections.forEach(({ actionHref, actionText, rule, slug, title }) => {
+      const html = renderProductionSection(slug);
+
+      expect(html).toContain("Section pilot guide");
+      expect(html).toContain(`Before you study ${title}`);
+      expect(html).toContain("What this teaches");
+      expect(html).toContain("Why it matters");
+      expect(html).toContain("Pay attention to");
+      expect(html).toContain("Next learning step");
+      expect(html).toContain("Rule to remember");
+      expect(html).toContain(rule);
+      expect(html).toContain("Study the examples");
+      expect(html).toContain("Follow the analysis, not just the answer");
+      expect(getLinkMarkupWithText(html, actionHref, actionText)).toContain(actionText);
+      expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if stuck")).toContain(
+        "Use Explainer if stuck",
+      );
+      expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise later in Practice")).toContain(
+        "Revise later in Practice",
+      );
+    });
+
+    const sectionSixHtml = renderProductionSection(JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG);
+
+    expect(sectionSixHtml).not.toContain("Section pilot guide");
+    expect(sectionSixHtml).not.toContain("Before you study Journal Format and Narration");
+  });
+
+  it("renders a compact how-to-use path on the production Journal Entries chapter", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
+
+    expect(html).toContain("How to use this chapter");
+    expect(html).toContain("Read the sections in order.");
+    expect(html).toContain("Notice the accounting rule or logic.");
+    expect(html).toContain("Try Practice It Yourself where available.");
+    expect(html).toContain("Use Journal Entry Explainer if you get stuck.");
+    expect(html).toContain("Use beginner practice for revision after learning.");
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Open Journal Entry Explainer")).toContain(
+      "Open Journal Entry Explainer",
+    );
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice Journal Entries")).toContain(
+      "Practice Journal Entries",
+    );
+    expect(html).not.toContain("/platform-preview");
+  });
+
+  it("marks Journal Entries outline sections as read-only or practice-enabled without adding new checks", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
+    const practiceBadgeCount = html.match(/2 practice checks/g)?.length ?? 0;
+
+    expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toHaveLength(2);
+    expect(html).toContain("2 practice checks");
+    expect(practiceBadgeCount).toBeGreaterThanOrEqual(1);
+    expect(html).toContain("Read-only");
+    expect(html).toContain("Business Transactions");
+    expect(html).toContain("Accounts Affected");
+    expect(html).toContain("Chapter outline");
+  });
+
   it("uses production previous and next links across the sixteen section routes", () => {
     journalEntriesChapter.subtopics.forEach((subtopic) => {
       const html = renderProductionSection(subtopic.slug);
@@ -437,15 +780,30 @@ describe("Production Chapters route", () => {
     expect(html.match(/Check Answer/g)).toHaveLength(2);
     expect(html.match(/Reset Answer/g)).toHaveLength(2);
     expect(html.match(/Feedback will appear here after you check your answer\./g)).toHaveLength(2);
+    expect(html.match(/How to attempt this checker/g)).toHaveLength(2);
+    expect(html.match(/Only these 2 in-chapter checks are live right now\./g)).toHaveLength(2);
     expect(html).toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     expect(html).toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
     expect(html).toContain("This chapter checker supports this audited question only.");
+    expect(html).toContain("Likely accounts involved: Cash and Sales.");
+    expect(html).toContain("Likely accounts involved: Salary and Bank.");
+    expect(html).toContain("Analyse the transaction before typing.");
+    expect(html).toContain("Decide the debit and credit side before you check.");
+    expect(html).toContain("Spelling, account naming, Dr./To, amount, totals, and narration matter in this checker.");
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if stuck")).toContain(
+      "Use Explainer if stuck",
+    );
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Revise later in Practice")).toContain(
+      "Revise later in Practice",
+    );
     expect(html).not.toContain("Interactive answer checking for this chapter will be enabled in the next controlled migration step.");
     expect(html).not.toContain("Show Correct Answer");
     expect(html).not.toContain("Correct Answer");
     expect(source).toContain("checkJournalEntriesPracticeAnswer");
     expect(source).toContain("revealJournalEntriesPracticeCorrectAnswer");
     expect(source).toContain("JournalEntryPracticeEditor");
+    expect(source).toContain("Read the feedback in this order: accounts, debit/credit side, amount, totals, and narration.");
+    expect(source).toContain("If you are stuck, reread the rule, use the Explainer for help, and then try this same checker again.");
     expect(source).not.toContain("journal-entry-answer-keys.server");
     expect(source).not.toContain("Cash A/c Dr.");
     expect(source).not.toContain("To Sales A/c");
@@ -661,17 +1019,24 @@ describe("Production Chapters route", () => {
     });
   });
 
-  it("renders Phase 4G homepage entry points to Chapters, Solver, Practice, and Journal Entries", () => {
+  it("renders Phase 5C homepage first-time path to Journal Entries with calmer secondary options", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
 
+    expect(getLinkMarkup(html, "/chapters/journal-entries")).toContain("Start Journal Entries");
     expect(getLinkMarkupWithText(html, "/chapters", "Explore Chapters")).toContain("Explore Chapters");
-    expect(getLinkMarkupWithText(html, "/solver", "Open Solver")).toContain("Open Solver");
-    expect(getLinkMarkupWithText(html, "/practice", "Start Practice")).toContain("Start Practice");
+    expect(getLinkMarkupWithText(html, "/solver", "Use Solver Tools")).toContain("Use Solver Tools");
+    expect(getLinkMarkupWithText(html, "/practice", "Open Practice")).toContain("Open Practice");
     expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
       "Start Journal Entries",
     );
-    expect(html).toContain("Journal Entries chapter is now available");
-    expect(html).toContain("structured learning");
+    expect(html).toContain("Recommended first path");
+    expect(html).toContain("Begin with the live Journal Entries chapter");
+    expect(html).toContain("Read one short section");
+    expect(html).toContain("Try Practice It Yourself");
+    expect(html).toContain("Use Solver if stuck");
+    expect(html).toContain("Recommended first chapter");
+    expect(html).toContain("Start with Journal Entries");
+    expect(html).toContain("Structured chapter learning");
     expect(html).toContain("solved illustrations");
     expect(html).toContain("complete-answer Practice It Yourself");
     expect(html.toLowerCase()).not.toContain("all chapters are available");
@@ -718,14 +1083,31 @@ describe("Production Chapters route", () => {
 
   it("keeps global mobile bottom navigation unchanged outside the production shell routes", () => {
     const source = readFileSync("components/MobileBottomNav.tsx", "utf8");
+    const hiddenRoutesBlock = source.match(/if \([\s\S]*?\) {\n    return null;/)?.[0] ?? "";
 
     expect(source).toContain('pathname.startsWith("/platform-preview")');
     expect(source).toContain('pathname === "/dashboard"');
     expect(source).toContain('pathname === "/solver"');
+    expect(source).toContain('pathname === "/journal-entry-solver"');
+    expect(source).not.toContain('pathname.startsWith("/journal-entry-solver")');
+    expect(source).toContain('pathname === "/ledger"');
+    expect(source).not.toContain('pathname.startsWith("/ledger")');
+    expect(source).toContain('pathname === "/trial-balance"');
+    expect(source).not.toContain('pathname.startsWith("/trial-balance")');
+    expect(source).toContain('pathname === "/final-accounts"');
+    expect(source).not.toContain('pathname.startsWith("/final-accounts")');
+    expect(source).toContain('pathname === "/bank-reconciliation"');
+    expect(source).not.toContain('pathname.startsWith("/bank-reconciliation")');
     expect(source).toContain('pathname === "/chapters"');
     expect(source).toContain('pathname.startsWith("/chapters/")');
     expect(source).toContain('href: "/learn"');
     expect(source).toContain('href: "/practice"');
     expect(source).toContain('href: "/tools"');
+    expect(hiddenRoutesBlock).toContain('pathname === "/journal-entry-solver"');
+    expect(hiddenRoutesBlock).toContain('pathname === "/ledger"');
+    expect(hiddenRoutesBlock).toContain('pathname === "/trial-balance"');
+    expect(hiddenRoutesBlock).toContain('pathname === "/final-accounts"');
+    expect(hiddenRoutesBlock).toContain('pathname === "/bank-reconciliation"');
+    expect(hiddenRoutesBlock).not.toContain('pathname === "/tools"');
   });
 });

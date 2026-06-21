@@ -21,12 +21,36 @@ export default function ChaptersPage() {
       <PageHeader
         eyebrow="Student platform"
         title="Chapters"
-        description="Choose an Accountancy chapter. Journal Entries is now available with two controlled Practice It Yourself checkers, while other chapters remain staged."
+        description="Choose an Accountancy chapter. Start with Journal Entries for the current pilot-ready path; other chapters remain staged until their learning flow is built and tested."
       >
         <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-800">
-          Phase 4C live checker
+          Recommended first chapter
         </span>
       </PageHeader>
+
+      <section
+        aria-labelledby="recommended-chapter-title"
+        className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6"
+      >
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Best place to start</p>
+        <div className="mt-2 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <h2 id="recommended-chapter-title" className="text-2xl font-black tracking-tight text-slate-950">
+              Begin with Journal Entries
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-cyan-950">
+              Journal Entries is the first pilot-ready chapter because it builds the debit-credit foundation needed for
+              Ledger, Trial Balance, Final Accounts, and later chapters.
+            </p>
+          </div>
+          <Link
+            href="/chapters/journal-entries"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+          >
+            Start Journal Entries
+          </Link>
+        </div>
+      </section>
 
       <section
         aria-labelledby="chapters-plan-title"

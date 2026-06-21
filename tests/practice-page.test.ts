@@ -11,6 +11,14 @@ function getLinkMarkup(html: string, href: string) {
   return html.match(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`))?.[0] ?? "";
 }
 
+function getLinkMarkupWithText(html: string, href: string, text: string) {
+  return (
+    Array.from(html.matchAll(new RegExp(`<a[^>]*href="${href}"[\\s\\S]*?</a>`, "g")), (match) => match[0]).find(
+      (markup) => markup.includes(text),
+    ) ?? ""
+  );
+}
+
 function getHrefValues(html: string) {
   return Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]);
 }
@@ -43,7 +51,11 @@ describe("PracticePage", () => {
     expect(html).toContain("Choose a chapter and practise Accountancy independently after learning the concepts.");
     expect(html).toContain("Practice It Yourself inside Chapters");
     expect(html).toContain("General Practice");
-    expect(html).toContain("Recommended Starting Practice");
+    expect(html).toContain("Current pilot-ready practice path");
+    expect(html).toContain("For the guided pilot, first read the Journal Entries chapter");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Read Journal Entries First")).toContain(
+      "Read Journal Entries First",
+    );
     expect(html).toContain("Start Journal Entry Practice");
     expect(html).toContain('href="/practice/journal-entries"');
     expect(html).toContain("Practise and check answers directly inside AccyWise AI.");
@@ -101,7 +113,8 @@ describe("PracticePage", () => {
 
     expect(html).toContain("Advanced Practice Beta");
     expect(html).toContain("Beta");
-    expect(html).toContain("This is a beta, not a complete Partnership or Company Accounts question bank.");
+    expect(html).toContain("Start with the Journal Entries chapter and beginner practice before using this separate beta.");
+    expect(html).toContain("complete Partnership or Company Accounts question bank.");
     expect(html).toContain('href="/practice/advanced"');
   });
 
@@ -117,6 +130,13 @@ describe("PracticePage", () => {
     expect(html).toContain('id="student-platform-content"');
     expect(getLinkMarkup(html, "/practice")).toContain('aria-current="page"');
     expect(html).toContain("Topic-wise Practice");
+    expect(html).toContain("Use this beginner practice page after studying the Journal Entries chapter");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Back to Journal Entries")).toContain(
+      "Back to Journal Entries",
+    );
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer if Stuck")).toContain(
+      "Use Explainer if Stuck",
+    );
     expect(html).toContain("Choose a topic");
     expect(html).toContain("Basics");
     expect(html).toContain("Mixed Practice");
@@ -138,15 +158,20 @@ describe("PracticePage", () => {
   });
 
   it("routes contextual beginner-practice actions to the migrated Journal Entry Practice route", () => {
-    const solverSource = readFileSync("app/journal-entry-solver/page.tsx", "utf8");
+    const solverSource = readFileSync("app/journal-entry-solver/_components/JournalEntrySolverExperience.tsx", "utf8");
     const toolsSource = readFileSync("app/tools/page.tsx", "utf8");
     const progressSource = readFileSync("app/progress/page.tsx", "utf8");
     const historySource = readFileSync("app/history/page.tsx", "utf8");
-    const bankReconciliationSource = readFileSync("app/bank-reconciliation/page.tsx", "utf8");
+    const bankReconciliationSource = readFileSync(
+      "app/bank-reconciliation/_components/BankReconciliationExperience.tsx",
+      "utf8",
+    );
     const attemptHistorySource = readFileSync("lib/attempt-history.ts", "utf8");
     const learningContentSource = readFileSync("lib/learning-content.ts", "utf8");
 
     expect(solverSource).toContain('<ActionLink href="/practice/journal-entries" variant="primary">');
+    expect(solverSource).toContain('<ActionLink href="/chapters/journal-entries" variant="secondary">');
+    expect(solverSource).not.toContain('<ActionLink href="/tools" variant="secondary">');
     expect(toolsSource).toContain('href: "/practice/journal-entries"');
     expect(toolsSource).toContain('href="/practice/journal-entries"');
     expect(progressSource).toContain('href="/practice/journal-entries"');

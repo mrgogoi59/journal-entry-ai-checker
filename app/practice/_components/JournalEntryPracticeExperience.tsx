@@ -299,11 +299,27 @@ function PageHeader() {
         <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Journal-entry practice</p>
         <h1 className="mt-3 text-4xl font-bold tracking-normal text-blue-950 sm:text-5xl">Topic-wise Practice</h1>
         <p className="mt-4 text-lg leading-8 text-slate-700">
-          Choose a topic and practice journal entries step by step.
+          Use this beginner practice page after studying the Journal Entries chapter, or when you want independent
+          revision.
         </p>
         <p className="mt-4 rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 text-sm font-medium leading-6 text-slate-700">
-          Start with basic entries, then move to GST, adjustments, assets, and final accounts-related entries.
+          If an explanation is still unclear, return to the chapter first. If one transaction is confusing, use the
+          Journal Entry Explainer for targeted help.
         </p>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <Link
+            href="/chapters/journal-entries"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800"
+          >
+            Back to Journal Entries
+          </Link>
+          <Link
+            href="/journal-entry-solver"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 text-sm font-bold text-emerald-900 transition hover:bg-emerald-50"
+          >
+            Use Explainer if Stuck
+          </Link>
+        </div>
       </div>
     </header>
   );

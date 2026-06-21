@@ -60,20 +60,30 @@ export default function PracticePage() {
           aria-labelledby="recommended-practice-title"
           className="min-w-0 rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white shadow-sm sm:p-6"
         >
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200">Recommended Starting Practice</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200">
+            Current pilot-ready practice path
+          </p>
           <h2 id="recommended-practice-title" className="mt-2 text-2xl font-black tracking-tight">
             Begin with Journal Entries
           </h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Begin with Journal Entries to strengthen account identification, debit-credit logic, and complete entry
-            presentation.
+            For the guided pilot, first read the Journal Entries chapter, then use this beginner practice route for
+            revision. Advanced Practice Beta stays separate.
           </p>
-          <Link
-            href="/practice/journal-entries"
-            className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-white px-4 text-sm font-black text-slate-950 outline-none transition hover:bg-cyan-50 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-          >
-            Start Journal Entry Practice
-          </Link>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Link
+              href="/chapters/journal-entries"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 text-sm font-black text-slate-950 outline-none transition hover:bg-cyan-50 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            >
+              Read Journal Entries First
+            </Link>
+            <Link
+              href="/practice/journal-entries"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 px-4 text-sm font-black text-cyan-50 outline-none transition hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            >
+              Start Journal Entry Practice
+            </Link>
+          </div>
         </article>
 
         <article
@@ -132,7 +142,8 @@ export default function PracticePage() {
               Balance Impact, and limited Final Accounts Impact where currently supported.
             </p>
             <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
-              This is a beta, not a complete Partnership or Company Accounts question bank.
+              Start with the Journal Entries chapter and beginner practice before using this separate beta. It is not a
+              complete Partnership or Company Accounts question bank.
             </p>
           </div>
           <Link

@@ -2,9 +2,40 @@
 
 ## Immediate recommended next step
 
-Phase 4I of the Practice migration safety audit and readiness assessment is completed.
+Phase 5L Final pilot-ready production QA audit is completed.
 
-What this completed audit slice achieved:
+What this audit produced:
+
+- new audit document: `docs/final-pilot-ready-qa.md`
+- final verdict: ready for a guided 10-20 student pilot with founder/teacher supervision
+- no must-fix blocker was found before the pilot
+- the audited route flow remains Home -> `Start Journal Entries` -> `/chapters/journal-entries` -> first 3-5 sections -> the two existing Practice It Yourself checkers -> `/practice/journal-entries` -> optional `/journal-entry-solver` -> optional `/solver`
+- the audit covers Home, Dashboard, Chapters, Journal Entries overview, first five Journal Entries sections, the two existing checkers, Practice, Solver, migrated Solver tools, mobile readiness, legacy `/tools`/`/learn`, `/how-to-use`, `/supported-transactions`, and `/platform-preview/...`
+- accepted limitations remain explicit: Journal Entries-only pilot scope, exactly two live checkers, mostly read-only later sections, honest Dashboard empty states, AI Assistant not live, no login/progress/OCR/payment/cloud persistence, legacy `/tools`/`/learn`, and separate Advanced Practice Beta
+- no runtime/app/test code, Practice It Yourself questions, accepted cases, checker logic, expected answers, parser/validator logic, accounting logic, Journal Entry Explainer behavior, Solver calculation logic, persistence, OCR, payments, AI Assistant behavior, route migration, API route, or backend feature was changed
+
+Recommended next action:
+
+- run the guided 10-20 student pilot using `docs/pilot-launch-package.md` and `docs/student-pilot-script.md`
+- immediately after the pilot, capture observations in `docs/post-pilot-analysis-template.md`
+- choose any Phase 5M work only after real pilot evidence identifies the next bottleneck
+- keep login/auth/database progress, OCR/photo checking, payments, AI Assistant logic, broad all-chapter expansion, unsupported advanced cases, route redesign, checker/parser/classifier/validator rewrites, and accounting-engine changes out of scope unless pilot evidence strongly supports readiness and a separate plan approves them
+
+Recent Phase 5B planning context retained:
+
+- `docs/gold-standard-journal-entries-plan.md` remains the implementation plan for making Journal Entries the first gold-standard AccyWise AI chapter
+- recommended pilot scope remains Home -> `Start Journal Entries` -> `/chapters/journal-entries` -> first 3-5 sections -> the two existing deterministic Practice It Yourself checkers -> `/practice/journal-entries` -> optional `/journal-entry-solver`
+- beginner `/practice`, `/practice/journal-entries`, `/practice/advanced`, Solver tools, Journal Entry Explainer behavior, Dashboard logic, parser/classifier/validator/checker logic, accounting engines, APIs, persistence, database/auth/payment/backend, OCR, AI Assistant behavior, analytics setup, and accounting calculations should remain unchanged during the next slice
+
+Recent Phase 5D, Phase 5C, Phase 5A, and Phase 4T status retained for continuity:
+
+- Phase 5D completed the Journal Entries overview polish: overview explanation, honest availability, read-only/practice-enabled outline markers, and safe links to first section, Explainer, Practice, and Solver
+
+- Phase 5C completed the first-time student path polish: homepage `Start Journal Entries`, calmer secondary CTAs, `/chapters` recommended first chapter copy, and the initial `/chapters/journal-entries` how-to-use card
+
+- Phase 5A verdict: `Ready after small polish` for a guided 10-20 student pilot
+- Phase 5A top blockers were unclear first click, only Journal Entries being production-grade, thin in-chapter checker depth, static Dashboard, and legacy `/tools`/`/learn` separation
+- Phase 5A recommended pilot flow was Home -> `Start Journal Entries` -> first section -> two checks -> Practice -> Solver -> feedback
 
 - it keeps the Phase 4A production student-platform shell and live `/chapters` index route
 - it keeps the Phase 4B production Journal Entries chapter route and all 15 section routes under `/chapters/journal-entries/<section-slug>`
@@ -22,19 +53,121 @@ What this completed audit slice achieved:
 - focused audit assertions now cover Practice hub metadata, catalogue order, route/link classification, no preview links, no redirects, no upload/camera controls, mobile-navigation scoping, and Advanced Practice isolation
 - the audit found no critical route, link, beginner-practice parity, Advanced Practice isolation, mobile-navigation, accessibility, security/data, or documentation-rule blockers
 - `docs/ai-coding-rules.md` was reviewed; its Phase 4H `/practice`, `/practice/journal-entries`, and `/practice/advanced` guidance is narrow and did not need a Phase 4I edit
+- `docs/solver-route-migration-plan.md` now records the Phase 4J verdict: `Ready for one-page Solver tool migration`
+- the selected first Solver migration candidate is the AI Journal Entry Explainer at `/journal-entry-solver`
+- all five Solver catalogue routes were inventoried: `/journal-entry-solver`, `/ledger`, `/trial-balance`, `/final-accounts`, and `/bank-reconciliation`
+- `/tools` was audited as a legacy utility hub/checker workspace that should remain available for now
+- `/journal-entry-solver` now renders inside `StudentAppShell` with Solver active in the shared production navigation
+- the route path remains exactly `/journal-entry-solver`
+- the existing Explainer client UI was preserved as a route component and still calls `POST /api/journal-entry-solver`
+- the standalone local Home/Supported Topics header was adapted to avoid duplicate shell navigation while preserving Solver and Supported Topics links
+- the global `MobileBottomNav` is hidden only on exact `/journal-entry-solver`
+- focused assertions now confirm `/journal-entry-solver` is shell-wrapped while the remaining direct Solver tool routes stay standalone for later migration
+- Phase 4L re-audited the migration and confirmed the Explainer route remains safe inside `StudentAppShell`
+- focused audit assertions now also pin that the `MobileBottomNav` hide guard does not hide `/ledger`, `/trial-balance`, `/final-accounts`, `/bank-reconciliation`, or `/tools`
+- `/ledger` now renders inside `StudentAppShell` with Solver active in the shared production navigation
+- the Ledger route path remains exactly `/ledger`
+- the existing Ledger client UI was preserved as a route component and still uses the existing `generateLedger` utility
+- the standalone local Ledger header was adapted to avoid duplicate shell navigation while preserving `Back to Solver` and `Supported Topics` links
+- the global `MobileBottomNav` is now hidden on exact `/ledger` as well as exact `/journal-entry-solver`
+- focused assertions now confirm `/ledger` is shell-wrapped, preserves the Ledger engine boundary, keeps overflow-scoped ledger tables, and still links to Supported Topics
+- Phase 4N re-audited the `/ledger` migration and confirmed the route remains safe inside `StudentAppShell`
+- the audit confirmed `/ledger` still uses `generateLedger(journalEntries)` and preserves existing examples, invalid-entry guidance, report-issue flow, posting logic, common mistakes, and overflow-scoped ledger tables
+- the audit confirmed the `MobileBottomNav` hide guard remains exact-route only for `/journal-entry-solver` and `/ledger` among migrated direct Solver tools
+- `/journal-entry-solver` remains shell-wrapped, Solver-active, and connected to the existing `POST /api/journal-entry-solver` boundary
+- `/solver` still links to both `/journal-entry-solver` and `/ledger`
+- existing focused tests already covered the Phase 4N audit boundaries, so no extra runtime/app/test fix was required
+- verification passed: focused Phase 4N tests (`221` tests), full test suite (`2253` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+- the expected build-generated `next-env.d.ts` route-types diff was restored
+- `/trial-balance` now renders inside `StudentAppShell` with Solver active in the shared production navigation
+- the Trial Balance route path remains exactly `/trial-balance`
+- the existing Trial Balance client UI was preserved as a route component and still uses the existing `generateTrialBalance` utility
+- the standalone local Trial Balance header was adapted to avoid duplicate shell navigation while preserving `Back to Solver` and `Supported Topics` links
+- the global `MobileBottomNav` is now hidden on exact `/trial-balance` as well as exact `/journal-entry-solver` and `/ledger`
+- focused assertions now confirm `/trial-balance` is shell-wrapped, preserves the Trial Balance engine boundary, keeps overflow-scoped Trial Balance tables, and still links to Supported Topics
+- `/journal-entry-solver` remains shell-wrapped, Solver-active, and connected to the existing `POST /api/journal-entry-solver` boundary
+- `/ledger` remains shell-wrapped, Solver-active, and connected to the existing `generateLedger(journalEntries)` boundary
+- verification passed: focused Phase 4O tests (`229` tests), full test suite (`2254` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+- the expected build-generated `next-env.d.ts` route-types diff was restored
+- Phase 4P re-audited `/trial-balance` and confirmed the route remains safe inside `StudentAppShell` with Solver active
+- the audit confirmed `/trial-balance` still uses `generateTrialBalance(journalEntries)` and preserves examples, invalid-entry guidance, report-issue flow, parsed entries, ledger balance summary, Trial Balance table/result, logic, common mistakes, and overflow-scoped tables
+- focused assertions already cover the `/trial-balance` shell wrapper, active Solver navigation, preserved Trial Balance links, `generateTrialBalance` boundary, mobile-safe table overflow, and exact `MobileBottomNav` hiding
+- `/journal-entry-solver` remains shell-wrapped, Solver-active, and connected to the existing `POST /api/journal-entry-solver` boundary
+- `/ledger` remains shell-wrapped, Solver-active, and connected to the existing `generateLedger(journalEntries)` boundary
+- `/solver` still links to `/journal-entry-solver`, `/ledger`, and `/trial-balance`
+- protected engine and route diffs were checked; Final Accounts, Bank Reconciliation, `/tools`, `/practice`, `/practice/journal-entries`, and `/practice/advanced` were not changed
+- existing focused tests already covered the Phase 4P audit boundaries, so no extra runtime/app/test fix was required
+- verification passed: focused Phase 4P tests (`229` tests), full test suite (`2254` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+- the expected build-generated `next-env.d.ts` route-types diff was restored
+- `/final-accounts` now renders inside `StudentAppShell` with Solver active in the shared production navigation
+- the Final Accounts route path remains exactly `/final-accounts`
+- the existing Final Accounts client UI was preserved as a route component and still uses the existing `generateFinalAccounts(trialBalanceInput, adjustmentsInput)` utility
+- the standalone local Final Accounts header was adapted to avoid duplicate shell navigation while preserving `Back to Solver` and `Supported Topics` links
+- the global `MobileBottomNav` is now hidden on exact `/final-accounts` as well as exact `/journal-entry-solver`, `/ledger`, and `/trial-balance`
+- focused assertions now confirm `/final-accounts` is shell-wrapped, preserves the Final Accounts engine boundary, keeps overflow-scoped Final Accounts tables, and still links to Supported Topics
+- `/journal-entry-solver` remains shell-wrapped, Solver-active, and connected to the existing `POST /api/journal-entry-solver` boundary
+- `/ledger` remains shell-wrapped, Solver-active, and connected to the existing `generateLedger(journalEntries)` boundary
+- `/trial-balance` remains shell-wrapped, Solver-active, and connected to the existing `generateTrialBalance(journalEntries)` boundary
+- Bank Reconciliation and `/tools` were not migrated during this slice
+- protected engine and route diffs were checked; Bank Reconciliation, `/tools`, `/practice`, `/practice/journal-entries`, and `/practice/advanced` were not changed
+- verification passed: focused Phase 4Q tests (`365` tests), full test suite (`2255` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+- the expected build-generated `next-env.d.ts` route-types diff was restored
+- Phase 4R re-audited `/final-accounts` and confirmed the route remains safe inside `StudentAppShell` with Solver active
+- the audit confirmed `/final-accounts` still uses `generateFinalAccounts(trialBalanceInput, adjustmentsInput)` and preserves examples, selected adjustment support, limitations copy, invalid-entry guidance, report-issue flow, dense result sections, Trading Account, Profit & Loss Account, Balance Sheet, working sections, warnings, unclassified items, logic, common mistakes, overflow-scoped tables, and mobile collapsible sections
+- focused assertions already cover the `/final-accounts` shell wrapper, active Solver navigation, preserved Final Accounts links, `generateFinalAccounts` boundary, mobile-safe table overflow, exact `MobileBottomNav` hiding, and Bank Reconciliation/`/tools` staying standalone
+- `/journal-entry-solver` remains shell-wrapped, Solver-active, and connected to the existing `POST /api/journal-entry-solver` boundary
+- `/ledger` remains shell-wrapped, Solver-active, and connected to the existing `generateLedger(journalEntries)` boundary
+- `/trial-balance` remains shell-wrapped, Solver-active, and connected to the existing `generateTrialBalance(journalEntries)` boundary
+- `/solver` still links to `/journal-entry-solver`, `/ledger`, `/trial-balance`, `/final-accounts`, and `/bank-reconciliation`
+- protected engine and route diffs were checked; Bank Reconciliation, `/tools`, `/practice`, `/practice/journal-entries`, and `/practice/advanced` were not changed
+- existing focused tests already covered the Phase 4R audit boundaries, so no extra runtime/app/test fix was required
+- verification passed: focused Phase 4R tests (`365` tests), full test suite (`2255` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+- the expected build-generated `next-env.d.ts` route-types diff was restored
+- `/bank-reconciliation` now renders inside `StudentAppShell` with Solver active in the shared production navigation
+- the Bank Reconciliation route path remains exactly `/bank-reconciliation`
+- the existing Bank Reconciliation client UI was preserved as a route component and still uses the existing `calculateBankReconciliation(...)` utility
+- the standalone local Bank Reconciliation header was adapted to avoid duplicate shell navigation while preserving `Back to Solver`, `Learn BRS`, Practice Journal Entries, and legacy Tools links
+- the global `MobileBottomNav` is now hidden on exact `/bank-reconciliation` as well as exact `/journal-entry-solver`, `/ledger`, `/trial-balance`, and `/final-accounts`
+- focused assertions now confirm `/bank-reconciliation` is shell-wrapped, preserves the BRS engine boundary, keeps overflow-scoped working-notes tables, and keeps `/tools` standalone
+- `/journal-entry-solver` remains shell-wrapped, Solver-active, and connected to the existing `POST /api/journal-entry-solver` boundary
+- `/ledger` remains shell-wrapped, Solver-active, and connected to the existing `generateLedger(journalEntries)` boundary
+- `/trial-balance` remains shell-wrapped, Solver-active, and connected to the existing `generateTrialBalance(journalEntries)` boundary
+- `/final-accounts` remains shell-wrapped, Solver-active, and connected to the existing `generateFinalAccounts(trialBalanceInput, adjustmentsInput)` boundary
+- `/tools` remains available and unchanged as the legacy tools/checker hub
+- protected engine and route diffs were checked; `/tools`, `/practice`, `/practice/journal-entries`, and `/practice/advanced` were not changed
+- verification passed: focused Phase 4S tests (`376` tests), full test suite (`2256` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+- the expected build-generated `next-env.d.ts` route-types diff was restored
+- Phase 4T re-audited `/bank-reconciliation` and confirmed the route remains safe inside `StudentAppShell` with Solver active
+- the audit confirmed `/bank-reconciliation` still uses `calculateBankReconciliation(...)` and preserves starting source/type controls, starting balance amount, dynamic adjustment rows, result card, warnings, working notes, simple explanation, common mistakes, learning links, and overflow-scoped working-notes table behavior
+- focused assertions already cover the `/bank-reconciliation` shell wrapper, active Solver navigation, preserved BRS links, `calculateBankReconciliation` boundary, mobile-safe table overflow, exact `MobileBottomNav` hiding, and `/tools` staying standalone
+- `/journal-entry-solver` remains shell-wrapped, Solver-active, and connected to the existing `POST /api/journal-entry-solver` boundary
+- `/ledger` remains shell-wrapped, Solver-active, and connected to the existing `generateLedger(journalEntries)` boundary
+- `/trial-balance` remains shell-wrapped, Solver-active, and connected to the existing `generateTrialBalance(journalEntries)` boundary
+- `/final-accounts` remains shell-wrapped, Solver-active, and connected to the existing `generateFinalAccounts(trialBalanceInput, adjustmentsInput)` boundary
+- `/solver` still links to `/journal-entry-solver`, `/ledger`, `/trial-balance`, `/final-accounts`, and `/bank-reconciliation`
+- `/tools` remains available and unchanged as the legacy tools/checker hub
+- no additional Solver route was migrated during Phase 4T
+- protected engine and route diffs were checked; `/tools`, `/practice`, `/practice/journal-entries`, and `/practice/advanced` were not changed
+- no runtime/app/test fix was required during the audit; only project memory docs were updated for Phase 4T
+- verification passed: focused Phase 4T tests (`376` tests), full test suite (`2256` tests), `npm run typecheck`, `npm run lint`, and production build after rerunning outside the sandbox for the known Turbopack process/port restriction
+- the expected build-generated `next-env.d.ts` route-types diff was restored
+- existing Explainer API/route tests continue to cover accepted, ambiguous, unsupported, and deferred accounting behavior
+- practice safety remains intact: `/practice` is still the production Practice hub, `/practice/journal-entries` is still the preserved beginner practice route, and `/practice/advanced` remains unchanged
+- no additional Solver route was migrated during this audit slice
+- no redirect was added and no Solver catalogue correction was required
 - `/tools` remains available and unchanged as the legacy tools/checker hub
 - AI Assistant remains `Coming soon`, non-clickable, and has no `/assistant` route
 - OCR/notebook/photo checking remains unavailable; no image upload, camera access, OCR, login, database, saved progress, localStorage/sessionStorage, recent-activity persistence, API route, custom analytics event, or AI Assistant behavior was added
 - production and preview still use separate server actions, and expected answers remain selected on the server from the existing server-only answer-key module
 - `/platform-preview` remains preserved and `noindex, nofollow`, and production routes do not link to preview routes
 - it keeps `/learn`, `/tools`, `/practice`, `/practice/advanced`, `/how-to-use`, and `/supported-transactions` available
-- it keeps beginner practice/checker behavior, `/practice/advanced`, Journal Entry Explainer, parser/classifier/validator/checker behavior outside route migration, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
+- it keeps beginner practice/checker behavior, `/practice/advanced`, Journal Entry Explainer behavior, parser/classifier/validator/checker behavior outside route migration, accounting engines, Ledger/Trial Balance/Final Accounts logic, APIs, persistence, database/auth/payment/backend, analytics, OCR, AI behavior, and accounting calculations unchanged
 
-Founder desktop/mobile Practice-hub review is still recommended, especially active navigation, mobile drawer behavior, chapter-card clarity, Journal Entries route access, Advanced Practice Beta labelling, keyboard focus, answer/feedback readability, and phone-width no-overflow behavior.
+Founder desktop/mobile review is complete enough for the Solver shell sequence to pause. Phase 5A then confirmed the product is suitable for a guided small student pilot after lightweight polish.
 
-The exact recommended next phase is Phase 4J: Solver tool route shell-readiness audit and one-page migration plan. Phase 4J should review the existing live solver/tool pages and choose exactly one low-risk available tool route for a later shell migration, most likely Journal Entry Explainer because it is already stable and student-facing. Phase 4J should remain audit/planning-first unless explicitly approved to wrap one route, and it must not change solver logic, parser/classifier/validator/checker behavior, APIs, accounting calculations, persistence, OCR, uploads, database/auth, custom analytics, or AI Assistant behavior.
+The exact recommended next phase is Phase 5B: Gold-standard Journal Entries learning experience plan, not new runtime wiring. Phase 5B should turn the Phase 5A findings into a focused plan for the first production chapter and pilot flow before adding login/progress, OCR, payments, AI Assistant logic, broad chapter expansion, or accounting-engine changes.
 
-Recommended Phase 4 sequence:
+Recommended completed sequence and next planning step:
 
 1. Production application shell
 2. Chapters index
@@ -47,7 +180,20 @@ Recommended Phase 4 sequence:
 9. Phase 4H production Practice hub migration while preserving beginner practice behavior at `/practice/journal-entries`
 10. Phase 4I Practice migration safety audit and backward-compatibility QA
 11. Phase 4J Solver tool route shell-readiness audit and one-page migration plan
-12. AI Assistant later, only after grounded tutor design is approved
+12. Phase 4K controlled migration of AI Journal Entry Explainer into `StudentAppShell`
+13. Phase 4L post-migration safety audit for `/journal-entry-solver`
+14. Phase 4M controlled one-page migration of `/ledger` into `StudentAppShell`
+15. Phase 4N post-migration safety audit for `/ledger`
+16. Phase 4O controlled one-page migration of `/trial-balance` into `StudentAppShell`
+17. Phase 4P post-migration safety audit for `/trial-balance`
+18. Phase 4Q controlled one-page migration of `/final-accounts` into `StudentAppShell`
+19. Phase 4R post-migration safety audit for `/final-accounts`
+20. Phase 4S controlled one-page migration of `/bank-reconciliation` into `StudentAppShell`
+21. Phase 4T post-migration safety audit for `/bank-reconciliation`
+22. Phase 5A Student Pilot Readiness Audit
+23. Phase 5B Gold-standard Journal Entries learning experience plan
+24. Continue one route, chapter, or feature at a time only after each audit/planning checkpoint passes
+25. AI Assistant later, only after grounded tutor design is approved
 
 ## Immediate recommended next step
 

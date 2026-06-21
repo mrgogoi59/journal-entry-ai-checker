@@ -22,7 +22,8 @@ const navItems = [
       pathname === "/journal-entry-solver" ||
       pathname === "/ledger" ||
       pathname === "/trial-balance" ||
-      pathname === "/final-accounts",
+      pathname === "/final-accounts" ||
+      pathname === "/bank-reconciliation",
   },
   {
     label: "Home",
@@ -38,6 +39,11 @@ export function MobileBottomNav() {
     pathname.startsWith("/platform-preview") ||
     pathname === "/dashboard" ||
     pathname === "/solver" ||
+    pathname === "/journal-entry-solver" ||
+    pathname === "/ledger" ||
+    pathname === "/trial-balance" ||
+    pathname === "/final-accounts" ||
+    pathname === "/bank-reconciliation" ||
     pathname === "/practice" ||
     pathname === "/practice/journal-entries" ||
     pathname.startsWith("/practice/journal-entries/") ||

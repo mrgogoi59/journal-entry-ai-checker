@@ -145,7 +145,7 @@ export function JournalEntryPracticeEditor({
   return (
     <>
       <p id={instructionId} className="mt-5 rounded-2xl border border-cyan-100 bg-cyan-50 p-4 text-sm font-semibold leading-6 text-cyan-950">
-        Write the full particulars yourself, including Dr. on the debit line and To on the credit line. Enter your own totals and narration.
+        Write the full particulars yourself. First decide the debit and credit, then type Dr. on the debit line and To on the credit line. Account naming, amounts, totals, and narration are checked.
       </p>
       <form
         className="mt-4 space-y-4"
@@ -335,7 +335,9 @@ export function JournalEntryPracticeEditor({
             onReveal={handleReveal}
           />
         ) : (
-          <p className="text-sm font-semibold text-slate-600">Feedback will appear here after you check your answer.</p>
+          <p className="text-sm font-semibold leading-6 text-slate-600">
+            Feedback will appear here after you check your answer. Use it to review accounts, side, amount, totals, and narration.
+          </p>
         )}
       </div>
       </form>
@@ -568,6 +570,9 @@ function FeedbackPanel({
         <p className="text-xs font-black uppercase tracking-wide">Overall result</p>
         <h3 className="mt-1 text-lg font-black">{result.summary}</h3>
       </div>
+      <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-700">
+        Read the feedback in this order: accounts, debit/credit side, amount, totals, and narration.
+      </p>
 
       <FeedbackList title="What you got right" items={result.gotRight} emptyText="Nothing confirmed yet." />
       <FeedbackList title="Specific errors" items={result.errors} emptyText="No hard errors." />
@@ -627,6 +632,35 @@ function FeedbackPanel({
       </div>
 
       {reveal?.available ? <CorrectAnswerReveal reveal={reveal} /> : null}
+      <FeedbackNextStep status={result.status} />
+    </div>
+  );
+}
+
+function FeedbackNextStep({ status }: { status: JournalEntryPracticeCheckResult["status"] }) {
+  const message =
+    status === "correct"
+      ? "If your answer is correct, continue learning or revise similar Journal Entries in Practice."
+      : "If you are stuck, reread the rule, use the Explainer for help, and then try this same checker again.";
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <h4 className="text-sm font-black text-slate-950">Next step</h4>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{message}</p>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <a
+          href="/journal-entry-solver"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-200 px-4 text-sm font-black text-cyan-900 transition hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Use Explainer if stuck
+        </a>
+        <a
+          href="/practice/journal-entries"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Revise in Practice
+        </a>
+      </div>
     </div>
   );
 }

@@ -15,7 +15,14 @@ const valuePoints = [
   "Solver tools for quick doubts",
 ];
 
-const learningFlow = ["Chapters", "Concept", "Illustration", "Practice It Yourself", "Solver"];
+const firstPathSteps = [
+  "Start with Journal Entries",
+  "Read one short section",
+  "Try Practice It Yourself",
+  "Use Solver if stuck",
+];
+
+const learningFlow = ["Journal Entries", "Concept", "Illustration", "Practice It Yourself", "Solver"];
 
 const platformAreas = [
   {
@@ -108,8 +115,14 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
-              href="/chapters"
+              href="/chapters/journal-entries"
               className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-900 px-5 py-3 text-base font-bold text-white shadow-soft outline-none transition hover:bg-blue-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+            >
+              Start Journal Entries
+            </Link>
+            <Link
+              href="/chapters"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
             >
               Explore Chapters
             </Link>
@@ -117,15 +130,33 @@ export default function Home() {
               href="/solver"
               className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-bold text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
             >
-              Open Solver
+              Use Solver Tools
             </Link>
             <Link
               href="/practice"
-              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-base font-bold text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-emerald-200 bg-white px-5 py-3 text-base font-bold text-emerald-950 outline-none transition hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
             >
-              Start Practice
+              Open Practice
             </Link>
           </div>
+
+          <section
+            aria-labelledby="recommended-first-path-title"
+            className="mt-7 rounded-2xl border border-cyan-200 bg-cyan-50/80 p-4 shadow-sm sm:p-5"
+          >
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Recommended first path</p>
+            <h2 id="recommended-first-path-title" className="mt-2 text-xl font-bold text-blue-950">
+              Begin with the live Journal Entries chapter
+            </h2>
+            <ol className="mt-4 grid min-w-0 gap-2 text-sm font-bold leading-6 text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
+              {firstPathSteps.map((step, index) => (
+                <li key={step} className="min-w-0 rounded-xl border border-cyan-100 bg-white px-3 py-2">
+                  <span className="mr-2 text-cyan-800">{index + 1}.</span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </section>
         </div>
       </section>
 
@@ -145,13 +176,13 @@ export default function Home() {
       <section aria-labelledby="journal-entries-launch-title" className="px-4 py-12 sm:px-6 sm:py-16">
         <div className="mx-auto grid w-full max-w-[1120px] gap-5 rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Now available</p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Recommended first chapter</p>
             <h2 id="journal-entries-launch-title" className="mt-2 text-2xl font-bold text-blue-950 sm:text-3xl">
-              Journal Entries chapter is now available
+              Start with Journal Entries
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-700">
-              Learn through structured learning, solved illustrations, and complete-answer Practice It Yourself for the
-              two audited Journal Entries questions.
+              This is the safest pilot-ready starting point: read the chapter flow first, try the two audited Practice It
+              Yourself checks, and use Solver only when you need targeted help.
             </p>
           </div>
           <Link
