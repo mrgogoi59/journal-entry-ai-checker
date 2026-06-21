@@ -545,27 +545,101 @@ describe("Production Chapters route", () => {
     expect(html).not.toContain('href="/assistant"');
   });
 
-  it("links the recommended Journal Entries entry points to the production chapter route", () => {
+  it("renders the production Chapters route as a minimal chapter catalogue", () => {
     const html = renderToStaticMarkup(createElement(ChaptersPage));
+    const simplifiedChapterCopy = [
+      {
+        title: "Accounting Fundamentals",
+        description: "Learn basic accounting terms and equation.",
+        status: "Planned",
+      },
+      {
+        title: "Journal Entries",
+        description: "Learn debit-credit rules and journal format.",
+        status: "Available",
+      },
+      {
+        title: "Ledger",
+        description: "Post entries into account-wise format.",
+        status: "Planned",
+      },
+      {
+        title: "Trial Balance",
+        description: "Check debit-credit totals and balances.",
+        status: "Planned",
+      },
+      {
+        title: "Bank Reconciliation Statement",
+        description: "Match Cash Book and Bank Statement.",
+        status: "Planned",
+      },
+      {
+        title: "Rectification of Errors",
+        description: "Correct mistakes and suspense account entries.",
+        status: "Later",
+      },
+      {
+        title: "Depreciation, Provisions and Reserves",
+        description: "Learn asset and provision adjustments.",
+        status: "Later",
+      },
+      {
+        title: "Final Accounts",
+        description: "Prepare Trading, P&L, and Balance Sheet.",
+        status: "Planned",
+      },
+      {
+        title: "Bills of Exchange",
+        description: "Record bills, maturity, and dishonour.",
+        status: "Later",
+      },
+      {
+        title: "Not-for-Profit Accounts",
+        description: "Prepare receipts, payments, and income statements.",
+        status: "Later",
+      },
+      {
+        title: "Partnership Accounts",
+        description: "Handle capital, drawings, and appropriations.",
+        status: "Later",
+      },
+      {
+        title: "Company Accounts",
+        description: "Learn shares, debentures, and company entries.",
+        status: "Later",
+      },
+    ];
 
     studentPlatformChapterCatalog.forEach((chapter) => {
       expect(html).toContain(chapter.title);
-      expect(html).toContain(chapter.shortDescription);
       expect(html).toContain(chapterStatusLabels[chapter.status]);
     });
 
-    expect(html).toContain("Recommended first chapter");
-    expect(html).toContain("Best place to start");
-    expect(html).toContain("Begin with Journal Entries");
-    expect(html).toContain("pilot-ready chapter");
-    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
-      "Start Journal Entries",
-    );
+    simplifiedChapterCopy.forEach((chapter) => {
+      expect(html).toContain(chapter.title);
+      expect(html).toContain(escapeHtmlText(chapter.description));
+      expect(html).toContain(chapter.status);
+    });
+
+    expect(html).toContain("<h1");
+    expect(html).toContain("Chapters");
+    expect(html).toContain("Start with Journal Entries.");
     expect(html).toContain("Available");
     expect(html).toContain("Start Chapter");
     expect(html).toContain('href="/chapters/journal-entries"');
     expect(html).toContain("Planned");
     expect(html).toContain("Later");
+    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Chapter")).toContain("Start Chapter");
+    expect(html).not.toContain("Recommended first chapter");
+    expect(html).not.toContain("Best place to start");
+    expect(html).not.toContain("Begin with Journal Entries");
+    expect(html).not.toContain("pilot-ready chapter");
+    expect(html).not.toContain("What chapters will include");
+    expect(html).not.toContain("Concepts, solved illustrations");
+    expect(html).not.toContain("Progress support can be added");
+    expect(html).not.toContain("No progress tracking is wired");
+    expect(html).not.toContain("Planned chapter");
+    expect(html).not.toContain("Later phase");
     expect(html).not.toContain('href="/platform-preview');
     expect(html).not.toContain('href="/chapters/ledger"');
     expect(html).not.toContain('href="/chapters/trial-balance"');
@@ -583,6 +657,7 @@ describe("Production Chapters route", () => {
     });
     expect(chaptersMetadata).toMatchObject({
       title: "Chapters | AccyWise AI",
+      description: "Start with Journal Entries.",
     });
     expect(journalEntriesMetadata).toMatchObject({
       title: "Journal Entries | Chapters | AccyWise AI",
@@ -590,7 +665,6 @@ describe("Production Chapters route", () => {
     expect(subtopicMetadata).toMatchObject({
       title: "Business Transactions | Journal Entries | AccyWise AI",
     });
-    expect(chaptersMetadata.description).toContain("interactive Accountancy chapters");
     expect(journalEntriesMetadata.description).toContain("Learn Journal Entries");
     expect(chaptersMetadata).not.toHaveProperty("robots");
     expect(journalEntriesMetadata).not.toHaveProperty("robots");

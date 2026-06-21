@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/student-platform/PageHeader";
 import { StudentAppShell } from "@/components/student-platform/StudentAppShell";
 import {
   chapterStatusLabels,
@@ -11,61 +10,31 @@ import {
 
 export const metadata: Metadata = {
   title: "Chapters | AccyWise AI",
-  description:
-    "Explore interactive Accountancy chapters for concepts, solved illustrations, Practice It Yourself, and chapter-wise learning on AccyWise AI.",
+  description: "Start with Journal Entries.",
 };
+
+const chapterDescriptions: Record<string, string> = {
+  "accounting-fundamentals": "Learn basic accounting terms and equation.",
+  "journal-entries": "Learn debit-credit rules and journal format.",
+  ledger: "Post entries into account-wise format.",
+  "trial-balance": "Check debit-credit totals and balances.",
+  "bank-reconciliation-statement": "Match Cash Book and Bank Statement.",
+  "rectification-of-errors": "Correct mistakes and suspense account entries.",
+  "depreciation-provisions-and-reserves": "Learn asset and provision adjustments.",
+  "final-accounts": "Prepare Trading, P&L, and Balance Sheet.",
+  "bills-of-exchange": "Record bills, maturity, and dishonour.",
+  "not-for-profit-accounts": "Prepare receipts, payments, and income statements.",
+  "partnership-accounts": "Handle capital, drawings, and appropriations.",
+  "company-accounts": "Learn shares, debentures, and company entries.",
+} satisfies Record<ChapterCatalogItem["id"], string>;
 
 export default function ChaptersPage() {
   return (
     <StudentAppShell activeItem="chapters">
-      <PageHeader
-        eyebrow="Student platform"
-        title="Chapters"
-        description="Choose an Accountancy chapter. Start with Journal Entries for the current pilot-ready path; other chapters remain staged until their learning flow is built and tested."
-      >
-        <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-800">
-          Recommended first chapter
-        </span>
-      </PageHeader>
-
-      <section
-        aria-labelledby="recommended-chapter-title"
-        className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm sm:p-6"
-      >
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">Best place to start</p>
-        <div className="mt-2 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <h2 id="recommended-chapter-title" className="text-2xl font-black tracking-tight text-slate-950">
-              Begin with Journal Entries
-            </h2>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-cyan-950">
-              Journal Entries is the first pilot-ready chapter because it builds the debit-credit foundation needed for
-              Ledger, Trial Balance, Final Accounts, and later chapters.
-            </p>
-          </div>
-          <Link
-            href="/chapters/journal-entries"
-            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-          >
-            Start Journal Entries
-          </Link>
-        </div>
-      </section>
-
-      <section
-        aria-labelledby="chapters-plan-title"
-        className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-      >
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">What chapters will include</p>
-        <h2 id="chapters-plan-title" className="mt-2 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">
-          Concepts, solved illustrations, Practice It Yourself, and chapter-wise progression
-        </h2>
-        <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600">
-          This index is the first live production chapter library. Journal Entries now opens with controlled
-          two-question checking, while every other chapter is labelled honestly as planned or later until its learning
-          flow is built and tested.
-        </p>
-      </section>
+      <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+        <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Chapters</h1>
+        <p className="mt-3 text-base leading-7 text-slate-600">Start with Journal Entries.</p>
+      </header>
 
       <section aria-label="Accountancy chapter catalogue" className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {studentPlatformChapterCatalog.map((chapter) => (
@@ -81,21 +50,14 @@ function ChapterCard({ chapter }: { chapter: ChapterCatalogItem }) {
 
   return (
     <article className="flex min-w-0 flex-col rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex min-w-0 items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-lg font-black tracking-tight text-slate-950">{chapter.title}</h2>
-          {chapter.level ? <p className="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">{chapter.level}</p> : null}
-        </div>
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <h2 className="min-w-0 text-lg font-black tracking-tight text-slate-950">{chapter.title}</h2>
         <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-black ${chapterStatusStyles[chapter.status]}`}>
           {statusLabel}
         </span>
       </div>
 
-      <p className="mt-3 flex-1 text-sm leading-6 text-slate-600">{chapter.shortDescription}</p>
-
-      <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold leading-6 text-slate-600">
-        {chapter.supportsProgressLater ? "Progress support can be added after the chapter route is approved." : "No progress tracking is wired in this phase."}
-      </div>
+      <p className="mt-3 flex-1 text-sm leading-6 text-slate-600">{chapterDescriptions[chapter.id]}</p>
 
       {chapter.href ? (
         <Link
@@ -104,11 +66,7 @@ function ChapterCard({ chapter }: { chapter: ChapterCatalogItem }) {
         >
           {chapter.actionLabel}
         </Link>
-      ) : (
-        <div className="mt-5 inline-flex min-h-10 items-center self-start rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700">
-          {chapter.actionLabel}
-        </div>
-      )}
+      ) : null}
     </article>
   );
 }
