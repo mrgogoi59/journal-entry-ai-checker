@@ -1109,7 +1109,7 @@ describe("Production Chapters route", () => {
     expect(previewEditorSource).toContain("Show Correct Answer");
   });
 
-  it("renders the simplified homepage with one primary Journal Entries path", () => {
+  it("renders the simplified homepage with three hero action choices", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
     const hrefs = getHrefValues(html);
 
@@ -1119,10 +1119,10 @@ describe("Production Chapters route", () => {
     });
     expect(html).toContain("AccyWise AI");
     expect(html).toContain("Learn Accountancy by Doing");
-    expect(html).toContain("Start with Journal Entries, practise with checks, use Solver when stuck.");
-    expect(getLinkMarkupWithText(html, "/chapters/journal-entries", "Start Journal Entries")).toContain(
-      "Start Journal Entries",
-    );
+    expect(html).toContain("Start with chapters, practise with checks, use Solver when stuck.");
+    expect(getLinkMarkupWithText(html, "/chapters", "Chapters")).toContain("Chapters");
+    expect(getLinkMarkupWithText(html, "/solver", "Solver")).toContain("Solver");
+    expect(getLinkMarkupWithText(html, "/practice", "Practice")).toContain("Practice");
     expect(html).toContain("How It Works");
     expect(html).toContain("1.");
     expect(html).toContain("Read a chapter");
@@ -1130,14 +1130,10 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Try Practice");
     expect(html).toContain("3.");
     expect(html).toContain("Use Solver if stuck");
-    expect(html).toContain("Quick Links");
-    expect(getLinkMarkupWithText(html, "/chapters", "Chapters")).toContain("Chapters");
-    expect(getLinkMarkupWithText(html, "/solver", "Solver")).toContain("Solver");
-    expect(getLinkMarkupWithText(html, "/practice", "Practice")).toContain("Practice");
     expect(hrefs).toContain("/chapters");
     expect(hrefs).toContain("/solver");
     expect(hrefs).toContain("/practice");
-    expect(hrefs).toContain("/chapters/journal-entries");
+    expect(hrefs).not.toContain("/chapters/journal-entries");
     expect(hrefs).not.toContain("/dashboard");
     expect(hrefs).not.toContain("/assistant");
     expect(hrefs).not.toContain("/tools");
@@ -1158,19 +1154,20 @@ describe("Production Chapters route", () => {
     expect(html).not.toContain("No live route yet");
     expect(html).not.toContain("Start with Journal Entries today");
     expect(html).not.toContain("Built for commerce students");
+    expect(html).not.toContain("Start Journal Entries");
+    expect(html).not.toContain("Quick Links");
     expect(hrefs).not.toContain("/assistant");
     expect(html).not.toContain("/platform-preview");
   });
 
-  it("keeps homepage quick links limited to the production hubs", () => {
+  it("keeps homepage hero actions limited to the production hubs", () => {
     const html = renderToStaticMarkup(createElement(HomePage));
     const hrefs = getHrefValues(html);
 
-    expect(getLinkMarkup(html, "/chapters/journal-entries")).toContain("Start Journal Entries");
     expect(getLinkMarkupWithText(html, "/chapters", "Chapters")).toContain("Chapters");
     expect(getLinkMarkupWithText(html, "/solver", "Solver")).toContain("Solver");
     expect(getLinkMarkupWithText(html, "/practice", "Practice")).toContain("Practice");
-    expect(hrefs.filter((href) => href === "/chapters/journal-entries")).toHaveLength(1);
+    expect(hrefs.filter((href) => href === "/chapters/journal-entries")).toHaveLength(0);
     expect(hrefs.filter((href) => href === "/chapters")).toHaveLength(1);
     expect(hrefs.filter((href) => href === "/solver")).toHaveLength(1);
     expect(hrefs.filter((href) => href === "/practice")).toHaveLength(1);

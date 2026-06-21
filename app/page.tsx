@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const howItWorksSteps = ["Read a chapter", "Try Practice", "Use Solver if stuck"] as const;
 
-const quickLinks = [
+const heroActions = [
   { label: "Chapters", href: "/chapters" },
   { label: "Solver", href: "/solver" },
   { label: "Practice", href: "/practice" },
@@ -25,14 +25,23 @@ export default function Home() {
               Learn Accountancy by Doing
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-700">
-              Start with Journal Entries, practise with checks, use Solver when stuck.
+              Start with chapters, practise with checks, use Solver when stuck.
             </p>
-            <Link
-              href="/chapters/journal-entries"
-              className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-950 px-5 py-3 text-base font-black text-white shadow-soft outline-none transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-            >
-              Start Journal Entries
-            </Link>
+            <div className="mt-8 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {heroActions.map((link, index) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={
+                    index === 0
+                      ? "inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-950 px-5 py-3 text-base font-black text-white shadow-soft outline-none transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                      : "inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-black text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                  }
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
 
           <div
@@ -69,25 +78,6 @@ export default function Home() {
               </li>
             ))}
           </ol>
-        </div>
-      </section>
-
-      <section aria-labelledby="quick-links-title" className="px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto w-full max-w-[1120px]">
-          <h2 id="quick-links-title" className="text-3xl font-black tracking-tight text-blue-950">
-            Quick Links
-          </h2>
-          <div className="mt-6 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
-            {quickLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-blue-200 bg-white px-5 py-3 text-base font-black text-blue-950 outline-none transition hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
     </main>
