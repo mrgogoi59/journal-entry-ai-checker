@@ -34,6 +34,57 @@ const unsupportedTotalsResult: JournalEntryPracticeTotalsResult = {
   messages: ["This question is not supported by the Journal Entries preview checker."],
 };
 
+const narrationFillerWords = new Set([
+  "a",
+  "an",
+  "as",
+  "being",
+  "by",
+  "for",
+  "from",
+  "in",
+  "into",
+  "is",
+  "of",
+  "the",
+  "through",
+  "to",
+  "was",
+  "were",
+  "with",
+]);
+
+const narrationTokenAliases: Record<string, string> = {
+  bought: "purchase",
+  buying: "purchase",
+  buys: "purchase",
+  deposited: "deposit",
+  depositing: "deposit",
+  deposits: "deposit",
+  expense: "expense",
+  expenses: "expense",
+  good: "goods",
+  goods: "goods",
+  paid: "paid",
+  pay: "paid",
+  payment: "paid",
+  payments: "paid",
+  purchase: "purchase",
+  purchased: "purchase",
+  purchases: "purchase",
+  sale: "sale",
+  sales: "sale",
+  salaries: "salary",
+  salary: "salary",
+  sell: "sale",
+  selling: "sale",
+  sells: "sale",
+  sold: "sale",
+  withdrew: "withdrawn",
+  withdrawal: "withdrawn",
+  withdrawing: "withdrawn",
+};
+
 export function checkJournalEntryPracticeAttempt(
   attemptInput: unknown,
   expected: JournalEntryPracticeAnswerKey | null,
@@ -510,14 +561,12 @@ function evaluateNarration(
     };
   }
 
-  const hasExpectedConcept = expected.narrationConceptHints.every((hint) =>
-    normalized.includes(normalizeNarration(hint)),
-  );
+  const hasExpectedConcept = hasExpectedNarrationMeaning(narration, expected.acceptedNarrations);
 
   if (hasExpectedConcept) {
     return {
-      status: "warning",
-      message: expected.narrationFeedback.warningMessage,
+      status: "correct",
+      message: "Narration is acceptable.",
     };
   }
 
@@ -532,6 +581,25 @@ function normalizeNarration(value: string) {
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function hasExpectedNarrationMeaning(narration: string, acceptedNarrations: string[]) {
+  const narrationTokens = normalizeNarrationConceptTokens(narration);
+
+  return acceptedNarrations.some((acceptedNarration) => {
+    const requiredTokens = normalizeNarrationConceptTokens(acceptedNarration);
+
+    return Array.from(requiredTokens).every((token) => narrationTokens.has(token));
+  });
+}
+
+function normalizeNarrationConceptTokens(value: string) {
+  return new Set(
+    normalizeNarration(value)
+      .split(" ")
+      .map((token) => narrationTokenAliases[token] ?? token)
+      .filter((token) => token.length > 0 && !narrationFillerWords.has(token)),
+  );
 }
 
 function evaluateBalance(

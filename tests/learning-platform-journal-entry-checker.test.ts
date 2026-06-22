@@ -995,7 +995,21 @@ describe("learning-platform journal entry checker", () => {
     expect(noNarration.errors).toEqual(expect.arrayContaining(["Narration is required for this Practice It Yourself question."]));
   });
 
-  it("uses presentation warnings for reverse order, blank L.F., and non-standard narration", () => {
+  it("accepts beginner cash-sale narration variants by meaning", () => {
+    const variants = ["Being goods are sold for cash", "Goods sold for cash", "Being cash sales", "Cash sale of goods."];
+
+    variants.forEach((narration) => {
+      const result = check(createAttempt({ narration }));
+
+      expect(result.status, narration).toBe("correct");
+      expect(result.narrationResult).toMatchObject({
+        status: "correct",
+        message: "Narration is acceptable.",
+      });
+    });
+  });
+
+  it("uses presentation warnings for reverse order and blank L.F. only", () => {
     const reverseOrder = check(
       createAttempt({
         rows: [
@@ -1012,7 +1026,6 @@ describe("learning-platform journal entry checker", () => {
         ],
       }),
     );
-    const narrationWarning = check(createAttempt({ narration: "Cash sale of goods." }));
 
     expect(reverseOrder.status).toBe("partially-correct");
     expect(reverseOrder.warnings).toEqual(
@@ -1020,8 +1033,6 @@ describe("learning-platform journal entry checker", () => {
     );
     expect(blankLf.status).toBe("partially-correct");
     expect(blankLf.warnings.join(" ")).toContain("L.F. is blank");
-    expect(narrationWarning.status).toBe("partially-correct");
-    expect(narrationWarning.narrationResult.status).toBe("warning");
   });
 
   it("fails safely for unsupported question IDs", () => {
@@ -1159,6 +1170,20 @@ describe("learning-platform journal entry checker", () => {
     expect(result.errors).toEqual([]);
     expect(result.narrationResult.status).toBe("correct");
     expect(result.warnings.join(" ")).toContain("L.F. is blank");
+  });
+
+  it("accepts beginner paid-salary-by-bank narration variants by meaning", () => {
+    const variants = ["Being salaries are paid by bank", "Salary paid through bank", "Being salary paid from bank"];
+
+    variants.forEach((narration) => {
+      const result = checkSalary(createSalaryAttempt({ narration }));
+
+      expect(result.status, narration).toBe("correct");
+      expect(result.narrationResult).toMatchObject({
+        status: "correct",
+        message: "Narration is acceptable.",
+      });
+    });
   });
 
   it("rejects Cash instead of Bank for the paid-salary-by-bank question", () => {
