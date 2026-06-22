@@ -928,14 +928,17 @@ describe("Production Chapters route", () => {
     polishedSections.forEach(({ actionHref, actionText, rule, slug, title }) => {
       const html = renderProductionSection(slug);
 
-      expect(html).toContain("Study guide");
-      expect(html).toContain(`Before you study ${title}`);
-      expect(html).toContain(escapeHtmlText("What you'll learn"));
+      expect(html).toContain(title);
+      expect(html).toContain("Section ");
+      expect(html).toContain("Key idea");
       expect(html).toContain("Common mistake");
-      expect(html).toContain("Rule");
       expect(html).toContain(escapeHtmlText(rule));
-      expect(html).toContain("Example tip");
-      expect(html).toContain("Study the reasoning");
+      expect(html).not.toContain("Study guide");
+      expect(html).not.toContain(`Before you study ${title}`);
+      expect(html).not.toContain(escapeHtmlText("What you'll learn"));
+      expect(html).not.toContain("Example tip");
+      expect(html).not.toContain("Study the reasoning");
+      expect(html).not.toContain("Read each example in this order");
       if (actionHref && actionText) {
         expect(getLinkMarkupWithText(html, actionHref, actionText)).toContain(actionText);
       }

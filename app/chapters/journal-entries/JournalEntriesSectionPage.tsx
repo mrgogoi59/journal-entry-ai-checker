@@ -381,28 +381,17 @@ function SectionLearningGuideCard({
   return (
     <section
       aria-labelledby={`${subtopic.id}-learning-guide-title`}
-      className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm sm:p-6"
+      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
     >
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">Study guide</p>
-      <h2 id={`${subtopic.id}-learning-guide-title`} className="mt-2 text-2xl font-black tracking-tight text-slate-950">
-        Before you study {subtopic.title}
-      </h2>
-
-      <div className="mt-5 grid min-w-0 gap-3 lg:grid-cols-2">
-        <LearningGuideNote title="What you'll learn" body={guide.teaches} />
-        <LearningGuideNote title="Common mistake" body={guide.watchFor} />
-      </div>
-
-      <div className="mt-5 grid min-w-0 gap-3 lg:grid-cols-2">
-        <article className="min-w-0 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Rule</p>
-          <h3 className="mt-2 text-base font-black text-slate-950">{guide.ruleTitle}</h3>
-          <p className="mt-2 text-sm font-semibold leading-6 text-amber-950">{guide.ruleBody}</p>
+      <div className="grid min-w-0 gap-3 lg:grid-cols-2">
+        <article className="min-w-0 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
+          <h3 id={`${subtopic.id}-learning-guide-title`} className="text-sm font-black text-cyan-950">Key idea</h3>
+          <p className="mt-2 text-base font-black leading-6 text-slate-950">{productionText(guide.ruleTitle)}</p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-cyan-950">{productionText(guide.ruleBody)}</p>
         </article>
-        <article className="min-w-0 rounded-2xl border border-cyan-200 bg-white p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Example tip</p>
-          <h3 className="mt-2 text-base font-black text-slate-950">Study the reasoning</h3>
-          <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{guide.exampleTip}</p>
+        <article className="min-w-0 rounded-2xl border border-rose-200 bg-rose-50 p-4">
+          <h3 className="text-sm font-black text-rose-950">Common mistake</h3>
+          <p className="mt-2 text-sm font-semibold leading-6 text-rose-950">{productionText(guide.watchFor)}</p>
         </article>
       </div>
 
@@ -417,15 +406,6 @@ function SectionLearningGuideCard({
         ) : null}
       </div>
     </section>
-  );
-}
-
-function LearningGuideNote({ body, title }: { body: string; title: string }) {
-  return (
-    <article className="min-w-0 rounded-2xl border border-emerald-200 bg-white p-4">
-      <h3 className="text-sm font-black text-slate-950">{title}</h3>
-      <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{body}</p>
-    </article>
   );
 }
 
