@@ -1059,6 +1059,7 @@ describe("Production Chapters route", () => {
       readFileSync("app/chapters/journal-entries/page.tsx", "utf8"),
       readFileSync("app/chapters/journal-entries/[sectionSlug]/page.tsx", "utf8"),
     ].join("\n");
+    const beginnerFeedbackSource = source.match(/function BeginnerFeedbackPanel[\s\S]*?function FeedbackNextStep/)?.[0] ?? "";
 
     expect(html).toContain("Practice 1 of 2");
     expect(html).toContain("Sold goods for cash ₹12,000. Pass the journal entry.");
@@ -1099,6 +1100,23 @@ describe("Production Chapters route", () => {
     expect(source).toContain("createGuidedAttempt(question.id, guidedEntry, narration)");
     expect(source).toContain("formatCreditParticulars(guidedEntry.creditAccount)");
     expect(source).toContain('replace(/^\\s*to\\b\\s*/i, "").trim()');
+    expect(source).toContain('mode={isGuidedInput ? "beginner" : "detailed"}');
+    expect(source).toContain("await revealCorrectAnswerAction(question.id)");
+    expect(source).toContain("function BeginnerFeedbackPanel");
+    expect(source).toContain("Your journal entry is right.");
+    expect(source).toContain('title="Correct entry"');
+    expect(source).toContain("Debit account needs correction.");
+    expect(source).toContain("Credit account needs correction.");
+    expect(source).toContain("Amount needs correction.");
+    expect(source).toContain("Narration needs improvement.");
+    expect(source).toContain("isLedgerFolioPresentationMessage");
+    expect(beginnerFeedbackSource).toContain("Why?");
+    expect(beginnerFeedbackSource).not.toContain("Read the feedback in this order");
+    expect(beginnerFeedbackSource).not.toContain("Specific errors");
+    expect(beginnerFeedbackSource).not.toContain("No hard errors");
+    expect(beginnerFeedbackSource).not.toContain("Warnings");
+    expect(beginnerFeedbackSource).not.toContain("presentation warnings");
+    expect(beginnerFeedbackSource).not.toContain("Row-level feedback");
     expect(source).not.toContain("getAccountInputValue");
     expect(source).not.toContain("journal-entry-answer-keys.server");
     expect(source).not.toContain("Cash A/c Dr.");

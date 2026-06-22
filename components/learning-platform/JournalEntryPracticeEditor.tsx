@@ -25,6 +25,8 @@ type GuidedEntryFieldsState = {
   amount: string;
 };
 
+type FeedbackDisplayMode = "beginner" | "detailed";
+
 type JournalEntryPracticeEditorProps = {
   question: PracticeItYourselfPreviewQuestion;
   checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
@@ -138,7 +140,13 @@ export function JournalEntryPracticeEditor({
 
     try {
       const checkedResult = await checkAnswerAction(attempt);
+      const guidedReveal =
+        isGuidedInput && checkedResult.correctAnswerRevealAvailable
+          ? await revealCorrectAnswerAction(question.id)
+          : null;
+
       setResult(checkedResult);
+      setReveal(guidedReveal);
       setAttemptCount((count) => count + 1);
     } finally {
       setIsChecking(false);
@@ -271,6 +279,7 @@ export function JournalEntryPracticeEditor({
             reveal={reveal}
             canReveal={attemptCount > 0}
             isRevealing={isRevealing}
+            mode={isGuidedInput ? "beginner" : "detailed"}
             showNextStepLinks={!isGuidedInput}
             onTryAgain={handleTryAgain}
             onReveal={handleReveal}
@@ -738,6 +747,7 @@ function FeedbackPanel({
   reveal,
   canReveal,
   isRevealing,
+  mode,
   showNextStepLinks,
   onTryAgain,
   onReveal,
@@ -746,10 +756,15 @@ function FeedbackPanel({
   reveal: JournalEntryCorrectAnswerReveal | null;
   canReveal: boolean;
   isRevealing: boolean;
+  mode: FeedbackDisplayMode;
   showNextStepLinks: boolean;
   onTryAgain: () => void;
   onReveal: () => void;
 }) {
+  if (mode === "beginner") {
+    return <BeginnerFeedbackPanel result={result} reveal={reveal} onTryAgain={onTryAgain} />;
+  }
+
   const summaryStyle =
     result.status === "correct"
       ? statusStyles.correct
@@ -830,6 +845,70 @@ function FeedbackPanel({
   );
 }
 
+function BeginnerFeedbackPanel({
+  result,
+  reveal,
+  onTryAgain,
+}: {
+  result: JournalEntryPracticeCheckResult;
+  reveal: JournalEntryCorrectAnswerReveal | null;
+  onTryAgain: () => void;
+}) {
+  const correctionItems = getBeginnerCorrectionItems(result);
+  const whyItems = getBeginnerWhyItems(result);
+  const isCorrectForBeginner = result.errors.length === 0 && correctionItems.length === 0;
+  const heading = isCorrectForBeginner ? "Correct" : result.errors.length > 0 ? "Needs correction" : "Almost correct";
+  const summary = isCorrectForBeginner
+    ? "Your journal entry is right."
+    : "Review these parts and try again.";
+  const summaryStyle = isCorrectForBeginner
+    ? statusStyles.correct
+    : result.errors.length > 0
+      ? statusStyles.error
+      : statusStyles.warning;
+
+  return (
+    <div className="space-y-4">
+      <div className={`rounded-2xl border p-4 ${summaryStyle}`}>
+        <h3 className="text-lg font-black">{heading}</h3>
+        <p className="mt-1 text-sm font-semibold leading-6">{summary}</p>
+      </div>
+
+      {correctionItems.length > 0 ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+          <h4 className="text-sm font-black">Check these parts</h4>
+          <ul className="mt-2 space-y-1 text-sm font-semibold leading-6">
+            {correctionItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {reveal?.available ? <CorrectAnswerReveal reveal={reveal} title="Correct entry" /> : null}
+
+      {whyItems.length > 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <h4 className="text-sm font-black text-slate-950">Why?</h4>
+          <ul className="mt-2 space-y-1 text-sm font-semibold leading-6 text-slate-700">
+            {whyItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={onTryAgain}
+        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+      >
+        Try Again
+      </button>
+    </div>
+  );
+}
+
 function FeedbackNextStep({
   showLinks,
   status,
@@ -903,10 +982,16 @@ function FeedbackStatusCard({
   );
 }
 
-function CorrectAnswerReveal({ reveal }: { reveal: JournalEntryCorrectAnswerReveal }) {
+function CorrectAnswerReveal({
+  reveal,
+  title = "Correct Answer",
+}: {
+  reveal: JournalEntryCorrectAnswerReveal;
+  title?: string;
+}) {
   return (
     <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-950">
-      <h4 className="font-black">Correct Answer</h4>
+      <h4 className="font-black">{title}</h4>
       <div className="mt-3 grid gap-2">
         {reveal.lines.map((line) => (
           <div key={line.id} className="grid gap-2 rounded-xl bg-white/70 p-3 sm:grid-cols-[1fr_auto_auto]">
@@ -942,6 +1027,90 @@ function createBlankGuidedEntry(): GuidedEntryFieldsState {
     creditAccount: "",
     amount: "",
   };
+}
+
+function getBeginnerCorrectionItems(result: JournalEntryPracticeCheckResult) {
+  const corrections = new Set<string>();
+
+  for (const rowResult of result.rowResults) {
+    for (const fieldResult of rowResult.fieldResults) {
+      if (fieldResult.status === "correct" || isLedgerFolioPresentationMessage(fieldResult.message)) {
+        continue;
+      }
+
+      if (fieldResult.field === "particulars") {
+        corrections.add(rowResult.rowOrder === 1 ? "Debit account needs correction." : "Credit account needs correction.");
+      }
+
+      if (fieldResult.field === "debitAmount" || fieldResult.field === "creditAmount") {
+        corrections.add("Amount needs correction.");
+      }
+    }
+  }
+
+  if (result.totalsResult.status === "error" || result.balanceResult.status === "error") {
+    corrections.add("Amount needs correction.");
+  }
+
+  if (result.narrationResult.status !== "correct") {
+    corrections.add("Narration needs improvement.");
+  }
+
+  for (const error of result.errors) {
+    if (isLedgerFolioPresentationMessage(error)) {
+      continue;
+    }
+
+    if (corrections.size === 0) {
+      corrections.add(simplifyBeginnerMessage(error));
+    }
+  }
+
+  for (const warning of result.warnings) {
+    if (isLedgerFolioPresentationMessage(warning)) {
+      continue;
+    }
+
+    if (warning.toLowerCase().includes("narration")) {
+      corrections.add("Narration needs improvement.");
+    }
+  }
+
+  return Array.from(corrections);
+}
+
+function getBeginnerWhyItems(result: JournalEntryPracticeCheckResult) {
+  const items = new Set<string>();
+
+  result.gotRight
+    .filter((message) => !isLedgerFolioPresentationMessage(message))
+    .forEach((message) => {
+      if (message === "Debit and credit totals are balanced.") {
+        items.add("Amount is correct.");
+      } else if (message.toLowerCase().includes("narration")) {
+        items.add("Narration is acceptable.");
+      } else {
+        items.add(simplifyBeginnerMessage(message));
+      }
+    });
+
+  if (result.totalsResult.status === "correct" && result.balanceResult.status === "correct") {
+    items.add("Amount is correct.");
+  }
+
+  result.hints
+    .filter((message) => !isLedgerFolioPresentationMessage(message))
+    .forEach((message) => items.add(simplifyBeginnerMessage(message)));
+
+  return Array.from(items);
+}
+
+function isLedgerFolioPresentationMessage(message: string) {
+  return /L\.F\./i.test(message) || /formal journal work/i.test(message);
+}
+
+function simplifyBeginnerMessage(message: string) {
+  return message.replace(/^Row \d+:\s*/i, "").replace(/^Row \d+\s+/i, "");
 }
 
 function formatDebitParticulars(value: string) {
