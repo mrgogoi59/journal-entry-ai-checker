@@ -2295,6 +2295,60 @@ describe("learning-platform journal entry checker", () => {
     expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Cash should be credited with ₹2,500."]));
   });
 
+  it("accepts controlled beginner account-name and narration variants for the wages-paid checker", () => {
+    const acceptedVariants = [
+      { particulars: "Wage Expenses A/c Dr", narration: "Being payment made as wages" },
+      { particulars: "Wages Expenses A/c Dr", narration: "Wages paid" },
+      { particulars: "Wages Paid A/c Dr", narration: "Being wages paid" },
+    ];
+
+    acceptedVariants.forEach(({ particulars, narration }) => {
+      const result = checkWages(
+        createWagesAttempt({
+          rows: [
+            { ...createWagesAttempt().rows[0], particulars },
+            { ...createWagesAttempt().rows[1], particulars: "To Cash" },
+          ],
+          narration,
+        }),
+      );
+
+      expect(result.status, particulars).toBe("correct");
+      expect(result.gotRight).toEqual(
+        expect.arrayContaining([
+          "Wages is correctly debited because wages are a business expense.",
+          "Cash is correctly credited because cash leaves the business.",
+          "Narration communicates that wages were paid in cash.",
+        ]),
+      );
+    });
+  });
+
+  it("still rejects wrong debit accounts and narrations for the wages-paid checker", () => {
+    const salaryResult = checkWages(
+      createWagesAttempt({
+        rows: [{ ...createWagesAttempt().rows[0], particulars: "Salary A/c Dr." }, createWagesAttempt().rows[1]],
+      }),
+    );
+    const electricityResult = checkWages(
+      createWagesAttempt({
+        rows: [{ ...createWagesAttempt().rows[0], particulars: "Electricity A/c Dr." }, createWagesAttempt().rows[1]],
+      }),
+    );
+    const goodsSoldNarration = checkWages(createWagesAttempt({ narration: "Being goods sold for cash" }));
+    const electricityNarration = checkWages(createWagesAttempt({ narration: "Being electricity bill paid in cash" }));
+
+    expect(salaryResult.status).toBe("incorrect");
+    expect(salaryResult.errors).toEqual(expect.arrayContaining(["Salary A/c is a different expense and is not used here."]));
+    expect(salaryResult.errors).toEqual(expect.arrayContaining(["Wages A/c Dr. is missing."]));
+    expect(electricityResult.status).toBe("incorrect");
+    expect(electricityResult.errors).toEqual(expect.arrayContaining(["Wages A/c Dr. is missing."]));
+    expect(goodsSoldNarration.status).toBe("incorrect");
+    expect(goodsSoldNarration.narrationResult.message).toBe("Narration should explain that wages were paid in cash.");
+    expect(electricityNarration.status).toBe("incorrect");
+    expect(electricityNarration.narrationResult.message).toBe("Narration should explain that wages were paid in cash.");
+  });
+
   it("accepts and protects the sold-goods-by-bank checker", () => {
     const correctResult = checkBankSale();
     const reversedResult = checkBankSale(

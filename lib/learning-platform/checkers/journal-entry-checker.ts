@@ -76,10 +76,13 @@ const narrationTokenAliases: Record<string, string> = {
   sales: "sale",
   salaries: "salary",
   salary: "salary",
+  made: "paid",
   sell: "sale",
   selling: "sale",
   sells: "sale",
   sold: "sale",
+  wage: "wages",
+  wages: "wages",
   withdrew: "withdrawn",
   withdrawal: "withdrawn",
   withdrawing: "withdrawn",
@@ -96,6 +99,13 @@ const accountKeyAliases: Record<string, string> = {
   "fee received": "fees received",
   fees: "fees received",
   "fees income": "fees received",
+  wage: "wages",
+  "wage expense": "wages",
+  "wage expenses": "wages",
+  "wage paid": "wages",
+  "wages expense": "wages",
+  "wages expenses": "wages",
+  "wages paid": "wages",
 };
 
 export function checkJournalEntryPracticeAttempt(
@@ -584,7 +594,7 @@ function evaluateNarration(
     };
   }
 
-  const hasExpectedConcept = hasExpectedNarrationMeaning(narration, expected.acceptedNarrations);
+  const hasExpectedConcept = hasExpectedNarrationMeaning(narration, expected);
 
   if (hasExpectedConcept) {
     return {
@@ -606,14 +616,22 @@ function normalizeNarration(value: string) {
     .trim();
 }
 
-function hasExpectedNarrationMeaning(narration: string, acceptedNarrations: string[]) {
+function hasExpectedNarrationMeaning(narration: string, expected: JournalEntryPracticeAnswerKey) {
   const narrationTokens = normalizeNarrationConceptTokens(narration);
 
-  return acceptedNarrations.some((acceptedNarration) => {
+  const hasAcceptedNarrationMeaning = expected.acceptedNarrations.some((acceptedNarration) => {
     const requiredTokens = normalizeNarrationConceptTokens(acceptedNarration);
 
     return Array.from(requiredTokens).every((token) => narrationTokens.has(token));
   });
+
+  return hasAcceptedNarrationMeaning || hasWagesPaidNarrationMeaning(narrationTokens, expected);
+}
+
+function hasWagesPaidNarrationMeaning(narrationTokens: Set<string>, expected: JournalEntryPracticeAnswerKey) {
+  const isWagesQuestion = expected.expectedLines.some((line) => line.accountKey === "wages");
+
+  return isWagesQuestion && narrationTokens.has("wages") && narrationTokens.has("paid") && !narrationTokens.has("bank");
 }
 
 function normalizeNarrationConceptTokens(value: string) {
