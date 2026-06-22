@@ -55,12 +55,15 @@ const narrationFillerWords = new Set([
 ]);
 
 const narrationTokenAliases: Record<string, string> = {
+  advertisement: "advertising",
+  advertisements: "advertising",
   bought: "purchase",
   buying: "purchase",
   buys: "purchase",
   deposited: "deposit",
   depositing: "deposit",
   deposits: "deposit",
+  done: "paid",
   expense: "expense",
   expenses: "expense",
   good: "goods",
@@ -89,6 +92,15 @@ const narrationTokenAliases: Record<string, string> = {
 };
 
 const accountKeyAliases: Record<string, string> = {
+  advertisement: "advertising",
+  "advertisement charge": "advertising",
+  "advertisement charges": "advertising",
+  "advertisement expense": "advertising",
+  "advertisement expenses": "advertising",
+  "advertising charge": "advertising",
+  "advertising charges": "advertising",
+  "advertising expense": "advertising",
+  "advertising expenses": "advertising",
   "electricity bill": "electricity",
   "electricity charge": "electricity",
   "electricity charges": "electricity",
@@ -99,6 +111,9 @@ const accountKeyAliases: Record<string, string> = {
   "fee received": "fees received",
   fees: "fees received",
   "fees income": "fees received",
+  "furniture asset": "furniture",
+  "office furniture": "furniture",
+  "office furniture asset": "furniture",
   wage: "wages",
   "wage expense": "wages",
   "wage expenses": "wages",
@@ -625,13 +640,41 @@ function hasExpectedNarrationMeaning(narration: string, expected: JournalEntryPr
     return Array.from(requiredTokens).every((token) => narrationTokens.has(token));
   });
 
-  return hasAcceptedNarrationMeaning || hasWagesPaidNarrationMeaning(narrationTokens, expected);
+  return (
+    hasAcceptedNarrationMeaning ||
+    hasWagesPaidNarrationMeaning(narrationTokens, expected) ||
+    hasMachineryPaymentNarrationMeaning(narrationTokens, expected)
+  );
 }
 
 function hasWagesPaidNarrationMeaning(narrationTokens: Set<string>, expected: JournalEntryPracticeAnswerKey) {
   const isWagesQuestion = expected.expectedLines.some((line) => line.accountKey === "wages");
 
   return isWagesQuestion && narrationTokens.has("wages") && narrationTokens.has("paid") && !narrationTokens.has("bank");
+}
+
+function hasMachineryPaymentNarrationMeaning(narrationTokens: Set<string>, expected: JournalEntryPracticeAnswerKey) {
+  const isMachineryQuestion = expected.expectedLines.some((line) => line.accountKey === "machinery");
+  const conflictingTokens = [
+    "advertising",
+    "cash",
+    "electricity",
+    "expense",
+    "fees",
+    "furniture",
+    "goods",
+    "rent",
+    "salary",
+    "sale",
+    "wages",
+  ];
+
+  return (
+    isMachineryQuestion &&
+    narrationTokens.has("machinery") &&
+    narrationTokens.has("paid") &&
+    conflictingTokens.every((token) => !narrationTokens.has(token))
+  );
 }
 
 function normalizeNarrationConceptTokens(value: string) {

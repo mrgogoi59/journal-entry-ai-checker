@@ -2048,6 +2048,32 @@ describe("learning-platform journal entry checker", () => {
     );
   });
 
+  it("accepts controlled furniture account and narration variants", () => {
+    const officeFurnitureResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          { ...createFurnitureAttempt().rows[0], particulars: "Office Furniture A/c Dr." },
+          createFurnitureAttempt().rows[1],
+          createFurnitureAttempt().rows[2],
+        ],
+      }),
+    );
+    const furnitureAssetNarrationResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          { ...createFurnitureAttempt().rows[0], particulars: "Furniture Asset A/c Dr." },
+          createFurnitureAttempt().rows[1],
+          createFurnitureAttempt().rows[2],
+        ],
+        narration: "Being furniture purchased in cash.",
+      }),
+    );
+
+    expect(officeFurnitureResult.status).toBe("correct");
+    expect(furnitureAssetNarrationResult.status).toBe("correct");
+    expect(furnitureAssetNarrationResult.narrationResult.status).toBe("correct");
+  });
+
   it("rejects reversal and wrong debit accounts for the furniture-bought-for-cash checker", () => {
     const reversedResult = checkFurniture(
       createFurnitureAttempt({
@@ -2097,6 +2123,20 @@ describe("learning-platform journal entry checker", () => {
         ],
       }),
     );
+    const machineryResult = checkFurniture(
+      createFurnitureAttempt({
+        rows: [
+          {
+            rowOrder: 1,
+            particulars: "Machinery A/c Dr.",
+            lf: "J1",
+            debitAmount: "15000",
+            creditAmount: "",
+          },
+          createFurnitureAttempt().rows[1],
+        ],
+      }),
+    );
 
     expect(reversedResult.status).toBe("incorrect");
     expect(reversedResult.errors).toEqual(expect.arrayContaining(["Cash should not be placed in the debit column."]));
@@ -2107,6 +2147,8 @@ describe("learning-platform journal entry checker", () => {
     expect(purchasesResult.errors).toEqual(expect.arrayContaining(["Furniture A/c Dr. is missing."]));
     expect(goodsResult.errors).toEqual(expect.arrayContaining(["Goods A/c is not used because furniture is a business asset here."]));
     expect(goodsResult.errors).toEqual(expect.arrayContaining(["Furniture A/c Dr. is missing."]));
+    expect(machineryResult.status).toBe("incorrect");
+    expect(machineryResult.errors).toEqual(expect.arrayContaining(["Furniture A/c Dr. is missing."]));
   });
 
   it("rejects Bank and wrong amounts for the furniture-bought-for-cash checker", () => {
@@ -2717,6 +2759,75 @@ describe("learning-platform journal entry checker", () => {
     expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Bank should be credited with ₹3,500."]));
   });
 
+  it("accepts controlled advertising account and narration variants", () => {
+    const advertisementExpenseResult = checkAdvertising({
+      rows: [
+        { ...createAdvertisingAttempt().rows[0], particulars: "Advertisement Expenses A/c Dr." },
+        createAdvertisingAttempt().rows[1],
+        createAdvertisingAttempt().rows[2],
+      ],
+      narration: "Being advertisement expenses paid by bank.",
+    });
+    const advertisingChargesResult = checkAdvertising({
+      rows: [
+        { ...createAdvertisingAttempt().rows[0], particulars: "Advertising Charges A/c Dr." },
+        createAdvertisingAttempt().rows[1],
+        createAdvertisingAttempt().rows[2],
+      ],
+      narration: "Advertising expense paid through bank.",
+    });
+    const advertisingExpensesResult = checkAdvertising({
+      rows: [
+        { ...createAdvertisingAttempt().rows[0], particulars: "Advertising Expenses A/c Dr." },
+        createAdvertisingAttempt().rows[1],
+        createAdvertisingAttempt().rows[2],
+      ],
+    });
+    const simpleAdvertisementResult = checkAdvertising({
+      rows: [
+        { ...createAdvertisingAttempt().rows[0], particulars: "Advertisement A/c Dr." },
+        createAdvertisingAttempt().rows[1],
+        createAdvertisingAttempt().rows[2],
+      ],
+      narration: "Being an advertising paid by the bank.",
+    });
+
+    expect(advertisementExpenseResult.status).toBe("correct");
+    expect(advertisingChargesResult.status).toBe("correct");
+    expect(advertisingExpensesResult.status).toBe("correct");
+    expect(simpleAdvertisementResult.status).toBe("correct");
+  });
+
+  it("still rejects wrong advertising accounts and unrelated narrations", () => {
+    const rentResult = checkAdvertising({
+      rows: [
+        { ...createAdvertisingAttempt().rows[0], particulars: "Rent A/c Dr." },
+        createAdvertisingAttempt().rows[1],
+        createAdvertisingAttempt().rows[2],
+      ],
+    });
+    const electricityResult = checkAdvertising({
+      rows: [
+        { ...createAdvertisingAttempt().rows[0], particulars: "Electricity A/c Dr." },
+        createAdvertisingAttempt().rows[1],
+        createAdvertisingAttempt().rows[2],
+      ],
+    });
+    const wrongNarrationResult = checkAdvertising({
+      narration: "Being furniture purchased for cash.",
+    });
+
+    expect(rentResult.status).toBe("incorrect");
+    expect(rentResult.errors).toEqual(expect.arrayContaining(["Advertising A/c Dr. is missing."]));
+    expect(electricityResult.status).toBe("incorrect");
+    expect(electricityResult.errors).toEqual(expect.arrayContaining(["Advertising A/c Dr. is missing."]));
+    expect(wrongNarrationResult.status).toBe("incorrect");
+    expect(wrongNarrationResult.narrationResult.status).toBe("error");
+    expect(wrongNarrationResult.errors).toEqual(
+      expect.arrayContaining(["Narration should explain that advertising was paid by bank."]),
+    );
+  });
+
   it("accepts and protects the machinery-bought-by-bank checker", () => {
     const correctResult = checkMachinery();
     const reversedResult = checkMachinery({
@@ -2765,6 +2876,53 @@ describe("learning-platform journal entry checker", () => {
     expect(cashResult.errors).toEqual(expect.arrayContaining(["To Bank A/c is missing."]));
     expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Machinery should be debited with ₹20,000."]));
     expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Bank should be credited with ₹20,000."]));
+  });
+
+  it("accepts controlled machinery payment narration variants", () => {
+    const paymentMadeResult = checkMachinery({
+      narration: "Being payment made for buying machinery.",
+    });
+    const paymentDoneResult = checkMachinery({
+      narration: "Being payment done for buying the machinery.",
+    });
+    const paymentMadeWithoutBeingResult = checkMachinery({
+      narration: "Payment made for buying machinery.",
+    });
+    const paymentDoneWithoutBeingResult = checkMachinery({
+      narration: "Payment done for buying machinery.",
+    });
+    const paymentToPurchaseResult = checkMachinery({
+      narration: "Being payment made to purchase machinery.",
+    });
+    const paymentThroughBankResult = checkMachinery({
+      narration: "Payment made through bank for machinery.",
+    });
+
+    expect(paymentMadeResult.status).toBe("correct");
+    expect(paymentDoneResult.status).toBe("correct");
+    expect(paymentMadeWithoutBeingResult.status).toBe("correct");
+    expect(paymentDoneWithoutBeingResult.status).toBe("correct");
+    expect(paymentToPurchaseResult.status).toBe("correct");
+    expect(paymentThroughBankResult.status).toBe("correct");
+  });
+
+  it("still rejects unrelated machinery narrations", () => {
+    const advertisingNarrationResult = checkMachinery({
+      narration: "Being advertising paid by bank.",
+    });
+    const furnitureNarrationResult = checkMachinery({
+      narration: "Being furniture purchased for cash.",
+    });
+    const cashNarrationResult = checkMachinery({
+      narration: "Being payment made in cash for machinery.",
+    });
+
+    expect(advertisingNarrationResult.status).toBe("incorrect");
+    expect(advertisingNarrationResult.narrationResult.status).toBe("error");
+    expect(furnitureNarrationResult.status).toBe("incorrect");
+    expect(furnitureNarrationResult.narrationResult.status).toBe("error");
+    expect(cashNarrationResult.status).toBe("incorrect");
+    expect(cashNarrationResult.narrationResult.status).toBe("error");
   });
 
   it("keeps answer-key lookup and correct-answer reveal isolated by question ID", () => {
