@@ -85,6 +85,14 @@ const narrationTokenAliases: Record<string, string> = {
   withdrawing: "withdrawn",
 };
 
+const accountKeyAliases: Record<string, string> = {
+  "electricity bill": "electricity",
+  "electricity charge": "electricity",
+  "electricity charges": "electricity",
+  "electricity expense": "electricity",
+  "electricity expenses": "electricity",
+};
+
 export function checkJournalEntryPracticeAttempt(
   attemptInput: unknown,
   expected: JournalEntryPracticeAnswerKey | null,
@@ -366,12 +374,15 @@ function normalizeAccountKey(particulars: string) {
   const accountText = normalizeText(particulars)
     .replace(/^to\s+/, "")
     .replace(/\bdr\b\.?/g, "")
+    .replace(/\bcr\b\.?/g, "")
     .replace(/\ba\s*\/\s*c\b/g, "")
+    .replace(/\baccount\b/g, "")
     .replace(/\bac\b/g, "")
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
+  if (accountKeyAliases[accountText]) return accountKeyAliases[accountText];
   if (accountText === "cash") return "cash";
   if (accountText === "sales" || accountText === "sale") return "sales";
   if (accountText === "bank") return "bank";

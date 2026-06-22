@@ -2201,6 +2201,44 @@ describe("learning-platform journal entry checker", () => {
     expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Cash should be credited with ₹1,200."]));
   });
 
+  it("accepts controlled beginner account-name variants for the electricity-bill checker", () => {
+    const debitVariants = ["Electricity Expenses A/c Dr", "Electricity Bill A/c Dr", "Electricity Charges A/c Dr"];
+
+    debitVariants.forEach((particulars) => {
+      const result = checkElectricity(
+        createElectricityAttempt({
+          rows: [
+            { ...createElectricityAttempt().rows[0], particulars },
+            { ...createElectricityAttempt().rows[1], particulars: "To Cash" },
+          ],
+        }),
+      );
+
+      expect(result.status, particulars).toBe("correct");
+      expect(result.gotRight).toEqual(
+        expect.arrayContaining([
+          "Electricity is correctly debited because the electricity bill is a business expense.",
+          "Cash is correctly credited because cash leaves the business.",
+        ]),
+      );
+    });
+  });
+
+  it("still rejects wrong debit accounts for the electricity-bill checker", () => {
+    const wrongDebitAccounts = ["Rent A/c Dr.", "Purchases A/c Dr."];
+
+    wrongDebitAccounts.forEach((particulars) => {
+      const result = checkElectricity(
+        createElectricityAttempt({
+          rows: [{ ...createElectricityAttempt().rows[0], particulars }, createElectricityAttempt().rows[1]],
+        }),
+      );
+
+      expect(result.status, particulars).toBe("incorrect");
+      expect(result.errors).toEqual(expect.arrayContaining(["Electricity A/c Dr. is missing."]));
+    });
+  });
+
   it("accepts and protects the wages-paid-in-cash checker", () => {
     const correctResult = checkWages();
     const reversedResult = checkWages(
