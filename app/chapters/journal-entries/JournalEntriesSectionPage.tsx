@@ -90,12 +90,12 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
     <StudentAppShell activeItem="chapters" focusMode>
       <JournalEntriesFocusModeControls
         activeSectionId={subtopic.id}
+        chapterStartHref={`${PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH}#introduction-to-journal-entries`}
         outlineItems={productionJournalEntriesSectionRoutes}
+        showChapterOverview={subtopic.id === JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG}
       />
 
       <div className="min-w-0 space-y-5 sm:space-y-6">
-        {subtopic.id === JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG ? <JournalEntriesOverviewCard /> : null}
-
         <SectionIntroCard subtopic={subtopic} />
 
         {earlySectionGuide ? (
@@ -344,49 +344,6 @@ const earlyJournalEntriesSectionGuides: Record<string, EarlySectionGuide> = {
   },
 };
 
-function JournalEntriesOverviewCard() {
-  return (
-    <section
-      aria-labelledby="journal-entries-overview-title"
-      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-    >
-      <div className="min-w-0">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Chapter</p>
-        <h1
-          id="journal-entries-overview-title"
-          className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl"
-        >
-          Journal Entries
-        </h1>
-        <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-700">
-          Learn debit-credit rules and journal format.
-        </p>
-      </div>
-
-      <div className="mt-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Link
-          href={`${PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH}#introduction-to-journal-entries`}
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Start Chapter
-        </Link>
-        <Link
-          href="/journal-entry-solver"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Use Explainer
-        </Link>
-        <Link
-          href="/practice/journal-entries"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-black text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Practice
-        </Link>
-      </div>
-    </section>
-  );
-}
-
 function SectionIntroCard({ subtopic }: { subtopic: ChapterSubtopicDefinition }) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -458,18 +415,6 @@ function SectionLearningGuideCard({
             {hasPracticeChecks ? "Practice It Yourself" : "Next Section"}
           </Link>
         ) : null}
-        <Link
-          href="/journal-entry-solver"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Use Explainer
-        </Link>
-        <Link
-          href="/practice/journal-entries"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-black text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Practice
-        </Link>
       </div>
     </section>
   );
@@ -642,18 +587,6 @@ function SectionNavigation({ subtopic }: { subtopic: ChapterSubtopicDefinition }
         className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
       >
         {nextLabel}
-      </Link>
-      <Link
-        href="/journal-entry-solver"
-        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-      >
-        Use Explainer
-      </Link>
-      <Link
-        href="/practice/journal-entries"
-        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-black text-emerald-950 outline-none transition hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-      >
-        Practice
       </Link>
     </section>
   );

@@ -4,14 +4,26 @@ import { useId, useState } from "react";
 import { NavigationItem } from "./NavigationItem";
 import { studentPlatformNavigationItems, type StudentPlatformNavigationId } from "./navigation";
 
-export function MobileHeader({ activeItem }: { activeItem: StudentPlatformNavigationId }) {
+export function MobileHeader({
+  activeItem,
+  focusMode = false,
+}: {
+  activeItem: StudentPlatformNavigationId;
+  focusMode?: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const menuId = useId();
   const activeLabel = studentPlatformNavigationItems.find((item) => item.id === activeItem)?.label ?? "Chapters";
+  const headerClass = focusMode
+    ? "sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-10 xl:px-12"
+    : "sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden";
+  const innerClass = focusMode
+    ? "mx-auto flex w-full max-w-6xl min-w-0 items-center justify-between gap-3"
+    : "flex min-w-0 items-center justify-between gap-3";
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
-      <div className="flex min-w-0 items-center justify-between gap-3">
+    <header className={headerClass}>
+      <div className={innerClass}>
         <div className="min-w-0">
           <div className="truncate text-base font-black tracking-tight text-slate-950">AccyWise AI</div>
           <p className="text-xs font-semibold text-slate-500">Student platform: {activeLabel}</p>

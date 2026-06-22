@@ -3,8 +3,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
-import { NavigationItem } from "@/components/student-platform/NavigationItem";
-import { studentPlatformNavigationItems } from "@/components/student-platform/navigation";
 
 type FocusModeOutlineItem = {
   id: string;
@@ -14,80 +12,49 @@ type FocusModeOutlineItem = {
   practiceQuestionCount?: number;
 };
 
-type OpenPanel = "menu" | "outline" | null;
-
 export function JournalEntriesFocusModeControls({
   activeSectionId,
+  chapterStartHref,
   outlineItems,
+  showChapterOverview = false,
 }: {
   activeSectionId: string;
+  chapterStartHref: string;
   outlineItems: FocusModeOutlineItem[];
+  showChapterOverview?: boolean;
 }) {
-  const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
-  const menuId = useId();
+  const [isOutlineOpen, setIsOutlineOpen] = useState(false);
   const outlineId = useId();
 
   return (
-    <section
-      aria-label="Journal Entries focus tools"
-      className="rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-5"
-    >
-      <div className="grid min-w-0 gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
-        <button
-          type="button"
-          aria-controls={menuId}
-          aria-expanded={openPanel === "menu"}
-          aria-label="Open menu"
-          onClick={() => setOpenPanel("menu")}
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-950 shadow-sm outline-none transition hover:border-cyan-300 hover:bg-cyan-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 active:scale-[0.98]"
-        >
-          Menu
-        </button>
-
-        <div className="min-w-0 text-left sm:text-center">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Focus mode</p>
-          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-            Open navigation or sections only when you need them.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          aria-controls={outlineId}
-          aria-expanded={openPanel === "outline"}
-          aria-label="Open outline"
-          onClick={() => setOpenPanel("outline")}
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-cyan-50 px-4 text-sm font-black text-cyan-950 shadow-sm outline-none transition hover:border-cyan-400 hover:bg-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 active:scale-[0.98]"
-        >
-          View sections
-        </button>
-      </div>
-
-      <FocusDrawer
-        id={menuId}
-        isOpen={openPanel === "menu"}
-        label="Student platform navigation"
-        onClose={() => setOpenPanel(null)}
-        title="Menu"
-        description="Move between the main AccyWise AI areas."
-      >
-        <nav aria-label="Student platform focus-mode navigation" className="mt-4 space-y-1.5">
-          {studentPlatformNavigationItems.map((item) => (
-            <NavigationItem
-              key={item.id}
-              item={item}
-              isActive={item.id === "chapters"}
-              onNavigate={() => setOpenPanel(null)}
-            />
-          ))}
-        </nav>
-      </FocusDrawer>
+    <>
+      {showChapterOverview ? (
+        <JournalEntriesOverviewCard
+          chapterStartHref={chapterStartHref}
+          isOutlineOpen={isOutlineOpen}
+          outlineId={outlineId}
+          onOpenOutline={() => setIsOutlineOpen(true)}
+        />
+      ) : (
+        <section aria-label="Journal Entries section tools" className="flex min-w-0 justify-end">
+          <button
+            type="button"
+            aria-controls={outlineId}
+            aria-expanded={isOutlineOpen}
+            aria-label="Open outline"
+            onClick={() => setIsOutlineOpen(true)}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 shadow-sm outline-none transition hover:border-cyan-400 hover:bg-cyan-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 active:scale-[0.98]"
+          >
+            View sections
+          </button>
+        </section>
+      )}
 
       <FocusDrawer
         id={outlineId}
-        isOpen={openPanel === "outline"}
+        isOpen={isOutlineOpen}
         label="Journal Entries chapter outline"
-        onClose={() => setOpenPanel(null)}
+        onClose={() => setIsOutlineOpen(false)}
         title="Chapter outline"
         description="Choose a section and continue in order."
       >
@@ -103,7 +70,7 @@ export function JournalEntriesFocusModeControls({
                 <Link
                   href={item.href}
                   aria-current={isActive ? "step" : undefined}
-                  onClick={() => setOpenPanel(null)}
+                  onClick={() => setIsOutlineOpen(false)}
                   className={`flex min-h-11 items-start gap-3 rounded-2xl border px-3 py-2.5 text-left text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${
                     isActive
                       ? "border-cyan-200 bg-cyan-50 font-black text-cyan-950"
@@ -131,6 +98,57 @@ export function JournalEntriesFocusModeControls({
           })}
         </ol>
       </FocusDrawer>
+    </>
+  );
+}
+
+function JournalEntriesOverviewCard({
+  chapterStartHref,
+  isOutlineOpen,
+  onOpenOutline,
+  outlineId,
+}: {
+  chapterStartHref: string;
+  isOutlineOpen: boolean;
+  onOpenOutline: () => void;
+  outlineId: string;
+}) {
+  return (
+    <section
+      aria-labelledby="journal-entries-overview-title"
+      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+    >
+      <div className="min-w-0">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Chapter</p>
+        <h1
+          id="journal-entries-overview-title"
+          className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl"
+        >
+          Journal Entries
+        </h1>
+        <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-700">
+          Learn debit-credit rules and journal format.
+        </p>
+      </div>
+
+      <div className="mt-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <Link
+          href={chapterStartHref}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white outline-none transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          Start Chapter
+        </Link>
+        <button
+          type="button"
+          aria-controls={outlineId}
+          aria-expanded={isOutlineOpen}
+          aria-label="Open outline"
+          onClick={onOpenOutline}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-300 bg-white px-4 text-sm font-black text-cyan-950 outline-none transition hover:bg-cyan-50 focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 active:scale-[0.98]"
+        >
+          View Sections
+        </button>
+      </div>
     </section>
   );
 }

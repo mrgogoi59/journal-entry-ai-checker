@@ -24,7 +24,7 @@ export function StudentAppShell({
       >
         Skip to student platform content
       </a>
-      <MobileHeader activeItem={activeItem} />
+      <MobileHeader activeItem={activeItem} focusMode={focusMode} />
       <div className={layoutClass}>
         {focusMode ? null : <DesktopSidebar activeItem={activeItem} />}
         <main id="student-platform-content" className={mainClass}>

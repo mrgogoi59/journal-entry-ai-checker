@@ -84,6 +84,11 @@ function getLinkMarkupWithText(html: string, href: string, text: string) {
   );
 }
 
+function expectNoJournalEntriesExternalActionLinks(html: string) {
+  expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toBe("");
+  expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toBe("");
+}
+
 function getHrefValues(html: string) {
   return Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]);
 }
@@ -743,8 +748,8 @@ describe("Production Chapters route", () => {
     expect(
       getLinkMarkupWithText(html, "/chapters/journal-entries#introduction-to-journal-entries", "Start Chapter"),
     ).toContain("Start Chapter");
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).toContain("View Sections");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("16 sections");
     expect(html).not.toContain("17 checked practice questions");
     expect(html).not.toContain("Study the chapter step by step.");
@@ -761,17 +766,20 @@ describe("Production Chapters route", () => {
   it("uses Journal Entries focus-mode controls instead of permanent desktop chrome", () => {
     const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
     const sectionSource = readFileSync("app/chapters/journal-entries/JournalEntriesSectionPage.tsx", "utf8");
+    const controlsSource = readFileSync("app/chapters/journal-entries/JournalEntriesFocusModeControls.tsx", "utf8");
     const desktopSidebarSource = readFileSync("components/student-platform/DesktopSidebar.tsx", "utf8");
 
-    expect(html).toContain("Focus mode");
-    expect(html).toContain("View sections");
-    expect(html).toContain("Open navigation or sections only when you need them.");
-    expect(html).toContain("Student platform navigation");
-    expect(html).toContain("AI Assistant");
-    expect(html).toContain("Coming soon");
+    expect(html).toContain("View Sections");
+    expect(html).toContain("Journal Entries chapter outline");
+    expect(html).not.toContain("Focus mode");
+    expect(html).not.toContain("Open navigation or sections only when you need them.");
     expect(sectionSource).toContain('<StudentAppShell activeItem="chapters" focusMode>');
     expect(sectionSource).toContain("JournalEntriesFocusModeControls");
     expect(sectionSource).not.toContain("<ChapterOutline");
+    expect(controlsSource).not.toContain(">Menu<");
+    expect(controlsSource).not.toContain("studentPlatformNavigationItems");
+    expect(controlsSource).not.toContain('href="/journal-entry-solver"');
+    expect(controlsSource).not.toContain('href="/practice/journal-entries"');
     expect(desktopSidebarSource).not.toContain("Phase 4H");
     expect(desktopSidebarSource).not.toContain("Dashboard, Solver, and Practice hub are live");
   });
@@ -911,8 +919,7 @@ describe("Production Chapters route", () => {
       if (actionHref && actionText) {
         expect(getLinkMarkupWithText(html, actionHref, actionText)).toContain(actionText);
       }
-      expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-      expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+      expectNoJournalEntriesExternalActionLinks(html);
       expect(html).not.toContain("Section pilot guide");
       expect(html).not.toContain("Pilot section");
     });
@@ -1000,8 +1007,7 @@ describe("Production Chapters route", () => {
         );
       }
 
-      expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-      expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+      expectNoJournalEntriesExternalActionLinks(html);
       expect(html).not.toContain("Previous ");
       expect(html).not.toContain("Continue to ");
       expect(html).not.toContain("Back to Chapters");
@@ -1051,8 +1057,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Analyse the transaction before typing.");
     expect(html).toContain("Decide the debit and credit side before you check.");
     expect(html).toContain("Spelling, account naming, Dr./To, amount, totals, and narration matter in this checker.");
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Only these 2 in-chapter checks are live in this section right now.");
     expect(html).not.toContain("Interactive answer checking for this chapter will be enabled in the next controlled migration step.");
     expect(html).not.toContain("Show Correct Answer");
@@ -1080,8 +1085,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1095,8 +1099,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1110,8 +1113,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1125,8 +1127,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1140,8 +1141,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1155,8 +1155,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1170,8 +1169,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1185,8 +1183,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1200,8 +1197,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Only this in-chapter check is live in this section right now.");
     expect(html).not.toContain("Practice 2 of 1");
   });
@@ -1216,8 +1212,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1231,8 +1226,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1246,8 +1240,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1261,8 +1254,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1276,8 +1268,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1291,8 +1282,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Write the full entry first, then check your answer.");
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
-    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
-    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Practice 2 of 1");
   });
 

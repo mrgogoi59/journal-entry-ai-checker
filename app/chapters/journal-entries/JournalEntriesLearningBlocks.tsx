@@ -855,23 +855,8 @@ function PracticeNextStepCard() {
     <div className="mt-5 rounded-2xl border border-cyan-200 bg-white p-4">
       <h3 className="text-base font-black text-slate-950">After checking</h3>
       <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
-        If correct, continue to the next section or revise in Practice. If stuck, use the Explainer and then come back to
-        try the same checker again.
+        If correct, continue to the next section. If stuck, review the reasoning and try the same checker again.
       </p>
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <Link
-          href="/journal-entry-solver"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-200 px-4 text-sm font-black text-cyan-900 transition hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Use Explainer
-        </Link>
-        <Link
-          href="/practice/journal-entries"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          Practice
-        </Link>
-      </div>
     </div>
   );
 }
