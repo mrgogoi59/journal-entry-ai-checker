@@ -2467,6 +2467,53 @@ describe("learning-platform journal entry checker", () => {
     expect(wrongAmountResult.errors).toEqual(expect.arrayContaining(["Fees Received should be credited with ₹4,000."]));
   });
 
+  it("accepts controlled beginner account-name and narration variants for the fees-received checker", () => {
+    const creditVariants = [
+      { particulars: "Fees A/c", narration: "Being fees received in cash" },
+      { particulars: "To Fees A/c", narration: "Being cash received as fees" },
+      { particulars: "Fees Income A/c", narration: "Cash received as fees" },
+      { particulars: "Fee Received A/c", narration: "Fees received in cash" },
+      { particulars: "Fees Received A/c Cr", narration: "Being fees received in cash" },
+    ];
+
+    creditVariants.forEach(({ particulars, narration }) => {
+      const result = checkFees(
+        createFeesAttempt({
+          rows: [createFeesAttempt().rows[0], { ...createFeesAttempt().rows[1], particulars }],
+          narration,
+        }),
+      );
+
+      expect(result.status, particulars).toBe("correct");
+      expect(result.gotRight).toEqual(
+        expect.arrayContaining([
+          "Cash is correctly debited because cash is received.",
+          "Fees Received is correctly credited because income increases.",
+          "Narration communicates that fees were received in cash.",
+        ]),
+      );
+    });
+  });
+
+  it("still rejects wrong credit accounts for the fees-received checker", () => {
+    const wrongCreditAccounts = [
+      { particulars: "To Sales A/c", expectedMessage: "Sales A/c is not used because the transaction says fees received, not goods sold." },
+      { particulars: "To Commission A/c", expectedMessage: "To Fees Received A/c is missing." },
+      { particulars: "To Cash A/c", expectedMessage: "Cash should not be placed in the credit column." },
+    ];
+
+    wrongCreditAccounts.forEach(({ particulars, expectedMessage }) => {
+      const result = checkFees(
+        createFeesAttempt({
+          rows: [createFeesAttempt().rows[0], { ...createFeesAttempt().rows[1], particulars }],
+        }),
+      );
+
+      expect(result.status, particulars).toBe("incorrect");
+      expect(result.errors).toEqual(expect.arrayContaining([expectedMessage]));
+    });
+  });
+
   it("accepts and protects the office-rent-paid-by-bank checker", () => {
     const correctResult = checkOfficeRent();
     const reversedResult = checkOfficeRent(

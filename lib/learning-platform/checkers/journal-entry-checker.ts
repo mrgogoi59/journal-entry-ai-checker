@@ -91,6 +91,11 @@ const accountKeyAliases: Record<string, string> = {
   "electricity charges": "electricity",
   "electricity expense": "electricity",
   "electricity expenses": "electricity",
+  fee: "fees received",
+  "fee income": "fees received",
+  "fee received": "fees received",
+  fees: "fees received",
+  "fees income": "fees received",
 };
 
 export function checkJournalEntryPracticeAttempt(
@@ -427,7 +432,7 @@ function evaluateExpectedLineRow(
       addFieldError(fieldResults, errors, "creditAmount", expectedLine.wrongColumnMessage);
     }
   } else {
-    if (!row.hasTo) {
+    if (!row.hasTo && !allowsOptionalCreditMarker(row, expectedLine)) {
       addFieldError(fieldResults, errors, "particulars", expectedLine.missingMarkerMessage);
     }
     if (row.hasDr) {
@@ -478,6 +483,13 @@ function evaluateExpectedLineRow(
     warnings,
     hints,
   };
+}
+
+function allowsOptionalCreditMarker(
+  row: ParsedAttemptRow,
+  expectedLine: JournalEntryPracticeAnswerKey["expectedLines"][number],
+) {
+  return expectedLine.accountKey === "fees received" && !row.hasDr;
 }
 
 function evaluateUnexpectedRow(row: ParsedAttemptRow, expected: JournalEntryPracticeAnswerKey) {
