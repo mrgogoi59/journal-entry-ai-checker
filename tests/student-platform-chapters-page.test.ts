@@ -52,11 +52,20 @@ import {
   JOURNAL_ENTRIES_SALES_SECTION_SLUG,
   JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG,
   journalEntriesChapter,
+  BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
   BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
+  BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+  DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
+  PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+  PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+  PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
   PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
   PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
+  PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
   PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
   RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
+  RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+  SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
   SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
   STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID,
   WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID,
@@ -732,7 +741,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Journal Entries");
     expect(html).toContain("Learn debit-credit rules and journal format.");
     expect(html).toContain("16 sections");
-    expect(html).toContain("8 checked practice questions");
+    expect(html).toContain("17 checked practice questions");
     expect(html).toContain("Study the chapter step by step.");
     expect(html).toContain("Write full entries and check your work.");
     expect(
@@ -910,17 +919,29 @@ describe("Production Chapters route", () => {
     const practiceBadgeCount = html.match(/2 practice checks/g)?.length ?? 0;
 
     expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toHaveLength(2);
+    expect(journalEntriesChapter.subtopics[1].practiceQuestionIds).toEqual([
+      PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[2].practiceQuestionIds).toEqual([
+      BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[3].practiceQuestionIds).toEqual([
+      RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[4].practiceQuestionIds).toEqual([
+      PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[5].practiceQuestionIds).toEqual([
+      PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[6].practiceQuestionIds).toEqual([
+      DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
+    ]);
     expect(journalEntriesChapter.subtopics[9].practiceQuestionIds).toEqual([
       PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
     ]);
-    expect(journalEntriesChapter.subtopics[11].practiceQuestionIds).toEqual([
-      PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
-    ]);
-    expect(journalEntriesChapter.subtopics[12].practiceQuestionIds).toEqual([
-      RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
-    ]);
-    expect(journalEntriesChapter.subtopics[13].practiceQuestionIds).toEqual([
-      BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
+    expect(journalEntriesChapter.subtopics[10].practiceQuestionIds).toEqual([
+      SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
     ]);
     expect(journalEntriesChapter.subtopics[11].practiceQuestionIds).toEqual([
       PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
@@ -930,6 +951,12 @@ describe("Production Chapters route", () => {
     ]);
     expect(journalEntriesChapter.subtopics[13].practiceQuestionIds).toEqual([
       BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[14].practiceQuestionIds).toEqual([
+      PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[15].practiceQuestionIds).toEqual([
+      BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
     ]);
     expect(html).toContain("2 practice checks");
     expect(html).toContain("1 practice check");
@@ -1025,6 +1052,96 @@ describe("Production Chapters route", () => {
     expect(source).not.toContain("/platform-preview");
   });
 
+  it("renders the electricity-bill-paid-in-cash checker in the Business Transactions section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Paid electricity bill in cash Rs 1,200. Pass the journal entry.");
+    expect(html).toContain(PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Electricity and Cash.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
+  it("renders the stationery-bought-for-cash checker in the Accounts Affected section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Bought stationery for cash Rs 800. Pass the journal entry.");
+    expect(html).toContain(BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Stationery and Cash.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
+  it("renders the fees-received-in-cash checker in the Types of Accounts section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_TYPES_OF_ACCOUNTS_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Received fees in cash Rs 4,000. Pass the journal entry.");
+    expect(html).toContain(RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Cash and Fees Received.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
+  it("renders the wages-paid-in-cash checker in the Debit and Credit Rules section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_DEBIT_AND_CREDIT_RULES_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Paid wages in cash Rs 2,500. Pass the journal entry.");
+    expect(html).toContain(PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Wages and Cash.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
+  it("renders the office-rent-paid-by-bank checker in the Journal Format and Narration section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_JOURNAL_FORMAT_AND_NARRATION_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Paid office rent by bank Rs 4,000. Pass the journal entry.");
+    expect(html).toContain(PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Office Rent and Bank.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
+  it("renders the cash-deposited-into-bank checker in the Cash and Bank Transactions section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_CASH_AND_BANK_TRANSACTIONS_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Deposited cash into bank Rs 5,000. Pass the journal entry.");
+    expect(html).toContain(DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Bank and Cash.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
   it("renders the cash-capital checker in the Capital section", () => {
     const html = renderProductionSection(JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG);
 
@@ -1068,6 +1185,21 @@ describe("Production Chapters route", () => {
     expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
     expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
     expect(html).not.toContain("Only this in-chapter check is live in this section right now.");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
+  it("renders the goods-sold-by-bank checker in the Sales section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_SALES_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Sold goods by bank Rs 6,000. Pass the journal entry.");
+    expect(html).toContain(SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Bank and Sales.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
     expect(html).not.toContain("Practice 2 of 1");
   });
 
@@ -1116,54 +1248,83 @@ describe("Production Chapters route", () => {
     expect(html).not.toContain("Practice 2 of 1");
   });
 
-  it("keeps checker editors out of the other production Journal Entries sections", () => {
-    journalEntriesChapter.subtopics
-      .filter(
-        (subtopic) =>
-          ![
-            JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG,
-            JOURNAL_ENTRIES_CAPITAL_SECTION_SLUG,
-            JOURNAL_ENTRIES_DRAWINGS_SECTION_SLUG,
-            JOURNAL_ENTRIES_PURCHASES_SECTION_SLUG,
-            JOURNAL_ENTRIES_EXPENSES_SECTION_SLUG,
-            JOURNAL_ENTRIES_INCOME_SECTION_SLUG,
-            JOURNAL_ENTRIES_ASSETS_AND_LIABILITIES_SECTION_SLUG,
-          ].includes(subtopic.slug),
-      )
-      .forEach((subtopic) => {
-        const html = renderProductionSection(subtopic.slug);
+  it("renders the advertising-paid-by-bank checker in the Mixed Simple Entries section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_MIXED_SIMPLE_ENTRIES_SECTION_SLUG);
 
-        expect(html).not.toContain("Check Answer");
-        expect(html).not.toContain("Show Correct Answer");
-        expect(html).not.toContain("practice-feedback-");
-        expect(html).not.toContain("This chapter checker supports this audited question only.");
-      });
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Paid advertising by bank Rs 3,500. Pass the journal entry.");
+    expect(html).toContain(PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Advertising and Bank.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
   });
 
-  it("links the production recap back to the eight interactive practice questions without duplicating editors", () => {
+  it("renders the machinery-bought-by-bank checker in the Chapter Recap and Practice section", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG);
+
+    expect(html).toContain("Practice 1 of 1");
+    expect(html).toContain("Bought machinery by bank Rs 20,000. Pass the journal entry.");
+    expect(html).toContain(BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID);
+    expect(html).toContain("Likely accounts involved: Machinery and Bank.");
+    expect(html).toContain("Write the full entry first, then check your answer.");
+    expect(html.match(/Check Answer/g)).toHaveLength(1);
+    expect(html.match(/Reset Answer/g)).toHaveLength(1);
+    expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
+    expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("Practice 2 of 1");
+  });
+
+  it("keeps every production Journal Entries section covered by the final seventeen checkers", () => {
+    const checkerCounts = journalEntriesChapter.subtopics.map((subtopic) => subtopic.practiceQuestionIds?.length ?? 0);
+
+    expect(checkerCounts).toEqual([2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    expect(checkerCounts.reduce((total, count) => total + count, 0)).toBe(17);
+    journalEntriesChapter.subtopics.forEach((subtopic) => {
+      const html = renderProductionSection(subtopic.slug);
+
+      expect(html).toContain("Check Answer");
+      expect(html).toContain("This chapter checker supports this audited question only.");
+      expect(html).not.toContain("Show Correct Answer");
+    });
+  });
+
+  it("links the production recap back to the seventeen interactive practice questions", () => {
     const html = renderProductionSection("chapter-recap-and-practice");
     const reviewChallengeDetails = html.match(/<details class="group rounded-2xl/g) ?? [];
 
     expect(html).toContain("Interactive Practice Available");
     expect(html).toContain("Sold goods for cash ₹12,000");
     expect(html).toContain("Paid salary by bank ₹8,000");
+    expect(html).toContain("Paid electricity bill in cash Rs 1,200");
+    expect(html).toContain("Bought stationery for cash Rs 800");
+    expect(html).toContain("Received fees in cash Rs 4,000");
+    expect(html).toContain("Paid wages in cash Rs 2,500");
+    expect(html).toContain("Paid office rent by bank Rs 4,000");
+    expect(html).toContain("Deposited cash into bank Rs 5,000");
     expect(html).toContain("Started business with cash Rs 50,000");
     expect(html).toContain("Withdrew cash for personal use Rs 5,000");
     expect(html).toContain("Bought goods for cash Rs 10,000");
+    expect(html).toContain("Sold goods by bank Rs 6,000");
     expect(html).toContain("Paid rent by cash Rs 3,000");
     expect(html).toContain("Received commission in cash Rs 2,000");
     expect(html).toContain("Bought furniture for cash Rs 15,000");
+    expect(html).toContain("Paid advertising by bank Rs 3,500");
+    expect(html).toContain("Bought machinery by bank Rs 20,000");
     expect(html).toContain('href="/chapters/journal-entries#practice-it-yourself"');
     expect(html).toContain("Practice the interactive questions");
     expect(reviewChallengeDetails).toHaveLength(8);
     expect(html).toContain("Mastery self-check");
     expect(html).not.toContain("Interactive chapter practice will be enabled after the production checker migration is approved.");
-    expect(html).not.toContain("Check Answer");
-    expect(html).not.toContain("practice-feedback-");
+    expect(html).toContain("Check Answer");
+    expect(html).toContain("practice-feedback-");
     expect(html).not.toContain('href="/platform-preview/chapters/journal-entries#practice-it-yourself"');
   });
 
-  it("keeps production answer checking server-controlled for exactly the eight approved question IDs", async () => {
+  it("keeps production answer checking server-controlled for exactly the seventeen approved question IDs", async () => {
     const soldGoodsResult = await checkJournalEntriesPracticeAnswer(
       createPracticeAttempt({
         questionId: SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
@@ -1186,6 +1347,78 @@ describe("Production Chapters route", () => {
         totalDebit: "8000",
         totalCredit: "8000",
         narration: "Being salary paid by bank.",
+      }),
+    );
+    const electricityResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Electricity A/c Dr.",
+        debitAmount: "1200",
+        creditAccount: "To Cash A/c",
+        creditAmount: "1200",
+        totalDebit: "1200",
+        totalCredit: "1200",
+        narration: "Being electricity bill paid in cash.",
+      }),
+    );
+    const electricityWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Drawings A/c Dr.",
+        debitAmount: "1200",
+        creditAccount: "To Bank A/c",
+        creditAmount: "1200",
+        totalDebit: "1200",
+        totalCredit: "1200",
+        narration: "Being electricity bill paid in cash.",
+      }),
+    );
+    const stationeryResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Stationery A/c Dr.",
+        debitAmount: "800",
+        creditAccount: "To Cash A/c",
+        creditAmount: "800",
+        totalDebit: "800",
+        totalCredit: "800",
+        narration: "Being stationery purchased for cash.",
+      }),
+    );
+    const stationeryWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Purchases A/c Dr.",
+        debitAmount: "800",
+        creditAccount: "To Bank A/c",
+        creditAmount: "800",
+        totalDebit: "800",
+        totalCredit: "800",
+        narration: "Being stationery purchased for cash.",
+      }),
+    );
+    const feesResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Cash A/c Dr.",
+        debitAmount: "4000",
+        creditAccount: "To Fees Received A/c",
+        creditAmount: "4000",
+        totalDebit: "4000",
+        totalCredit: "4000",
+        narration: "Being fees received in cash.",
+      }),
+    );
+    const feesWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Bank A/c Dr.",
+        debitAmount: "4000",
+        creditAccount: "To Sales A/c",
+        creditAmount: "4000",
+        totalDebit: "4000",
+        totalCredit: "4000",
+        narration: "Being fees received in cash.",
       }),
     );
     const soldGoodsWrongAccountResult = await checkJournalEntriesPracticeAnswer(
@@ -1296,6 +1529,54 @@ describe("Production Chapters route", () => {
         narration: "Being rent paid in cash.",
       }),
     );
+    const wagesResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Wages A/c Dr.",
+        debitAmount: "2500",
+        creditAccount: "To Cash A/c",
+        creditAmount: "2500",
+        totalDebit: "2500",
+        totalCredit: "2500",
+        narration: "Being wages paid in cash.",
+      }),
+    );
+    const wagesWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+        debitAccount: "Salary A/c Dr.",
+        debitAmount: "2500",
+        creditAccount: "To Bank A/c",
+        creditAmount: "2500",
+        totalDebit: "2500",
+        totalCredit: "2500",
+        narration: "Being wages paid in cash.",
+      }),
+    );
+    const officeRentResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Office Rent A/c Dr.",
+        debitAmount: "4000",
+        creditAccount: "To Bank A/c",
+        creditAmount: "4000",
+        totalDebit: "4000",
+        totalCredit: "4000",
+        narration: "Being office rent paid by bank.",
+      }),
+    );
+    const officeRentWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Prepaid Rent A/c Dr.",
+        debitAmount: "4000",
+        creditAccount: "To Cash A/c",
+        creditAmount: "4000",
+        totalDebit: "4000",
+        totalCredit: "4000",
+        narration: "Being office rent paid by bank.",
+      }),
+    );
     const commissionResult = await checkJournalEntriesPracticeAnswer(
       createPracticeAttempt({
         questionId: RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
@@ -1344,6 +1625,30 @@ describe("Production Chapters route", () => {
         narration: "Being furniture purchased for cash.",
       }),
     );
+    const bankSaleResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Bank A/c Dr.",
+        debitAmount: "6000",
+        creditAccount: "To Sales A/c",
+        creditAmount: "6000",
+        totalDebit: "6000",
+        totalCredit: "6000",
+        narration: "Being goods sold through bank.",
+      }),
+    );
+    const bankSaleWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Cash A/c Dr.",
+        debitAmount: "6000",
+        creditAccount: "To Purchases A/c",
+        creditAmount: "6000",
+        totalDebit: "6000",
+        totalCredit: "6000",
+        narration: "Being goods sold through bank.",
+      }),
+    );
     const paidSalaryWrongAccountResult = await checkJournalEntriesPracticeAnswer(
       createPracticeAttempt({
         questionId: PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
@@ -1354,6 +1659,78 @@ describe("Production Chapters route", () => {
         totalDebit: "8000",
         totalCredit: "8000",
         narration: "Being salary paid by bank.",
+      }),
+    );
+    const depositResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Bank A/c Dr.",
+        debitAmount: "5000",
+        creditAccount: "To Cash A/c",
+        creditAmount: "5000",
+        totalDebit: "5000",
+        totalCredit: "5000",
+        narration: "Being cash deposited into bank.",
+      }),
+    );
+    const depositWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Bank A/c Dr.",
+        debitAmount: "5000",
+        creditAccount: "To Sales A/c",
+        creditAmount: "5000",
+        totalDebit: "5000",
+        totalCredit: "5000",
+        narration: "Being cash deposited into bank.",
+      }),
+    );
+    const advertisingResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Advertising A/c Dr.",
+        debitAmount: "3500",
+        creditAccount: "To Bank A/c",
+        creditAmount: "3500",
+        totalDebit: "3500",
+        totalCredit: "3500",
+        narration: "Being advertising paid by bank.",
+      }),
+    );
+    const advertisingWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Drawings A/c Dr.",
+        debitAmount: "3500",
+        creditAccount: "To Cash A/c",
+        creditAmount: "3500",
+        totalDebit: "3500",
+        totalCredit: "3500",
+        narration: "Being advertising paid by bank.",
+      }),
+    );
+    const machineryResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Machinery A/c Dr.",
+        debitAmount: "20000",
+        creditAccount: "To Bank A/c",
+        creditAmount: "20000",
+        totalDebit: "20000",
+        totalCredit: "20000",
+        narration: "Being machinery purchased by bank.",
+      }),
+    );
+    const machineryWrongAccountResult = await checkJournalEntriesPracticeAnswer(
+      createPracticeAttempt({
+        questionId: BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
+        debitAccount: "Purchases A/c Dr.",
+        debitAmount: "20000",
+        creditAccount: "To Cash A/c",
+        creditAmount: "20000",
+        totalDebit: "20000",
+        totalCredit: "20000",
+        narration: "Being machinery purchased by bank.",
       }),
     );
     const wrongButBalancedResult = await checkJournalEntriesPracticeAnswer(
@@ -1399,17 +1776,46 @@ describe("Production Chapters route", () => {
     );
     const soldGoodsReveal = await revealJournalEntriesPracticeCorrectAnswer(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     const paidSalaryReveal = await revealJournalEntriesPracticeCorrectAnswer(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
+    const electricityReveal = await revealJournalEntriesPracticeCorrectAnswer(
+      PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+    );
+    const stationeryReveal = await revealJournalEntriesPracticeCorrectAnswer(BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID);
+    const feesReveal = await revealJournalEntriesPracticeCorrectAnswer(RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID);
     const purchasedGoodsReveal = await revealJournalEntriesPracticeCorrectAnswer(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     const startedBusinessReveal = await revealJournalEntriesPracticeCorrectAnswer(STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID);
     const drawingsReveal = await revealJournalEntriesPracticeCorrectAnswer(WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID);
     const paidRentReveal = await revealJournalEntriesPracticeCorrectAnswer(PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID);
+    const wagesReveal = await revealJournalEntriesPracticeCorrectAnswer(PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID);
+    const officeRentReveal = await revealJournalEntriesPracticeCorrectAnswer(PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID);
     const commissionReveal = await revealJournalEntriesPracticeCorrectAnswer(RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID);
     const furnitureReveal = await revealJournalEntriesPracticeCorrectAnswer(BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID);
+    const bankSaleReveal = await revealJournalEntriesPracticeCorrectAnswer(SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID);
+    const depositReveal = await revealJournalEntriesPracticeCorrectAnswer(DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID);
+    const advertisingReveal = await revealJournalEntriesPracticeCorrectAnswer(PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID);
+    const machineryReveal = await revealJournalEntriesPracticeCorrectAnswer(BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID);
     const unsupportedReveal = await revealJournalEntriesPracticeCorrectAnswer("unsupported-production-question");
 
     expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toEqual([
       SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
       PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[1].practiceQuestionIds).toEqual([
+      PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[2].practiceQuestionIds).toEqual([
+      BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[3].practiceQuestionIds).toEqual([
+      RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[4].practiceQuestionIds).toEqual([
+      PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[5].practiceQuestionIds).toEqual([
+      PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[6].practiceQuestionIds).toEqual([
+      DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
     ]);
     expect(journalEntriesChapter.subtopics[7].practiceQuestionIds).toEqual([
       STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID,
@@ -1420,6 +1826,9 @@ describe("Production Chapters route", () => {
     expect(journalEntriesChapter.subtopics[9].practiceQuestionIds).toEqual([
       PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
     ]);
+    expect(journalEntriesChapter.subtopics[10].practiceQuestionIds).toEqual([
+      SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
     expect(journalEntriesChapter.subtopics[11].practiceQuestionIds).toEqual([
       PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
     ]);
@@ -1429,26 +1838,50 @@ describe("Production Chapters route", () => {
     expect(journalEntriesChapter.subtopics[13].practiceQuestionIds).toEqual([
       BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
     ]);
+    expect(journalEntriesChapter.subtopics[14].practiceQuestionIds).toEqual([
+      PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[15].practiceQuestionIds).toEqual([
+      BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
     expect(
       journalEntriesChapter.subtopics.flatMap((subtopic) => subtopic.practiceQuestionIds ?? []),
     ).toEqual([
       SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
       PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+      PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+      BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+      RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+      PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+      PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+      DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
       STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID,
       WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID,
       PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+      SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
       PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
       RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
       BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
+      PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+      BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
     ]);
     expect(soldGoodsResult.status).toBe("correct");
     expect(paidSalaryResult.status).toBe("correct");
+    expect(electricityResult.status).toBe("correct");
+    expect(stationeryResult.status).toBe("correct");
+    expect(feesResult.status).toBe("correct");
     expect(purchasedGoodsResult.status).toBe("correct");
+    expect(wagesResult.status).toBe("correct");
+    expect(officeRentResult.status).toBe("correct");
+    expect(depositResult.status).toBe("correct");
     expect(startedBusinessResult.status).toBe("correct");
     expect(drawingsResult.status).toBe("correct");
+    expect(bankSaleResult.status).toBe("correct");
     expect(paidRentResult.status).toBe("correct");
     expect(commissionResult.status).toBe("correct");
     expect(furnitureResult.status).toBe("correct");
+    expect(advertisingResult.status).toBe("correct");
+    expect(machineryResult.status).toBe("correct");
     expect(soldGoodsWrongAccountResult.status).toBe("incorrect");
     expect(soldGoodsWrongAccountResult.errors).toEqual(
       expect.arrayContaining([
@@ -1459,6 +1892,27 @@ describe("Production Chapters route", () => {
     expect(paidSalaryWrongAccountResult.status).toBe("incorrect");
     expect(paidSalaryWrongAccountResult.errors).toEqual(
       expect.arrayContaining(["Cash A/c is not affected because the transaction states bank."]),
+    );
+    expect(electricityWrongAccountResult.status).toBe("incorrect");
+    expect(electricityWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Drawings A/c is not used because this is a business electricity bill.",
+        "Bank A/c is not used because the transaction says cash.",
+      ]),
+    );
+    expect(stationeryWrongAccountResult.status).toBe("incorrect");
+    expect(stationeryWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Purchases A/c is not used because the transaction specifically says stationery.",
+        "Bank A/c is not used because the transaction says cash.",
+      ]),
+    );
+    expect(feesWrongAccountResult.status).toBe("incorrect");
+    expect(feesWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Bank A/c is not used because the transaction says cash.",
+        "Sales A/c is not used because the transaction says fees received, not goods sold.",
+      ]),
     );
     expect(purchasedGoodsWrongAccountResult.status).toBe("incorrect");
     expect(purchasedGoodsWrongAccountResult.errors).toEqual(
@@ -1474,6 +1928,24 @@ describe("Production Chapters route", () => {
         "Bank A/c is not used because the transaction says cash.",
       ]),
     );
+    expect(wagesWrongAccountResult.status).toBe("incorrect");
+    expect(wagesWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Salary A/c is a different expense and is not used here.",
+        "Bank A/c is not used because the transaction says cash.",
+      ]),
+    );
+    expect(officeRentWrongAccountResult.status).toBe("incorrect");
+    expect(officeRentWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Prepaid Rent A/c is not used because this checker is only a simple paid rent entry.",
+        "Cash A/c is not used because the transaction says bank.",
+      ]),
+    );
+    expect(depositWrongAccountResult.status).toBe("incorrect");
+    expect(depositWrongAccountResult.errors).toEqual(
+      expect.arrayContaining(["Sales A/c is not used because cash deposited into bank is not a sale."]),
+    );
     expect(commissionWrongAccountResult.status).toBe("incorrect");
     expect(commissionWrongAccountResult.errors).toEqual(
       expect.arrayContaining([
@@ -1486,6 +1958,27 @@ describe("Production Chapters route", () => {
       expect.arrayContaining([
         "Purchases A/c is not used because furniture is an asset for business use.",
         "Bank A/c is not used because the transaction says cash.",
+      ]),
+    );
+    expect(advertisingWrongAccountResult.status).toBe("incorrect");
+    expect(advertisingWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Drawings A/c is not used because advertising is a business expense, not personal use.",
+        "Cash A/c is not used because the transaction says bank.",
+      ]),
+    );
+    expect(machineryWrongAccountResult.status).toBe("incorrect");
+    expect(machineryWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Purchases A/c is not used because machinery is a business asset, not goods for resale.",
+        "Cash A/c is not used because the transaction says bank.",
+      ]),
+    );
+    expect(bankSaleWrongAccountResult.status).toBe("incorrect");
+    expect(bankSaleWrongAccountResult.errors).toEqual(
+      expect.arrayContaining([
+        "Cash A/c is not used because the transaction says bank.",
+        "Purchases A/c is not used when goods are sold.",
       ]),
     );
     expect(startedBusinessWrongAccountResult.status).toBe("incorrect");
@@ -1528,6 +2021,24 @@ describe("Production Chapters route", () => {
     });
     expect(paidSalaryReveal.lines.map((line) => line.particulars)).toEqual(["Salary A/c Dr.", "To Bank A/c"]);
     expect(paidSalaryReveal.lines.map((line) => line.particulars)).not.toContain("To Sales A/c");
+    expect(electricityReveal).toMatchObject({
+      questionId: PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being electricity bill paid in cash.",
+    });
+    expect(electricityReveal.lines.map((line) => line.particulars)).toEqual(["Electricity A/c Dr.", "To Cash A/c"]);
+    expect(stationeryReveal).toMatchObject({
+      questionId: BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being stationery purchased for cash.",
+    });
+    expect(stationeryReveal.lines.map((line) => line.particulars)).toEqual(["Stationery A/c Dr.", "To Cash A/c"]);
+    expect(feesReveal).toMatchObject({
+      questionId: RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being fees received in cash.",
+    });
+    expect(feesReveal.lines.map((line) => line.particulars)).toEqual(["Cash A/c Dr.", "To Fees Received A/c"]);
     expect(purchasedGoodsReveal).toMatchObject({
       questionId: PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
       available: true,
@@ -1555,6 +2066,18 @@ describe("Production Chapters route", () => {
       narration: "Being rent paid in cash.",
     });
     expect(paidRentReveal.lines.map((line) => line.particulars)).toEqual(["Rent A/c Dr.", "To Cash A/c"]);
+    expect(wagesReveal).toMatchObject({
+      questionId: PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being wages paid in cash.",
+    });
+    expect(wagesReveal.lines.map((line) => line.particulars)).toEqual(["Wages A/c Dr.", "To Cash A/c"]);
+    expect(officeRentReveal).toMatchObject({
+      questionId: PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being office rent paid by bank.",
+    });
+    expect(officeRentReveal.lines.map((line) => line.particulars)).toEqual(["Office Rent A/c Dr.", "To Bank A/c"]);
     expect(commissionReveal).toMatchObject({
       questionId: RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
       available: true,
@@ -1567,6 +2090,30 @@ describe("Production Chapters route", () => {
       narration: "Being furniture purchased for cash.",
     });
     expect(furnitureReveal.lines.map((line) => line.particulars)).toEqual(["Furniture A/c Dr.", "To Cash A/c"]);
+    expect(bankSaleReveal).toMatchObject({
+      questionId: SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being goods sold through bank.",
+    });
+    expect(bankSaleReveal.lines.map((line) => line.particulars)).toEqual(["Bank A/c Dr.", "To Sales A/c"]);
+    expect(depositReveal).toMatchObject({
+      questionId: DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being cash deposited into bank.",
+    });
+    expect(depositReveal.lines.map((line) => line.particulars)).toEqual(["Bank A/c Dr.", "To Cash A/c"]);
+    expect(advertisingReveal).toMatchObject({
+      questionId: PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being advertising paid by bank.",
+    });
+    expect(advertisingReveal.lines.map((line) => line.particulars)).toEqual(["Advertising A/c Dr.", "To Bank A/c"]);
+    expect(machineryReveal).toMatchObject({
+      questionId: BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
+      available: true,
+      narration: "Being machinery purchased by bank.",
+    });
+    expect(machineryReveal.lines.map((line) => line.particulars)).toEqual(["Machinery A/c Dr.", "To Bank A/c"]);
     expect(unsupportedReveal).toMatchObject({
       questionId: "unsupported-production-question",
       available: false,
@@ -1575,7 +2122,7 @@ describe("Production Chapters route", () => {
     });
   });
 
-  it("keeps preview checker behavior isolated and unchanged", () => {
+  it("keeps preview checker behavior isolated with the Phase 6T question IDs", () => {
     const previewHtml = renderToStaticMarkup(createElement(JournalEntriesChapterPreviewPage));
     const previewActionsSource = readFileSync("app/platform-preview/chapters/journal-entries/actions.ts", "utf8");
     const previewEditorSource = readFileSync("components/learning-platform/JournalEntryPracticeEditor.tsx", "utf8");
@@ -1583,6 +2130,24 @@ describe("Production Chapters route", () => {
     expect(journalEntriesChapter.subtopics[0].practiceQuestionIds).toEqual([
       SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
       PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[1].practiceQuestionIds).toEqual([
+      PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[2].practiceQuestionIds).toEqual([
+      BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[3].practiceQuestionIds).toEqual([
+      RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[4].practiceQuestionIds).toEqual([
+      PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[5].practiceQuestionIds).toEqual([
+      PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[6].practiceQuestionIds).toEqual([
+      DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
     ]);
     expect(journalEntriesChapter.subtopics[7].practiceQuestionIds).toEqual([
       STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID,
@@ -1592,6 +2157,24 @@ describe("Production Chapters route", () => {
     ]);
     expect(journalEntriesChapter.subtopics[9].practiceQuestionIds).toEqual([
       PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[10].practiceQuestionIds).toEqual([
+      SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[11].practiceQuestionIds).toEqual([
+      PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[12].practiceQuestionIds).toEqual([
+      RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[13].practiceQuestionIds).toEqual([
+      BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[14].practiceQuestionIds).toEqual([
+      PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+    ]);
+    expect(journalEntriesChapter.subtopics[15].practiceQuestionIds).toEqual([
+      BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
     ]);
     expect(previewHtml).toContain("Check Answer");
     expect(previewActionsSource).toContain("journal-entry-answer-keys.server");

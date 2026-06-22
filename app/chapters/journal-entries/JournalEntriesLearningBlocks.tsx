@@ -730,6 +730,87 @@ function getProductionPracticeGuidance(questionId: string): ProductionPracticeGu
     };
   }
 
+  if (questionId === "journal-entry-paid-electricity-bill-in-cash-practice-preview") {
+    return {
+      transactionFocus: "The business pays an electricity bill using physical cash.",
+      likelyAccounts: "Likely accounts involved: Electricity and Cash.",
+      logicPrompt: "Decide why electricity is an expense and why Cash is credited before checking.",
+      learningPoint: "The purpose is to record a simple paid expense without adding adjustment treatment.",
+    };
+  }
+
+  if (questionId === "journal-entry-paid-wages-in-cash-practice-preview") {
+    return {
+      transactionFocus: "The business pays wages using physical cash.",
+      likelyAccounts: "Likely accounts involved: Wages and Cash.",
+      logicPrompt: "Decide why wages are an expense and why Cash is credited before checking.",
+      learningPoint: "The purpose is to apply debit-credit rules to a simple cash expense.",
+    };
+  }
+
+  if (questionId === "journal-entry-sold-goods-by-bank-practice-preview") {
+    return {
+      transactionFocus: "Goods are sold and the money is received through bank.",
+      likelyAccounts: "Likely accounts involved: Bank and Sales.",
+      logicPrompt: "Decide why Bank is debited and why Sales is credited before checking.",
+      learningPoint: "The purpose is to separate a bank sale from a cash sale or credit sale.",
+    };
+  }
+
+  if (questionId === "journal-entry-bought-stationery-for-cash-practice-preview") {
+    return {
+      transactionFocus: "The business buys stationery and pays physical cash.",
+      likelyAccounts: "Likely accounts involved: Stationery and Cash.",
+      logicPrompt: "Decide why stationery is debited and why Cash is credited before checking.",
+      learningPoint: "The purpose is to identify exact affected accounts before applying rules.",
+    };
+  }
+
+  if (questionId === "journal-entry-received-fees-in-cash-practice-preview") {
+    return {
+      transactionFocus: "The business receives fees income in cash.",
+      likelyAccounts: "Likely accounts involved: Cash and Fees Received.",
+      logicPrompt: "Decide why Cash is debited and why fees income is credited before checking.",
+      learningPoint: "The purpose is to classify cash as an asset and fees as income.",
+    };
+  }
+
+  if (questionId === "journal-entry-paid-office-rent-by-bank-practice-preview") {
+    return {
+      transactionFocus: "The business pays office rent through bank.",
+      likelyAccounts: "Likely accounts involved: Office Rent and Bank.",
+      logicPrompt: "Decide why Office Rent is debited and why Bank is credited before checking.",
+      learningPoint: "The purpose is to practise clean Dr./To, amount, and narration presentation.",
+    };
+  }
+
+  if (questionId === "journal-entry-deposited-cash-into-bank-practice-preview") {
+    return {
+      transactionFocus: "Cash moves from the cash balance into the bank account.",
+      likelyAccounts: "Likely accounts involved: Bank and Cash.",
+      logicPrompt: "Decide why Bank is debited and why Cash is credited before checking.",
+      learningPoint: "The purpose is to separate a cash-bank transfer from income, capital, or sales.",
+    };
+  }
+
+  if (questionId === "journal-entry-paid-advertising-by-bank-practice-preview") {
+    return {
+      transactionFocus: "The business pays advertising expense through bank.",
+      likelyAccounts: "Likely accounts involved: Advertising and Bank.",
+      logicPrompt: "Decide why Advertising is debited and why Bank is credited before checking.",
+      learningPoint: "The purpose is to record a simple paid expense without adding adjustment treatment.",
+    };
+  }
+
+  if (questionId === "journal-entry-bought-machinery-by-bank-practice-preview") {
+    return {
+      transactionFocus: "The business buys machinery for use and pays through bank.",
+      likelyAccounts: "Likely accounts involved: Machinery and Bank.",
+      logicPrompt: "Decide why Machinery is debited and why Bank is credited before checking.",
+      learningPoint: "The purpose is to separate a business asset from Purchases or depreciation.",
+    };
+  }
+
   return {
     transactionFocus: "Read the transaction and identify what enters or leaves the business.",
     likelyAccounts: "Identify the accounts involved before typing the entry.",
@@ -947,8 +1028,8 @@ export function ScopeRoadmapBlock({ section }: { section: ScopeRoadmapSection })
             {section.currentScope.items.map((item) => (
               <li key={item} className="rounded-xl border border-cyan-200 bg-white p-3">
                 {productionText(item).replace(
-                  "Deterministic practice for eight approved questions",
-                  "Deterministic practice for eight approved questions is live across Section 1, Capital, Drawings, Purchases, Expenses, Income, and Assets and Liabilities",
+                  "Deterministic practice for seventeen approved questions",
+                  "Deterministic practice for seventeen approved questions is live across all 16 Journal Entries sections",
                 )}
               </li>
             ))}

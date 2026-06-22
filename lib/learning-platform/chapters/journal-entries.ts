@@ -18,6 +18,22 @@ export const RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID =
   "journal-entry-received-commission-in-cash-practice-preview";
 export const BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID =
   "journal-entry-bought-furniture-for-cash-practice-preview";
+export const PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID =
+  "journal-entry-paid-electricity-bill-in-cash-practice-preview";
+export const PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID = "journal-entry-paid-wages-in-cash-practice-preview";
+export const SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID = "journal-entry-sold-goods-by-bank-practice-preview";
+export const BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID =
+  "journal-entry-bought-stationery-for-cash-practice-preview";
+export const RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID =
+  "journal-entry-received-fees-in-cash-practice-preview";
+export const PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID =
+  "journal-entry-paid-office-rent-by-bank-practice-preview";
+export const DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID =
+  "journal-entry-deposited-cash-into-bank-practice-preview";
+export const PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID =
+  "journal-entry-paid-advertising-by-bank-practice-preview";
+export const BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID =
+  "journal-entry-bought-machinery-by-bank-practice-preview";
 export const JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG = "introduction-to-journal-entries";
 export const JOURNAL_ENTRIES_BUSINESS_TRANSACTIONS_SECTION_SLUG = "business-transactions";
 export const JOURNAL_ENTRIES_ACCOUNTS_AFFECTED_SECTION_SLUG = "accounts-affected";
@@ -163,6 +179,69 @@ export const boughtFurnitureForCashPracticeQuestion = createJournalEntryPractice
   title: "Practice 8: furniture bought for cash",
   question: "Bought furniture for cash Rs 15,000. Pass the journal entry.",
   learningObjective: "Write a complete journal entry for furniture bought for cash without confusing a business asset with Purchases or goods.",
+});
+
+export const paidElectricityBillInCashPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID,
+  title: "Practice 9: electricity bill paid in cash",
+  question: "Paid electricity bill in cash Rs 1,200. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for an electricity bill paid in cash without adding adjustment treatment.",
+});
+
+export const paidWagesInCashPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID,
+  title: "Practice 10: wages paid in cash",
+  question: "Paid wages in cash Rs 2,500. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for wages paid in cash without confusing Wages with Salary, Rent, or Bank.",
+});
+
+export const soldGoodsByBankPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID,
+  title: "Practice 11: goods sold by bank",
+  question: "Sold goods by bank Rs 6,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for goods sold through bank without confusing Bank with Cash or credit sales.",
+});
+
+export const boughtStationeryForCashPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID,
+  title: "Practice 12: stationery bought for cash",
+  question: "Bought stationery for cash Rs 800. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for stationery bought for cash without treating it as goods or a fixed asset.",
+});
+
+export const receivedFeesInCashPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID,
+  title: "Practice 13: fees received in cash",
+  question: "Received fees in cash Rs 4,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for fees received in cash without treating the receipt as capital, loan, or sales.",
+});
+
+export const paidOfficeRentByBankPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID,
+  title: "Practice 14: office rent paid by bank",
+  question: "Paid office rent by bank Rs 4,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for office rent paid by bank with correct Dr./To, amount, and narration.",
+});
+
+export const depositedCashIntoBankPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID,
+  title: "Practice 15: cash deposited into bank",
+  question: "Deposited cash into bank Rs 5,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for cash deposited into bank without treating the transfer as income.",
+});
+
+export const paidAdvertisingByBankPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID,
+  title: "Practice 16: advertising paid by bank",
+  question: "Paid advertising by bank Rs 3,500. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for advertising paid by bank without adding adjustment treatment.",
+});
+
+export const boughtMachineryByBankPracticeQuestion = createJournalEntryPracticeQuestion({
+  id: BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID,
+  title: "Practice 17: machinery bought by bank",
+  question: "Bought machinery by bank Rs 20,000. Pass the journal entry.",
+  learningObjective: "Write a complete journal entry for machinery bought by bank without treating it as Purchases or adding depreciation.",
 });
 
 export function toPracticeItYourselfPreviewQuestion(
@@ -471,6 +550,7 @@ export const businessTransactionsJournalEntriesSubtopic: ChapterSubtopicDefiniti
   progressLabel: "Section 2 of 16",
   previousSection: introductionSubtopicReference,
   nextSection: accountsAffectedSubtopicReference,
+  practiceQuestionIds: [paidElectricityBillInCashPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -603,6 +683,11 @@ export const businessTransactionsJournalEntriesSubtopic: ChapterSubtopicDefiniti
         "Ignoring the payment mode, such as cash or bank.",
       ],
     },
+    {
+      type: "practice-it-yourself",
+      id: "paid-electricity-bill-in-cash-practice",
+      question: paidElectricityBillInCashPracticeQuestion,
+    },
   ],
 };
 
@@ -616,6 +701,7 @@ export const accountsAffectedJournalEntriesSubtopic: ChapterSubtopicDefinition =
   progressLabel: "Section 3 of 16",
   previousSection: businessTransactionsSubtopicReference,
   nextSection: typesOfAccountsSubtopicReference,
+  practiceQuestionIds: [boughtStationeryForCashPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -797,6 +883,11 @@ export const accountsAffectedJournalEntriesSubtopic: ChapterSubtopicDefinition =
       ],
     },
     {
+      type: "practice-it-yourself",
+      id: "bought-stationery-for-cash-practice",
+      question: boughtStationeryForCashPracticeQuestion,
+    },
+    {
       type: "reflection-prompt",
       id: "accounts-affected-reflection",
       eyebrow: "Reflection prompt",
@@ -816,6 +907,7 @@ export const typesOfAccountsJournalEntriesSubtopic: ChapterSubtopicDefinition = 
   progressLabel: "Section 4 of 16",
   previousSection: accountsAffectedSubtopicReference,
   nextSection: debitAndCreditRulesSubtopicReference,
+  practiceQuestionIds: [receivedFeesInCashPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -1025,6 +1117,11 @@ export const typesOfAccountsJournalEntriesSubtopic: ChapterSubtopicDefinition = 
       ],
     },
     {
+      type: "practice-it-yourself",
+      id: "received-fees-in-cash-practice",
+      question: receivedFeesInCashPracticeQuestion,
+    },
+    {
       type: "reflection-prompt",
       id: "types-of-accounts-reflection",
       eyebrow: "Reflection prompt",
@@ -1044,6 +1141,7 @@ export const debitAndCreditRulesJournalEntriesSubtopic: ChapterSubtopicDefinitio
   progressLabel: "Section 5 of 16",
   previousSection: typesOfAccountsSubtopicReference,
   nextSection: journalFormatAndNarrationSubtopicReference,
+  practiceQuestionIds: [paidWagesInCashPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -1424,6 +1522,11 @@ export const debitAndCreditRulesJournalEntriesSubtopic: ChapterSubtopicDefinitio
       ],
     },
     {
+      type: "practice-it-yourself",
+      id: "paid-wages-in-cash-practice",
+      question: paidWagesInCashPracticeQuestion,
+    },
+    {
       type: "reflection-prompt",
       id: "debit-credit-reflection",
       eyebrow: "Reflection prompt",
@@ -1443,6 +1546,7 @@ export const journalFormatAndNarrationJournalEntriesSubtopic: ChapterSubtopicDef
   progressLabel: "Section 6 of 16",
   previousSection: debitAndCreditRulesSubtopicReference,
   nextSection: cashAndBankTransactionsSubtopicReference,
+  practiceQuestionIds: [paidOfficeRentByBankPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -1824,6 +1928,11 @@ export const journalFormatAndNarrationJournalEntriesSubtopic: ChapterSubtopicDef
       ],
     },
     {
+      type: "practice-it-yourself",
+      id: "paid-office-rent-by-bank-practice",
+      question: paidOfficeRentByBankPracticeQuestion,
+    },
+    {
       type: "reflection-prompt",
       id: "journal-format-reflection",
       eyebrow: "Reflection prompt",
@@ -1843,6 +1952,7 @@ export const cashAndBankTransactionsJournalEntriesSubtopic: ChapterSubtopicDefin
   progressLabel: "Section 7 of 16",
   previousSection: journalFormatAndNarrationSubtopicReference,
   nextSection: capitalSubtopicReference,
+  practiceQuestionIds: [depositedCashIntoBankPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -2320,6 +2430,11 @@ export const cashAndBankTransactionsJournalEntriesSubtopic: ChapterSubtopicDefin
         "Personal withdrawal uses Drawings A/c.",
         "Credit transactions normally do not use Cash A/c or Bank A/c at that moment.",
       ],
+    },
+    {
+      type: "practice-it-yourself",
+      id: "deposited-cash-into-bank-practice",
+      question: depositedCashIntoBankPracticeQuestion,
     },
     {
       type: "reflection-prompt",
@@ -3798,6 +3913,7 @@ export const salesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
   progressLabel: "Section 11 of 16",
   previousSection: purchasesSubtopicReference,
   nextSection: expensesSubtopicReference,
+  practiceQuestionIds: [soldGoodsByBankPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -4240,6 +4356,11 @@ export const salesJournalEntriesSubtopic: ChapterSubtopicDefinition = {
         "Debit and credit totals are equal.",
         "Narration states what was sold and how payment was made.",
       ],
+    },
+    {
+      type: "practice-it-yourself",
+      id: "sold-goods-by-bank-practice",
+      question: soldGoodsByBankPracticeQuestion,
     },
     {
       type: "reflection-prompt",
@@ -6081,6 +6202,7 @@ export const mixedSimpleEntriesJournalEntriesSubtopic: ChapterSubtopicDefinition
   progressLabel: "Section 15 of 16",
   previousSection: assetsAndLiabilitiesSubtopicReference,
   nextSection: chapterRecapAndPracticeSubtopicReference,
+  practiceQuestionIds: [paidAdvertisingByBankPracticeQuestion.id],
   sections: [
     {
       type: "learning-objective",
@@ -6653,6 +6775,11 @@ export const mixedSimpleEntriesJournalEntriesSubtopic: ChapterSubtopicDefinition
       ],
     },
     {
+      type: "practice-it-yourself",
+      id: "paid-advertising-by-bank-practice",
+      question: paidAdvertisingByBankPracticeQuestion,
+    },
+    {
       type: "reflection-prompt",
       id: "mixed-simple-entries-reflection",
       eyebrow: "Reflection prompt",
@@ -6666,11 +6793,12 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
   ...chapterRecapAndPracticeSubtopicReference,
   href: `${JOURNAL_ENTRIES_CHAPTER_PATH}/${JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG}`,
   shortDescription:
-    "Review the full Journal Entries foundation chapter, practise display-only recap challenges, and see what remains outside this first prototype.",
+    "Review the full Journal Entries foundation chapter, complete the final checker, and see what remains outside this first prototype.",
   learningObjective:
-    "Students consolidate the complete journal-entry method, review common transaction families, and connect back to the eight existing interactive practice questions.",
+    "Students consolidate the complete journal-entry method, review common transaction families, and complete the seventeenth interactive practice question.",
   progressLabel: "Section 16 of 16",
   previousSection: mixedSimpleEntriesSubtopicReference,
+  practiceQuestionIds: [boughtMachineryByBankPracticeQuestion.id],
   sections: [
     {
       type: "chapter-completion-banner",
@@ -6681,7 +6809,7 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
       stats: [
         { label: "Progress", value: "Section 16 of 16" },
         { label: "Learning sections reviewed", value: "15" },
-        { label: "Interactive practice questions currently available", value: "8" },
+        { label: "Interactive practice questions currently available", value: "17" },
       ],
       note:
         "Preview/static only: no completion is saved, no localStorage is written, and no analytics event is sent from this recap.",
@@ -6843,21 +6971,35 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
       ],
     },
     {
+      type: "practice-it-yourself",
+      id: "bought-machinery-by-bank-practice",
+      question: boughtMachineryByBankPracticeQuestion,
+    },
+    {
       type: "interactive-practice-links",
       id: "interactive-practice-available",
       eyebrow: "Interactive practice",
       title: "Interactive Practice Available",
       body:
-        "This preview chapter currently has exactly eight deterministic checking-enabled questions across Section 1, Capital, Drawings, Purchases, Expenses, Income, and Assets and Liabilities. The recap links back to them instead of duplicating the editors here.",
+        "This preview chapter currently has exactly seventeen deterministic checking-enabled questions across all 16 Journal Entries sections. Section 1 intentionally has two approved checkers, and every other section has one.",
       questions: [
         { id: soldGoodsForCashPracticeQuestion.id, title: "Sold goods for cash ₹12,000" },
         { id: paidSalaryByBankPracticeQuestion.id, title: "Paid salary by bank ₹8,000" },
+        { id: paidElectricityBillInCashPracticeQuestion.id, title: "Paid electricity bill in cash Rs 1,200" },
+        { id: boughtStationeryForCashPracticeQuestion.id, title: "Bought stationery for cash Rs 800" },
+        { id: receivedFeesInCashPracticeQuestion.id, title: "Received fees in cash Rs 4,000" },
+        { id: paidWagesInCashPracticeQuestion.id, title: "Paid wages in cash Rs 2,500" },
+        { id: paidOfficeRentByBankPracticeQuestion.id, title: "Paid office rent by bank Rs 4,000" },
+        { id: depositedCashIntoBankPracticeQuestion.id, title: "Deposited cash into bank Rs 5,000" },
         { id: startedBusinessWithCashPracticeQuestion.id, title: "Started business with cash Rs 50,000" },
         { id: withdrewCashForPersonalUsePracticeQuestion.id, title: "Withdrew cash for personal use Rs 5,000" },
         { id: purchasedGoodsForCashPracticeQuestion.id, title: "Bought goods for cash Rs 10,000" },
+        { id: soldGoodsByBankPracticeQuestion.id, title: "Sold goods by bank Rs 6,000" },
         { id: paidRentByCashPracticeQuestion.id, title: "Paid rent by cash Rs 3,000" },
         { id: receivedCommissionInCashPracticeQuestion.id, title: "Received commission in cash Rs 2,000" },
         { id: boughtFurnitureForCashPracticeQuestion.id, title: "Bought furniture for cash Rs 15,000" },
+        { id: paidAdvertisingByBankPracticeQuestion.id, title: "Paid advertising by bank Rs 3,500" },
+        { id: boughtMachineryByBankPracticeQuestion.id, title: "Bought machinery by bank Rs 20,000" },
       ],
       link: {
         label: "Return to Practice It Yourself",
@@ -6995,7 +7137,7 @@ export const chapterRecapAndPracticeJournalEntriesSubtopic: ChapterSubtopicDefin
           "Selected adjustment-style examples",
           "Named accounts",
           "Journal presentation",
-          "Deterministic practice for eight approved questions",
+          "Deterministic practice for seventeen approved questions",
         ],
       },
       futureScope: {

@@ -322,7 +322,7 @@ const earlyJournalEntriesSectionGuides: Record<string, EarlySectionGuide> = {
     teaches: "How to combine earlier rules to solve simple entries without being told the transaction type.",
     whyItMatters:
       "Exam questions mix cash, bank, capital, drawings, purchases, sales, expenses, income, assets, and liabilities.",
-    watchFor: "Do not rush. Analyse one transaction at a time and do not assume this section adds new live checkers.",
+    watchFor: "Do not rush. Analyse one transaction at a time before using the live checker.",
     nextStep:
       "After revision, continue to Chapter Recap and Practice to choose the safest next action.",
     ruleTitle: "Reason first, then write the entry",
@@ -334,9 +334,9 @@ const earlyJournalEntriesSectionGuides: Record<string, EarlySectionGuide> = {
   [JOURNAL_ENTRIES_CHAPTER_RECAP_AND_PRACTICE_SECTION_SLUG]: {
     teaches: "How the full Journal Entries chapter fits together and where to revise or practise next.",
     whyItMatters:
-      "A recap helps students choose the next safe step without expecting every section to be interactive yet.",
+      "A recap helps students choose the next safe step after every section now has at least one checker.",
     watchFor:
-      "Only eight Practice It Yourself checkers are live for now: two in Section 1, one each in Capital, Drawings, Purchases, Expenses, Income, and Assets and Liabilities.",
+      "Seventeen Practice It Yourself checkers are live: two in Section 1 and one in every other Journal Entries section.",
     nextStep:
       "Revise weak sections, try the live checks again, use beginner Practice, or open the Explainer for one transaction.",
     ruleTitle: "Use the full journal-entry method every time",
@@ -372,7 +372,7 @@ function JournalEntriesOverviewCard() {
           <p className="mt-2 text-sm font-semibold leading-6 text-cyan-950">Study the chapter step by step.</p>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-800">8 checked practice questions</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-800">17 checked practice questions</p>
           <p className="mt-2 text-sm font-semibold leading-6 text-emerald-950">Write full entries and check your work.</p>
         </div>
       </div>

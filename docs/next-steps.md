@@ -2,27 +2,81 @@
 
 ## Immediate recommended next step
 
-Phase 6N final eight-checker Journal Entries QA is completed.
+Phase 6U final 17-checker Journal Entries QA audit is completed.
 
 What this audit confirmed:
 
-- `docs/journal-entries-eight-checker-qa.md` records the completed Phase 6N verdict
-- the current live in-chapter checker count is exactly 8
-- no ninth checker or extra Practice It Yourself question was added
-- the eight checkers are placed only in Section 1, Capital, Drawings, Purchases, Expenses, Income, and Assets and Liabilities
-- all eight expected answers and server-controlled answer reveals remain correct
-- focused rejection coverage exists for reversal, wrong accounts, wrong amounts, wrong Cash/Bank treatment, and key concept confusions
-- the existing five checker expected answers and checking behavior remain unchanged
+- the current live in-chapter checker count is exactly 17
+- no eighteenth checker or extra Practice It Yourself question exists
+- Phase 6T placement is correct: Bank/Cash deposit in `cash-and-bank-transactions`, Advertising/Bank in `mixed-simple-entries`, and Machinery/Bank in `chapter-recap-and-practice`
+- Phase 6T expected answers are correct and server-controlled
+- all 17 expected answers are correct, server-controlled, and unchanged from their approved safety plans
+- rejection coverage includes correct answers, reversals, wrong accounts, wrong amounts, Cash/Bank mistakes where relevant, malformed attempts, and unsupported question IDs
 - all 16 Journal Entries sections and simplified Study guide cards remain present
+- every Journal Entries section now has at least one checker editor, with Section 1 intentionally retaining two
 - `/practice/journal-entries`, `/journal-entry-solver`, `/practice`, `/practice/advanced`, and `/platform-preview` remain safe
-- no runtime/app/test code change was required during Phase 6N
+- no runtime/app/test code change was required during Phase 6U
 - no broad parser/classifier/validator/checker framework change, Journal Entry Explainer behavior change, Solver calculation change, accounting-engine change, API route, persistence, OCR, payment, AI Assistant behavior, route migration, backend feature, or accounting calculation was added
 
 Recommended next action:
 
-- pause checker expansion and conduct teacher/student review of the Journal Entries chapter
-- keep the review focused on whether the eight-checker flow is clear, mobile-safe, and useful for Class 11/12 students
-- do not add a ninth checker, GST, discounts, credit entries, compound entries, Partnership/Company entries, broad parser/checker generalization, new APIs, login/progress/database, OCR, payments, AI Assistant behavior, accounting-engine changes, or broad chapter expansion before review feedback
+- pause checker expansion and proceed to teacher/student review or commit/push of the completed Journal Entries checker work
+- do not add an eighteenth checker, parser/checker behavior, API, persistence, route migration, or runtime feature without a separate approved planning phase
+
+Recent Phase 6U context retained:
+
+- `docs/journal-entries-final-17-checker-qa.md` records the final 17-checker QA verdict
+- verdict: ready for teacher/student review with exactly seventeen deterministic in-chapter Practice It Yourself checkers
+- must-fix items found: none
+- runtime/app/test code changed during Phase 6U: none
+- final safe boundary: Section 1 has two checkers; Sections 2-16 each have one checker; no eighteenth checker should be added without a new approved plan
+
+Recent Phase 6T context retained:
+
+- total live in-chapter checker count: 17
+- added count: 3
+- added sections: `cash-and-bank-transactions`, `mixed-simple-entries`, and `chapter-recap-and-practice`
+- added expected answers: `Bank A/c Dr. / To Cash A/c`, `Advertising A/c Dr. / To Bank A/c`, and `Machinery A/c Dr. / To Bank A/c`
+- all 16 sections are now covered: Section 1 has two checkers and Sections 2-16 each have one
+- final implementation target from Phase 6O is now reached; the Phase 6U final 17-checker QA is now completed
+
+Recent Phase 6S context retained:
+
+- `docs/journal-entries-fourteen-checker-qa.md` records the fourteen-checker QA verdict
+- focused verification passed: `148` tests across the Journal Entries checker/page/practice/preview suites
+- full test suite passed: `2300` tests
+- `npm run typecheck`, `npm run lint`, `git diff --check`, and production build passed after rerunning build outside the sandbox for the known Turbopack process/port restriction
+- the build-generated `next-env.d.ts` route-types diff was restored
+
+Recent Phase 6R context retained:
+
+- total live in-chapter checker count: 14
+- added count: 3
+- added sections: `accounts-affected`, `types-of-accounts`, and `journal-format-and-narration`
+- remaining sections without a checker: Cash and Bank Transactions, Mixed Simple Entries, and Chapter Recap and Practice
+- final target remains 17 checkers because Section 1 has two approved checkers and existing checkers should not be moved
+
+Recent Phase 6Q context retained:
+
+- `docs/journal-entries-eleven-checker-qa.md` records the eleven-checker QA verdict
+- focused verification passed: `141` tests across the Journal Entries checker/page/practice/preview suites
+- full test suite passed: `2293` tests
+- `npm run typecheck`, `npm run lint`, `git diff --check`, and production build passed after rerunning build outside the sandbox for the known Turbopack process/port restriction
+- the build-generated `next-env.d.ts` route-types diff was restored
+
+Recent Phase 6P context retained:
+
+- total live in-chapter checker count: 11
+- added count: 3
+- added sections: `business-transactions`, `debit-and-credit-rules`, and `sales`
+- remaining sections without a checker: Accounts Affected, Types of Accounts, Journal Format and Narration, Cash and Bank Transactions, Mixed Simple Entries, and Chapter Recap and Practice
+- final target remains 17 checkers because Section 1 has two approved checkers and existing checkers should not be moved
+
+Recent Phase 6O context retained:
+
+- final target for one-checker-per-section completion: 17 total checkers, because Section 1 already has two and should stay unchanged
+- planned future batches: Phase 6P implementation, Phase 6Q QA, Phase 6R implementation, Phase 6S QA, Phase 6T implementation, Phase 6U final QA
+- deferred from the completion plan: GST, discounts, depreciation, bad debts, outstanding/prepaid/accrued/advance adjustments, compound entries, credit purchases/sales, owner goods drawings, loans, interest, Partnership/Company entries, opening/closing/transfer/rectification entries, asset-sale profit/loss, and broad parser/checker rewrites
 
 Recent Phase 6N context retained:
 
