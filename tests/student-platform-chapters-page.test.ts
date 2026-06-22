@@ -89,6 +89,19 @@ function expectNoJournalEntriesExternalActionLinks(html: string) {
   expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toBe("");
 }
 
+function expectNoJournalEntriesPreCheckHints(html: string) {
+  expect(html).not.toContain("Write a complete journal entry");
+  expect(html).not.toContain("How to try this question");
+  expect(html).not.toContain("Likely accounts involved:");
+  expect(html).not.toContain("Decide which account");
+  expect(html).not.toContain("Spelling, account naming, Dr./To, amount, totals, and narration matter in this checker.");
+  expect(html).not.toContain("Before you check");
+  expect(html).not.toContain("Analyse the transaction before typing.");
+  expect(html).not.toContain("Decide the debit and credit side before you check.");
+  expect(html).not.toContain("Use the feedback to learn the logic, not just to guess.");
+  expect(html).not.toContain("Write the full entry first, then check your answer.");
+}
+
 function getJournalEntryCheckerForms(html: string) {
   return Array.from(
     html.matchAll(/<form[^>]*aria-label="[^"]*journal entry checker"[\s\S]*?<\/form>/g),
@@ -1054,17 +1067,11 @@ describe("Production Chapters route", () => {
     expect(html.match(/Check Answer/g)).toHaveLength(2);
     expect(html.match(/Reset Answer/g)).toHaveLength(2);
     expect(html.match(/Feedback will appear here after you check your answer\./g)).toHaveLength(2);
-    expect(html.match(/How to try this question/g)).toHaveLength(2);
-    expect(html.match(/Write the full entry first, then check your answer\./g)).toHaveLength(2);
+    expectNoJournalEntriesPreCheckHints(html);
     const checkerForms = getJournalEntryCheckerForms(html);
     expect(checkerForms).toHaveLength(2);
     expect(html).toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     expect(html).toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Cash and Sales.");
-    expect(html).toContain("Likely accounts involved: Salary and Bank.");
-    expect(html).toContain("Analyse the transaction before typing.");
-    expect(html).toContain("Decide the debit and credit side before you check.");
-    expect(html).toContain("Spelling, account naming, Dr./To, amount, totals, and narration matter in this checker.");
     checkerForms.forEach((formMarkup) => {
       expect(formMarkup).toContain("Debit account");
       expect(formMarkup).toContain("Credit account");
@@ -1088,6 +1095,11 @@ describe("Production Chapters route", () => {
     expect(source).toContain("JournalEntryPracticeEditor");
     expect(source).toContain("Read the feedback in this order: accounts, debit/credit side, amount, totals, and narration.");
     expect(source).toContain("If you are stuck, reread the rule and then try this same checker again.");
+    expect(source).toContain("const [guidedEntry, setGuidedEntry]");
+    expect(source).toContain("createGuidedAttempt(question.id, guidedEntry, narration)");
+    expect(source).toContain("formatCreditParticulars(guidedEntry.creditAccount)");
+    expect(source).toContain('replace(/^\\s*to\\b\\s*/i, "").trim()');
+    expect(source).not.toContain("getAccountInputValue");
     expect(source).not.toContain("journal-entry-answer-keys.server");
     expect(source).not.toContain("Cash A/c Dr.");
     expect(source).not.toContain("To Sales A/c");
@@ -1102,8 +1114,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Paid electricity bill in cash Rs 1,200. Pass the journal entry.");
     expect(html).toContain(PAID_ELECTRICITY_BILL_IN_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Electricity and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1116,8 +1127,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Bought stationery for cash Rs 800. Pass the journal entry.");
     expect(html).toContain(BOUGHT_STATIONERY_FOR_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Stationery and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1130,8 +1140,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Received fees in cash Rs 4,000. Pass the journal entry.");
     expect(html).toContain(RECEIVED_FEES_IN_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Cash and Fees Received.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1144,8 +1153,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Paid wages in cash Rs 2,500. Pass the journal entry.");
     expect(html).toContain(PAID_WAGES_IN_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Wages and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1158,8 +1166,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Paid office rent by bank Rs 4,000. Pass the journal entry.");
     expect(html).toContain(PAID_OFFICE_RENT_BY_BANK_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Office Rent and Bank.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1172,8 +1179,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Deposited cash into bank Rs 5,000. Pass the journal entry.");
     expect(html).toContain(DEPOSITED_CASH_INTO_BANK_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Bank and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1186,8 +1192,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Started business with cash Rs 50,000. Pass the journal entry.");
     expect(html).toContain(STARTED_BUSINESS_WITH_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Cash and Capital.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1200,8 +1205,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Withdrew cash for personal use Rs 5,000. Pass the journal entry.");
     expect(html).toContain(WITHDREW_CASH_FOR_PERSONAL_USE_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Drawings and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1214,8 +1218,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Bought goods for cash Rs 10,000. Pass the journal entry.");
     expect(html).toContain(PURCHASED_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Purchases and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1229,8 +1232,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Sold goods by bank Rs 6,000. Pass the journal entry.");
     expect(html).toContain(SOLD_GOODS_BY_BANK_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Bank and Sales.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1243,8 +1245,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Paid rent by cash Rs 3,000. Pass the journal entry.");
     expect(html).toContain(PAID_RENT_BY_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Rent and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1257,8 +1258,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Received commission in cash Rs 2,000. Pass the journal entry.");
     expect(html).toContain(RECEIVED_COMMISSION_IN_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Cash and Commission.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1271,8 +1271,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Bought furniture for cash Rs 15,000. Pass the journal entry.");
     expect(html).toContain(BOUGHT_FURNITURE_FOR_CASH_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Furniture and Cash.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1285,8 +1284,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Paid advertising by bank Rs 3,500. Pass the journal entry.");
     expect(html).toContain(PAID_ADVERTISING_BY_BANK_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Advertising and Bank.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1299,8 +1297,7 @@ describe("Production Chapters route", () => {
     expect(html).toContain("Practice 1 of 1");
     expect(html).toContain("Bought machinery by bank Rs 20,000. Pass the journal entry.");
     expect(html).toContain(BOUGHT_MACHINERY_BY_BANK_PRACTICE_QUESTION_ID);
-    expect(html).toContain("Likely accounts involved: Machinery and Bank.");
-    expect(html).toContain("Write the full entry first, then check your answer.");
+    expectNoJournalEntriesPreCheckHints(html);
     expect(html.match(/Check Answer/g)).toHaveLength(1);
     expect(html.match(/Reset Answer/g)).toHaveLength(1);
     expectNoJournalEntriesExternalActionLinks(html);
@@ -1316,6 +1313,7 @@ describe("Production Chapters route", () => {
       const html = renderProductionSection(subtopic.slug);
 
       expect(html).toContain("Check Answer");
+      expectNoJournalEntriesPreCheckHints(html);
       expect(getJournalEntryCheckerForms(html)).toHaveLength(subtopic.practiceQuestionIds?.length ?? 0);
       getJournalEntryCheckerForms(html).forEach((formMarkup) => {
         expect(formMarkup).toContain("Debit account");

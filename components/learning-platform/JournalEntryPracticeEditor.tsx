@@ -19,6 +19,12 @@ type EditorRow = {
   creditAmount: string;
 };
 
+type GuidedEntryFieldsState = {
+  debitAccount: string;
+  creditAccount: string;
+  amount: string;
+};
+
 type JournalEntryPracticeEditorProps = {
   question: PracticeItYourselfPreviewQuestion;
   checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
@@ -44,6 +50,7 @@ export function JournalEntryPracticeEditor({
   supportNotice = "This preview checker supports this individual question only. No API route, storage, analytics, or existing checker is called.",
 }: JournalEntryPracticeEditorProps) {
   const [rows, setRows] = useState<EditorRow[]>(() => createInitialRows(question));
+  const [guidedEntry, setGuidedEntry] = useState<GuidedEntryFieldsState>(() => createBlankGuidedEntry());
   const [totalDebit, setTotalDebit] = useState("");
   const [totalCredit, setTotalCredit] = useState("");
   const [narration, setNarration] = useState("");
@@ -58,10 +65,10 @@ export function JournalEntryPracticeEditor({
   const feedbackId = `practice-feedback-${fieldPrefix}`;
   const isGuidedInput = inputMode === "guided-entry";
   const canAddRow = rows.length < JOURNAL_ENTRY_PRACTICE_LIMITS.maxRows;
-  const isCurrentAttemptBlank = isAttemptBlank(createAttempt(question.id, rows, totalDebit, totalCredit, narration));
-  const debitAccountValue = getAccountInputValue(rows[0]?.particulars ?? "");
-  const creditAccountValue = getAccountInputValue(rows[1]?.particulars ?? "");
-  const guidedAmountValue = totalDebit || rows[0]?.debitAmount || rows[1]?.creditAmount || totalCredit;
+  const currentAttempt = isGuidedInput
+    ? createGuidedAttempt(question.id, guidedEntry, narration)
+    : createAttempt(question.id, rows, totalDebit, totalCredit, narration);
+  const isCurrentAttemptBlank = isAttemptBlank(currentAttempt);
 
   useEffect(() => {
     if (result) {
@@ -94,30 +101,18 @@ export function JournalEntryPracticeEditor({
   }
 
   function updateGuidedDebitAccount(value: string) {
-    updateRow(1, "particulars", formatDebitParticulars(value));
+    clearCheckedFeedback();
+    setGuidedEntry((currentEntry) => ({ ...currentEntry, debitAccount: value }));
   }
 
   function updateGuidedCreditAccount(value: string) {
-    updateRow(2, "particulars", formatCreditParticulars(value));
+    clearCheckedFeedback();
+    setGuidedEntry((currentEntry) => ({ ...currentEntry, creditAccount: value }));
   }
 
   function updateGuidedAmount(value: string) {
     clearCheckedFeedback();
-    setRows((currentRows) =>
-      ensureMinimumRows(currentRows).map((row, index) => {
-        if (index === 0) {
-          return { ...row, debitAmount: value, creditAmount: "" };
-        }
-
-        if (index === 1) {
-          return { ...row, debitAmount: "", creditAmount: value };
-        }
-
-        return row;
-      }),
-    );
-    setTotalDebit(value);
-    setTotalCredit(value);
+    setGuidedEntry((currentEntry) => ({ ...currentEntry, amount: value }));
   }
 
   function clearCheckedFeedback() {
@@ -130,7 +125,9 @@ export function JournalEntryPracticeEditor({
 
     if (isChecking) return;
 
-    const attempt = createAttempt(question.id, rows, totalDebit, totalCredit, narration);
+    const attempt = isGuidedInput
+      ? createGuidedAttempt(question.id, guidedEntry, narration)
+      : createAttempt(question.id, rows, totalDebit, totalCredit, narration);
 
     if (isAttemptBlank(attempt)) {
       return;
@@ -167,6 +164,7 @@ export function JournalEntryPracticeEditor({
 
   function handleReset() {
     setRows(createInitialRows(question));
+    setGuidedEntry(createBlankGuidedEntry());
     setTotalDebit("");
     setTotalCredit("");
     setNarration("");
@@ -195,9 +193,9 @@ export function JournalEntryPracticeEditor({
       >
       {isGuidedInput ? (
         <GuidedEntryFields
-          amount={guidedAmountValue}
-          creditAccount={creditAccountValue}
-          debitAccount={debitAccountValue}
+          amount={guidedEntry.amount}
+          creditAccount={guidedEntry.creditAccount}
+          debitAccount={guidedEntry.debitAccount}
           fieldPrefix={fieldPrefix}
           narration={narration}
           onAmountChange={updateGuidedAmount}
@@ -938,31 +936,55 @@ function createBlankRow(rowOrder: number): EditorRow {
   };
 }
 
-function ensureMinimumRows(rows: EditorRow[]) {
-  const nextRows = [...rows];
-
-  while (nextRows.length < 2) {
-    nextRows.push(createBlankRow(nextRows.length + 1));
-  }
-
-  return nextRows;
-}
-
-function getAccountInputValue(particulars: string) {
-  return particulars
-    .replace(/^\s*to\s+/i, "")
-    .replace(/\s+dr\.?\s*$/i, "")
-    .trim();
+function createBlankGuidedEntry(): GuidedEntryFieldsState {
+  return {
+    debitAccount: "",
+    creditAccount: "",
+    amount: "",
+  };
 }
 
 function formatDebitParticulars(value: string) {
-  const account = getAccountInputValue(value);
+  const account = normalizeGuidedAccount(value);
   return account ? `${account} Dr.` : "";
 }
 
 function formatCreditParticulars(value: string) {
-  const account = getAccountInputValue(value);
+  const account = normalizeGuidedAccount(value).replace(/^\s*to\b\s*/i, "").trim();
   return account ? `To ${account}` : "";
+}
+
+function normalizeGuidedAccount(value: string) {
+  return value.replace(/\s+dr\.?\s*$/i, "").trim();
+}
+
+function createGuidedAttempt(
+  questionId: string,
+  guidedEntry: GuidedEntryFieldsState,
+  narration: string,
+): JournalEntryPracticeAttempt {
+  return {
+    questionId,
+    rows: [
+      {
+        rowOrder: 1,
+        particulars: formatDebitParticulars(guidedEntry.debitAccount),
+        lf: "",
+        debitAmount: guidedEntry.amount,
+        creditAmount: "",
+      },
+      {
+        rowOrder: 2,
+        particulars: formatCreditParticulars(guidedEntry.creditAccount),
+        lf: "",
+        debitAmount: "",
+        creditAmount: guidedEntry.amount,
+      },
+    ],
+    totalDebit: guidedEntry.amount,
+    totalCredit: guidedEntry.amount,
+    narration,
+  };
 }
 
 function createAttempt(
