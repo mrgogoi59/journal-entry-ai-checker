@@ -740,15 +740,15 @@ describe("Production Chapters route", () => {
 
     expect(html).toContain("Journal Entries");
     expect(html).toContain("Learn debit-credit rules and journal format.");
-    expect(html).toContain("16 sections");
-    expect(html).toContain("17 checked practice questions");
-    expect(html).toContain("Study the chapter step by step.");
-    expect(html).toContain("Write full entries and check your work.");
     expect(
       getLinkMarkupWithText(html, "/chapters/journal-entries#introduction-to-journal-entries", "Start Chapter"),
     ).toContain("Start Chapter");
     expect(getLinkMarkupWithText(html, "/journal-entry-solver", "Use Explainer")).toContain("Use Explainer");
     expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toContain("Practice");
+    expect(html).not.toContain("16 sections");
+    expect(html).not.toContain("17 checked practice questions");
+    expect(html).not.toContain("Study the chapter step by step.");
+    expect(html).not.toContain("Write full entries and check your work.");
     expect(html).not.toContain("Available in this pilot");
     expect(html).not.toContain("Most sections are read-only");
     expect(html).not.toContain("More checking will be added later");
@@ -756,6 +756,24 @@ describe("Production Chapters route", () => {
     expect(html).not.toContain("Open Solver hub");
     expect(html.toLowerCase()).not.toContain("all sections are interactive");
     expect(html.toLowerCase()).not.toContain("all chapters are complete");
+  });
+
+  it("uses Journal Entries focus-mode controls instead of permanent desktop chrome", () => {
+    const html = renderProductionSection(JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG);
+    const sectionSource = readFileSync("app/chapters/journal-entries/JournalEntriesSectionPage.tsx", "utf8");
+    const desktopSidebarSource = readFileSync("components/student-platform/DesktopSidebar.tsx", "utf8");
+
+    expect(html).toContain("Focus mode");
+    expect(html).toContain("View sections");
+    expect(html).toContain("Open navigation or sections only when you need them.");
+    expect(html).toContain("Student platform navigation");
+    expect(html).toContain("AI Assistant");
+    expect(html).toContain("Coming soon");
+    expect(sectionSource).toContain('<StudentAppShell activeItem="chapters" focusMode>');
+    expect(sectionSource).toContain("JournalEntriesFocusModeControls");
+    expect(sectionSource).not.toContain("<ChapterOutline");
+    expect(desktopSidebarSource).not.toContain("Phase 4H");
+    expect(desktopSidebarSource).not.toContain("Dashboard, Solver, and Practice hub are live");
   });
 
   it("renders all sixteen Journal Entries sections with simplified study-guide copy and safe next steps", () => {

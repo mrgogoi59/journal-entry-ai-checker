@@ -4,7 +4,6 @@ import { StudentAppShell } from "@/components/student-platform/StudentAppShell";
 import {
   AccountingEntryTable,
   ChapterCompletionBannerBlock,
-  ChapterOutline,
   ChapterRecapGroupsBlock,
   ClassificationCategoriesBlock,
   ClassificationExamplesBlock,
@@ -52,6 +51,7 @@ import {
   checkJournalEntriesPracticeAnswer,
   revealJournalEntriesPracticeCorrectAnswer,
 } from "./actions";
+import { JournalEntriesFocusModeControls } from "./JournalEntriesFocusModeControls";
 
 export const PRODUCTION_JOURNAL_ENTRIES_CHAPTER_PATH = "/chapters/journal-entries";
 
@@ -87,39 +87,36 @@ export function JournalEntriesSectionPage({ sectionSlug }: { sectionSlug: string
   const earlySectionGuide = earlyJournalEntriesSectionGuides[subtopic.id];
 
   return (
-    <StudentAppShell activeItem="chapters">
-      <div className="grid min-w-0 gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <ChapterOutline
-          chapter={chapter}
-          activeSectionId={subtopic.id}
-          outlineItems={productionJournalEntriesSectionRoutes}
-        />
+    <StudentAppShell activeItem="chapters" focusMode>
+      <JournalEntriesFocusModeControls
+        activeSectionId={subtopic.id}
+        outlineItems={productionJournalEntriesSectionRoutes}
+      />
 
-        <div className="min-w-0 space-y-5 sm:space-y-6">
-          {subtopic.id === JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG ? <JournalEntriesOverviewCard /> : null}
+      <div className="min-w-0 space-y-5 sm:space-y-6">
+        {subtopic.id === JOURNAL_ENTRIES_INTRODUCTION_SECTION_SLUG ? <JournalEntriesOverviewCard /> : null}
 
-          <SectionIntroCard subtopic={subtopic} />
+        <SectionIntroCard subtopic={subtopic} />
 
-          {earlySectionGuide ? (
-            <SectionLearningGuideCard
-              guide={earlySectionGuide}
-              hasPracticeChecks={practiceSectionCount > 0}
-              subtopic={subtopic}
-            />
-          ) : null}
+        {earlySectionGuide ? (
+          <SectionLearningGuideCard
+            guide={earlySectionGuide}
+            hasPracticeChecks={practiceSectionCount > 0}
+            subtopic={subtopic}
+          />
+        ) : null}
 
-          {sectionsWithNumbers.map(({ section, solvedIllustrationNumber, practiceNumber }) => (
-            <ChapterSectionRenderer
-              key={section.id}
-              section={section}
-              solvedIllustrationNumber={solvedIllustrationNumber}
-              practiceNumber={practiceNumber}
-              practiceSectionCount={practiceSectionCount}
-            />
-          ))}
+        {sectionsWithNumbers.map(({ section, solvedIllustrationNumber, practiceNumber }) => (
+          <ChapterSectionRenderer
+            key={section.id}
+            section={section}
+            solvedIllustrationNumber={solvedIllustrationNumber}
+            practiceNumber={practiceNumber}
+            practiceSectionCount={practiceSectionCount}
+          />
+        ))}
 
-          <SectionNavigation subtopic={subtopic} />
-        </div>
+        <SectionNavigation subtopic={subtopic} />
       </div>
     </StudentAppShell>
   );
@@ -364,17 +361,6 @@ function JournalEntriesOverviewCard() {
         <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-700">
           Learn debit-credit rules and journal format.
         </p>
-      </div>
-
-      <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-800">16 sections</p>
-          <p className="mt-2 text-sm font-semibold leading-6 text-cyan-950">Study the chapter step by step.</p>
-        </div>
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-800">17 checked practice questions</p>
-          <p className="mt-2 text-sm font-semibold leading-6 text-emerald-950">Write full entries and check your work.</p>
-        </div>
       </div>
 
       <div className="mt-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">

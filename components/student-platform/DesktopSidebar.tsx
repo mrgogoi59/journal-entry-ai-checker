@@ -15,11 +15,6 @@ export function DesktopSidebar({ activeItem }: { activeItem: StudentPlatformNavi
             <NavigationItem key={item.id} item={item} isActive={item.id === activeItem} />
           ))}
         </nav>
-
-        <div className="mt-auto rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-          <p className="font-bold text-slate-900">Phase 4H</p>
-          <p className="mt-1">Dashboard, Solver, and Practice hub are live; personal progress remains planned.</p>
-        </div>
       </div>
     </aside>
   );
