@@ -23,6 +23,7 @@ type JournalEntryPracticeEditorProps = {
   question: PracticeItYourselfPreviewQuestion;
   checkAnswerAction: (attempt: JournalEntryPracticeAttempt) => Promise<JournalEntryPracticeCheckResult>;
   revealCorrectAnswerAction: (questionId: string) => Promise<JournalEntryCorrectAnswerReveal>;
+  inputMode?: "journal-table" | "guided-entry";
   supportNotice?: string;
 };
 
@@ -38,6 +39,7 @@ const statusStyles: Record<JournalEntryPracticeFeedbackStatus, string> = {
 export function JournalEntryPracticeEditor({
   question,
   checkAnswerAction,
+  inputMode = "journal-table",
   revealCorrectAnswerAction,
   supportNotice = "This preview checker supports this individual question only. No API route, storage, analytics, or existing checker is called.",
 }: JournalEntryPracticeEditorProps) {
@@ -54,8 +56,12 @@ export function JournalEntryPracticeEditor({
   const fieldPrefix = question.id;
   const instructionId = `practice-editor-instructions-${fieldPrefix}`;
   const feedbackId = `practice-feedback-${fieldPrefix}`;
+  const isGuidedInput = inputMode === "guided-entry";
   const canAddRow = rows.length < JOURNAL_ENTRY_PRACTICE_LIMITS.maxRows;
   const isCurrentAttemptBlank = isAttemptBlank(createAttempt(question.id, rows, totalDebit, totalCredit, narration));
+  const debitAccountValue = getAccountInputValue(rows[0]?.particulars ?? "");
+  const creditAccountValue = getAccountInputValue(rows[1]?.particulars ?? "");
+  const guidedAmountValue = totalDebit || rows[0]?.debitAmount || rows[1]?.creditAmount || totalCredit;
 
   useEffect(() => {
     if (result) {
@@ -85,6 +91,33 @@ export function JournalEntryPracticeEditor({
     setRows((currentRows) =>
       currentRows.length <= 2 ? currentRows : currentRows.filter((row) => row.rowOrder !== rowOrder),
     );
+  }
+
+  function updateGuidedDebitAccount(value: string) {
+    updateRow(1, "particulars", formatDebitParticulars(value));
+  }
+
+  function updateGuidedCreditAccount(value: string) {
+    updateRow(2, "particulars", formatCreditParticulars(value));
+  }
+
+  function updateGuidedAmount(value: string) {
+    clearCheckedFeedback();
+    setRows((currentRows) =>
+      ensureMinimumRows(currentRows).map((row, index) => {
+        if (index === 0) {
+          return { ...row, debitAmount: value, creditAmount: "" };
+        }
+
+        if (index === 1) {
+          return { ...row, debitAmount: "", creditAmount: value };
+        }
+
+        return row;
+      }),
+    );
+    setTotalDebit(value);
+    setTotalCredit(value);
   }
 
   function clearCheckedFeedback() {
@@ -144,9 +177,15 @@ export function JournalEntryPracticeEditor({
 
   return (
     <>
-      <p id={instructionId} className="mt-5 rounded-2xl border border-cyan-100 bg-cyan-50 p-4 text-sm font-semibold leading-6 text-cyan-950">
-        Write the full particulars yourself. First decide the debit and credit, then type Dr. on the debit line and To on the credit line. Account naming, amounts, totals, and narration are checked.
-      </p>
+      {isGuidedInput ? (
+        <p id={instructionId} className="sr-only">
+          Enter the debit account, credit account, amount, and narration before checking your answer.
+        </p>
+      ) : (
+        <p id={instructionId} className="mt-5 rounded-2xl border border-cyan-100 bg-cyan-50 p-4 text-sm font-semibold leading-6 text-cyan-950">
+          Write the full particulars yourself. First decide the debit and credit, then type Dr. on the debit line and To on the credit line. Account naming, amounts, totals, and narration are checked.
+        </p>
+      )}
       <form
         className="mt-4 space-y-4"
         aria-label={`${question.title} journal entry checker`}
@@ -154,126 +193,54 @@ export function JournalEntryPracticeEditor({
         aria-busy={isChecking}
         onSubmit={handleSubmit}
       >
-      <div className="hidden overflow-hidden rounded-2xl border border-slate-200 lg:block">
-        <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-600">
-          <div>Date</div>
-          <div>Particulars</div>
-          <div>L.F.</div>
-          <div>Debit ₹</div>
-          <div>Credit ₹</div>
-          <div>Row</div>
-        </div>
-        <div className="divide-y divide-slate-200">
-          {rows.map((row) => (
-            <PracticeDesktopRow
-              key={row.rowOrder}
-              row={row}
-              fieldPrefix={fieldPrefix}
-              canRemove={rows.length > 2}
-              onChange={updateRow}
-              onRemove={removeRow}
-            />
-          ))}
-        </div>
-        <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 border-t border-slate-200 bg-slate-50 px-4 py-3">
-          <div />
-          <div className="flex items-center text-sm font-black text-slate-950">Total</div>
-          <div />
-          <input
-            id={`practice-total-debit-${fieldPrefix}`}
-            name={`practice-total-debit-${fieldPrefix}`}
-            inputMode="numeric"
-            aria-label={`${question.title} Total Debit`}
-            placeholder="Total Debit"
-            value={totalDebit}
-            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
-            onChange={(event) => {
-              clearCheckedFeedback();
-              setTotalDebit(event.target.value);
-            }}
-            className={inputClass}
-          />
-          <input
-            id={`practice-total-credit-${fieldPrefix}`}
-            name={`practice-total-credit-${fieldPrefix}`}
-            inputMode="numeric"
-            aria-label={`${question.title} Total Credit`}
-            placeholder="Total Credit"
-            value={totalCredit}
-            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
-            onChange={(event) => {
-              clearCheckedFeedback();
-              setTotalCredit(event.target.value);
-            }}
-            className={inputClass}
-          />
-          <div />
-        </div>
-      </div>
+      {isGuidedInput ? (
+        <GuidedEntryFields
+          amount={guidedAmountValue}
+          creditAccount={creditAccountValue}
+          debitAccount={debitAccountValue}
+          fieldPrefix={fieldPrefix}
+          narration={narration}
+          onAmountChange={updateGuidedAmount}
+          onCreditAccountChange={updateGuidedCreditAccount}
+          onDebitAccountChange={updateGuidedDebitAccount}
+          onNarrationChange={(value) => {
+            clearCheckedFeedback();
+            setNarration(value);
+          }}
+        />
+      ) : (
+        <JournalTableFields
+          canAddRow={canAddRow}
+          fieldPrefix={fieldPrefix}
+          narration={narration}
+          onAddRow={addRow}
+          onChangeNarration={(value) => {
+            clearCheckedFeedback();
+            setNarration(value);
+          }}
+          onChangeRow={updateRow}
+          onChangeTotalCredit={(value) => {
+            clearCheckedFeedback();
+            setTotalCredit(value);
+          }}
+          onChangeTotalDebit={(value) => {
+            clearCheckedFeedback();
+            setTotalDebit(value);
+          }}
+          onRemoveRow={removeRow}
+          question={question}
+          rows={rows}
+          totalCredit={totalCredit}
+          totalDebit={totalDebit}
+        />
+      )}
 
-      <div className="space-y-3 lg:hidden">
-        {rows.map((row) => (
-          <PracticeMobileRow
-            key={row.rowOrder}
-            row={row}
-            fieldPrefix={fieldPrefix}
-            canRemove={rows.length > 2}
-            onChange={updateRow}
-            onRemove={removeRow}
-          />
-        ))}
-        <fieldset className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <legend className="px-1 text-sm font-black text-slate-950">Totals</legend>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-total-debit-${fieldPrefix}`}>
-                Total Debit ₹
-              </label>
-              <input
-                id={`practice-mobile-total-debit-${fieldPrefix}`}
-                name={`practice-mobile-total-debit-${fieldPrefix}`}
-                inputMode="numeric"
-                placeholder="Total Debit"
-                value={totalDebit}
-                maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
-                onChange={(event) => {
-                  clearCheckedFeedback();
-                  setTotalDebit(event.target.value);
-                }}
-                className={`${inputClass} mt-2`}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-total-credit-${fieldPrefix}`}>
-                Total Credit ₹
-              </label>
-              <input
-                id={`practice-mobile-total-credit-${fieldPrefix}`}
-                name={`practice-mobile-total-credit-${fieldPrefix}`}
-                inputMode="numeric"
-                placeholder="Total Credit"
-                value={totalCredit}
-                maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
-                onChange={(event) => {
-                  clearCheckedFeedback();
-                  setTotalCredit(event.target.value);
-                }}
-                className={`${inputClass} mt-2`}
-              />
-            </div>
-          </div>
-        </fieldset>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={addRow}
-          disabled={!canAddRow}
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-        >
-          {canAddRow ? "Add row" : "Maximum 6 rows"}
-        </button>
+      <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        {isGuidedInput ? null : (
+          <p className="text-sm font-semibold leading-6 text-slate-600">
+            {supportNotice}
+          </p>
+        )}
         <button
           type="button"
           onClick={handleReset}
@@ -281,31 +248,6 @@ export function JournalEntryPracticeEditor({
         >
           Reset Answer
         </button>
-      </div>
-
-      <div>
-        <label htmlFor={`practice-narration-${fieldPrefix}`} className="text-sm font-black text-slate-950">
-          Narration
-        </label>
-        <textarea
-          id={`practice-narration-${fieldPrefix}`}
-          name={`practice-narration-${fieldPrefix}`}
-          rows={3}
-          placeholder={question.answerInputSchema.narration.placeholder}
-          value={narration}
-          maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxNarrationLength}
-          onChange={(event) => {
-            clearCheckedFeedback();
-            setNarration(event.target.value);
-          }}
-          className={`${inputClass} mt-2 resize-y`}
-        />
-      </div>
-
-      <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-semibold leading-6 text-slate-600">
-          {supportNotice}
-        </p>
         <button
           type="submit"
           disabled={isChecking || isCurrentAttemptBlank}
@@ -331,16 +273,267 @@ export function JournalEntryPracticeEditor({
             reveal={reveal}
             canReveal={attemptCount > 0}
             isRevealing={isRevealing}
+            showNextStepLinks={!isGuidedInput}
             onTryAgain={handleTryAgain}
             onReveal={handleReveal}
           />
         ) : (
           <p className="text-sm font-semibold leading-6 text-slate-600">
-            Feedback will appear here after you check your answer. Use it to review accounts, side, amount, totals, and narration.
+            Feedback will appear here after you check your answer.
           </p>
         )}
       </div>
       </form>
+    </>
+  );
+}
+
+function GuidedEntryFields({
+  amount,
+  creditAccount,
+  debitAccount,
+  fieldPrefix,
+  narration,
+  onAmountChange,
+  onCreditAccountChange,
+  onDebitAccountChange,
+  onNarrationChange,
+}: {
+  amount: string;
+  creditAccount: string;
+  debitAccount: string;
+  fieldPrefix: string;
+  narration: string;
+  onAmountChange: (value: string) => void;
+  onCreditAccountChange: (value: string) => void;
+  onDebitAccountChange: (value: string) => void;
+  onNarrationChange: (value: string) => void;
+}) {
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor={`practice-debit-account-${fieldPrefix}`} className="text-sm font-black text-slate-950">
+            Debit account
+          </label>
+          <input
+            id={`practice-debit-account-${fieldPrefix}`}
+            name={`practice-debit-account-${fieldPrefix}`}
+            placeholder="Example: Purchases A/c"
+            value={debitAccount}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxParticularsLength}
+            onChange={(event) => onDebitAccountChange(event.target.value)}
+            className={`${inputClass} mt-2`}
+          />
+        </div>
+
+        <div>
+          <label htmlFor={`practice-credit-account-${fieldPrefix}`} className="text-sm font-black text-slate-950">
+            Credit account
+          </label>
+          <input
+            id={`practice-credit-account-${fieldPrefix}`}
+            name={`practice-credit-account-${fieldPrefix}`}
+            placeholder="Example: Cash A/c"
+            value={creditAccount}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxParticularsLength}
+            onChange={(event) => onCreditAccountChange(event.target.value)}
+            className={`${inputClass} mt-2`}
+          />
+        </div>
+
+        <div>
+          <label htmlFor={`practice-amount-${fieldPrefix}`} className="text-sm font-black text-slate-950">
+            Amount
+          </label>
+          <input
+            id={`practice-amount-${fieldPrefix}`}
+            name={`practice-amount-${fieldPrefix}`}
+            inputMode="numeric"
+            placeholder="Example: 10000"
+            value={amount}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+            onChange={(event) => onAmountChange(event.target.value)}
+            className={`${inputClass} mt-2`}
+          />
+        </div>
+
+        <div className="sm:col-span-2">
+          <label htmlFor={`practice-narration-${fieldPrefix}`} className="text-sm font-black text-slate-950">
+            Narration
+          </label>
+          <textarea
+            id={`practice-narration-${fieldPrefix}`}
+            name={`practice-narration-${fieldPrefix}`}
+            rows={3}
+            placeholder="Example: Being goods purchased for cash."
+            value={narration}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxNarrationLength}
+            onChange={(event) => onNarrationChange(event.target.value)}
+            className={`${inputClass} mt-2 resize-y`}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JournalTableFields({
+  canAddRow,
+  fieldPrefix,
+  narration,
+  onAddRow,
+  onChangeNarration,
+  onChangeRow,
+  onChangeTotalCredit,
+  onChangeTotalDebit,
+  onRemoveRow,
+  question,
+  rows,
+  totalCredit,
+  totalDebit,
+}: {
+  canAddRow: boolean;
+  fieldPrefix: string;
+  narration: string;
+  onAddRow: () => void;
+  onChangeNarration: (value: string) => void;
+  onChangeRow: (rowOrder: number, field: keyof EditorRow, value: string) => void;
+  onChangeTotalCredit: (value: string) => void;
+  onChangeTotalDebit: (value: string) => void;
+  onRemoveRow: (rowOrder: number) => void;
+  question: PracticeItYourselfPreviewQuestion;
+  rows: EditorRow[];
+  totalCredit: string;
+  totalDebit: string;
+}) {
+  return (
+    <>
+      <div className="hidden overflow-hidden rounded-2xl border border-slate-200 lg:block">
+        <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-600">
+          <div>Date</div>
+          <div>Particulars</div>
+          <div>L.F.</div>
+          <div>Debit ₹</div>
+          <div>Credit ₹</div>
+          <div>Row</div>
+        </div>
+        <div className="divide-y divide-slate-200">
+          {rows.map((row) => (
+            <PracticeDesktopRow
+              key={row.rowOrder}
+              row={row}
+              fieldPrefix={fieldPrefix}
+              canRemove={rows.length > 2}
+              onChange={onChangeRow}
+              onRemove={onRemoveRow}
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-[0.8fr_2.4fr_0.65fr_0.95fr_0.95fr_auto] gap-3 border-t border-slate-200 bg-slate-50 px-4 py-3">
+          <div />
+          <div className="flex items-center text-sm font-black text-slate-950">Total</div>
+          <div />
+          <input
+            id={`practice-total-debit-${fieldPrefix}`}
+            name={`practice-total-debit-${fieldPrefix}`}
+            inputMode="numeric"
+            aria-label={`${question.title} Total Debit`}
+            placeholder="Total Debit"
+            value={totalDebit}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+            onChange={(event) => onChangeTotalDebit(event.target.value)}
+            className={inputClass}
+          />
+          <input
+            id={`practice-total-credit-${fieldPrefix}`}
+            name={`practice-total-credit-${fieldPrefix}`}
+            inputMode="numeric"
+            aria-label={`${question.title} Total Credit`}
+            placeholder="Total Credit"
+            value={totalCredit}
+            maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+            onChange={(event) => onChangeTotalCredit(event.target.value)}
+            className={inputClass}
+          />
+          <div />
+        </div>
+      </div>
+
+      <div className="space-y-3 lg:hidden">
+        {rows.map((row) => (
+          <PracticeMobileRow
+            key={row.rowOrder}
+            row={row}
+            fieldPrefix={fieldPrefix}
+            canRemove={rows.length > 2}
+            onChange={onChangeRow}
+            onRemove={onRemoveRow}
+          />
+        ))}
+        <fieldset className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <legend className="px-1 text-sm font-black text-slate-950">Totals</legend>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-total-debit-${fieldPrefix}`}>
+                Total Debit ₹
+              </label>
+              <input
+                id={`practice-mobile-total-debit-${fieldPrefix}`}
+                name={`practice-mobile-total-debit-${fieldPrefix}`}
+                inputMode="numeric"
+                placeholder="Total Debit"
+                value={totalDebit}
+                maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+                onChange={(event) => onChangeTotalDebit(event.target.value)}
+                className={`${inputClass} mt-2`}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-slate-700" htmlFor={`practice-mobile-total-credit-${fieldPrefix}`}>
+                Total Credit ₹
+              </label>
+              <input
+                id={`practice-mobile-total-credit-${fieldPrefix}`}
+                name={`practice-mobile-total-credit-${fieldPrefix}`}
+                inputMode="numeric"
+                placeholder="Total Credit"
+                value={totalCredit}
+                maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxAmountLength}
+                onChange={(event) => onChangeTotalCredit(event.target.value)}
+                className={`${inputClass} mt-2`}
+              />
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={onAddRow}
+          disabled={!canAddRow}
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+        >
+          {canAddRow ? "Add row" : "Maximum 6 rows"}
+        </button>
+      </div>
+
+      <div>
+        <label htmlFor={`practice-narration-${fieldPrefix}`} className="text-sm font-black text-slate-950">
+          Narration
+        </label>
+        <textarea
+          id={`practice-narration-${fieldPrefix}`}
+          name={`practice-narration-${fieldPrefix}`}
+          rows={3}
+          placeholder={question.answerInputSchema.narration.placeholder}
+          value={narration}
+          maxLength={JOURNAL_ENTRY_PRACTICE_LIMITS.maxNarrationLength}
+          onChange={(event) => onChangeNarration(event.target.value)}
+          className={`${inputClass} mt-2 resize-y`}
+        />
+      </div>
     </>
   );
 }
@@ -547,6 +740,7 @@ function FeedbackPanel({
   reveal,
   canReveal,
   isRevealing,
+  showNextStepLinks,
   onTryAgain,
   onReveal,
 }: {
@@ -554,6 +748,7 @@ function FeedbackPanel({
   reveal: JournalEntryCorrectAnswerReveal | null;
   canReveal: boolean;
   isRevealing: boolean;
+  showNextStepLinks: boolean;
   onTryAgain: () => void;
   onReveal: () => void;
 }) {
@@ -632,22 +827,28 @@ function FeedbackPanel({
       </div>
 
       {reveal?.available ? <CorrectAnswerReveal reveal={reveal} /> : null}
-      <FeedbackNextStep status={result.status} />
+      <FeedbackNextStep showLinks={showNextStepLinks} status={result.status} />
     </div>
   );
 }
 
-function FeedbackNextStep({ status }: { status: JournalEntryPracticeCheckResult["status"] }) {
-  const message =
-    status === "correct"
-      ? "If your answer is correct, continue learning or revise similar Journal Entries in Practice."
-      : "If you are stuck, reread the rule, use the Explainer for help, and then try this same checker again.";
+function FeedbackNextStep({
+  showLinks,
+  status,
+}: {
+  showLinks: boolean;
+  status: JournalEntryPracticeCheckResult["status"];
+}) {
+  const message = status === "correct"
+    ? "If your answer is correct, continue learning or try the next question."
+    : "If you are stuck, reread the rule and then try this same checker again.";
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <h4 className="text-sm font-black text-slate-950">Next step</h4>
       <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{message}</p>
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      {showLinks ? (
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <a
           href="/journal-entry-solver"
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-200 px-4 text-sm font-black text-cyan-900 transition hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
@@ -660,7 +861,8 @@ function FeedbackNextStep({ status }: { status: JournalEntryPracticeCheckResult[
         >
           Revise in Practice
         </a>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -734,6 +936,33 @@ function createBlankRow(rowOrder: number): EditorRow {
     debitAmount: "",
     creditAmount: "",
   };
+}
+
+function ensureMinimumRows(rows: EditorRow[]) {
+  const nextRows = [...rows];
+
+  while (nextRows.length < 2) {
+    nextRows.push(createBlankRow(nextRows.length + 1));
+  }
+
+  return nextRows;
+}
+
+function getAccountInputValue(particulars: string) {
+  return particulars
+    .replace(/^\s*to\s+/i, "")
+    .replace(/\s+dr\.?\s*$/i, "")
+    .trim();
+}
+
+function formatDebitParticulars(value: string) {
+  const account = getAccountInputValue(value);
+  return account ? `${account} Dr.` : "";
+}
+
+function formatCreditParticulars(value: string) {
+  const account = getAccountInputValue(value);
+  return account ? `To ${account}` : "";
 }
 
 function createAttempt(

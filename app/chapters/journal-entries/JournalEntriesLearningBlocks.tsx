@@ -642,6 +642,7 @@ export function PracticeItYourselfProduction({
       <JournalEntryPracticeEditor
         question={question}
         checkAnswerAction={checkAnswerAction}
+        inputMode="guided-entry"
         revealCorrectAnswerAction={revealCorrectAnswerAction}
         supportNotice="This chapter checker supports this audited question only. No API route, storage, analytics, or existing checker is called."
       />

@@ -89,6 +89,13 @@ function expectNoJournalEntriesExternalActionLinks(html: string) {
   expect(getLinkMarkupWithText(html, "/practice/journal-entries", "Practice")).toBe("");
 }
 
+function getJournalEntryCheckerForms(html: string) {
+  return Array.from(
+    html.matchAll(/<form[^>]*aria-label="[^"]*journal entry checker"[\s\S]*?<\/form>/g),
+    (match) => match[0],
+  );
+}
+
 function getHrefValues(html: string) {
   return Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]);
 }
@@ -1049,14 +1056,28 @@ describe("Production Chapters route", () => {
     expect(html.match(/Feedback will appear here after you check your answer\./g)).toHaveLength(2);
     expect(html.match(/How to try this question/g)).toHaveLength(2);
     expect(html.match(/Write the full entry first, then check your answer\./g)).toHaveLength(2);
+    const checkerForms = getJournalEntryCheckerForms(html);
+    expect(checkerForms).toHaveLength(2);
     expect(html).toContain(SOLD_GOODS_FOR_CASH_PRACTICE_QUESTION_ID);
     expect(html).toContain(PAID_SALARY_BY_BANK_PRACTICE_QUESTION_ID);
-    expect(html).toContain("This chapter checker supports this audited question only.");
     expect(html).toContain("Likely accounts involved: Cash and Sales.");
     expect(html).toContain("Likely accounts involved: Salary and Bank.");
     expect(html).toContain("Analyse the transaction before typing.");
     expect(html).toContain("Decide the debit and credit side before you check.");
     expect(html).toContain("Spelling, account naming, Dr./To, amount, totals, and narration matter in this checker.");
+    checkerForms.forEach((formMarkup) => {
+      expect(formMarkup).toContain("Debit account");
+      expect(formMarkup).toContain("Credit account");
+      expect(formMarkup).toContain("Amount");
+      expect(formMarkup).toContain("Narration");
+      expect(formMarkup).not.toContain("Date");
+      expect(formMarkup).not.toContain("L.F.");
+      expect(formMarkup).not.toContain("Entry row");
+      expect(formMarkup).not.toContain("Remove row");
+      expect(formMarkup).not.toContain("Add row");
+      expect(formMarkup).not.toContain("Total Debit");
+      expect(formMarkup).not.toContain("Total Credit");
+    });
     expectNoJournalEntriesExternalActionLinks(html);
     expect(html).not.toContain("Only these 2 in-chapter checks are live in this section right now.");
     expect(html).not.toContain("Interactive answer checking for this chapter will be enabled in the next controlled migration step.");
@@ -1066,7 +1087,7 @@ describe("Production Chapters route", () => {
     expect(source).toContain("revealJournalEntriesPracticeCorrectAnswer");
     expect(source).toContain("JournalEntryPracticeEditor");
     expect(source).toContain("Read the feedback in this order: accounts, debit/credit side, amount, totals, and narration.");
-    expect(source).toContain("If you are stuck, reread the rule, use the Explainer for help, and then try this same checker again.");
+    expect(source).toContain("If you are stuck, reread the rule and then try this same checker again.");
     expect(source).not.toContain("journal-entry-answer-keys.server");
     expect(source).not.toContain("Cash A/c Dr.");
     expect(source).not.toContain("To Sales A/c");
@@ -1295,7 +1316,18 @@ describe("Production Chapters route", () => {
       const html = renderProductionSection(subtopic.slug);
 
       expect(html).toContain("Check Answer");
-      expect(html).toContain("This chapter checker supports this audited question only.");
+      expect(getJournalEntryCheckerForms(html)).toHaveLength(subtopic.practiceQuestionIds?.length ?? 0);
+      getJournalEntryCheckerForms(html).forEach((formMarkup) => {
+        expect(formMarkup).toContain("Debit account");
+        expect(formMarkup).toContain("Credit account");
+        expect(formMarkup).toContain("Amount");
+        expect(formMarkup).toContain("Narration");
+        expect(formMarkup).not.toContain("Date");
+        expect(formMarkup).not.toContain("L.F.");
+        expect(formMarkup).not.toContain("Entry row");
+        expect(formMarkup).not.toContain("Remove row");
+        expect(formMarkup).not.toContain("Add row");
+      });
       expect(html).not.toContain("Show Correct Answer");
     });
   });
